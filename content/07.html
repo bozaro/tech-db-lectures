@@ -119,3 +119,61 @@ mysql> SHOW STATUS LIKE last_query_cost;
 <h3>Оптимизации COUNT(), MIN() и MAX()</h3>
 <p style="font-size: 80%">Наличие индексов и сведений о возможности хранения NULL-значений в столбцах часто позволяет вообще не вычислять эти выражения. Если применена такая оптимизация, то в плане, выведенном командой EXPLAIN, будет присутствовать фраза «Select tables optimized away» (некоторые таблицы исключены при оптимизации).</p>
 </section>
+
+<section class="slide">
+<h2>Оптимизатор запросов</h2>
+<h3>Вычисление и свертка константных выражений</h3>
+<p style="font-size: 80%">Если MySQL обнаруживает, что выражение можно свернуть в константу, то делает это на стадии оптимизации.</p>
+<pre style="font-size: 75%"><code class="sql">EXPLAIN SELECT film.film_id, film_actor.actor_id
+FROM sakila.film INNER JOIN sakila.film_actor USING (film_id)
+WHERE film.film_id = 1;
+| id | select_type | table      | type  | key            | ref   | rows |
+| 1  | SIMPLE      | film       | const | PRIMARY        | const | 1    |
+| 1  | SIMPLE      | film_actor | ref   | idx_fk_film_id | const | 10   |</code></pre>
+<h3>Покрывающие индексы</h3>
+<p style="font-size: 80%">Если индекс содержит все необходимые запросу столбцы, то MySQL может воспользоваться им, вообще не читая данные таблицы.</p>
+<h3>Оптимизация подзапросов</h3>
+<p style="font-size: 80%">MySQL умеет преобразовывать некоторые виды подзапросов в более эффективные эквивалентные формы, сводя их к поиску по индексу.</p>
+</section>
+
+<section class="slide">
+<h2>Оптимизатор запросов</h2>
+<h3>Раннее завершение</h3>
+<p>MySQL может прекратить обработку запроса (или какой-то шаг обработки), как только поймет, что этот запрос или шаг полностью выполнен.</p>
+<pre style="font-size: 80%"><code class="sql">EXPLAIN SELECT film.film_id FROM sakila.film WHERE film_id = -1;
+| id |...| Extra                                               |
+| 1  |...| Impossible WHERE noticed after reading const tables |</code></pre>
+<h3>Сравнение по списку IN()</h3>
+<p>Во многих СУБД оператор IN() – не более чем синоним нескольких условий OR, поскольку логически они эквивалентны. Но не в MySQL, здесь перечисленные в списке IN()значения сортируются, и для работы с ним применяется быстрый двоичный поиск.</p>
+</section>
+
+<section class="slide">
+<h2>Оптимизатор запросов</h2>
+<h3>Распространение равенства</h3>
+<p>MySQL распознает ситуации, когда в некотором запросе два столбца должны быть равны, – например, в условии JOIN, и распространяет условие WHERE на эквивалентные.</p>
+<pre style="font-size: 80%"><code class="sql">SELECT film.film_id
+FROM sakila.film
+INNER JOIN sakila.film_actor USING(film_id)
+WHERE film.film_id > 500;
+ 
+...
+WHERE film.film_id > 500 AND film_actor.film_id > 500</code></pre>
+</section>
+
+<section class="slide">
+<h2>Соединения (JOIN) в MySQL</h2>
+<pre style="font-size: 90%"><code class="sql">SELECT tbl1.col1, tbl2.col2
+FROM tbl1 INNER JOIN tbl2 USING(col3)
+WHERE tbl1.col1 IN(5,6);
+outer_iter = ITERATOR OVER tbl1 WHERE col1 IN(5,6)
+outer_row = outer_iter.next
+WHILE outer_row
+	inner_iter = ITERATOR OVER tbl2 WHERE col3 = outer_row.col3
+	inner_row = inner_iter.next
+	WHILE inner_row
+		OUTPUT [ outer_row.col1, inner_row.col2 ]
+		inner_row = inner_iter.next
+	END
+	outer_row = outer_iter.next
+END</code></pre>
+</section>
