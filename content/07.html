@@ -17,15 +17,15 @@ title: Лекция 7
 
 <section class="slide">
 <h2>Декомпозиция соединения</h2>
-<pre style="font-size: 75%"><code class="sql">SELECT *
+<pre style="font-size: 90%"><code class="sql">SELECT *
 FROM tag
     JOIN tag_post ON tag_post.tag_id=tag.id
     JOIN post ON tag_post.post_id=post.id
 WHERE tag.tag=mysql;
 
-SELECT * FROM tag WHERE tag=mysql;
-SELECT * FROM tag_post WHERE tag_id=1234;
-SELECT * FROM post WHERE post.id in (123,456,567,9098,8904);
+SELECT * FROM tag WHERE tag = "mysql";
+SELECT * FROM tag_post WHERE tag_id = 1234;
+SELECT * FROM post WHERE post.id IN (123,456,567,9098,8904);
 </code></pre>
 </section>
 
@@ -50,7 +50,7 @@ SELECT * FROM post WHERE post.id in (123,456,567,9098,8904);
 
 <section class="slide">
 <h2>Состояние запроса</h2>
-<dl style="font-size: 60%">
+<dl style="font-size: 75%">
 	<dt>Sleep</dt>
 	<dd>Поток ожидает поступления нового запроса от клиента.</dd>
 
@@ -97,7 +97,7 @@ mysql> SHOW STATUS LIKE last_query_cost;
 
 <section class="slide">
 <h2>Оптимизатор запросов</h2>
-<ul style="font-size: 80%">
+<ul style="font-size: 90%">
 	<li>Некорректная статистика.</li>
 	<li>Принятая метрика стоимости не всегда эквивалентна истинной стоимости выполнения запроса.</li>
 	<li>Представление MySQL о том, что такое «оптимально», может расходиться с вашим представлением.</li>
