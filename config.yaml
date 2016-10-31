@@ -1,0 +1,12 @@
+baseURL: "/"
+languageCode: "ru-ru"
+title: "СУБД"
+theme: shower
+relativeURLs: true
+
+disableRSS: true
+disable404: true
+metadataFormat: "yaml"
+
+params:
+  author: "Навроцкий Артем"
