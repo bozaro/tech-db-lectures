@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html lang="{{ .Site.LanguageCode }}">
 <head>
-	<title>{{ .Site.Title }}</title>
+	<title>{{ .Site.Title }}. {{ .Title }}</title>
 	<meta charset="utf-8">
 	<meta http-equiv="x-ua-compatible" content="ie=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="{{ .Site.BaseURL }}shower/themes/ribbon/styles/screen-16x10.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css">
 </head>
 <body class="shower list">
 	<header class="caption">
-		<h1>{{ .Site.Title }}</h1>
+		<h1>{{ .Site.Title }}. {{ .Title }}</h1>
 	</header>
 	{{ partial "slide-first.html" . }}
 	{{ .Content }}
 	{{ partial "slide-last.html" . }}
 	<div class="progress"></div>
 	<script src="{{ .Site.BaseURL }}shower/shower.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
 </body>
 </html>

@@ -1,4 +1,31 @@
 ---
 title: Лекция 7
 ---
-{{partial "side-slide.html" . }}
+<section class="slide">
+<h2>Оптимизируйте доступ к данным:</h2>
+<ul>
+	<li>Не извлекает ли приложение больше данных, чем нужно;</li>
+	<li>Не анализирует ли сервер MySQL больше строк, чем это необходимо;</li>
+</ul>
+Типичные ошибки:
+<ul>
+	<li>Выборка ненужных строк;</li>
+	<li>Выборка всех столбцов из соединения нескольких таблиц;</li>
+	<li>Выборка всех столбцов.</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Декомпозиция соединения</h2>
+<pre style="font-size: 80%"><code>
+SELECT *
+FROM tag
+    JOIN tag_post ON tag_post.tag_id=tag.id
+    JOIN post ON tag_post.post_id=post.id
+WHERE tag.tag=mysql;
+
+SELECT * FROM tag WHERE tag=mysql;
+SELECT * FROM tag_post WHERE tag_id=1234;
+SELECT * FROM post WHERE post.id in (123,456,567,9098,8904);
+</code></pre>
+</section>
