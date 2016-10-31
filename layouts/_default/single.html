@@ -7,7 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="{{ .Site.BaseURL }}shower/themes/ribbon/styles/screen-16x10.css">
 	<link rel="stylesheet" href="{{ .Site.BaseURL }}css/style.css">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css">
+	<link rel="stylesheet" href="{{ .Site.BaseURL }}highlight.js/styles/default.min.css">
 </head>
 <body class="shower list">
 	<header class="caption">
@@ -18,7 +18,7 @@
 	{{ partial "slide-last.html" . }}
 	<div class="progress"></div>
 	<script src="{{ .Site.BaseURL }}shower/shower.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+	<script src="{{ .Site.BaseURL }}highlight.js/highlight.min.js"></script>
 	<script>hljs.initHighlightingOnLoad();</script>
 </body>
 </html>
