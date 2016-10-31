@@ -1,3 +1,13 @@
 .slide {
     padding-top: 60px;
+    line-height: 1.5;
+}
+.slide p {
+	margin-bottom: 10px;
+}
+.slide pre {
+	margin-bottom: 10px;
+}
+h3 {
+	font-weight: bold;
 }

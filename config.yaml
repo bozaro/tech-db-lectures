@@ -1,5 +1,5 @@
 baseURL: "/"
-languageCode: "ru-ru"
+languageCode: "ru"
 title: "СУБД"
 theme: shower
 relativeURLs: true
