@@ -11,7 +11,8 @@
 	<header class="caption">
 		<h1>{{ .Site.Title }}</h1>
 	</header>
-	{{ partial "side-slide.html" . }}
+	{{ partial "slide-first.html" . }}
+	{{ partial "slide-last.html" . }}
 	<div class="progress"></div>
 	<script src="{{ .Site.BaseURL }}shower/shower.min.js"></script>
 </body>
