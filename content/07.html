@@ -479,3 +479,60 @@ SELECT a FROM mrg;
 	<li>Составляющие таблицы читаются в порядке, указанном в команде CREATE TABLE.</li>
 </ul>
 </section>
+
+<section class="slide">
+<h2>Секционирование</h2>
+<pre><code class="sql">CREATE TABLE orders_range (
+    customer_surname VARCHAR(30),
+    store_id INT,
+    salesperson_id INT,
+    order_date DATE,
+    note VARCHAR(500)
+) ENGINE = MYISAM
+PARTITION BY RANGE (YEAR (order_date)) (
+    PARTITION p_old VALUES LESS THAN(2008),
+    PARTITION p_2008 VALUES LESS THAN(2009),
+    PARTITION p_2009 VALUES LESS THAN(MAXVALUE)
+);</code></pre>
+</section>
+
+<section class="slide">
+<h2>Секционирование</h2>
+<h3>RANGE</h3>
+<p>По диапазону значений</p>
+<pre><code class="sql">PARTITION BY RANGE (store_id) (
+    PARTITION p0 VALUES LESS THAN (10),
+    PARTITION p1 VALUES LESS THAN (20),
+    PARTITION p3 VALUES LESS THAN (30)
+);</code></pre>
+</section>
+
+<section class="slide">
+<h2>Секционирование</h2>
+<h3>LIST</h3>
+<p>По точному списку значений</p>
+<pre><code class="sql">PARTITION BY LIST(store_id) (
+    PARTITION pNorth VALUES IN (3,5,6,9,17),
+    PARTITION pEast VALUES IN (1,2,10,11,19,20)
+);</code></pre>
+</section>
+
+<section class="slide">
+<h2>Секционирование</h2>
+<h3>KEY</h3>
+<p>Почти то же самое что и HASH, но по ключу</p>
+<pre><code class="sql">PARTITION BY KEY(s1)
+PARTITIONS 10;</code></pre>
+</section>
+
+<section class="slide">
+<h2>Секционирование</h2>
+<ul style="font-size: 90%">
+	<li>Все секции должны управляться одной и той же подсистемой хранения. Например, нельзя сжать только часть секций, хотя для составляющих объединенной таблицы это допустимо.</li>
+	<li>Любой уникальный индекс над секционированной таблицей должен содержать столбцы, на которые ссылается функция секционирования. </li>
+	<li>Хотя сервер MySQL может обойтись без доступа к каждой секции при обработке запроса к секционированной таблице, он тем менее ставит блокировки на все секции.</li>
+	<li>Существует ряд ограничений на функции и выражения, которые можно использовать в механизме секционирования.</li>
+	<li>Некоторые подсистемы хранения вообще не поддерживают секционирование.</li>
+	<li>Внешние ключи не работают.</li>
+</ul>
+</section>
