@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.LanguageCode }}">
+<head>
+	<title>{{ .Site.Title }}. {{ .Title }}</title>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	{{ .Hugo.Generator }}
+	<link rel="stylesheet" href="{{ .Site.BaseURL }}css/style.css">
+</head>
+<body class="index">
+	<h1>{{ .Site.Title }}</h1>
+	<p>{{ .Site.Params.description }}</p>
+	<ul>{{ range .Data.Pages }}
+		<li>
+			<a href="{{ .Permalink }}">{{ .Title }}</a>
+			<p>{{ .Description }}</p>
+		</li>{{ end }}
+	</ul>
+</body>
+</html>

@@ -2,9 +2,9 @@ baseUrl: "/"
 languageCode: "ru"
 title: "СУБД"
 theme: shower
+
 canonifyURLs: false
 relativeURLs: true
-
 disableRSS: true
 disable404: true
 metadataFormat: "yaml"
@@ -15,3 +15,4 @@ blackfriday:
 params:
   author: "Навроцкий Артем"
   agent: navrotskiy@corp.mail.ru
+  description: "Лекции для Технопарка по курсу СУБД"
