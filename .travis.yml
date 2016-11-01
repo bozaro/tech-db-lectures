@@ -1,0 +1,12 @@
+sudo: false
+script:
+- ./hugo.sh
+after_success: |
+  [ $TRAVIS_BRANCH = master ] &&
+  [ $TRAVIS_PULL_REQUEST = false ] &&
+  pip install ghp-import --user $USER &&
+  $HOME/.local/bin/ghp-import -n public &&
+  git push -qf https://${TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
+env:
+  global:
+    secure: "goz0WrKCSvInvjeXIAqKkkEf4b3HD/hlMi0vFt6lIfbEeIUAF8q8A6qQT+O8SiR3Wr+FGHZxFGEfiowxOpUV33S0mKFb3xodbsHXnWDkqd4dR8pcVhBr7b+1BZY6cuYSaqOXyQ+CgiBB/6OSHjxl1Ik6aNrvHwy1RJA0Q1XlrcvRJDL47HPL1nS/qoNTm+1KwALcLJWSO5CrpHJjq5St8PvMicslhBgQH0XsIig4FXa4NrLMVUxOTJRNlzuVpqTUYvD7bPilpsbxAwsrTUx2Z2chx43JBty5X0caxPTHZuahRKprdVe4kLgbHdql37sOlJzCpio5nJ42/nYu5QvgcQrcP0VG8+I9WrI+dpS5qbms2PXi2WziF36dbM8CphP2vvxtKlGpjESaNm4YmNY/kff0hHnVTIZpZZtriA4uohe+27amMyBtiTpHun6PACDwEn+dhaCwsHGOU0jknkqPcUAmPR/5Ydpc4/8GRKFsLgsTkCb6LoPW7kbUihziUD35IUu+2LfxvViKgfI4C3+1DWBwfj9HyAW6ulOp26lzOAb4l6mSRvNXfrOK+rZTqKzwjqcNSkqFcqzp1ttCUizIzMsa0xF7AxrtucSYiUHjcbguYnZlaInR9xsscCvTG6imzc69+AoLU4WNZ6YUEZnrIEFWjPP5YHoj44up6vkpfcY="
