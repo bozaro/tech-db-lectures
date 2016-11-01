@@ -1,0 +1,380 @@
+---
+title: Лекция 6
+---
+<section class="slide">
+<h2>Оптимизация работы с БД</h2>
+<ul>
+	<li>Построение/удаление индексов;</li>
+	<li>Модификация запросов;</li>
+	<li>Нормализация/денормализация данных;</li>
+	<li>Уменьшение времени блокировок (более короткие транзакции);</li>
+	<li>Группировка UPDATE-запросов;</li>
+	<li>Специальные средства для вставки данных.</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Построение/удаление индексов</h2>
+<h3>База для примера</h3>
+<ul style="font-size: 70%">
+	<li>База с сайта: <a href="https://movielens.org/">https://movielens.org/</a></li>
+	<li>Объем в .csv-файлах: 613.3Mb:
+		<ul>
+			<li>links.csv: 0.7Mb</li>
+			<li>movies.csv: 1.6Mb</li>
+			<li>ratings.csv: 591Mb</li>
+			<li>tags.csv: 20Mb</li>
+		</ul>
+	</li>
+	<li>Размер базы данных: 858.2Mb:
+		<ul>
+			<li>genres: 19 rows, 0.016Mb</li>
+			<li>links: 34 560 rows, 1.5Mb</li>
+			<li>movie_genres: 65 736 rows, 2.5Mb</li>
+			<li>movie_tags: 585 984 rows, 24.5Mb</li>
+			<li>movies: 34 333 rows, 2.5Mb</li>
+			<li>rating: 20 150 654 rows, 822.0Mb</li>
+			<li>tags: 36 229 rows, 3.5Mb</li>
+		</ul>
+	</li>
+	<li>Запрос для примера: вывести все комедии про зомби по рейтингу.</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Построение/удаление индексов</h2>
+<h3>Начальный вариант:</h3>
+<pre style="font-size: 90%"><code class="sql"># Query_time: 186.225664  Lock_time: 0.000000
+# Rows_sent: 15  Rows_examined: 23 536 988
+select m.id, m.title, avg(r.rating)
+from movies m
+join movie_genres gm on (gm.movie_id = m.id)
+join genres  g on (g.id = gm.genre_id)
+join movie_tags tm on (tm.movie_id = m.id)
+join tags t on (t.id = tm.tag_id)
+join ratings r on (r.movie_id = m.id)
+where g.name = 'Comedy'
+  and t.name = 'Zombie'
+group by m.id, m.title
+order by avg(r.rating) desc
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Построение/удаление индексов</h2>
+<h3>После создания индексов для Foreign Key:</h3>
+<pre style="font-size: 90%"><code class="sql"># Query_time: 194.333533  Lock_time: 0.000000
+# Rows_sent: 15  Rows_examined: 633 731
+select m.id, m.title, avg(r.rating)
+from movies m
+join movie_genres gm on (gm.movie_id = m.id)
+join genres  g on (g.id = gm.genre_id)
+join movie_tags tm on (tm.movie_id = m.id)
+join tags t on (t.id = tm.tag_id)
+join ratings r on (r.movie_id = m.id)
+where g.name = 'Comedy'
+  and t.name = 'Zombie'
+group by m.id, m.title
+order by avg(r.rating) desc
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Построение/удаление индексов</h2>
+<h3>После создания покрывающего индекса по ratings:</h3>
+<pre style="font-size: 90%"><code class="sql"># Query_time: 1.264987  Lock_time: 0.000000
+# Rows_sent: 15  Rows_examined: 634 202
+select m.id, m.title, avg(r.rating)
+from movies m
+join movie_genres gm on (gm.movie_id = m.id)
+join genres  g on (g.id = gm.genre_id)
+join movie_tags tm on (tm.movie_id = m.id)
+join tags t on (t.id = tm.tag_id)
+join ratings r on (r.movie_id = m.id)
+where g.name = 'Comedy'
+  and t.name = 'Zombie'
+group by m.id, m.title
+order by avg(r.rating) desc
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Построение/удаление индексов</h2>
+<h3>Итого:</h3>
+<ul>
+	<li>Без индексов: 186.22 sec, 23 536 988 rows</li>
+	<li>С индексами FOREIGN KEY: 194.33 sec, 633 731 rows</li>
+	<li>С покрывающим индексом: 1.26 sec, 634 202 rows</li>
+</ul>
+<p>Удалось ускорить в 147.79 раз! Победа?</p>
+<div style="next">
+	<img src="not-good-enought.png" style="float: right; width: 35%">
+	<p>Что-то не похоже :(</p>
+</div>
+</section>
+
+<section class="slide">
+<h2>Оптимизируйте доступ к данным:</h2>
+<ul>
+	<li>Не извлекает ли приложение больше данных, чем нужно;</li>
+	<li>Не анализирует ли сервер MySQL больше строк, чем это необходимо;</li>
+</ul>
+Типичные ошибки:
+<ul>
+	<li>Выборка ненужных строк;</li>
+	<li>Выборка всех столбцов из соединения нескольких таблиц;</li>
+	<li>Выборка всех столбцов.</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Модификация запросов</h2>
+<h3>Что с этим запросом не так?</h3>
+<pre style="font-size: 90%"><code class="sql"># Query_time: 1.264987  Lock_time: 0.000000
+# Rows_sent: 15  Rows_examined: 634 202
+select m.id, m.title, avg(r.rating)
+from movies m
+join movie_genres gm on (gm.movie_id = m.id)
+join genres  g on (g.id = gm.genre_id)
+join movie_tags tm on (tm.movie_id = m.id)
+join tags t on (t.id = tm.tag_id)
+join ratings r on (r.movie_id = m.id)
+where g.name = 'Comedy'
+  and t.name = 'Zombie'
+group by m.id, m.title
+order by avg(r.rating) desc
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Модификация запросов</h2>
+<h3>Переосмысление запроса:</h3>
+<pre style="font-size: 70%"><code class="sql"># Query_time: 14.323418  Rows_examined: 23 618 206 (без индексов)
+# Query_time: 25.683016  Rows_examined: 81 575 (с индексами)
+# Query_time:  0.178307  Rows_examined: 82 046 (с покрывающим индексом)
+
+select m.id, m.title, m.cnt, avg(r.rating)
+from (
+  select m.id, m.title, count(*) as cnt
+  from movies m
+  join movie_genres gm on (gm.movie_id = m.id)
+  join genres g on (g.id = gm.genre_id)
+  join movie_tags tm on (tm.movie_id = m.id)
+  join tags t on (t.id = tm.tag_id)
+  where g.name = 'Comedy‘
+    and t.name = 'Zombie‘
+  group by m.id, m.title
+) m
+join ratings r on (r.movie_id = m.id)
+group by m.id, m.title, m.cnt
+order by avg(r.rating) desc
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Нормализация</h2>
+<ul>
+	<li>Нормализованные таблицы обычно обновляются быстрее, чем ненормализованные.</li>
+	<li>Когда данные хорошо нормализованы, они либо редко дублируются, либо не дублируются совсем. Так что изменять приходится меньше данных.</li>
+	<li>Нормализованные таблицы обычно меньше по размеру, поэтому лучше помещаются в памяти и их производительность выше.</li>
+	<li>Из-за отсутствия избыточных данных реже возникает необходимость в запросах с фразами DISTINCT или GROUP  BY для извлечения списков значений.</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Денормализация</h2>
+<dl style="font-size: 75%">
+	<dt>Денормализация</dt>
+	<dd>Намеренное приведение структуры базы данных в состояние, не соответствующее критериям нормализации, обычно проводимое с целью ускорения операций чтения из базы за счет добавления избыточных данных.</dd>
+</dl>
+<ul>
+	<li>Обновление данных триггерах.</li>
+	<li>Обновление данных по расписанию.</li>
+	<li>Инкрементальное обновление данных.</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Нормализация/денормализация</h2>
+<pre style="font-size: 85%"><code class="sql">alter table movies
+  add column rating_sum float8 default 0 not null,
+  add column rating_cnt int default 0 not null;
+
+update movies m join (
+  select movie_id, count(*) as rating_cnt, sum(rating) as rating_sum
+  from ratings
+  group by movie_id
+) r on (m.id = r.movie_id)
+Set
+  m.rating_cnt = r.rating_cnt,
+  m.rating_sum = r.rating_sum;
+
+create trigger after insert ...;
+create trigger after update ...;
+create trigger after delete ...;
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Нормализация/денормализация</h2>
+<h3>После денормализации:</h3>
+<pre style="font-size: 85%"><code class="sql"># Query_time: 0.015626  Lock_time: 0.000000
+# Rows_sent: 15  Rows_examined: 813
+select m.id, m.title, case
+  when m.rating_cnt > 0
+  then m.rating_sum / m.rating_cnt
+  else null
+end
+from movies m
+join movie_genres gm on (gm.movie_id = m.id)
+join genres g on (g.id = gm.genre_id)
+join movie_tags tm on (tm.movie_id = m.id)
+join tags t on (t.id = tm.tag_id)
+where g.name = 'Comedy'
+  and t.name = 'Zombie'
+group by m.id, m.title
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Уменьшение времени блокировок</h2>
+<p>Уменьшение времени блокировок за счет избавления от крупных запросов вида «обновить всё».</p>
+<ul>
+	<li>Разбиение запроса на более мелкие;</li>
+	<li>Модификация схемы данных для избавления от крупных запросов.</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Разбиение запроса на более мелкие</h2>
+<p>До:</p>
+<pre><code class="sql">DELETE FROM work_logs
+WHERE created_at > ADDDATE(DATE(NOW()), INTERVAL -90 DAY);
+</code></pre>
+<div class="next">
+	<p>После (выполнять в цикле):</p>
+	<pre><code class="sql">BEGIN;
+DELETE FROM work_logs
+WHERE created_at > ADDDATE(DATE(NOW()), INTERVAL -90 DAY)
+LIMIT 10000;
+COMMIT;
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Модификация схемы</h2>
+<p>До:</p>
+<pre><code class="sql">BEGIN;
+  INSERT INTO spent_daily
+  SELECT :day, level, SUM(spent_daily) FROM players
+  GROUP BY level;
+
+  UPDATE players SET spent_daily = 0;
+END;
+
+UPDATE players SET
+  spent_day = spent_day + :delta,
+  money = money - :delta
+WHERE id = :id;
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Модификация схемы</h2>
+<p>После:</p>
+<pre style="font-size: 65%"><code class="sql">BEGIN;
+  INSERT INTO spent_daily
+  SELECT :day, level, SUM(CASE
+    WHEN spent_day = :day THEN spent_prev
+    WHEN spent_day = :day - 1 THEN spent_last
+  END) FROM players;
+END;
+
+UPDATE players SET
+  spent_prev = CASE
+    WHEN spent_day = :day THEN spent_prev
+    WHEN spent_day = :day - 1 THEN spent_last
+    ELSE 0
+  END,
+  spent_last = CASE
+    WHEN spent_day = :day THEN spent_last ELSE 0
+  END + :delta,
+  spent_day = :day,
+  money = money - :delta
+WHERE id = :id;
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Группировка UPDATE</h2>
+<img src="long-item-name.png" style="float: right">
+<p>Массовая замена сгенерированных ресурсов на один с мета-данными.</p>
+<ul>
+	<li>Кол-во ресурсов: ~30K записей.</li>
+	<li>Размер таблицы: ~10М записей.</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Группировка UPDATE</h2>
+<p>Решение «в лоб»:</p>
+<pre><code class="sql">UPDATE items SET res_id = 73534, level = 1, meta = 1001
+WHERE res_id = 40477;
+UPDATE items SET res_id = 73534, level = 1, meta = 1201
+WHERE res_id = 40478;
+UPDATE items SET res_id = 73534, level = 2, meta = 1031
+WHERE res_id = 40479;
+…
+UPDATE items SET res_id = 73534, level = 80, meta = 7641
+WHERE res_id = 70477;</code></pre>
+</section>
+
+<section class="slide">
+<h2>Группировка UPDATE</h2>
+<p>Более красивое решение:</p>
+<pre style="font-size: 80%"><code class="sql">CREATE TEMPORARY TABLE tmp_items (
+  res_id INT,
+  level SMALLINT,
+  meta VARBINARY(64)
+) ENGINE = MEMORY;
+INSERT INTO items VALUES
+  (1, 1001, 40477),
+  (1, 1201, 40478),
+  …
+  (80, 7641, 70477);
+UPDATE items I JOIN tmp_items t ON (i.res_id = t.res_id)
+SET
+  i.res_id = 73534,
+  i.level = t.level,
+  i.meta = t.meta;</code></pre>
+</section>
+
+<section class="slide">
+<h2>Массовая вставка данных</h2>
+<p>Загрузка данных через LOAD DATA гораздо быстрее:</p>
+<pre><code class="sql">load data local infile 'tags.csv'
+into table movie_tags
+fields
+  terminated by ','
+  enclosed by '"'
+  escaped by ''
+lines
+  terminated by '\r\n'
+ignore 1 lines
+(user_id, movie_id, tag, @created)
+set created = from_unixtime(@created);</code></pre>
+</section>
+
+<section class="slide">
+<h2>Домашнее задание №3</h2>
+<p>К следующему рубежному контролю надо будет сделать задание №3.</p>
+<p>К рубежному контролю будут допущены только те, кто сделал ДЗ №3.</p>
+<div style="width: 100%; height: 60%; display: table">
+<div style="vertical-align: bottom; display: table-cell; text-align: right;">
+<img src="homework-required.png" style="width: 60%">
+</div>
+</div>
+</section>
