@@ -44,7 +44,7 @@ SELECT * FROM post WHERE post.id IN (123,456,567,9098,8904);
 <section class="slide">
 <h2>Выполнение запросов</h2>
 <div style="text-align: center; height: 100%">
-	<img style="height: 70%" src="../img/07/executing.png" />
+	<img style="height: 70%" src="executing.png" />
 </div>
 </section>
 
@@ -176,4 +176,306 @@ WHILE outer_row
 	END
 	outer_row = outer_iter.next
 END</code></pre>
+</section>
+
+<section class="slide">
+<h2>Соединения (JOIN) в MySQL</h2>
+<div style="text-align: center; height: 100%">
+	<img style="height: 70%" src="join.png" />
+</div>
+</section>
+
+<section class="slide">
+<h2>План выполнения</h2>
+<div style="text-align: center; height: 100%">
+	<img style="width: 50%" src="execution-plan-1.png" />
+	<img style="width: 40%" src="execution-plan-2.png" />
+</div>
+</section>
+
+<section class="slide">
+<h2>Оптимизатор сортировки</h2>
+<h3>Двухпроходный (старый)</h3>
+<p>Читает указатели на строки и столбцы, упомянутые во фразе ORDER BY, сортирует их, затем проходит по отсортированному списку и снова читает исходные строки, чтобы вывести результат.</p>
+<h3>Однопроходный (новый)</h3>
+<p>Читает все необходимые запросу столбцы, сортирует строки по столбцам, упомянутым во фразе ORDER BY, проходит по отсортированному списку и выводит заданные столбцы. Следовательно, в буфер сортировки поместится меньше строк и надо будет выполнить больше циклов слияния.</p>
+</section>
+
+<section class="slide">
+<h2>Не коррелированные подзапросы</h2>
+<pre style="font-size: 90%"><code class="sql">SELECT * FROM sakila.film
+WHERE film_id IN (
+  SELECT film_id FROM sakila.film_actor WHERE actor_id = 1
+);
+</code></pre>
+<pre class="next" style="font-size: 90%"><code class="sql">
+SELECT GROUP_CONCAT(film_id)
+FROM sakila.film_actor 
+WHERE actor_id = 1;
+-- Result: 1,23,25,106,140,166,277,361,438,499,506,509,605,635
+ 
+SELECT * FROM sakila.film
+WHERE film_id
+IN (1,23,25,106,140,166,277,361,438,499,506,509,605,635);
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Коррелированные подзапросы</h2>
+<pre style="font-size: 90%"><code class="sql">SELECT * FROM sakila.film
+WHERE film_id IN (
+  SELECT film_id FROM sakila.film_actor WHERE actor_id = 1
+);
+
+SELECT * FROM sakila.film
+WHERE EXISTS (
+  SELECT * FROM sakila.film_actor
+  WHERE actor_id = 1 AND film_actor.film_id = film.film_id
+);
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Слияние индексов</h2>
+<pre><code class="sql">SELECT film_id, actor_id FROM sakila.film_actor 
+WHERE actor_id = 1 OR film_id = 1;
+</code></pre>
+<pre class="next"><code class="sql">
+SELECT film_id, actor_id FROM sakila.film_actor 
+WHERE actor_id = 1
+UNION ALL
+SELECT film_id, actor_id FROM sakila.film_actor 
+WHERE film_id = 1 AND actor_id &lt;&gt; 1;
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Непоследовательный просмотр индексов</h2>
+<pre style="font-size: 75%"><code class="sql">SELECT ... FROM tbl WHERE a BETWEEN 1 AND 4 AND b BETWEEN 2 AND 3;</code></pre>
+<div style="text-align: center; height: 100%">
+	<img style="height: 60%" src="index-jump-1.png" />
+</div>
+</section>
+
+<section class="slide">
+<h2>Непоследовательный просмотр индексов</h2>
+<pre style="font-size: 75%"><code class="sql">SELECT ... FROM tbl WHERE a IN (1, 2, 3, 4) AND b BETWEEN 2 AND 3;</code></pre>
+<div style="text-align: center; height: 100%">
+	<img style="height: 60%" src="index-jump-2.png" />
+</div>
+</section>
+
+<section class="slide">
+<h2>Непоследовательный просмотр индексов</h2>
+<pre style="font-size: 90%"><code class="sql">EXPLAIN SELECT actor_id, MAX(film_id)
+FROM sakila.film_actor
+GROUP BY actor_id\G
+********************* 1. row **************************
+id: 1
+select_type: SIMPLE
+table: film_actor
+type: range
+possible_keys: NULL
+key: PRIMARY
+key_len: 2
+Ограничения оптимизатора MySQL 241
+ref: NULL
+rows: 396
+Extra: Using index for group-by</code></pre>
+</section>
+
+<section class="slide">
+<h2>Непоследовательный просмотр индексов</h2>
+<pre><code class="sql">SELECT MIN(actor_id) FROM sakila.actor 
+WHERE first_name = 'PENELOPE';</code></pre>
+<pre class="next"><code class="sql">
+SELECT actor_id FROM sakila.actor USE INDEX(PRIMARY)
+WHERE first_name = 'PENELOPE' LIMIT 1;</code></pre>
+</section>
+
+<section class="slide">
+<h2>SELECT &amp; UPDATE</h2>
+<pre style="font-size: 80%"><code class="sql">UPDATE tbl AS outer_tbl
+SET cnt = (
+    SELECT COUNT(*) FROM tbl AS inner_tbl
+    WHERE inner_tbl.type = outer_tbl.type
+);</code></pre>
+<pre style="font-size: 80%" class="next"><code>
+ERROR 1093 (HY000): You can’t specify target table
+‘outer_tbl’ for update in FROM clause</code></pre>
+<pre style="font-size: 80%" class="next"><code>
+UPDATE tbl
+INNER JOIN (
+    SELECT type, COUNT(*) AS cnt
+    FROM tbl
+    GROUP BY type
+) AS der USING (type)
+SET tbl.cnt = der.cnt;</code></pre>
+</section>
+
+<section class="slide">
+<h2>Что делает COUNT()</h2>
+<p><b>COUNT()</b> ― это особая функция, которая решает две очень разные задачи: подсчитывает значения и строки.</p>
+</p>Значение ― это выражение, отличное от NULL.</p>
+<p><b>COUNT(*)</b> просто подсчитывает количество строк в результирующем наборе.</p>
+<p>Если вы хотите знать, сколько строк в результирующем наборе, всегда употребляйте OUNT(*).</p>
+<h3>МИФЫ:</h3>
+<p>Для таблиц типа MyISAM запросы, содержащие функцию COUNT(), выполняются очень быстро.</p>
+</section>
+
+<section class="slide">
+<h2>Оптимизация COUNT()</h2>
+<pre style="font-size: 75%"><code class="sql">SELECT COUNT(*) FROM world.City WHERE ID > 5;</code></pre>
+<pre style="font-size: 75%" class="next"><code class="sql">
+SELECT (SELECT COUNT(*) FROM world.City) - COUNT(*)
+FROM world.City WHERE ID <= 5;</code></pre>
+<pre style="font-size: 75%" class="next"><code class="sql">
+SELECT COUNT(color= blue OR color= red) FROM items;</code></pre>
+<pre style="font-size: 75%" class="next"><code class="sql">
+SELECT COUNT(*) FROM items 
+WHERE color= blue AND color= red;</code></pre>
+<pre style="font-size: 75%" class="next"><code class="sql">
+SELECT SUM(IF(color = blue, 1, 0)) AS blue,
+SUM(IF(color = red, 1, 0)) AS red FROM items;</code></pre>
+<pre style="font-size: 75%" class="next"><code class="sql">
+SELECT
+  COUNT(color = blue OR NULL) AS blue,
+  COUNT(color = red OR NULL) AS red
+FROM items;
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Оптимизация запросов с JOIN</h2>
+<ul>
+	<li>Стройте индексы по столбцам, используемым во фразах ON или USING.</li>
+	<li>При добавлении индексов учитывайте порядок соединения. В общем случае следует индексировать только вторую таблицу в порядке соединения, если, конечно, индекс не нужен для каких-то других целей.</li>
+	<li>Старайтесь, чтобы в выражениях GROUP BY и ORDER BY встречались столбцы только из одной таблицы, тогда у MySQL появится возможность воспользоваться для этой операции индексом.</li>
+	<li>Будьте внимательны при переходе на новую версию MySQL, поскольку в разные моменты изменялись синтаксис соединения, приоритеты операторов и другие аспекты поведения.</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Оптимизация GROUP BY и DISTINCT</h2>
+<pre style="font-size: 80%"><code class="sql">SELECT actor.first_name, actor.last_name, COUNT(*)
+FROM sakila.film_actor
+    INNER JOIN sakila.actor USING (actor_id)
+GROUP BY actor.first_name, actor.last_name;</code></pre>
+<pre style="font-size: 80%" class="next"><code class="sql">
+SELECT actor.first_name, actor.last_name, COUNT(*)
+FROM sakila.film_actor
+    INNER JOIN sakila.actor USING (actor_id)
+GROUP BY film_actor.actor_id;</code></pre>
+<pre style="font-size: 80%" class="next"><code class="sql">
+SELECT MIN(actor.first_name), MAX(actor.last_name), COUNT(*)
+FROM sakila.film_actor
+    INNER JOIN sakila.actor USING (actor_id)
+GROUP BY film_actor.actor_id;
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Оптимизация GROUP BY и DISTINCT</h2>
+<pre style="font-size: 80%"><code class="sql">SELECT actor.first_name, actor.last_name, COUNT(*)
+FROM sakila.film_actor
+    INNER JOIN sakila.actor USING (actor_id)
+GROUP BY actor.first_name, actor.last_name;</code></pre>
+<pre style="font-size: 80%" class="next"><code class="sql">
+SELECT actor.first_name, actor.last_name, c.cnt
+FROM sakila.actor
+INNER JOIN (
+    SELECT actor_id, COUNT(*) AS cnt
+    FROM sakila.film_actor
+    GROUP BY actor_id
+) AS c USING (actor_id);</code></pre>
+</section>
+
+<section class="slide">
+<h2>Оптимизация LIMIT со смещением</h2>
+<pre style="font-size: 80%"><code class="sql">SELECT film_id, description 
+FROM sakila.film 
+ORDER BY title 
+LIMIT 50, 5;</code></pre>
+<pre style="font-size: 80%" class="next"><code class="sql">
+SELECT film.film_id, film.description
+FROM sakila.film
+INNER JOIN (
+    SELECT film_id FROM sakila.film
+    ORDER BY title LIMIT 50, 5
+) AS lim USING(film_id);</code></pre>
+<pre style="font-size: 80%" class="next"><code class="sql">
+SELECT film_id, description FROM sakila.film
+WHERE position BETWEEN 50 AND 54 ORDER BY position;
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>SQL_CALC_FOUND_ROWS</h2>
+<pre><code class="sql">SELECT SQL_CALC_FOUND_ROWS film_id, description 
+FROM sakila.film 
+ORDER BY title 
+LIMIT 50, 5;</code></pre>
+</section>
+
+<section class="slide">
+<h2>Кэш запросов</h2>
+<ul>
+	<li>Перед началом обработки запроса на чтение нужно проверить, есть ли он в кэше.</li>
+	<li>Если запрос допускает кэширование, но еще не помещен в кэш, то нужно потратить некоторое время на запись в кэш сгенерированных результатов.</li>
+	<li>Наконец, при обработке любого запроса на запись необходимо сделать недействительными все записи в кэше, в которых встречается измененная таблица.</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Кэш запросов</h2>
+<div style="text-align: center; height: 100%">
+	<img style="height: 70%" src="query-cache-1.png" />
+</div>
+</section>
+
+<section class="slide">
+<h2>Кэш запросов</h2>
+<div style="text-align: center; height: 100%">
+	<img style="height: 70%" src="query-cache-2.png" />
+</div>
+</section>
+
+<section class="slide white">
+<h2>Объединенные таблицы и секционирование</h2>
+Позволяют:
+<ul>
+	<li>Отделить статические данные от изменяющихся;</li>
+	<li>Воспользоваться физической близостью взаимосвязанных данных для оптимизации запросов;</li>
+	<li>Проектировать таблицы так, чтобы запрос обращался к возможно меньшему объему данных;</li>
+	<li>Упростить обслуживание очень больших наборов данных<br/>
+(в этом вопросе объединенные таблицы обладают некоторыми преимуществами по сравнению с секционированными)</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Объединенные таблицы</h2>
+<pre><code class="sql">CREATE TABLE t1(a INT NOT NULL PRIMARY KEY) ENGINE=MyISAM;
+CREATE TABLE t2(a INT NOT NULL PRIMARY KEY) ENGINE=MyISAM;
+INSERT INTO t1(a) VALUES(1),(2);
+INSERT INTO t2(a) VALUES(1),(2);
+CREATE TABLE mrg(a INT NOT NULL PRIMARY KEY)
+ENGINE=MERGE UNION=(t1, t2) INSERT_METHOD=LAST;
+SELECT a FROM mrg;
+| a |
+| 1 |
+| 1 |
+| 2 |
+| 2 |</code></pre>
+</section>
+
+<section class="slide white">
+<h2>Объединенные таблицы</h2>
+<ul style="font-size: 80%">
+	<li>Для объединенной таблицы необходимо больше открытых файловых дескрипторов, чем для обычной таблицы, содержащей те же данные.</li>
+	<li>Команда CREATE, которая создает объединенную таблицу, не проверяет, совместимы ли ее составляющие. Если определения объединяемых таблиц слегка различаются, то MySQL может создать объединенную таблицу, которой впоследствии не сумеет воспользоваться.</li>
+	<li>Запросы, обращенные к объединенной таблице, переадресуются к каждой из составляющих таблиц. В результате поиск единственной строки может оказаться медленнее по сравнению с поиском в одной таблице.</li>
+	<li>Сканирование выполняется для объединенной таблицы так же быстро, как для обычной.</li>
+	<li>Поиск по уникальному и первичному ключу прекращается, как только искомая строка найдена.</li>
+	<li>Составляющие таблицы читаются в порядке, указанном в команде CREATE TABLE.</li>
+</ul>
 </section>
