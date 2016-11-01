@@ -244,4 +244,137 @@ group by m.id, m.title
 	<li>Модификация схемы данных для избавления от крупных запросов.</li>
 </ul>
 </section>
+
+<section class="slide">
+<h2>Разбиение запроса на более мелкие</h2>
+<p>До:</p>
+<pre><code class="sql">DELETE FROM work_logs
+WHERE created_at > ADDDATE(DATE(NOW()), INTERVAL -90 DAY);
+</code></pre>
+<div class="next">
+	<p>После (выполнять в цикле):</p>
+	<pre><code class="sql">BEGIN;
+DELETE FROM work_logs
+WHERE created_at > ADDDATE(DATE(NOW()), INTERVAL -90 DAY)
+LIMIT 10000;
+COMMIT;
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Модификация схемы</h2>
+<p>До:</p>
+<pre><code class="sql">BEGIN;
+  INSERT INTO spent_daily
+  SELECT :day, level, SUM(spent_daily) FROM players
+  GROUP BY level;
+
+  UPDATE players SET spent_daily = 0;
+END;
+
+UPDATE players SET
+  spent_day = spent_day + :delta,
+  money = money - :delta
+WHERE id = :id;
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Модификация схемы</h2>
+<p>После:</p>
+<pre style="font-size: 65%"><code class="sql">BEGIN;
+  INSERT INTO spent_daily
+  SELECT :day, level, SUM(CASE
+    WHEN spent_day = :day THEN spent_prev
+    WHEN spent_day = :day - 1 THEN spent_last
+  END) FROM players;
+END;
+
+UPDATE players SET
+  spent_prev = CASE
+    WHEN spent_day = :day THEN spent_prev
+    WHEN spent_day = :day - 1 THEN spent_last
+    ELSE 0
+  END,
+  spent_last = CASE
+    WHEN spent_day = :day THEN spent_last ELSE 0
+  END + :delta,
+  spent_day = :day,
+  money = money - :delta
+WHERE id = :id;
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Группировка UPDATE</h2>
+<img src="long-item-name.png" style="float: right">
+<p>Массовая замена сгенерированных ресурсов на один с мета-данными.</p>
+<ul>
+	<li>Кол-во ресурсов: ~30K записей.</li>
+	<li>Размер таблицы: ~10М записей.</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Группировка UPDATE</h2>
+<p>Решение «в лоб»:</p>
+<pre><code class="sql">UPDATE items SET res_id = 73534, level = 1, meta = 1001
+WHERE res_id = 40477;
+UPDATE items SET res_id = 73534, level = 1, meta = 1201
+WHERE res_id = 40478;
+UPDATE items SET res_id = 73534, level = 2, meta = 1031
+WHERE res_id = 40479;
+…
+UPDATE items SET res_id = 73534, level = 80, meta = 7641
+WHERE res_id = 70477;</code></pre>
+</section>
+
+<section class="slide">
+<h2>Группировка UPDATE</h2>
+<p>Более красивое решение:</p>
+<pre style="font-size: 80%"><code class="sql">CREATE TEMPORARY TABLE tmp_items (
+  res_id INT,
+  level SMALLINT,
+  meta VARBINARY(64)
+) ENGINE = MEMORY;
+INSERT INTO items VALUES
+  (1, 1001, 40477),
+  (1, 1201, 40478),
+  …
+  (80, 7641, 70477);
+UPDATE items I JOIN tmp_items t ON (i.res_id = t.res_id)
+SET
+  i.res_id = 73534,
+  i.level = t.level,
+  i.meta = t.meta;</code></pre>
+</section>
+
+<section class="slide">
+<h2>Массовая вставка данных</h2>
+<p>Загрузка данных через LOAD DATA гораздо быстрее:</p>
+<pre><code class="sql">load data local infile 'tags.csv'
+into table movie_tags
+fields
+  terminated by ','
+  enclosed by '"'
+  escaped by ''
+lines
+  terminated by '\r\n'
+ignore 1 lines
+(user_id, movie_id, tag, @created)
+set created = from_unixtime(@created);</code></pre>
+</section>
+
+<section class="slide">
+<h2>Домашнее задание №3</h2>
+<p>К следующему рубежному контролю надо будет сделать задание №3.</p>
+<p>К рубежному контролю будут допущены только те, кто сделал ДЗ №3.</p>
+<div style="width: 100%; height: 60%; display: table">
+<div style="vertical-align: bottom; display: table-cell; text-align: right;">
+<img src="homework-required.png" style="width: 60%">
+</div>
+</div>
 </section>
