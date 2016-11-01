@@ -330,17 +330,17 @@ SET tbl.cnt = der.cnt;</code></pre>
 SELECT (SELECT COUNT(*) FROM world.City) - COUNT(*)
 FROM world.City WHERE ID <= 5;</code></pre>
 <pre style="font-size: 75%" class="next"><code class="sql">
-SELECT COUNT(color= blue OR color= red) FROM items;</code></pre>
+SELECT COUNT(color = 'blue' OR color= 'red') FROM items;</code></pre>
 <pre style="font-size: 75%" class="next"><code class="sql">
 SELECT COUNT(*) FROM items 
-WHERE color= blue AND color= red;</code></pre>
+WHERE color = 'blue' AND color = 'red';</code></pre>
 <pre style="font-size: 75%" class="next"><code class="sql">
-SELECT SUM(IF(color = blue, 1, 0)) AS blue,
-SUM(IF(color = red, 1, 0)) AS red FROM items;</code></pre>
+SELECT SUM(IF(color = 'blue', 1, 0)) AS blue,
+SUM(IF(color = 'red', 1, 0)) AS red FROM items;</code></pre>
 <pre style="font-size: 75%" class="next"><code class="sql">
 SELECT
-  COUNT(color = blue OR NULL) AS blue,
-  COUNT(color = red OR NULL) AS red
+  COUNT(color = 'blue' OR NULL) AS blue,
+  COUNT(color = 'red' OR NULL) AS red
 FROM items;
 </code></pre>
 </section>
@@ -414,7 +414,9 @@ WHERE position BETWEEN 50 AND 54 ORDER BY position;
 <pre><code class="sql">SELECT SQL_CALC_FOUND_ROWS film_id, description 
 FROM sakila.film 
 ORDER BY title 
-LIMIT 50, 5;</code></pre>
+LIMIT 50, 5;
+
+SELECT FOUND_ROWS ();</code></pre>
 </section>
 
 <section class="slide">
@@ -488,7 +490,7 @@ SELECT a FROM mrg;
     salesperson_id INT,
     order_date DATE,
     note VARCHAR(500)
-) ENGINE = MYISAM
+) ENGINE = InnoDB
 PARTITION BY RANGE (YEAR (order_date)) (
     PARTITION p_old VALUES LESS THAN(2008),
     PARTITION p_2008 VALUES LESS THAN(2009),
