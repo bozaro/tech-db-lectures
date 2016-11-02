@@ -5,6 +5,9 @@
 .slide p {
 	margin-bottom: 10px;
 }
+.slide li {
+	margin-bottom: 15px;
+}
 .slide pre {
 	margin-bottom: 10px;
 }
