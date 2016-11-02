@@ -8,6 +8,9 @@
 .slide li {
 	margin-bottom: 15px;
 }
+.slide li li {
+	margin-bottom: 0px;
+}
 .slide pre {
 	margin-bottom: 10px;
 }
