@@ -521,6 +521,11 @@ PARTITION BY RANGE (YEAR (order_date)) (
 
 <section class="slide">
 <h2>Секционирование</h2>
+<h3>HASH</h3>
+<p>По хэшу от какой-либо функции</p>
+<pre><code class="sql">PARTITION BY HASH(YEAR(hired))
+PARTITIONS 10;</code></pre>
+
 <h3>KEY</h3>
 <p>Почти то же самое что и HASH, но по ключу</p>
 <pre><code class="sql">PARTITION BY KEY(s1)
