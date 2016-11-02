@@ -45,3 +45,32 @@ Default options are read from the following files in the given order:
 	<li>Определить, сколько памяти нужно операционной системе для нормальной работы. Сюда следует включить и память для других программ, работающих на той же машине, например периодически выполняемых заданий.</li>
 	<li>Если это имеет смысл, отдайте всю оставшуюся память под кэши MySQL, например, под пул буферов InnoDB.</li>
 </section>
+
+<section class="slide">
+<h2>Кэширование MyISAM</h2>
+<dl>
+	<dt>key_buffer_size</dt>
+	<dd>25 – 50 % от общего объема памяти, зарезервированного для MyISAM кэшей.</dd>
+</dl>
+<p>
+<pre style="font-size: 80%"><code class="bash">key_buffer_1.key_buffer_size = 1G
+key_buffer_2.key_buffer_size = 1G</code></pre>
+</p>
+<p>
+<pre style="font-size: 80%"><code class="bash">CACHE INDEX t1, t2 IN key_buffer_1;
+LOAD INDEX INTO CACHE t1, t2;</code></pre>
+</p>
+<p>Эту SQL-команду можно поместить в файл, выполняемый MySQL на этапе запуска. Имя файла задается с помощью параметра init_file.</p>
+<p>В нем может быть несколько SQL-команд, каждая в отдельной строке.</p>
+</section>
+
+<section class="slide">
+<h2>Кэширование MyISAM</h2>
+<h3>Коэффициент попаданий в кэш:</h3>
+<p class="math">`100 - ("key_reads" * 100)/("key_reads_requests")`</p>
+
+<h3>Коэффициент заполненности буфера:</h3>
+<p class="math">`100 - ("key_blocks_unused" * "key_cache_block_size" * 100)/("key_buffer_size")`</p>
+<h3>Количество непопаданий в кэш за секунду:</h3>
+<p class="math">`"key_reads" / "uptime"`</p>
+</section>
