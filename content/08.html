@@ -1,0 +1,47 @@
+---
+title: Лекция 8
+---
+<section class="slide">
+<h2>Конфигурирование</h2>
+<ul>
+	<li>/etc/my.cnf</li>
+	<li>/etc/mysql/my.cnf</li>
+</ul>
+<pre style="font-size: 80%"><code class="bash">
+$ which mysqld
+/usr/sbin/mysqld
+$ /usr/sbin/mysqld --verbose --help | grep -A 1 ‘Default options’
+Default options are read from the following files in the given order:
+/etc/mysql/my.cnf ~/.my.cnf /usr/etc/my.cnf
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Область видимости</h2>
+<ul>
+	<li>Переменная query_cache_size имеет глобальную область видимости.</li>
+	<li>Переменная sort_buffer_size имеет глобальное значение по умолчанию, но может быть изменена на уровне сеанса.</li>
+	<li>Переменная join_buffer_size имеет глобальное значение по умолчанию, может быть изменена на уровне сеанса, но, кроме того, для каждого запроса, в котором соединяется несколько таблиц, можно выделить по одному буферу на операцию соединения, то есть для одного запроса может существовать несколько буферов соединения.</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Область видимости</h2>
+<ul>
+	<li>SET sort_buffer_size = &lt;value&gt;;</li>
+	<li>SET GLOBAL sort_buffer_size = &lt;value&gt;;</li>
+	<li>SET @@sort_buffer_size := &lt;value&gt;;</li>
+	<li>SET @@session.sort_buffer_size := &lt;value&gt;;</li>
+	<li>SET @@global.sort_buffer_size := &lt;value&gt;;</li>
+</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Настройка использования памяти</h2>
+<ul>
+	<li>Определить абсолютный верхний предел объема памяти, которую MySQL может использовать.</li>
+	<li>Определить, сколько памяти MySQL будет использовать на каждое соединение, например для буферов сортировки и временных таблиц.</li>
+	<li>Определить, сколько памяти нужно операционной системе для нормальной работы. Сюда следует включить и память для других программ, работающих на той же машине, например периодически выполняемых заданий.</li>
+	<li>Если это имеет смысл, отдайте всю оставшуюся память под кэши MySQL, например, под пул буферов InnoDB.</li>
+</section>
