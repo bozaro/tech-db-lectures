@@ -96,3 +96,65 @@ LOAD INDEX INTO CACHE t1, t2;</code></pre>
 	<dt>innodb_max_dirty_pages_pct</dt>
 	<dd>Говорит InnoDB о допустимом количестве «грязных» (модифицированных) страниц в пуле буферов.</dd>
 </section>
+
+<section class="slide">
+<h2>Кэш InnoDB</h2>
+<p>В MySQL есть возможность сохранить состояние кэша, чтобы избежать проблемы с прогревом базы.</p>
+<pre><code class="sql">SET GLOBAL innodb_buffer_pool_dump_at_shutdown = ON;
+SET GLOBAL innodb_buffer_pool_dump_now = ON;
+SET GLOBAL innodb_buffer_pool_load_now = ON;
+
+SHOW STATUS LIKE 'Innodb_buffer_pool_dump_status';
+SHOW STATUS LIKE 'Innodb_buffer_pool_load_status';
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Кеш потоков, кеш таблиц</h2>
+<dl>
+	<dt>thread_cache_size</dt>
+	<dd>Определяет максимальное количество потоков в кэше.
+<pre><code class="sql">SHOW STATUS LIKE 'Threads_created';
+SHOW STATUS LIKE 'Threads_connected';</code></pre>
+</dd>
+
+	<dt>table_open_cache</dt>
+	<dd>Кэш открытых таблиц.</dd>
+
+	<dt>table_definition_cache</dt>
+	<dd>Кэш определений таблиц.</dd>
+</section>
+
+<section class="slide">
+<h2>Ввод / вывод в MyISAM</h2>
+<h3>delay_key_write</h3>
+<p>Определяет, когда будут сбрасываться данные на диск.</p>
+<dl>
+	<dt>OFF</dt>
+	<dd>MyISAM сбрасывает измененные блоки из буфера ключей после каждой записи, если только таблица не блокирована командой LOCK TABLES.</dd>
+
+	<dt>ON</dt>
+	<dd>Включен режим отложенной записи ключей, но только для таблиц, созданных с параметром DELAY_KEY_WRITE.</dd>
+
+	<dt>ALL</dt>
+	<dd>Для всех таблиц типа MyISAM используется отложенная запись ключей.</dd>
+</dl>	
+<pre><code class="sql">ALTER TABLE sometable DELAY_KEY_WRITE = 1;</code></pre>
+</section>
+
+<section class="slide">
+<h2>Ввод / вывод в MyISAM</h2>
+<ul>
+	<li>Если сервер аварийно завершает работу, а блоки не были сброшены на диск, то индекс будет испорчен.</li>
+	<li>Если было отложено много операций записи, то MySQL потратит больше времени на закрытие таблицы, поскольку вынуждена ждать завершения записи буферов на диск.</li>
+	<li>По тем же причинам команда FLUSH TABLES может занимать много времени.</li>
+	<li>Не сброшенные «грязные» блоки в буфере ключей могут не оставить места для новых блоков, считываемых с диска. В таком случае выполнение запроса будет приостановлено на время, пока MyISAM не освободит достаточно места в буфере ключей.</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Ввод / вывод в InnoDB</h2>
+<div style="text-align: center; height: 100%">
+	<img style="height: 70%" src="innodb-io.png" />
+</div>
+</section>
