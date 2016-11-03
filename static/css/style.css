@@ -37,3 +37,61 @@ h3 {
 .math {
 	padding: 10px;
 }
+
+body.index {
+	margin-top: 20px;
+	margin: 60px;
+}
+
+.index {
+	font-family: PT Sans;
+}
+.index h1 {
+	font-family: PT Sans Narrow,sans-serif;
+	font-size: 3em;
+	font-weight: bold;
+	margin-bottom: 0.5em;
+}
+.index h2 {
+	font-family: PT Sans Narrow,sans-serif;
+	font-size: 2em;
+	font-weight: bold;
+	margin-top: 1em;
+	margin-bottom: 0.5em;
+}
+.index .description {
+	font-size: 1.5em;
+	font-weight: normal;
+}
+/* Lists */
+.index .description ol, .index .description ul {
+	margin-top:0.5em;
+	margin-bottom:1em;
+	counter-reset:list;
+}
+.index .description ol li, .index .description ul li {
+	page-break-inside:avoid;
+	text-indent:-2em;
+}
+.index .description ol li::before, .index .description ul li::before {
+	display:inline-block;
+	width:2em;
+	color:lighten($grey, 25%);
+	text-align:right;
+}
+.index .description ol li ol, .index .description ul li ul, .index .description ol li ul, .index .description ul li ol {
+	margin-bottom:0;
+	margin-left:2em;
+}
+.index .description ul > li::before {
+	padding-right:0.5em;
+	content:'•';
+}
+.index .description ul > li:lang(ru)::before {
+	content:'—';
+}
+.index .description ol > li::before {
+	padding-right:0.4em;
+	counter-increment:list;
+	content:counter(list)'.';
+}
