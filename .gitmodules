@@ -1,0 +1,3 @@
+[submodule "themes/tech-template"]
+	path = themes/tech-template
+	url = https://github.com/bozaro/tech-template.git
