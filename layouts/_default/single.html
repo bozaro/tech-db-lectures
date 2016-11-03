@@ -10,7 +10,7 @@
 	<link rel="stylesheet" href="{{ .Site.BaseURL }}css/style.css">
 	<link rel="stylesheet" href="{{ .Site.BaseURL }}highlight.js/styles/default.min.css">
 </head>
-<body class="shower list">
+<body class="shower list no-math">
 	<header class="caption">
 		<h1>{{ .Site.Title }}. {{ .Title }}</h1>
 	</header>
@@ -20,6 +20,17 @@
 	<div class="progress"></div>
 	<script src="{{ .Site.BaseURL }}shower/shower.min.js"></script>
 	<script src="{{ .Site.BaseURL }}highlight.js/highlight.min.js"></script>
+	<script src="{{ .Site.BaseURL }}mathjax-2.7/MathJax.js?config=AM_HTMLorMML-full"></script>
+
 	<script>hljs.initHighlightingOnLoad();</script>
+	<script>
+MathJax.Hub.Config({
+	asciimath2jax: {
+		inlineMath: [['$','$'],['\\(','\\)']],
+		processClass: "math",
+		ignoreClass: "no-math"
+	}
+});
+	</script>
 </body>
 </html>
