@@ -10,11 +10,11 @@
 </head>
 <body class="index">
 	<h1>{{ .Site.Title }}</h1>
-	<p>{{ .Site.Params.description }}</p>
+	{{ if isset .Params "description" }}<p>{{ .Site.Params.description }}</p>{{ end }}
 	<ul>{{ range .Data.Pages }}
 		<li>
-			<a href="{{ .Permalink }}">{{ .Title }}</a>
-			<p>{{ .Description }}</p>
+			<a href="{{ .Permalink }}"><h2>{{ .Title }}</h2></a>
+			{{ if ne .Description "" }}<p class="description">{{ .Description | markdownify }}</p>{{ end }}
 		</li>{{ end }}
 	</ul>
 </body>
