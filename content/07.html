@@ -97,7 +97,7 @@ mysql> SHOW STATUS LIKE last_query_cost;
 
 <section class="slide">
 <h2>Оптимизатор запросов</h2>
-<ul style="font-size: 90%">
+<ul style="font-size: 80%">
 	<li>Некорректная статистика.</li>
 	<li>Принятая метрика стоимости не всегда эквивалентна истинной стоимости выполнения запроса.</li>
 	<li>Представление MySQL о том, что такое «оптимально», может расходиться с вашим представлением.</li>
@@ -318,7 +318,7 @@ SET tbl.cnt = der.cnt;</code></pre>
 <p><b>COUNT()</b> ― это особая функция, которая решает две очень разные задачи: подсчитывает значения и строки.</p>
 </p>Значение ― это выражение, отличное от NULL.</p>
 <p><b>COUNT(*)</b> просто подсчитывает количество строк в результирующем наборе.</p>
-<p>Если вы хотите знать, сколько строк в результирующем наборе, всегда употребляйте OUNT(*).</p>
+<p>Если вы хотите знать, сколько строк в результирующем наборе, всегда употребляйте COUNT(*).</p>
 <h3>МИФЫ:</h3>
 <p>Для таблиц типа MyISAM запросы, содержащие функцию COUNT(), выполняются очень быстро.</p>
 </section>
@@ -330,19 +330,12 @@ SET tbl.cnt = der.cnt;</code></pre>
 SELECT (SELECT COUNT(*) FROM world.City) - COUNT(*)
 FROM world.City WHERE ID <= 5;</code></pre>
 <pre style="font-size: 75%" class="next"><code class="sql">
-SELECT COUNT(color = 'blue' OR color= 'red') FROM items;</code></pre>
+SELECT COUNT(color = 'blue' OR color= 'red' OR NULL) FROM items;</code></pre>
 <pre style="font-size: 75%" class="next"><code class="sql">
-SELECT COUNT(*) FROM items 
-WHERE color = 'blue' AND color = 'red';</code></pre>
+SELECT COUNT(*) FROM items WHERE color = 'blue' OR color = 'red';</code></pre>
 <pre style="font-size: 75%" class="next"><code class="sql">
-SELECT SUM(IF(color = 'blue', 1, 0)) AS blue,
-SUM(IF(color = 'red', 1, 0)) AS red FROM items;</code></pre>
-<pre style="font-size: 75%" class="next"><code class="sql">
-SELECT
-  COUNT(color = 'blue' OR NULL) AS blue,
-  COUNT(color = 'red' OR NULL) AS red
-FROM items;
-</code></pre>
+SELECT COUNT(*) FROM items
+WHERE color IN ('blue', 'red');</code></pre>
 </section>
 
 <section class="slide">
