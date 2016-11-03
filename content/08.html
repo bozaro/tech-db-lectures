@@ -158,3 +158,33 @@ SHOW STATUS LIKE 'Threads_connected';</code></pre>
 	<img style="height: 70%" src="innodb-io.png" />
 </div>
 </section>
+
+<section class="slide">
+<h2>Ввод / вывод в InnoDB</h2>
+<dl>
+	<dt>innodb_log_file_size</dt>
+	<dd>Общий максимальный размер файла логов транзакций.</dd>
+
+	<dt>innodb_log_files_in_group</dt>
+	<dd>Количество файлов в группе.</dd>
+
+	<dt>innodb_log_buffer_size</dt>
+	<dd>Размер буфера лога транзакций.</dd>
+</dl>
+<pre><code class="sql">ALTER TABLE sometable DELAY_KEY_WRITE = 1;</code></pre>
+</section>
+
+<section class="slide">
+<h2>Ввод / вывод в InnoDB</h2>
+<h3>innodb_flush_log_at_trx_commit</h3>
+<dl>
+	<dt>0</dt>
+	<dd>Писать буфер в файл журнала и сбрасывать журнал на устройство постоянного хранения (диск) раз в секунду, но ничего не делать в момент фиксации транзакции.</dd>
+
+	<dt>1</dt>
+	<dd>Писать буфер в файл журнала и сбрасывать его на устройство постоянного хранения при каждой фиксации транзакции.</dd>
+
+	<dt>2</dt>
+	<dd>Писать буфер в файл журнала при каждой фиксации, но не сбрасывать его на устройство постоянного хранения.</dd>
+</dl>
+</section>
