@@ -1,9 +1,8 @@
 baseUrl: "/"
 languageCode: "ru"
 title: "СУБД"
-theme: shower
+theme: "tech-template"
 
-canonifyURLs: false
 relativeURLs: true
 disableRSS: true
 disable404: true

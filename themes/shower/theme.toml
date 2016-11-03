@@ -1,9 +1,0 @@
-name = "Shower"
-description = "Simple shower wrapper theme"
-tags = ["shower"]
-features = ["shower"]
-min_version = 0.16
-
-[author]
-  name = "Artem V. Navrotskiy"
-  homepage = "https://bozaro.ru/"
