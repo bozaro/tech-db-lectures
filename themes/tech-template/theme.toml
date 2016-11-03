@@ -1,0 +1,9 @@
+name = "tech-template"
+description = "Шаблон презентаций для Технопарка Mail.ru"
+tags = ["tech-mail.ru", "park.mail.ru"]
+features = ["shower", "highlight.js", "mathjax"]
+min_version = 0.17
+
+[author]
+  name = "Artem V. Navrotskiy"
+  homepage = "https://bozaro.ru/"
