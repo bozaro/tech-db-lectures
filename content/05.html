@@ -26,12 +26,12 @@ title: Лекция 5
 <section class="slide">
 <h2>Индексирование B-tree (пример)</h2>
 <img style="position: absolute; bottom: 50px; right: 50px; height: 380px" src="index-btree-2.png" />
-<pre style="font-size: 80%"><code class="sql">CREATE TABLE People (
-	last_name varchar(50) not null,
-	first_name varchar(50) not null,
-	dob date not null,
-	gender enum(m, f) not null,
-	key (last_name, first_name, dob)
+<pre style="font-size: 80%"><code class="sql">CREATE TABLE people (
+	last_name VARCHAR(50) NOT NULL,
+	first_name VARCHAR(50) NOT NULL,
+	dob DATE NOT NULL,
+	gender ENUM(m, f) NOT NULL,
+	KEY (last_name, first_name, dob)
 );</code></pre>
 </section>
 
@@ -52,6 +52,91 @@ title: Лекция 5
 	<li>Поиск без использования левой части ключа;</li>
 	<li>Нельзя пропускать столбцы;</li>
 	<li>Оптимизация после поиска в диапазоне.</li>
+</ul>
+</div>
+</section>
+
+<section class="slide">
+<h2>Индексирование ХЕШ-индексы</h2>
+<pre><code class="sql">CREATE TABLE testhash (
+	fname VARCHAR(50) NOT NULL,
+	lname VARCHAR(50) NOT NULL,
+	KEY USING HASH (fname)
+) ENGINE=MEMORY;</code></pre>
+<table>
+		<thead>
+			<tr>
+				<th>fname</th>
+				<th>lname</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>Arjen</td>
+				<td>Lentz</td>
+			</tr>
+			<tr>
+				<td>Baron</td>
+				<td>Schwartz</td>
+			</tr>
+			<tr>
+				<td>Peter</td>
+				<td>Zaitsev</td>
+			</tr>
+			<tr>
+				<td>Vadim</td>
+				<td>Tkachenko</td>
+			</tr>
+		</tbody>
+</table>
+</section>
+
+<section class="slide">
+<h2>Индексирование ХЕШ-индексы</h2>
+<pre><code>
+f('Arjen') = 2323
+f('Baron') = 7437
+f('Peter') = 8784
+f('Vadim') = 2458</code></pre>
+<table>
+		<thead>
+			<tr>
+				<th>Ячейка</th>
+				<th>Значение</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>2323</td>
+				<td>Указатель на строку 1</td>
+			</tr>
+			<tr>
+				<td>2458</td>
+				<td>Указатель на строку 4</td>
+			</tr>
+			<tr>
+				<td>7437</td>
+				<td>Указатель на строку 2</td>
+			</tr>
+			<tr>
+				<td>8784</td>
+				<td>Указатель на строку 3</td>
+			</tr>
+		</tbody>
+</table>
+<pre><code class="sql">SELECT lname FROM testhash WHERE fname = 'Peter';</code></pre>
+</section>
+
+<section class="slide">
+<h2>Индексирование B-tree (особенности)</h2>
+<div style="font-size: 85%">
+<ul>
+	<li>MySQL не может использовать данные в индексе, чтобы избежать чтения строк.</li>
+	<li>MySQL не может использовать хеш-индексы для сортировки, поскольку строки в нем не хранятся в отсортированном порядке.</li>
+	<li>Хеш-индексы не поддерживают поиск по частичному ключу, так как хеш-коды вычисляются для всего индексируемого значения.</li>
+	<li>Хеш-индексы поддерживают только сравнения на равенство, использующие операторы =, IN() и <=>.</li>
+	<li>Доступ к данным в хеш-индексе очень быстр, если нет большого количества коллизий.</li>
+	<li>Некоторые операции обслуживания индекса могут оказаться медленными, если количество коллизий велико.</li>
 </ul>
 </div>
 </section>
