@@ -140,3 +140,29 @@ f('Vadim') = 2458</code></pre>
 </ul>
 </div>
 </section>
+
+<section class="slide">
+<h2>Индексирование. Специфика MySQL</h2>
+<div>
+<ul>
+	<li>MySQL для регистронезависимого сравнения использует COLLATIONS (например: utf8_general_ci):<br/>
+	<a style="font-size: 85%" href="http://collation-charts.org/mysql60/mysql604.utf8_general_ci.european.html">http://collation-charts.org/mysql60/mysql604.utf8_general_ci.european.html</a></li>
+	<li>В MySQL нет разницы между UNIQUE INDEX и UNIQUE CONSTRAINT.</li>
+	<li>MySQL автоматически создаёт индексы для FOREIGN KEY, но некоторые СУБД этого не делают (например: PostgreSQL).</li>
+</ul>
+</div>
+</section>
+
+<section class="slide">
+<h2>Профилирование</h2>
+<div>
+<ul>
+	<li>К каким данным MySQL обращается чаще всего?</li>
+	<li>Какие типы запросов MySQL выполняет чаще всего?</li>
+	<li>В каких состояниях преимущественно находятся потоки (threads) MySQL?</li>
+	<li>Какие подсистемы MySQL чаще всего использует для выполнения запросов?</li>
+	<li>Какие виды обращения к данным встречаются наиболее часто?</li>
+	<li>Сколько различных видов действий, например просмотра индексов, выполняет MySQL?</li>
+</ul>
+</div>
+</section>
