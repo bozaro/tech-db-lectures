@@ -280,9 +280,393 @@ Query: SELECT …
 </section>
 
 <section class="slide">
-<h2>EXPLAIN (Visual)</h2>
+<h2>EXPLAIN (графическое представление)</h2>
 <div style="text-align: center; height: 100%">
 	<img style="width: 85%" src="explain-bad.png" />
 	<img style="width: 85%" src="explain-good.png" />
 </div>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: id</h2>
+<div style="font-size: 70%">
+<pre><code class="sql">EXPLAIN SELECT (SELECT 1 FROM sakila.actor LIMIT 1) FROM sakila.film;</code></pre>
+<table>
+	<thead>
+		<tr>
+			<th>Id</th>
+			<th>select_type</th>
+			<th>table</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>1</td>
+			<td>PRIMARY</td>
+			<td>film</td>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>SUBQUERY</td>
+			<td>actor</td>
+		</tr>
+	</tbody>
+</table>
+<pre><code class="sql">EXPLAIN SELECT film_id FROM (SELECT MAX(film_id) as film_id FROM sakila.film) AS der;</code></pre>
+<table>
+	<thead>
+		<tr>
+			<th>Id</th>
+			<th>select_type</th>
+			<th>table</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>1</td>
+			<td>PRIMARY</td>
+			<td>&lt;derived2&gt;</td>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>DERIVED</td>
+			<td>null</td>
+		</tr>
+	</tbody>
+</table>
+<pre><code class="sql">EXPLAIN SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3;</code></pre>
+<table>
+	<thead>
+		<tr>
+			<th>Id</th>
+			<th>select_type</th>
+			<th>table</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>1</td>
+			<td>PRIMARY</td>
+			<td>null</td>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>UNION</td>
+			<td>null</td>
+		</tr>
+		<tr>
+			<td>3</td>
+			<td>UNION</td>
+			<td>null</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: select_type</h2>
+<dl style="font-size: 85%">
+	<dt>PRIMARY</dt>
+	<dd>Самый внешний запрос.</dd>
+
+	<dt>SUBQUERY</dt>
+	<dd>Запрос SELECT, который содержится в подзапросе, находящемся во фразе SELECT (иными словами, не во фразе FROM).</dd>
+
+	<dt>DERIVED</dt>
+	<dd>Значение DERIVED означает, что данный запрос SELECT является подзапросом во фразе FROM.</dd>
+
+	<dt>UNION</dt>
+	<dd>Второй и последующий запросы SELECT, входящие в объединение UNION, помечаются признаком UNION.</dd>
+
+	<dt>UNION RESULT</dt>
+	<dd>Запрос SELECT, применяемый для выборки результатов из временной таблицы, созданной в ходе выполнения UNION.</dd>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: table</h2>
+<div style="font-size: 80%">
+<pre><code class="sql">EXPLAIN SELECT film.film_id
+FROM sakila.film
+	INNER JOIN sakila.film_actor USING (film_id)
+	INNER JOIN sakila.actor USING (actor_id);
+</code></pre>
+<table>
+	<thead>
+		<tr>
+			<th>Id</th>
+			<th>select_type</th>
+			<th>table</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>1</td>
+			<td>SIMPLE</td>
+			<td>actor</td>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>SIMPLE</td>
+			<td>film_actor</td>
+		</tr>
+		<tr>
+			<td>3</td>
+			<td>SIMPLE</td>
+			<td>film</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+<div style="text-align: center">
+	<img style="height: 200px" src="explain-table.png" />
+</div>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: table</h2>
+<pre style="font-size: 90%"><code class="sql">EXPLAIN SELECT
+	actor_id,
+	(SELECT 1 FROM sakila.film_actor
+	          WHERE film_actor.actor_id = der_1.actor_id LIMIT 1)
+FROM (
+	SELECT actor_id
+	FROM sakila.actor LIMIT 5
+) AS der_1
+UNION ALL
+SELECT film_id,
+(SELECT @var1 FROM sakila.rental LIMIT 1)
+FROM (
+	SELECT film_id,
+	(SELECT 1 FROM sakila.store LIMIT 1)
+	FROM sakila.film LIMIT 5
+) AS der_2;
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: table</h2>
+<div style="font-size: 80%">
+<table>
+	<thead>
+		<tr>
+			<th>Id</th>
+			<th>select_type</th>
+			<th>table</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>1</td>
+			<td>PRIMARY</td>
+			<td>&lt;derived3&gt;</td>
+		</tr>
+		<tr>
+			<td>3</td>
+			<td>DERIVED</td>
+			<td>actor</td>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>DEPENDENT SUBQUERY</td>
+			<td>film_actor</td>
+		</tr>
+		<tr>
+			<td>4</td>
+			<td>UNION</td>
+			<td>&lt;derived6&gt;</td>
+		</tr>
+		<tr>
+			<td>6</td>
+			<td>DERIVED</td>
+			<td>film</td>
+		</tr>
+		<tr>
+			<td>7</td>
+			<td>SUBQUERY</td>
+			<td>store</td>
+		</tr>
+		<tr>
+			<td>5</td>
+			<td>UNCACHEABLE SUBQUERY</td>
+			<td>rental</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: table</h2>
+<div style="text-align: center; height: 100%">
+	<img style="height: 75%" src="explain-visual.png" />
+</div>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: type</h2>
+<dl style="font-size: 65%">
+	<dt>ALL</dt>
+	<dd>Этот подход обычно называют сканированием таблицы.</dd>
+
+	<dt>index</dt>
+	<dd>То же, что сканирование таблицы, только MySQL просматривает ее в порядке, задаваемом индексом, а не в порядке следования строк.</dd>
+
+	<dt>range</dt>
+	<dd>Просмотр диапазона – это ограниченная форма сканирования индекса. Просмотр начинается в определенной точке индекса и возвращает строки в некотором диапазоне значений.</dd>
+
+	<dt>ref</dt>
+	<dd>Это доступ по индексу (иногда он называется поиском по индексу (index lookup)), в результате которого возвращаются строки, соответствующие единственному заданному значению.</dd>
+
+	<dt>eq_ref</dt>
+	<dd>Это поиск по индексу в случае, когда MySQL точно знает, что будет возвращено не более одного значения.</dd>
+
+	<dt>const, system</dt>
+	<dd>Эти типы доступа MySQL применяет, когда в процессе оптимизации какую-то часть запроса можно преобразовать в константу.</dd>
+
+	<dt>NULL</dt>
+	<dd>Этот метод означает, что MySQL сумела разрешить запрос на фазе оптимизации, так что в ходе выполнения вообще не потребуется обращаться к таблице или индексу.</dd>
+</dl>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: possible_keys, key</h2>
+<pre style="font-size: 90%"><code class="sql">EXPLAIN SELECT actor_id, film_id FROM sakila.film_actor\G
+
+************************* 1. row *************************
+id: 1
+select_type: SIMPLE
+table: film_actor
+type: index
+possible_keys: NULL
+key: idx_fk_film_id
+key_len: 2
+ref: NULL
+rows: 5143
+Extra: Using index
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: possible_keys, key</h2>
+<div style="font-size: 80%">
+<pre><code class="sql">EXPLAIN SELECT actor_id, film_id
+FROM sakila.film_actor WHERE actor_id=4; 
+
+...| type | possible_keys | key     | key_len |...
+...| ref  | PRIMARY       | PRIMARY | 2       |...
+</code></pre>
+<pre class="next"><code class="sql">
+CREATE TABLE t (
+    a char(3) NOT NULL,
+    b int(11) NOT NULL,
+    c char(1) NOT NULL,
+    PRIMARY KEY (a,b,c)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+ 
+EXPLAIN SELECT a FROM t WHERE a = 'sak' AND b = 112;
+</code></pre>
+<pre class="next"><code class="sql">
+... |type | possible_keys | key     | key_len |...
+... | ref | PRIMARY       | PRIMARY | 13      |...
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: ref</h2>
+<div style="font-size: 75%">
+<pre><code class="sql">EXPLAIN SELECT STRAIGHT_JOIN f.film_id
+FROM sakila.film AS f
+    INNER JOIN sakila.film_actor AS fa
+        ON f.film_id=fa.film_id AND fa.actor_id = 1
+    INNER JOIN sakila.actor AS a USING(actor_id);
+
+...| table |...| key                | key_len | ref                    |...
+...| a     |...| PRIMARY            | 2       | const                  |...
+...| f     |...| idx_fk_language_id | 1       | NULL                   |...
+...| fa    |...| PRIMARY            | 4       | const,sakila.f.film_id |...
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: rows</h2>
+<pre><code class="sql">EXPLAIN SELECT f.film_id
+FROM sakila.film AS f
+    INNER JOIN sakila.film_actor AS fa USING(film_id)
+    INNER JOIN sakila.actor AS a USING(actor_id);
+
+...| rows |...
+...|  200 |...
+...|   13 |...
+...|    1 |...
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: extra</h2>
+<dl style="font-size: 80%">
+	<dt>Using index</dt>
+	<dd>Означает, что MySQL воспользуется покрывающим индексом, чтобы избежать доступа к самой таблице.</dd>
+
+	<dt>Using where</dt>
+	<dd>Означает, что сервер произведет дополнительную фильтрацию строк, отобранных подсистемой хранения.</dd>
+
+	<dt>Using temporary</dt>
+	<dd>Означает, что MySQL будет применять временную таблицу для сортировки результатов запроса.</dd>
+
+	<dt>Using filesort</dt>
+	<dd>Означает, что MySQL прибегнет к обычной сортировке для упорядочения результатов, а не станет читать строки из таблицы в порядке, задаваемом индексом.</dd>
+
+	<dt>range checked for each record</dt>
+	<dd>Означает, что подходящего индекса не нашлось, поэтому сервер будет заново искать индекс при обработке каждой строки в операции соединения.</dd>
+</dl>
+</section>
+
+<section class="slide">
+<h2>Индексирование: изоляция столбца</h2>
+<pre><code class="sql">SELECT ... FROM sakila.actor
+WHERE actor_id + 1 = 5;
+
+SELECT ...
+WHERE TO_DAYS(CURRENT_DATE) - TO_DAYS(date_col) <= 10;
+</code></pre>
+<pre class="next"><code class="sql">
+SELECT ...
+WHERE date_col >= DATE_SUB(CURRENT_DATE, INTERVAL 10 DAY);
+</code></pre>
+<pre class="next"><code class="sql">
+SELECT ...
+WHERE date_col >= DATE_SUB(2008-01-17, INTERVAL 10 DAY);
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Индексирование: кластерные индексы</h2>
+<div style="text-align: center; height: 100%">
+	<img style="height: 75%" src="index-cluster.png" />
+</div>
+</section>
+
+<section class="slide">
+<h2>Индексирование: кластерные индексы (+)</h2>
+<ul>
+	<li>Вы можете хранить связанные данные рядом.</li>
+	<li>Быстрый доступ к данным. Кластерный индекс хранит и индекс, и данные вместе в одной B-Tree структуре, поэтому извлечение строк из кластерного индекса обычно происходит быстрее, чем сопоставимый поиск в некластерном индексе.</li>
+	<li>Использующие покрывающие индексы запросы могут получить значение первичного ключа из листового узла.</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Индексирование: кластерные индексы (-)</h2>
+<ul style="font-size: 75%">
+	<li>Если данные помещаются в памяти, то порядок доступа к ним не имеет значения, и тогда кластерные индексы не принесут большой пользы.</li>
+	<li>Если вы загружаете большое количество данных в другом порядке, то по окончании загрузки имеет смысл реорганизовать таблицу с помощью команды OPTIMIZE TABLE.</li>
+	<li>Обновление столбцов кластерного индекса обходится дорого, поскольку InnoDB вынуждена перемещать каждую обновленную строку в новое место.</li>
+	<li>Для таблиц с кластерным индексом вставка новых строк или обновление первичного ключа, требующее перемещения строки, может приводить к расщеплению страницы.</li>
+	<li>Полное сканирование кластерных таблиц может оказаться более медленным, особенно если строки упакованы менее плотно или хранятся непоследовательно из-за расщепления страниц.</li>
+	<li>Вторичные (некластерные) индексы могут оказаться больше, чем вы ожидаете, поскольку в листовых узлах хранятся значения столбцов, составляющих первичный ключ.</li>
+	<li>Для доступа к данным по вторичному индексу требуется просмотр двух индексов вместо одного.</li>
+</ul>
 </section>
