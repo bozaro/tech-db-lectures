@@ -1,6 +1,12 @@
 ---
 title: Лекция 5
 ---
+<style>
+.covering_index {
+	font-size: 75%;
+}
+</style>
+
 <section class="slide">
 <h2>Индексирование</h2>
 <div style="font-size: 80%">
@@ -749,10 +755,234 @@ WHERE date_col >= DATE_SUB(2008-01-17, INTERVAL 10 DAY);
 
 <section class="slide">
 <h2>Покрывающие индексы</h2>
-<ul style="font-size: 90%">
-	<li>Записи индекса обычно компактнее полной строки, поэтому, если MySQL читает только индекс, то обращается к значительно меньшему объему данных.</li>
-	<li>Индексы отсортированы по индексируемым значениям (по крайней мере, внутри страницы), поэтому для поиска по диапазону, характеризуемому большим объемом ввода/вывода, потребуется меньше операций обращения к диску.</li>
-	<li>Большинство подсистем хранения кэширует индексы лучше, чем сами данные.</li>
-	<li>Покрывающие индексы особенно полезны в случае таблиц InnoDB из-за кластерных индексов. Вторичные индексы InnoDB хранят значения первичного ключа строки в листовых узлах. Таким образом, вторичный индекс, который «покрывает» запрос, позволяет избежать еще одного поиска по первичному индексу.</li>
-</ul>
+<div class="covering_index">
+	<pre><code class="sql">EXPLAIN SELECT store_id, film_id FROM sakila.inventory\G
+
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: inventory
+   partitions: NULL
+         type: index
+possible_keys: NULL
+          key: idx_store_id_film_id
+      key_len: 3
+          ref: NULL
+         rows: 4581
+     filtered: 100.00
+        Extra: Using index
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<div class="covering_index">
+	<pre><code class="sql">EXPLAIN SELECT actor_id, last_name
+FROM sakila.actor WHERE last_name = 'HOPPER'\G
+
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: actor
+   partitions: NULL
+         type: ref
+possible_keys: idx_actor_last_name
+          key: idx_actor_last_name
+      key_len: 137
+          ref: const
+         rows: 2
+     filtered: 100.00
+        Extra: Using index
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<div class="covering_index">
+	<pre><code class="sql">CREATE TABLE rental (
+...
+PRIMARY KEY (rental_id),
+UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
+KEY idx_fk_inventory_id (inventory_id),
+KEY idx_fk_customer_id (customer_id),
+KEY idx_fk_staff_id (staff_id),
+...
+);
+
+EXPLAIN SELECT rental_id FROM sakila.rental
+WHERE rental_date = '2005-05-25'
+ORDER BY inventory_id, customer_id\G
+
+*************************** 1. row ***************************
+         type: ref
+possible_keys: rental_date
+          key: rental_date
+         rows: 1
+        Extra: Using where; Using index
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<div class="covering_index">
+	<pre><code class="sql">CREATE TABLE rental (
+...
+PRIMARY KEY (rental_id),
+UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
+KEY idx_fk_inventory_id (inventory_id),
+KEY idx_fk_customer_id (customer_id),
+KEY idx_fk_staff_id (staff_id),
+...
+);
+
+EXPLAIN SELECT rental_id FROM sakila.rental
+WHERE rental_date = '2005-05-25'
+ORDER BY inventory_id DESC\G
+
+*************************** 1. row ***************************
+         type: ref
+possible_keys: rental_date
+          key: rental_date
+         rows: 1
+        Extra: Using where; Using index
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<div class="covering_index">
+	<pre><code class="sql">CREATE TABLE rental (
+...
+PRIMARY KEY (rental_id),
+UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
+KEY idx_fk_inventory_id (inventory_id),
+KEY idx_fk_customer_id (customer_id),
+KEY idx_fk_staff_id (staff_id),
+...
+);
+
+EXPLAIN SELECT rental_id FROM sakila.rental
+WHERE rental_date = '2005-05-25'
+ORDER BY inventory_id DESC, customer_id ASC\G
+
+*************************** 1. row ***************************
+         type: ref
+possible_keys: rental_date
+          key: rental_date
+         rows: 1
+        Extra: Using where; Using index; Using filesort
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<div class="covering_index">
+	<pre><code class="sql">CREATE TABLE rental (
+...
+PRIMARY KEY (rental_id),
+UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
+KEY idx_fk_inventory_id (inventory_id),
+KEY idx_fk_customer_id (customer_id),
+KEY idx_fk_staff_id (staff_id),
+...
+);
+
+EXPLAIN SELECT rental_id FROM sakila.rental
+WHERE rental_date = '2005-05-25'
+ORDER BY inventory_id, staff_id\G
+
+*************************** 1. row ***************************
+         type: ref
+possible_keys: rental_date
+          key: rental_date
+         rows: 1
+        Extra: Using index condition; Using filesort
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<div class="covering_index">
+	<pre><code class="sql">CREATE TABLE rental (
+...
+PRIMARY KEY (rental_id),
+UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
+KEY idx_fk_inventory_id (inventory_id),
+KEY idx_fk_customer_id (customer_id),
+KEY idx_fk_staff_id (staff_id),
+...
+);
+
+EXPLAIN SELECT rental_id FROM sakila.rental
+WHERE rental_date = '2005-05-25'
+ORDER BY rental_date, inventory_id\G
+
+*************************** 1. row ***************************
+         type: ref
+possible_keys: rental_date
+          key: rental_date
+         rows: 1
+        Extra: Using where; Using index
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<div class="covering_index">
+	<pre><code class="sql">CREATE TABLE rental (
+...
+PRIMARY KEY (rental_id),
+UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
+KEY idx_fk_inventory_id (inventory_id),
+KEY idx_fk_customer_id (customer_id),
+KEY idx_fk_staff_id (staff_id),
+...
+);
+
+EXPLAIN SELECT rental_id FROM sakila.rental
+WHERE rental_date = '2005-05-25'
+ORDER BY customer_id\G
+
+*************************** 1. row ***************************
+         type: ref
+possible_keys: rental_date
+          key: rental_date
+         rows: 1
+        Extra: Using where; Using index; Using filesort
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<div class="covering_index">
+	<pre><code class="sql">CREATE TABLE rental (
+...
+PRIMARY KEY (rental_id),
+UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
+KEY idx_fk_inventory_id (inventory_id),
+KEY idx_fk_customer_id (customer_id),
+KEY idx_fk_staff_id (staff_id),
+...
+);
+
+EXPLAIN SELECT rental_id FROM sakila.rental
+WHERE rental_date = '2005-05-25' AND inventory_id IN (1, 2)
+ORDER BY customer_id\G
+
+*************************** 1. row ***************************
+         type: range
+possible_keys: rental_date,idx_fk_inventory_id
+          key: rental_date
+         rows: 2
+        Extra: Using where; Using index; Using filesort
+</code></pre>
+</div>
 </section>
