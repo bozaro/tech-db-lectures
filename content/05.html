@@ -720,3 +720,39 @@ WHERE date_col >= DATE_SUB(2008-01-17, INTERVAL 10 DAY);
 </code></pre>
 	<img src="innodb-index.png" class="place bottom center" style="width: 600px" />
 </section>
+
+<section class="slide">
+	<h2>Размещение данных</h2>
+	<img src="myisam-vs-innodb.png" style="position: absolute; right: 40px; height: 450px" />
+	<pre><code class="sql">CREATE TABLE layout_test (
+	col1 int NOT NULL,
+	col2 int NOT NULL,
+	PRIMARY KEY(col1),
+	KEY(col2)
+);
+</code></pre>
+</section>
+
+<section class="slide">
+	<h2>INSERT: Сурогатный ключ</h2>
+	<div style="text-align: center; height: 100%">
+		<img style="width: 100%" src="insert-append.png" />
+	</div>
+</section>
+
+<section class="slide">
+	<h2>INSERT: Натуральный ключ</h2>
+	<div style="text-align: center; height: 100%">
+		<img style="height: 75%" src="insert-random.png" />
+	</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<ul style="font-size: 90%">
+	<li>Записи индекса обычно компактнее полной строки, поэтому, если MySQL читает только индекс, то обращается к значительно меньшему объему данных.</li>
+	<li>Индексы отсортированы по индексируемым значениям (по крайней мере, внутри страницы), поэтому для поиска по диапазону, характеризуемому большим объемом ввода/вывода, потребуется меньше операций обращения к диску.</li>
+	<li>Большинство подсистем хранения кэширует индексы лучше, чем сами данные.</li>
+	<li>Покрывающие индексы особенно полезны в случае таблиц InnoDB из-за кластерных индексов. Вторичные индексы InnoDB хранят значения первичного ключа строки в листовых узлах. Таким образом, вторичный индекс, который «покрывает» запрос, позволяет избежать еще одного поиска по первичному индексу.</li>
+</ul>
+</section>
