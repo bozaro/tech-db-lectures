@@ -1,0 +1,995 @@
+---
+title: Лекция 5
+description: |
+  Тема данной лекции:
+
+   - Индексы;
+   - Протоколирование запросов;
+   - Немного про EXPLAIN;
+   - О покрывающих индексах.
+---
+<style>
+.covering_index {
+	font-size: 75%;
+}
+</style>
+
+<section class="slide">
+<h2>Индексирование</h2>
+<div style="font-size: 80%">
+<p>Индексы используются для:</p>
+<ul>
+	<li>Быстрого поиска записей по условию WHERE;</li>
+	<li>Для объединения таблиц с посредством JOIN. Необходимо использовать одинаковые типы сравниваемых полей.bo Если для сравнения необходимо произвести преобразование типов, то индексы использоваться не будут;</li>
+	<li>Для выбора наименьшего количества совпадений. Если есть множественный индекс, то использоваться будет тот индекс, который находит самое маленький число строк;</li>
+	<li>Поиска MAX и MIN значений для ключевых полей;</li>
+	<li>Для сортировки и группировки таблиц (……ORDER BY и GROUP BY);</li>
+	<li>Для извлечения данных не из таблицы с данными, а из индексного файла. Это возможно только в некоторых случаях, например, когда все извлекаемые поля проиндексированы.</li>
+</ul>
+</div>
+</section>
+
+<section class="slide">
+<h2>Индексирование B-tree</h2>
+<div style="text-align: center; height: 100%">
+	<img style="height: 70%" src="index-btree.png" />
+</div>
+</section>
+
+<section class="slide">
+<h2>Индексирование B-tree (пример)</h2>
+<img style="position: absolute; bottom: 50px; right: 50px; height: 380px" src="index-btree-2.png" />
+<pre style="font-size: 80%"><code class="sql">CREATE TABLE people (
+	last_name VARCHAR(50) NOT NULL,
+	first_name VARCHAR(50) NOT NULL,
+	dob DATE NOT NULL,
+	gender ENUM(m, f) NOT NULL,
+	KEY (last_name, first_name, dob)
+);</code></pre>
+</section>
+
+<section class="slide">
+<h2>Индексирование B-tree (особенности)</h2>
+<div style="font-size: 75%">
+<h3>Можно:</h3>
+<ul>
+	<li>Поиск по полному значению;</li>
+	<li>Поиск по самому левому префиксу;</li>
+	<li>Поиск по префиксу столбца;</li>
+	<li>Поиск по диапазону значений;</li>
+	<li>Поиск по полному совпадению одной части и диапазону в другой части;</li>
+	<li>Запросы только по индексу.</li>
+</ul>
+<h3>Нельзя:</h3>
+<ul>
+	<li>Поиск без использования левой части ключа;</li>
+	<li>Нельзя пропускать столбцы;</li>
+	<li>Оптимизация после поиска в диапазоне.</li>
+</ul>
+</div>
+</section>
+
+<section class="slide">
+<h2>Индексирование ХЕШ-индексы</h2>
+<pre><code class="sql">CREATE TABLE testhash (
+	fname VARCHAR(50) NOT NULL,
+	lname VARCHAR(50) NOT NULL,
+	KEY USING HASH (fname)
+) ENGINE=MEMORY;</code></pre>
+<table>
+		<thead>
+			<tr>
+				<th>fname</th>
+				<th>lname</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>Arjen</td>
+				<td>Lentz</td>
+			</tr>
+			<tr>
+				<td>Baron</td>
+				<td>Schwartz</td>
+			</tr>
+			<tr>
+				<td>Peter</td>
+				<td>Zaitsev</td>
+			</tr>
+			<tr>
+				<td>Vadim</td>
+				<td>Tkachenko</td>
+			</tr>
+		</tbody>
+</table>
+</section>
+
+<section class="slide">
+<h2>Индексирование ХЕШ-индексы</h2>
+<pre><code>
+f('Arjen') = 2323
+f('Baron') = 7437
+f('Peter') = 8784
+f('Vadim') = 2458</code></pre>
+<table>
+		<thead>
+			<tr>
+				<th>Ячейка</th>
+				<th>Значение</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>2323</td>
+				<td>Указатель на строку 1</td>
+			</tr>
+			<tr>
+				<td>2458</td>
+				<td>Указатель на строку 4</td>
+			</tr>
+			<tr>
+				<td>7437</td>
+				<td>Указатель на строку 2</td>
+			</tr>
+			<tr>
+				<td>8784</td>
+				<td>Указатель на строку 3</td>
+			</tr>
+		</tbody>
+</table>
+<pre><code class="sql">SELECT lname FROM testhash WHERE fname = 'Peter';</code></pre>
+</section>
+
+<section class="slide">
+<h2>Индексирование B-tree (особенности)</h2>
+<div style="font-size: 85%">
+<ul>
+	<li>MySQL не может использовать данные в индексе, чтобы избежать чтения строк.</li>
+	<li>MySQL не может использовать хеш-индексы для сортировки, поскольку строки в нем не хранятся в отсортированном порядке.</li>
+	<li>Хеш-индексы не поддерживают поиск по частичному ключу, так как хеш-коды вычисляются для всего индексируемого значения.</li>
+	<li>Хеш-индексы поддерживают только сравнения на равенство, использующие операторы =, IN() и <=>.</li>
+	<li>Доступ к данным в хеш-индексе очень быстр, если нет большого количества коллизий.</li>
+	<li>Некоторые операции обслуживания индекса могут оказаться медленными, если количество коллизий велико.</li>
+</ul>
+</div>
+</section>
+
+<section class="slide">
+<h2>Индексирование. Специфика MySQL</h2>
+<div>
+<ul>
+	<li>MySQL для регистронезависимого сравнения использует COLLATIONS (например: utf8_general_ci):<br/>
+	<a style="font-size: 85%" href="http://collation-charts.org/mysql60/mysql604.utf8_general_ci.european.html">http://collation-charts.org/mysql60/mysql604.utf8_general_ci.european.html</a></li>
+	<li>В MySQL нет разницы между UNIQUE INDEX и UNIQUE CONSTRAINT.</li>
+	<li>MySQL автоматически создаёт индексы для FOREIGN KEY, но некоторые СУБД этого не делают (например: PostgreSQL).</li>
+</ul>
+</div>
+</section>
+
+<section class="slide">
+<h2>Профилирование</h2>
+<ul>
+	<li>К каким данным MySQL обращается чаще всего?</li>
+	<li>Какие типы запросов MySQL выполняет чаще всего?</li>
+	<li>В каких состояниях преимущественно находятся потоки (threads) MySQL?</li>
+	<li>Какие подсистемы MySQL чаще всего использует для выполнения запросов?</li>
+	<li>Какие виды обращения к данным встречаются наиболее часто?</li>
+	<li>Сколько различных видов действий, например просмотра индексов, выполняет MySQL?</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Протоколирование запросов</h2>
+<h3>Общий журнал</h3>
+<pre><code>log = &lt;имя_файла&gt;</code></pre>
+<h3>Журнал медленных запросов</h3>
+<pre><code>log-slow-queries = &lt;имя_файла&gt;
+long_query_time = 2
+log-queries-not-using-indexes
+log-slow-admin-statements
+</code></pre>
+<pre><code class="sql" style="font-size: 90%">
+# Time: 121018 9:47:00
+# User@Host: root[root] @ localhost []
+# Query_time: 0.000652 Lock_time: 0.000109 Rows_sent: 50
+# Rows_examined: 3268
+SELECT ...
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Протоколирование запросов</h2>
+<ul>
+	<li>Таблица могла быть заблокирована, поэтому запрос был вынужден ждать. Величина Lock_time показывает, как долго запрос ждал освобождения блокировки.</li>
+	<li>Данные или индексы могли к тому моменту еще отсутствовать в кэше. Это обычный случай, когда сервер MySQL только запущен или не настроен должным образом.</li>
+	<li>Мог идти ночной процесс резервного копирования, из-за чего все операции дискового ввода/вывода замедлялись.</li>
+	<li>Сервер мог обрабатывать в тот момент другие запросы, поэтому данный выполнялся медленнее.</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Протоколирование запросов</h2>
+<div style="font-size: 85%">
+<h3>Долго выполняющиеся запросы</h3>
+<p>Периодические выполняемые пакетные задания действительно могут запускать долго выполняющиеся запросы, но обычные запросы не должны занимать много времени.</p>
+<h3>Запросы, больше всего нагружающие сервер</h3>
+<p>Ищите запросы, которые потребляют большую часть времени сервера. Напомним, что короткие запросы, выполняемые очень часто, тоже могут занимать много времени.</p>
+<h3>Новые запросы</h3>
+<p>Ищите запросы, которых вчера не было в первой сотне, а сегодня они появились. Это могут быть новые запросы или запросы, которые обычно выполнялись быстро, а теперь замедлились из-за изменившейся схемы индексации. Либо произошли еще какие-то изменения.</p>
+</div>
+<footer class="footer">
+Небольшой рассказик про <a href="https://hibernate.atlassian.net/browse/HHH-9406">HHH-9406</a>
+</footer>
+</section>
+
+<section class="slide">
+<h2>Протоколирование запросов</h2>
+<pre><code class="sql">SHOW STATUS</code></pre>
+<dl style="font-size: 90%">
+	<dt>Bytes_received и Bytes_sent</dt>
+	<dd>Количество байтов, соответственно полученных и отправленных сервером.</dd>
+
+	<dt>Com_*</dt>
+	<dd>Команды, которые сервер выполняет.</dd>
+
+	<dt>reated_*</dt>
+	<dd>Временные таблицы и файлы, созданные во время выполнения запроса.</dd>
+
+	<dt>Handler_*</dt>
+	<dd>Операции подсистемы хранения.</dd>
+
+	<dt>Select_*</dt>
+	<dd>Различные типы планов выполнения операции соединения.</dd>
+
+	<dt>Sort_*</dt>
+	<dd>Разнообразная информация о сортировке.</dd>
+</dl>
+</section>
+
+<section class="slide">
+<h2>Протоколирование запросов</h2>
+<pre><code class="sql">SET profiling = 1;
+
+SELECT SQL_NO_CACHE "movie"."mID", COUNT(*)
+FROM "movie"
+	INNER JOIN "rating" USING ("mID")
+GROUP BY "movie"."mID"
+ORDER BY COUNT(*) DESC;
+
+SHOW PROFILES\G
+******************** 1. row  *********************
+Query_ID: 1
+Duration: 0.02596900
+Query: SELECT …
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>EXPLAIN</h2>
+<ul style="font-size: 90%">
+	<li>EXPLAIN ничего не говорит о том, как влияют на запрос триггеры, хранимые и пользовательские (UDF) функции.</li>
+	<li>Она не работает с хранимыми процедурами, хотя можно разложить процедуру на отдельные запросы и вызвать EXPLAIN для каждого из них.</li>
+	<li>Она ничего не говорит об оптимизациях, которые MySQL производит уже на этапе выполнения запроса.</li>
+	<li>Часть отображаемой статистической информации – всего лишь оценка, иногда очень неточная.</li>
+	<li>Она не показывает все, что можно было бы сообщить о плане выполнения запроса.</li>
+	<li>Она не делает различий между некоторыми операциями, называя их одинаково.</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>JOIN-стратегии</h2>
+<dl>
+	<dt>MERGE JOIN</dt>
+	<dd>Соединение двух отсортированных последовательностей.<br/>
+	Работает быстро и за один проход обоих списков.</dd>
+
+	<dt>HASH JOIN</dt>
+	<dd>Меньшее отношение помещается в хэш-таблицу. Затем для каждой строки из большей таблицы выполняется поиск значений, соответствующих условию соединения.<br/>
+	Соединение только по условию эквивалентности.</dd>
+
+	<dt>NEASTED LOOP</dt>
+	<dd>Соединение вложенными циклами.</dd>
+</dl>
+</section>
+
+<section class="slide">
+<h2>EXPLAIN (графическое представление)</h2>
+<div style="text-align: center; height: 100%">
+	<img style="width: 85%" src="explain-bad.png" />
+	<img style="width: 85%" src="explain-good.png" />
+</div>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: id</h2>
+<div style="font-size: 70%">
+<pre><code class="sql">EXPLAIN SELECT (SELECT 1 FROM sakila.actor LIMIT 1) FROM sakila.film;</code></pre>
+<table>
+	<thead>
+		<tr>
+			<th>Id</th>
+			<th>select_type</th>
+			<th>table</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>1</td>
+			<td>PRIMARY</td>
+			<td>film</td>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>SUBQUERY</td>
+			<td>actor</td>
+		</tr>
+	</tbody>
+</table>
+<pre><code class="sql">EXPLAIN SELECT film_id FROM (SELECT MAX(film_id) as film_id FROM sakila.film) AS der;</code></pre>
+<table>
+	<thead>
+		<tr>
+			<th>Id</th>
+			<th>select_type</th>
+			<th>table</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>1</td>
+			<td>PRIMARY</td>
+			<td>&lt;derived2&gt;</td>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>DERIVED</td>
+			<td>null</td>
+		</tr>
+	</tbody>
+</table>
+<pre><code class="sql">EXPLAIN SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3;</code></pre>
+<table>
+	<thead>
+		<tr>
+			<th>Id</th>
+			<th>select_type</th>
+			<th>table</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>1</td>
+			<td>PRIMARY</td>
+			<td>null</td>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>UNION</td>
+			<td>null</td>
+		</tr>
+		<tr>
+			<td>3</td>
+			<td>UNION</td>
+			<td>null</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: select_type</h2>
+<dl style="font-size: 85%">
+	<dt>PRIMARY</dt>
+	<dd>Самый внешний запрос.</dd>
+
+	<dt>SUBQUERY</dt>
+	<dd>Запрос SELECT, который содержится в подзапросе, находящемся во фразе SELECT (иными словами, не во фразе FROM).</dd>
+
+	<dt>DERIVED</dt>
+	<dd>Значение DERIVED означает, что данный запрос SELECT является подзапросом во фразе FROM.</dd>
+
+	<dt>UNION</dt>
+	<dd>Второй и последующий запросы SELECT, входящие в объединение UNION, помечаются признаком UNION.</dd>
+
+	<dt>UNION RESULT</dt>
+	<dd>Запрос SELECT, применяемый для выборки результатов из временной таблицы, созданной в ходе выполнения UNION.</dd>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: table</h2>
+<div style="font-size: 80%">
+<pre><code class="sql">EXPLAIN SELECT film.film_id
+FROM sakila.film
+	INNER JOIN sakila.film_actor USING (film_id)
+	INNER JOIN sakila.actor USING (actor_id);
+</code></pre>
+<table>
+	<thead>
+		<tr>
+			<th>Id</th>
+			<th>select_type</th>
+			<th>table</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>1</td>
+			<td>SIMPLE</td>
+			<td>actor</td>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>SIMPLE</td>
+			<td>film_actor</td>
+		</tr>
+		<tr>
+			<td>3</td>
+			<td>SIMPLE</td>
+			<td>film</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+<div style="text-align: center">
+	<img style="height: 200px" src="explain-table.png" />
+</div>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: table</h2>
+<pre style="font-size: 90%"><code class="sql">EXPLAIN SELECT
+	actor_id,
+	(SELECT 1 FROM sakila.film_actor
+	          WHERE film_actor.actor_id = der_1.actor_id LIMIT 1)
+FROM (
+	SELECT actor_id
+	FROM sakila.actor LIMIT 5
+) AS der_1
+UNION ALL
+SELECT film_id,
+(SELECT @var1 FROM sakila.rental LIMIT 1)
+FROM (
+	SELECT film_id,
+	(SELECT 1 FROM sakila.store LIMIT 1)
+	FROM sakila.film LIMIT 5
+) AS der_2;
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: table</h2>
+<div style="font-size: 80%">
+<table>
+	<thead>
+		<tr>
+			<th>Id</th>
+			<th>select_type</th>
+			<th>table</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>1</td>
+			<td>PRIMARY</td>
+			<td>&lt;derived3&gt;</td>
+		</tr>
+		<tr>
+			<td>3</td>
+			<td>DERIVED</td>
+			<td>actor</td>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>DEPENDENT SUBQUERY</td>
+			<td>film_actor</td>
+		</tr>
+		<tr>
+			<td>4</td>
+			<td>UNION</td>
+			<td>&lt;derived6&gt;</td>
+		</tr>
+		<tr>
+			<td>6</td>
+			<td>DERIVED</td>
+			<td>film</td>
+		</tr>
+		<tr>
+			<td>7</td>
+			<td>SUBQUERY</td>
+			<td>store</td>
+		</tr>
+		<tr>
+			<td>5</td>
+			<td>UNCACHEABLE SUBQUERY</td>
+			<td>rental</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: table</h2>
+<div style="text-align: center; height: 100%">
+	<img style="height: 75%" src="explain-visual.png" />
+</div>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: type</h2>
+<dl style="font-size: 65%">
+	<dt>ALL</dt>
+	<dd>Этот подход обычно называют сканированием таблицы.</dd>
+
+	<dt>index</dt>
+	<dd>То же, что сканирование таблицы, только MySQL просматривает ее в порядке, задаваемом индексом, а не в порядке следования строк.</dd>
+
+	<dt>range</dt>
+	<dd>Просмотр диапазона – это ограниченная форма сканирования индекса. Просмотр начинается в определенной точке индекса и возвращает строки в некотором диапазоне значений.</dd>
+
+	<dt>ref</dt>
+	<dd>Это доступ по индексу (иногда он называется поиском по индексу (index lookup)), в результате которого возвращаются строки, соответствующие единственному заданному значению.</dd>
+
+	<dt>eq_ref</dt>
+	<dd>Это поиск по индексу в случае, когда MySQL точно знает, что будет возвращено не более одного значения.</dd>
+
+	<dt>const, system</dt>
+	<dd>Эти типы доступа MySQL применяет, когда в процессе оптимизации какую-то часть запроса можно преобразовать в константу.</dd>
+
+	<dt>NULL</dt>
+	<dd>Этот метод означает, что MySQL сумела разрешить запрос на фазе оптимизации, так что в ходе выполнения вообще не потребуется обращаться к таблице или индексу.</dd>
+</dl>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: possible_keys, key</h2>
+<pre style="font-size: 90%"><code class="sql">EXPLAIN SELECT actor_id, film_id FROM sakila.film_actor\G
+
+************************* 1. row *************************
+id: 1
+select_type: SIMPLE
+table: film_actor
+type: index
+possible_keys: NULL
+key: idx_fk_film_id
+key_len: 2
+ref: NULL
+rows: 5143
+Extra: Using index
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: possible_keys, key</h2>
+<div style="font-size: 80%">
+<pre><code class="sql">EXPLAIN SELECT actor_id, film_id
+FROM sakila.film_actor WHERE actor_id=4; 
+
+...| type | possible_keys | key     | key_len |...
+...| ref  | PRIMARY       | PRIMARY | 2       |...
+</code></pre>
+<pre class="next"><code class="sql">
+CREATE TABLE t (
+    a char(3) NOT NULL,
+    b int(11) NOT NULL,
+    c char(1) NOT NULL,
+    PRIMARY KEY (a,b,c)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+ 
+EXPLAIN SELECT a FROM t WHERE a = 'sak' AND b = 112;
+</code></pre>
+<pre class="next"><code class="sql">
+... |type | possible_keys | key     | key_len |...
+... | ref | PRIMARY       | PRIMARY | 13      |...
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: ref</h2>
+<div style="font-size: 75%">
+<pre><code class="sql">EXPLAIN SELECT STRAIGHT_JOIN f.film_id
+FROM sakila.film AS f
+    INNER JOIN sakila.film_actor AS fa
+        ON f.film_id=fa.film_id AND fa.actor_id = 1
+    INNER JOIN sakila.actor AS a USING(actor_id);
+
+...| table |...| key                | key_len | ref                    |...
+...| a     |...| PRIMARY            | 2       | const                  |...
+...| f     |...| idx_fk_language_id | 1       | NULL                   |...
+...| fa    |...| PRIMARY            | 4       | const,sakila.f.film_id |...
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: rows</h2>
+<pre><code class="sql">EXPLAIN SELECT f.film_id
+FROM sakila.film AS f
+    INNER JOIN sakila.film_actor AS fa USING(film_id)
+    INNER JOIN sakila.actor AS a USING(actor_id);
+
+...| rows |...
+...|  200 |...
+...|   13 |...
+...|    1 |...
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Столбцы EXPLAIN: extra</h2>
+<dl style="font-size: 80%">
+	<dt>Using index</dt>
+	<dd>Означает, что MySQL воспользуется покрывающим индексом, чтобы избежать доступа к самой таблице.</dd>
+
+	<dt>Using where</dt>
+	<dd>Означает, что сервер произведет дополнительную фильтрацию строк, отобранных подсистемой хранения.</dd>
+
+	<dt>Using temporary</dt>
+	<dd>Означает, что MySQL будет применять временную таблицу для сортировки результатов запроса.</dd>
+
+	<dt>Using filesort</dt>
+	<dd>Означает, что MySQL прибегнет к обычной сортировке для упорядочения результатов, а не станет читать строки из таблицы в порядке, задаваемом индексом.</dd>
+
+	<dt>range checked for each record</dt>
+	<dd>Означает, что подходящего индекса не нашлось, поэтому сервер будет заново искать индекс при обработке каждой строки в операции соединения.</dd>
+</dl>
+</section>
+
+<section class="slide">
+<h2>Индексирование: изоляция столбца</h2>
+<pre><code class="sql">SELECT ... FROM sakila.actor
+WHERE actor_id + 1 = 5;
+
+SELECT ...
+WHERE TO_DAYS(CURRENT_DATE) - TO_DAYS(date_col) <= 10;
+</code></pre>
+<pre class="next"><code class="sql">
+SELECT ...
+WHERE date_col >= DATE_SUB(CURRENT_DATE, INTERVAL 10 DAY);
+</code></pre>
+<pre class="next"><code class="sql">
+SELECT ...
+WHERE date_col >= DATE_SUB(2008-01-17, INTERVAL 10 DAY);
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Индексирование: кластерные индексы</h2>
+<div style="text-align: center; height: 100%">
+	<img style="height: 75%" src="index-cluster.png" />
+</div>
+</section>
+
+<section class="slide">
+<h2>Индексирование: кластерные индексы (+)</h2>
+<ul>
+	<li>Вы можете хранить связанные данные рядом.</li>
+	<li>Быстрый доступ к данным. Кластерный индекс хранит и индекс, и данные вместе в одной B-Tree структуре, поэтому извлечение строк из кластерного индекса обычно происходит быстрее, чем сопоставимый поиск в некластерном индексе.</li>
+	<li>Использующие покрывающие индексы запросы могут получить значение первичного ключа из листового узла.</li>
+</ul>
+</section>
+
+<section class="slide">
+<h2>Индексирование: кластерные индексы (-)</h2>
+<ul style="font-size: 75%">
+	<li>Если данные помещаются в памяти, то порядок доступа к ним не имеет значения, и тогда кластерные индексы не принесут большой пользы.</li>
+	<li>Если вы загружаете большое количество данных в другом порядке, то по окончании загрузки имеет смысл реорганизовать таблицу с помощью команды OPTIMIZE TABLE.</li>
+	<li>Обновление столбцов кластерного индекса обходится дорого, поскольку InnoDB вынуждена перемещать каждую обновленную строку в новое место.</li>
+	<li>Для таблиц с кластерным индексом вставка новых строк или обновление первичного ключа, требующее перемещения строки, может приводить к расщеплению страницы.</li>
+	<li>Полное сканирование кластерных таблиц может оказаться более медленным, особенно если строки упакованы менее плотно или хранятся непоследовательно из-за расщепления страниц.</li>
+	<li>Вторичные (некластерные) индексы могут оказаться больше, чем вы ожидаете, поскольку в листовых узлах хранятся значения столбцов, составляющих первичный ключ.</li>
+	<li>Для доступа к данным по вторичному индексу требуется просмотр двух индексов вместо одного.</li>
+</ul>
+</section>
+
+<section class="slide">
+	<h2>Размещение данных в MyISAM</h2>
+	<img src="myisam-data.png" style="position: absolute; right: 0" />
+	<pre><code class="sql">CREATE TABLE layout_test (
+	col1 int NOT NULL,
+	col2 int NOT NULL,
+	PRIMARY KEY(col1),
+	KEY(col2)
+);
+</code></pre>
+	<img src="myisam-pk.png" class="place bottom center" style="width: 800px" />
+</section>
+
+<section class="slide">
+	<h2>Размещение данных в MyISAM</h2>
+	<img src="myisam-data.png" style="position: absolute; right: 0" />
+	<pre><code class="sql">CREATE TABLE layout_test (
+	col1 int NOT NULL,
+	col2 int NOT NULL,
+	PRIMARY KEY(col1),
+	KEY(col2)
+);
+</code></pre>
+	<img src="myisam-index.png" class="place bottom center" style="width: 800px" />
+</section>
+
+<section class="slide">
+	<h2>Размещение данных в InnoDB</h2>
+	<pre><code class="sql">CREATE TABLE layout_test (
+	col1 int NOT NULL,
+	col2 int NOT NULL,
+	PRIMARY KEY(col1),
+	KEY(col2)
+);
+</code></pre>
+	<img src="innodb-data.png" class="place bottom center" style="width: 600px" />
+</section>
+
+<section class="slide">
+	<h2>Размещение данных в InnoDB</h2>
+	<pre><code class="sql">CREATE TABLE layout_test (
+	col1 int NOT NULL,
+	col2 int NOT NULL,
+	PRIMARY KEY(col1),
+	KEY(col2)
+);
+</code></pre>
+	<img src="innodb-index.png" class="place bottom center" style="width: 600px" />
+</section>
+
+<section class="slide">
+	<h2>Размещение данных</h2>
+	<img src="myisam-vs-innodb.png" style="position: absolute; right: 40px; height: 450px" />
+	<pre><code class="sql">CREATE TABLE layout_test (
+	col1 int NOT NULL,
+	col2 int NOT NULL,
+	PRIMARY KEY(col1),
+	KEY(col2)
+);
+</code></pre>
+</section>
+
+<section class="slide">
+	<h2>INSERT: Сурогатный ключ</h2>
+	<div style="text-align: center; height: 100%">
+		<img style="width: 100%" src="insert-append.png" />
+	</div>
+</section>
+
+<section class="slide">
+	<h2>INSERT: Натуральный ключ</h2>
+	<div style="text-align: center; height: 100%">
+		<img style="height: 75%" src="insert-random.png" />
+	</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<div class="covering_index">
+	<pre><code class="sql">EXPLAIN SELECT store_id, film_id FROM sakila.inventory\G
+
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: inventory
+   partitions: NULL
+         type: index
+possible_keys: NULL
+          key: idx_store_id_film_id
+      key_len: 3
+          ref: NULL
+         rows: 4581
+     filtered: 100.00
+        Extra: Using index
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<div class="covering_index">
+	<pre><code class="sql">EXPLAIN SELECT actor_id, last_name
+FROM sakila.actor WHERE last_name = 'HOPPER'\G
+
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: actor
+   partitions: NULL
+         type: ref
+possible_keys: idx_actor_last_name
+          key: idx_actor_last_name
+      key_len: 137
+          ref: const
+         rows: 2
+     filtered: 100.00
+        Extra: Using index
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<div class="covering_index">
+	<pre><code class="sql">CREATE TABLE rental (
+...
+PRIMARY KEY (rental_id),
+UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
+KEY idx_fk_inventory_id (inventory_id),
+KEY idx_fk_customer_id (customer_id),
+KEY idx_fk_staff_id (staff_id),
+...
+);
+
+EXPLAIN SELECT rental_id FROM sakila.rental
+WHERE rental_date = '2005-05-25'
+ORDER BY inventory_id, customer_id\G
+
+*************************** 1. row ***************************
+         type: ref
+possible_keys: rental_date
+          key: rental_date
+         rows: 1
+        Extra: Using where; Using index
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<div class="covering_index">
+	<pre><code class="sql">CREATE TABLE rental (
+...
+PRIMARY KEY (rental_id),
+UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
+KEY idx_fk_inventory_id (inventory_id),
+KEY idx_fk_customer_id (customer_id),
+KEY idx_fk_staff_id (staff_id),
+...
+);
+
+EXPLAIN SELECT rental_id FROM sakila.rental
+WHERE rental_date = '2005-05-25'
+ORDER BY inventory_id DESC\G
+
+*************************** 1. row ***************************
+         type: ref
+possible_keys: rental_date
+          key: rental_date
+         rows: 1
+        Extra: Using where; Using index
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<div class="covering_index">
+	<pre><code class="sql">CREATE TABLE rental (
+...
+PRIMARY KEY (rental_id),
+UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
+KEY idx_fk_inventory_id (inventory_id),
+KEY idx_fk_customer_id (customer_id),
+KEY idx_fk_staff_id (staff_id),
+...
+);
+
+EXPLAIN SELECT rental_id FROM sakila.rental
+WHERE rental_date = '2005-05-25'
+ORDER BY inventory_id DESC, customer_id ASC\G
+
+*************************** 1. row ***************************
+         type: ref
+possible_keys: rental_date
+          key: rental_date
+         rows: 1
+        Extra: Using where; Using index; Using filesort
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<div class="covering_index">
+	<pre><code class="sql">CREATE TABLE rental (
+...
+PRIMARY KEY (rental_id),
+UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
+KEY idx_fk_inventory_id (inventory_id),
+KEY idx_fk_customer_id (customer_id),
+KEY idx_fk_staff_id (staff_id),
+...
+);
+
+EXPLAIN SELECT rental_id FROM sakila.rental
+WHERE rental_date = '2005-05-25'
+ORDER BY inventory_id, staff_id\G
+
+*************************** 1. row ***************************
+         type: ref
+possible_keys: rental_date
+          key: rental_date
+         rows: 1
+        Extra: Using index condition; Using filesort
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<div class="covering_index">
+	<pre><code class="sql">CREATE TABLE rental (
+...
+PRIMARY KEY (rental_id),
+UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
+KEY idx_fk_inventory_id (inventory_id),
+KEY idx_fk_customer_id (customer_id),
+KEY idx_fk_staff_id (staff_id),
+...
+);
+
+EXPLAIN SELECT rental_id FROM sakila.rental
+WHERE rental_date = '2005-05-25'
+ORDER BY rental_date, inventory_id\G
+
+*************************** 1. row ***************************
+         type: ref
+possible_keys: rental_date
+          key: rental_date
+         rows: 1
+        Extra: Using where; Using index
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<div class="covering_index">
+	<pre><code class="sql">CREATE TABLE rental (
+...
+PRIMARY KEY (rental_id),
+UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
+KEY idx_fk_inventory_id (inventory_id),
+KEY idx_fk_customer_id (customer_id),
+KEY idx_fk_staff_id (staff_id),
+...
+);
+
+EXPLAIN SELECT rental_id FROM sakila.rental
+WHERE rental_date = '2005-05-25'
+ORDER BY customer_id\G
+
+*************************** 1. row ***************************
+         type: ref
+possible_keys: rental_date
+          key: rental_date
+         rows: 1
+        Extra: Using where; Using index; Using filesort
+</code></pre>
+</div>
+</section>
+
+<section class="slide">
+<h2>Покрывающие индексы</h2>
+<div class="covering_index">
+	<pre><code class="sql">CREATE TABLE rental (
+...
+PRIMARY KEY (rental_id),
+UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
+KEY idx_fk_inventory_id (inventory_id),
+KEY idx_fk_customer_id (customer_id),
+KEY idx_fk_staff_id (staff_id),
+...
+);
+
+EXPLAIN SELECT rental_id FROM sakila.rental
+WHERE rental_date = '2005-05-25' AND inventory_id IN (1, 2)
+ORDER BY customer_id\G
+
+*************************** 1. row ***************************
+         type: range
+possible_keys: rental_date,idx_fk_inventory_id
+          key: rental_date
+         rows: 2
+        Extra: Using where; Using index; Using filesort
+</code></pre>
+</div>
+</section>
