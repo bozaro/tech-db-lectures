@@ -670,3 +670,53 @@ WHERE date_col >= DATE_SUB(2008-01-17, INTERVAL 10 DAY);
 	<li>Для доступа к данным по вторичному индексу требуется просмотр двух индексов вместо одного.</li>
 </ul>
 </section>
+
+<section class="slide">
+	<h2>Размещение данных в MyISAM</h2>
+	<img src="myisam-data.png" style="position: absolute; right: 0" />
+	<pre><code class="sql">CREATE TABLE layout_test (
+	col1 int NOT NULL,
+	col2 int NOT NULL,
+	PRIMARY KEY(col1),
+	KEY(col2)
+);
+</code></pre>
+	<img src="myisam-pk.png" class="place bottom center" style="width: 800px" />
+</section>
+
+<section class="slide">
+	<h2>Размещение данных в MyISAM</h2>
+	<img src="myisam-data.png" style="position: absolute; right: 0" />
+	<pre><code class="sql">CREATE TABLE layout_test (
+	col1 int NOT NULL,
+	col2 int NOT NULL,
+	PRIMARY KEY(col1),
+	KEY(col2)
+);
+</code></pre>
+	<img src="myisam-index.png" class="place bottom center" style="width: 800px" />
+</section>
+
+<section class="slide">
+	<h2>Размещение данных в InnoDB</h2>
+	<pre><code class="sql">CREATE TABLE layout_test (
+	col1 int NOT NULL,
+	col2 int NOT NULL,
+	PRIMARY KEY(col1),
+	KEY(col2)
+);
+</code></pre>
+	<img src="innodb-data.png" class="place bottom center" style="width: 600px" />
+</section>
+
+<section class="slide">
+	<h2>Размещение данных в InnoDB</h2>
+	<pre><code class="sql">CREATE TABLE layout_test (
+	col1 int NOT NULL,
+	col2 int NOT NULL,
+	PRIMARY KEY(col1),
+	KEY(col2)
+);
+</code></pre>
+	<img src="innodb-index.png" class="place bottom center" style="width: 600px" />
+</section>
