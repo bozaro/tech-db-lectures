@@ -67,3 +67,75 @@ GROUP BY H.grade, H.name, H.id
 ORDER BY H.grade, H.name
 </code></pre>
 </section>
+
+<section class="slide">
+<h2>Задача 2</h2>
+<p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, а средней оценкой фильмов выпущенных после 1980 года (фильмы выпущенные в 1980 году не учитываются).</p>
+<p>(Убедитесь, что для расчета используете среднюю оценку для каждого фильма. Не просто среднюю оценку фильмов до и после 1980 года.)</p>
+<pre><code>
+Movie (mID, title, year, director)
+Rating (rID, mID, stars, ratingDate)
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Задача 2</h2>
+<p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, а средней оценкой фильмов выпущенных после 1980 года (фильмы выпущенные в 1980 году не учитываются).</p>
+<p>(Убедитесь, что для расчета используете среднюю оценку для каждого фильма. Не просто среднюю оценку фильмов до и после 1980 года.)</p>
+<pre style="font-size: 80%; position: absolute"><code class="sql">
+<span style="display: none">SELECT</span>
+<span style="display: none">	AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) AS after,</span>
+<span style="display: none">	AVG(CASE WHEN year < 1980 THEN stars ELSE NULL END) AS before</span>
+<span style="display: none">FROM (</span>
+	SELECT M.mID, M.year, AVG(R.stars) as stars
+	FROM Movie M
+	JOIN Rating R USING (mID)
+	GROUP BY M.mID, M.year
+<span style="display: none">) AS R</span>
+</code></pre>
+<pre class="next" style="font-size: 80%"><code class="sql">
+SELECT
+	AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) AS after,
+	AVG(CASE WHEN year < 1980 THEN stars ELSE NULL END) AS before
+FROM (
+<span style="display: none">	SELECT M.mID, M.year, AVG(R.stars) as stars</span>
+<span style="display: none">	FROM Movie M</span>
+<span style="display: none">	JOIN Rating R USING (mID)</span>
+<span style="display: none">	GROUP BY M.mID, M.year</span>
+) AS R
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Задача 2</h2>
+<p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, а средней оценкой фильмов выпущенных после 1980 года (фильмы выпущенные в 1980 году не учитываются).</p>
+<p>(Убедитесь, что для расчета используете среднюю оценку для каждого фильма. Не просто среднюю оценку фильмов до и после 1980 года.)</p>
+<pre style="font-size: 80%; position: absolute"><code class="sql">
+SELECT
+	AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) -
+	AVG(CASE WHEN year < 1980 THEN stars ELSE NULL END) AS result
+FROM (
+	SELECT M.mID, M.year, AVG(R.stars) as stars
+	FROM Movie M
+	JOIN Rating R USING (mID)
+	GROUP BY M.mID, M.year
+) AS R
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Задача 2 (вариант 2)</h2>
+<p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, а средней оценкой фильмов выпущенных после 1980 года (фильмы выпущенные в 1980 году не учитываются).</p>
+<p>(Убедитесь, что для расчета используете среднюю оценку для каждого фильма. Не просто среднюю оценку фильмов до и после 1980 года.)</p>
+<pre style="font-size: 80%; position: absolute"><code class="sql">
+SELECT R.starts_after - R.starts_before AS result
+FROM (
+  SELECT
+    AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) AS stars_after,
+    AVG(CASE WHEN year < 1980 THEN stars ELSE NULL END) AS stars_before
+  FROM Movie M 
+  JOIN Rating R USING (mID)
+  GROUP BY M.mID
+) AS R
+</code></pre>
+</section>
