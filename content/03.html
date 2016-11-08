@@ -3,7 +3,9 @@ title: Лекция 3
 description: |
   Тема данной лекции:
 
-   - INSERT, UPDATE, DELETE.
+   - INSERT, UPDATE, DELETE;
+   - Переменные;
+   - Подзапросы.
 ---
 <section class="slide">
 <h2>INSERT</h2>
@@ -107,5 +109,101 @@ USING
     INNER JOIN t3 
 WHERE 
     t1.id=t2.id AND t2.id=t3.id;
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>Пользовательские переменные</h2>
+<pre style="font-size: 80%"><code class="sql">SET @var_name = expr [, @var_name = expr] ...
+
+SET @t1 = 1, @t2 = 2, @t3 := 4;
+SELECT @t1, @t2, @t3, @t4 := @t1 + @t2 + @t3
+</code></pre>
+<table>
+	<thead>
+		<tr>
+			<th>@t1</th>
+			<th>@t2</th>
+			<th>@t3</th>
+			<th>@t4 := @t1 + @t2 + @t3</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>1</td>
+			<td>2</td>
+			<td>4</td>
+			<td>7</td>
+		</tr>
+	</tbody>
+</table>
+<div class="next">
+<pre style="font-size: 80%"><code class="sql">SELECT @t1 := (@t2 := 1) + @t3 := 4, @t1, @t2, @t3;</code></pre>
+<table>
+	<thead>
+		<tr>
+			<th>@t1 := (@t2 := 1) + @t3 := 4</th>
+			<th>@t1</th>
+			<th>@t2</th>
+			<th>@t3</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>5</td>
+			<td>5</td>
+			<td>1</td>
+			<td>4</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+<pre class="next" style="font-size: 80%"><code class="sql">SET @i := 0;
+SELECT @i := @i + 1 AS row_number, t.* FROM your_table AS t;
+ 
+SELECT @i := @i + 1 AS row_number, t.*
+FROM your_table AS t, (SELECT @i:=0) AS z;
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>SUBQUERIES</h2>
+<pre style="font-size: 80%"><code class="sql">
+SELECT
+    col0,
+    (SELECT col1 FROM table1 WHERE table1.id = table0.id),
+    (SELECT col2 FROM table1 WHERE table1.id = table0.id)
+FROM
+    table0;
+</code></pre>
+<pre><code>non_subquery_operand comparison_operator (subquery)
+=  &gt;  &lt;  &gt;=  &lt;=  &lt;&gt;  !=  LIKE</code></pre>
+</code></pre>
+<pre style="font-size: 80%"><code class="sql">SELECT *
+FROM t1
+WHERE column1 = (SELECT MAX(column2) FROM t2);
+
+SELECT *
+FROM t1 AS t
+WHERE 2 = (SELECT COUNT(*) FROM t1 WHERE t1.id = t.id);</code></pre>
+</section>
+
+<section class="slide">
+<h2>SUBQUERIES</h2>
+<pre style="font-size: 80%"><code class="sql">perand comparison_operator ANY (subquery)
+operand IN (subquery) operand
+comparison_operator SOME (subquery)
+ 
+    SELECT s1 FROM t1 WHERE s1 > ANY (SELECT s1 FROM t2);
+ 
+    SELECT s1 FROM t1 WHERE s1 = ANY (SELECT s1 FROM t2);
+    SELECT s1 FROM t1 WHERE s1 IN (SELECT s1 FROM t2);
+ 
+operand comparison_operator ALL (subquery)
+ 
+    SELECT s1 FROM t1 WHERE s1 > ALL (SELECT s1 FROM t2);
+ 
+    SELECT s1 FROM t1 WHERE s1 <> ALL (SELECT s1 FROM t2);
+    SELECT s1 FROM t1 WHERE s1 NOT IN (SELECT s1 FROM t2);
 </code></pre>
 </section>
