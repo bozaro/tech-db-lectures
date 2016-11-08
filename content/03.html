@@ -207,3 +207,56 @@ operand comparison_operator ALL (subquery)
     SELECT s1 FROM t1 WHERE s1 NOT IN (SELECT s1 FROM t2);
 </code></pre>
 </section>
+
+<section class="slide">
+<h2>ROW SUBQUERIES</h2>
+<pre style="font-size: 80%"><code class="sql">SELECT *
+FROM t1
+WHERE (col1, col2)
+	= (SELECT col3, col4 FROM t2 WHERE id = 10);
+ 
+SELECT *
+FROM t1
+WHERE ROW (col1, col2)
+	= (SELECT col3, col4 FROM t2 WHERE id = 10);
+
+SELECT column1, column2, column3
+FROM t1
+WHERE (column1, column2, column3)
+    IN (SELECT column1, column2, column3 FROM t2);
+</code></pre>
+</section>
+
+
+<section class="slide">
+<h2>[NOT] EXISTS</h2>
+<pre style="font-size: 80%"><code class="sql">SELECT DISTINCT store_type
+FROM stores
+WHERE EXISTS (
+    SELECT *
+    FROM cities_stores
+    WHERE cities_stores.store_type = stores.store_type
+);
+ 
+SELECT DISTINCT store_type
+FROM stores
+WHERE NOT EXISTS (
+    SELECT *
+    FROM cities_stores
+    WHERE cities_stores.store_type = stores.store_type
+);
+</code></pre>
+</section>
+
+<section class="slide">
+<h2>SUBQUERIES in FROM</h2>
+<pre style="font-size: 80%"><code class="sql">SELECT ... FROM (subquery) [AS] name ...
+ 
+SELECT AVG(sum_column1)
+FROM (
+    SELECT SUM(column1) AS sum_column1
+    FROM t1
+    GROUP BY column1
+) AS t1;
+</code></pre>
+</section>
