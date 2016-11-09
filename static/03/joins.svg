@@ -91,10 +91,6 @@
       </cc:Work>
     </rdf:RDF>
   </metadata>
-  <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1">
     <image
        sodipodi:absref="/home/bozaro/git.bozaro.ru/tech-db-lectures/static/03/joins.png"
        xlink:href="joins.png"
@@ -104,34 +100,35 @@
        preserveAspectRatio="none"
        height="472.20001"
        width="600.59998" />
-       <g transform="translate(80, 75)">
+    <g transform="translate(300, 0)">
+       <g transform="translate(-220, 75)">
           <use xlink:href="#join_c" />
           <use xlink:href="#join_a" />
           <use xlink:href="#join_l" />
        </g>
-       <g transform="translate(520, 75)">
+       <g transform="translate(220, 75)">
           <use xlink:href="#join_c" />
           <use xlink:href="#join_b" />
           <use xlink:href="#join_l" />
        </g>
-       <g transform="translate(80, 240)">
+       <g transform="translate(-220, 240)">
           <use xlink:href="#join_a" />
           <use xlink:href="#join_l" />
        </g>
-       <g transform="translate(520, 240)">
+       <g transform="translate(220, 240)">
           <use xlink:href="#join_b" />
           <use xlink:href="#join_l" />
        </g>
-       <g transform="translate(300, 175)">
+       <g transform="translate(0, 175)">
           <use xlink:href="#join_c" />
        </g>
-       <g transform="translate(215, 380)">
+       <g transform="translate(-85, 380)">
           <use xlink:href="#join_c" />
           <use xlink:href="#join_a" />
           <use xlink:href="#join_b" />
           <use xlink:href="#join_l" />
        </g>
-       <g transform="translate(385, 380)">
+       <g transform="translate(85, 380)">
           <use xlink:href="#join_a" />
           <use xlink:href="#join_b" />
           <use xlink:href="#join_l" />
