@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 744.09448819 1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="joins.svg">
+  <defs
+     id="defs4">
+    <style><![CDATA[
+.a, .b {
+  stroke: #000;
+  stroke-width: 2px;
+/*  fill: #0f0;*/
+  fill-opacity: 0.5;
+}
+#join_l .b {
+  fill: none;
+}
+#join_l .a {
+  fill: #0f0;
+}
+]]></style>
+     <g id="joins">
+    <circle
+       class="a"
+       cx="-27"
+       cy="0"
+       r="52" />
+    <circle
+       class="b"
+       cx="27"
+       cy="0"
+       r="52" />
+
+     </g>
+   </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.2331142"
+     inkscape:cx="302.26469"
+     inkscape:cy="827.77061"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1366"
+     inkscape:window-height="705"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <image
+       sodipodi:absref="C:\Bozaro\tech-db-lectures\static\03\joins.png"
+       xlink:href="joins.png"
+       y="0"
+       x="0"
+       id="image8076"
+       preserveAspectRatio="none"
+       height="472.20001"
+       width="600.59998" />
+    <use id="join_l" xlink:href="#joins" x="80" y="75" />
+    <use id="join-r" xlink:href="#joins" x="520" y="75" />
+    <use id="join-i" xlink:href="#joins" x="300" y="175" />
+    <use id="join-ln" xlink:href="#joins" x="80" y="240" />
+    <use id="join-rn" xlink:href="#joins" x="520" y="240" />
+    <use id="join-f" xlink:href="#joins" x="215" y="380" />
+    <use id="join-fn" xlink:href="#joins" x="385" y="380" />
+  </g>
+</svg>
