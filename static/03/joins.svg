@@ -1,22 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 744.09448819 1052.3622047"
-   id="svg2"
-   version="1.1"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="joins.svg">
+   viewBox="0 0 600 454"
+   wigth="600px"
+   height="454px"
+   version="1.1">
   <defs
      id="defs4">
     <style
@@ -29,11 +18,25 @@
   stroke-width: 2px;
   fill: none;
 }
-.label {
+text {
   font-family: sans-serif;
+}
+.label {
   font-size: 24px;
   text-anchor: middle;
   alignment-baseline: middle;
+}
+.sql {
+  font-size: 10px;
+  font-weight: bold;
+  text-anchor: left;
+  alignment-baseline: hanging;
+}
+.title {
+  font-size: 36px;
+  font-weight: bold;
+  text-anchor: middle;
+  alignment-baseline: hanging;
 }
 ]]></style>
     <mask id="mask_side">
@@ -68,78 +71,86 @@
       <text class="label" x="40" y="0">B</text>
     </g>
   </defs>
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="1.2331142"
-     inkscape:cx="128.31486"
-     inkscape:cy="827.77061"
-     inkscape:document-units="px"
-     inkscape:current-layer="layer1"
-     showgrid="false"
-     inkscape:window-width="1855"
-     inkscape:window-height="1056"
-     inkscape:window-x="65"
-     inkscape:window-y="24"
-     inkscape:window-maximized="1" />
-  <metadata
-     id="metadata7">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-    <image
-       sodipodi:absref="/home/bozaro/git.bozaro.ru/tech-db-lectures/static/03/joins.png"
-       xlink:href="joins.png"
-       y="0"
-       x="0"
-       id="image8076"
-       preserveAspectRatio="none"
-       height="472.20001"
-       width="600.59998" />
     <g transform="translate(300, 0)">
-       <g transform="translate(-220, 75)">
+       <text class="title" y="4">SQL JOINS</text>
+       <g transform="translate(-220, 55)">
           <use xlink:href="#join_c" />
           <use xlink:href="#join_a" />
           <use xlink:href="#join_l" />
+          <g transform="translate(-60, 59)">
+            <text class="sql" y="0">SELECT &lt;select_list&gt;</text>
+            <text class="sql" y="12">FROM TableA A</text>
+            <text class="sql" y="24">LEFT JOIN TableB B</text>
+            <text class="sql" y="36">ON A.Key = B.Key</text>
+          </g>
        </g>
-       <g transform="translate(220, 75)">
+       <g transform="translate(220, 55)">
           <use xlink:href="#join_c" />
           <use xlink:href="#join_b" />
           <use xlink:href="#join_l" />
+          <g transform="translate(-60, 59)">
+            <text class="sql" y="0">SELECT &lt;select_list&gt;</text>
+            <text class="sql" y="12">FROM TableA A</text>
+            <text class="sql" y="24">RIGHT JOIN TableB B</text>
+            <text class="sql" y="36">ON A.Key = B.Key</text>
+          </g>
        </g>
-       <g transform="translate(-220, 240)">
+       <g transform="translate(-220, 220)">
           <use xlink:href="#join_a" />
           <use xlink:href="#join_l" />
+          <g transform="translate(-60, 59)">
+            <text class="sql" y="0">SELECT &lt;select_list&gt;</text>
+            <text class="sql" y="12">FROM TableA A</text>
+            <text class="sql" y="24">LEFT JOIN TableB B</text>
+            <text class="sql" y="36">ON A.Key = B.Key</text>
+            <text class="sql" y="48">WHERE B.Key IS NULL</text>
+          </g>
        </g>
-       <g transform="translate(220, 240)">
+       <g transform="translate(220, 220)">
           <use xlink:href="#join_b" />
           <use xlink:href="#join_l" />
+          <g transform="translate(-60, 59)">
+            <text class="sql" y="0">SELECT &lt;select_list&gt;</text>
+            <text class="sql" y="12">FROM TableA A</text>
+            <text class="sql" y="24">RIGHT JOIN TableB B</text>
+            <text class="sql" y="36">ON A.Key = B.Key</text>
+            <text class="sql" y="48">WHERE A.Key IS NULL</text>
+          </g>
        </g>
-       <g transform="translate(0, 175)">
+       <g transform="translate(0, 155)">
           <use xlink:href="#join_c" />
           <use xlink:href="#join_l" />
+          <g transform="translate(-60, 59)">
+            <text class="sql" y="0">SELECT &lt;select_list&gt;</text>
+            <text class="sql" y="12">FROM TableA A</text>
+            <text class="sql" y="24">INNER JOIN TableB B</text>
+            <text class="sql" y="36">ON A.Key = B.Key</text>
+          </g>
        </g>
-       <g transform="translate(-85, 380)">
+       <g transform="translate(-85, 360)">
           <use xlink:href="#join_c" />
           <use xlink:href="#join_a" />
           <use xlink:href="#join_b" />
           <use xlink:href="#join_l" />
+          <g transform="translate(-170, 34)">
+            <text class="sql" y="0">SELECT &lt;select_list&gt;</text>
+            <text class="sql" y="12">FROM TableA A</text>
+            <text class="sql" y="24">FULL OUTER JOIN TableB B</text>
+            <text class="sql" y="36">ON A.Key = B.Key</text>
+          </g>
        </g>
-       <g transform="translate(85, 380)">
+       <g transform="translate(85, 360)">
           <use xlink:href="#join_a" />
           <use xlink:href="#join_b" />
           <use xlink:href="#join_l" />
+          <g transform="translate(75, 22)">
+            <text class="sql" y="0">SELECT &lt;select_list&gt;</text>
+            <text class="sql" y="12">FROM TableA A</text>
+            <text class="sql" y="24">FULL OUTER JOIN TableB B</text>
+            <text class="sql" y="36">ON A.Key = B.Key</text>
+            <text class="sql" y="48">WHERE A.Key IS NULL</text>
+            <text class="sql" y="60">OR B.Key IS NULL</text>
+          </g>
        </g>
   </g>
 </svg>
