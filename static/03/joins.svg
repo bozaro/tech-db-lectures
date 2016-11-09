@@ -34,25 +34,25 @@
     <mask id="mask_side">
       <path
        style="fill: #fff; fill-rule: evenodd"
-       d="M -79,0 A 52,52 0 0 0 25,0 52,52 0 1 0 -79,0 m 54,0 A 52,52 0 0 0 79,0 52,52 0 1 0 -25,0" />
+       d="M-27,0m-52,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0 M27,0m-52,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0" />
     </mask>
     <mask id="mask_circle">
       <path
-       style="fill: white"
-       d="M-25,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0" />
+       style="fill: #fff"
+       d="M27,0m-52,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0" />
     </mask>
       <path id="join_c"
          class="filled"
          mask="url(#mask_circle)"
-         d="M-79,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0" />
+         d="M-27,0m-52,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0" />
       <path id="join_a"
          class="filled"
          mask="url(#mask_side)"
-         d="M-79,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0" />
+         d="M-27,0m-52,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0" />
       <path id="join_b"
          class="filled"
          mask="url(#mask_side)"
-         d="M-25,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0" />
+         d="M27,0m-52,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0" />
     <g
        id="join_l">
       <path
