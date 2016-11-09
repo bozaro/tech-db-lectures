@@ -19,34 +19,48 @@
    sodipodi:docname="joins.svg">
   <defs
      id="defs4">
-    <style><![CDATA[
-.a, .b {
-  stroke: #000;
-  stroke-width: 2px;
-/*  fill: #0f0;*/
+    <style
+       id="style4"><![CDATA[
+.filled {
+  fill: red;
   fill-opacity: 0.5;
 }
-#join_l .b {
+.lines {
+  stroke: #000;
+  stroke-width: 2px;
   fill: none;
 }
-#join_l .a {
-  fill: #0f0;
-}
 ]]></style>
-     <g id="joins">
-    <circle
-       class="a"
-       cx="-27"
-       cy="0"
-       r="52" />
-    <circle
-       class="b"
-       cx="27"
-       cy="0"
-       r="52" />
-
-     </g>
-   </defs>
+    <mask id="mask_side">
+      <path
+       style="fill: #fff; fill-rule: evenodd"
+       d="M -79,0 A 52,52 0 0 0 25,0 52,52 0 1 0 -79,0 m 54,0 A 52,52 0 0 0 79,0 52,52 0 1 0 -25,0" />
+    </mask>
+    <mask id="mask_circle">
+      <path
+       style="fill: white"
+       d="M-25,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0" />
+    </mask>
+      <path id="join_c"
+         class="filled"
+         mask="url(#mask_circle)"
+         d="M-79,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0" />
+      <path id="join_a"
+         class="filled"
+         mask="url(#mask_side)"
+         d="M-79,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0" />
+      <path id="join_b"
+         class="filled"
+         mask="url(#mask_side)"
+         d="M-25,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0" />
+    <g
+       id="join_l">
+      <path
+         class="lines"
+         mask="url(#mask_side)"
+         d="M -79,0 A 52,52 0 0 0 25,0 52,52 0 1 0 -79,0 m 54,0 A 52,52 0 0 0 79,0 52,52 0 1 0 -25,0" />
+    </g>
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -55,15 +69,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.2331142"
-     inkscape:cx="302.26469"
+     inkscape:cx="128.31486"
      inkscape:cy="827.77061"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1366"
-     inkscape:window-height="705"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-width="1855"
+     inkscape:window-height="1056"
+     inkscape:window-x="65"
+     inkscape:window-y="24"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -73,7 +87,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -82,7 +96,7 @@
      inkscape:groupmode="layer"
      id="layer1">
     <image
-       sodipodi:absref="C:\Bozaro\tech-db-lectures\static\03\joins.png"
+       sodipodi:absref="/home/bozaro/git.bozaro.ru/tech-db-lectures/static/03/joins.png"
        xlink:href="joins.png"
        y="0"
        x="0"
@@ -90,12 +104,37 @@
        preserveAspectRatio="none"
        height="472.20001"
        width="600.59998" />
-    <use id="join_l" xlink:href="#joins" x="80" y="75" />
-    <use id="join-r" xlink:href="#joins" x="520" y="75" />
-    <use id="join-i" xlink:href="#joins" x="300" y="175" />
-    <use id="join-ln" xlink:href="#joins" x="80" y="240" />
-    <use id="join-rn" xlink:href="#joins" x="520" y="240" />
-    <use id="join-f" xlink:href="#joins" x="215" y="380" />
-    <use id="join-fn" xlink:href="#joins" x="385" y="380" />
+       <g transform="translate(80, 75)">
+          <use xlink:href="#join_c" />
+          <use xlink:href="#join_a" />
+          <use xlink:href="#join_l" />
+       </g>
+       <g transform="translate(520, 75)">
+          <use xlink:href="#join_c" />
+          <use xlink:href="#join_b" />
+          <use xlink:href="#join_l" />
+       </g>
+       <g transform="translate(80, 240)">
+          <use xlink:href="#join_a" />
+          <use xlink:href="#join_l" />
+       </g>
+       <g transform="translate(520, 240)">
+          <use xlink:href="#join_b" />
+          <use xlink:href="#join_l" />
+       </g>
+       <g transform="translate(300, 175)">
+          <use xlink:href="#join_c" />
+       </g>
+       <g transform="translate(215, 380)">
+          <use xlink:href="#join_c" />
+          <use xlink:href="#join_a" />
+          <use xlink:href="#join_b" />
+          <use xlink:href="#join_l" />
+       </g>
+       <g transform="translate(385, 380)">
+          <use xlink:href="#join_a" />
+          <use xlink:href="#join_b" />
+          <use xlink:href="#join_l" />
+       </g>
   </g>
 </svg>
