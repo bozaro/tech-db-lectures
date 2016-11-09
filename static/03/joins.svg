@@ -22,13 +22,18 @@
     <style
        id="style4"><![CDATA[
 .filled {
-  fill: red;
-  fill-opacity: 0.5;
+  fill: #0db52e;
 }
 .lines {
   stroke: #000;
   stroke-width: 2px;
   fill: none;
+}
+.label {
+  font-family: sans-serif;
+  font-size: 24px;
+  text-anchor: middle;
+  alignment-baseline: middle;
 }
 ]]></style>
     <mask id="mask_side">
@@ -59,6 +64,8 @@
          class="lines"
          mask="url(#mask_side)"
          d="M -79,0 A 52,52 0 0 0 25,0 52,52 0 1 0 -79,0 m 54,0 A 52,52 0 0 0 79,0 52,52 0 1 0 -25,0" />
+      <text class="label" x="-40" y="0">A</text>
+      <text class="label" x="40" y="0">B</text>
     </g>
   </defs>
   <sodipodi:namedview
@@ -121,6 +128,7 @@
        </g>
        <g transform="translate(0, 175)">
           <use xlink:href="#join_c" />
+          <use xlink:href="#join_l" />
        </g>
        <g transform="translate(-85, 380)">
           <use xlink:href="#join_c" />
