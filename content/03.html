@@ -1173,3 +1173,158 @@ ON Employee.DepartmentID = Department.DepartmentID
 WHERE Employee.DepartmentID IS NULL;
 </code></pre>
 </section>
+
+<section class="slide">
+    <h2>SELF-JOIN</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT F.EmployeeID, F.LastName, S.EmployeeID, S.LastName, F.Country
+FROM Employee F
+INNER JOIN Employee S ON F.Country = S.Country
+<span class="next">WHERE F.EmployeeID < S.EmployeeID
+ORDER BY F.EmployeeID, S.EmployeeID;</span>
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>EmployeeID</th>
+            <th>LastName</th>
+            <th>Country</th>
+            <th>DepartmentID</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>123</td>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>124</td>
+            <td>Jones</td>
+            <td>33</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>145</td>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>201</td>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>United States</td>
+        </tr>
+        <tr>
+            <td>305</td>
+            <td>Smith</td>
+            <td>34</td>
+            <td>Germany</td>
+        </tr>
+        <tr>
+            <td>306</td>
+            <td>John</td>
+            <td>
+                <null/>
+            </td>
+            <td>Germany</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>SELF-JOIN</h2>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>EmployeeID</th>
+            <th>LastName</th>
+            <th>Country</th>
+            <th>DepartmentID</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>123</td>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>124</td>
+            <td>Jones</td>
+            <td>33</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>145</td>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>201</td>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>United States</td>
+        </tr>
+        <tr>
+            <td>305</td>
+            <td>Smith</td>
+            <td>34</td>
+            <td>Germany</td>
+        </tr>
+        <tr>
+            <td>306</td>
+            <td>John</td>
+            <td>
+                <null/>
+            </td>
+            <td>Germany</td>
+        </tr>
+        </tbody>
+    </table>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>F.EmployeeID</th>
+            <th>F.LastName</th>
+            <th>S.EmployeeID</th>
+            <th>S.LastName</th>
+            <th>F.Country</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>123</td>
+            <td>Rafferty</td>
+            <td>124</td>
+            <td>Jones</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>123</td>
+            <td>Rafferty</td>
+            <td>145</td>
+            <td>Steinberg</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>124</td>
+            <td>Jones</td>
+            <td>145</td>
+            <td>Steinberg</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>305</td>
+            <td>Smith</td>
+            <td>306</td>
+            <td>John</td>
+            <td>Germany</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
