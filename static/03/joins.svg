@@ -24,19 +24,19 @@ text {
 .label {
     font-size: 24px;
     text-anchor: middle;
-    alignment-baseline: middle;
+    dominant-baseline: middle;
 }
 .sql {
     font-size: 10px;
     font-weight: bold;
     text-anchor: left;
-    alignment-baseline: hanging;
+    dominant-baseline: hanging;
 }
 .title {
     font-size: 36px;
     font-weight: bold;
     text-anchor: middle;
-    alignment-baseline: hanging;
+    dominant-baseline: hanging;
 }
 ]]></style>
         <mask id="mask_side">
@@ -127,7 +127,7 @@ text {
             <use xlink:href="#join_a"/>
             <use xlink:href="#join_b"/>
             <use xlink:href="#join_l"/>
-            <g transform="translate(-170, 34)">
+            <g transform="translate(-170, 46)">
                 <text class="sql" y="0">SELECT &lt;select_list&gt;</text>
                 <text class="sql" y="12">FROM TableA A</text>
                 <text class="sql" y="24">FULL OUTER JOIN TableB B</text>
