@@ -263,7 +263,7 @@ FROM (
 
 <section class="slide">
     <h2>UNION</h2>
-    <div style="font-size: 80%; display: table; width: 100%">
+    <div style="display: table; width: 100%">
         <div style="display: table-cell; width: 50%; padding: 10px">
 <pre style="font-size: 80%"><code class="sql">SELECT ...
 UNION [ALL | DISTINCT]
@@ -273,7 +273,7 @@ SELECT ...]
 </code></pre>
         </div>
         <div style="display: table-cell; padding: 10px">
-            <table class="classic bordered">
+            <table class="classic bordered" style="font-size: 75%">
                 <thead>
                 <tr>
                     <th>person</th>
@@ -297,7 +297,7 @@ SELECT ...]
             </table>
         </div>
         <div style="display: table-cell; padding: 10px">
-            <table class="classic bordered">
+            <table class="classic bordered" style="font-size: 75%">
                 <thead>
                 <tr>
                     <th>person</th>
@@ -321,13 +321,13 @@ SELECT ...]
             </table>
         </div>
     </div>
-    <div style="font-size: 80%; display: table; width: 100%">
+    <div style="display: table; width: 100%">
         <div style="display: table-cell; width: 50%; padding: 10px">
-    <pre style="font-size: 80%"><code class="sql">SELECT * FROM sales2010
+    <pre><code style="font-size: 80%" class="sql">SELECT * FROM sales2010
 UNION
 SELECT * FROM sales2011;
 </code></pre>
-            <table class="classic bordered">
+            <table class="classic bordered" style="font-size: 75%">
                 <thead>
                 <tr>
                     <th>person</th>
@@ -363,7 +363,7 @@ SELECT * FROM sales2011;
 UNION ALL
 SELECT * FROM sales2011;
 </code></pre>
-            <table class="classic bordered">
+            <table class="classic bordered" style="font-size: 75%">
                 <thead>
                 <tr>
                     <th>person</th>
@@ -401,9 +401,82 @@ SELECT * FROM sales2011;
     </div>
 </section>
 
+<section class="slide white">
+    <img src="joins.svg" class="cover"/>
+</section>
+
 <section class="slide">
-    <h2>JOINS</h2>
-    <div style="text-align: center">
-        <img src="joins.svg" style="width: 75%"/>
+    <h2>Набор данных</h2>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; width: 50%; padding: 10px">
+            <table class="classic bordered">
+                <thead>
+                <tr>
+                    <th colspan="2">Employee</th>
+                </tr>
+                <tr>
+                    <th>LastName</th>
+                    <th>DepartmentID</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Rafferty</td>
+                    <td>31</td>
+                </tr>
+                <tr>
+                    <td>Jones</td>
+                    <td>33</td>
+                </tr>
+                <tr>
+                    <td>Steinberg</td>
+                    <td>33</td>
+                </tr>
+                <tr>
+                    <td>Robinson</td>
+                    <td>34</td>
+                </tr>
+                <tr>
+                    <td>Smith</td>
+                    <td>34</td>
+                </tr>
+                <tr>
+                    <td>John</td>
+                    <td>NULL</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell; width: 50%; padding: 10px">
+            <table class="classic bordered">
+                <thead>
+                <tr>
+                    <th colspan="2">Department</th>
+                </tr>
+                <tr>
+                    <th>DepartmentID</th>
+                    <th>DepartmentName</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>31</td>
+                    <td>Sales</td>
+                </tr>
+                <tr>
+                    <td>33</td>
+                    <td>Engineering</td>
+                </tr>
+                <tr>
+                    <td>34</td>
+                    <td>Clerical</td>
+                </tr>
+                <tr>
+                    <td>35</td>
+                    <td>Marketing</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </section>
