@@ -409,7 +409,7 @@ SELECT * FROM sales2011;
     <h2>Набор данных</h2>
     <div style="display: table; width: 100%">
         <div style="display: table-cell; width: 50%; padding: 10px">
-            <table class="classic bordered">
+            <table class="classic bordered" style="font-size: 80%">
                 <thead>
                 <tr>
                     <th colspan="2">Employee</th>
@@ -448,7 +448,7 @@ SELECT * FROM sales2011;
             </table>
         </div>
         <div style="display: table-cell; width: 50%; padding: 10px">
-            <table class="classic bordered">
+            <table class="classic bordered" style="font-size: 80%">
                 <thead>
                 <tr>
                     <th colspan="2">Department</th>
@@ -479,4 +479,663 @@ SELECT * FROM sales2011;
             </table>
         </div>
     </div>
+</section>
+
+<section class="slide">
+    <h2>CROSS JOIN</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT * FROM Employee CROSS JOIN Department;
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Employee.<br/>LastName</th>
+            <th>Employee.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>NULL</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>NULL</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>NULL</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>NULL</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>CROSS JOIN</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT * FROM Employee, Department;
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Employee.<br/>LastName</th>
+            <th>Employee.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>NULL</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>NULL</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>NULL</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>NULL</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>INNER JOIN</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT *
+FROM Employee
+INNER JOIN Department
+ON Employee.DepartmentID = Department.DepartmentID;
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Employee.<br/>LastName</th>
+            <th>Employee.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>INNER JOIN</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT *
+FROM Employee, Department
+WHERE Employee.DepartmentID = Department.DepartmentID;
+
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Employee.<br/>LastName</th>
+            <th>Employee.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>NATURAL (EQUAL) JOIN</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT *
+FROM Employee
+NATURAL JOIN Department;
+
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>DepartmentID</th>
+            <th>Employee.<br/>LastName</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>31</td>
+            <td>Rafferty</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>33</td>
+            <td>Jones</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>33</td>
+            <td>Steinberg</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>34</td>
+            <td>Robinson</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>34</td>
+            <td>Smith</td>
+            <td>Clerical</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>NATURAL JOIN</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT *
+FROM Employee
+JOIN Department USING (DepartmentID);
+
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>DepartmentID</th>
+            <th>Employee.<br/>LastName</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>31</td>
+            <td>Rafferty</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>33</td>
+            <td>Jones</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>33</td>
+            <td>Steinberg</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>34</td>
+            <td>Robinson</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>34</td>
+            <td>Smith</td>
+            <td>Clerical</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>LEFT OUTER JOIN</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT *
+FROM Employee
+LEFT OUTER JOIN Department
+ON Employee.DepartmentID = Department.DepartmentID;
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Employee.<br/>LastName</th>
+            <th>Employee.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>NULL</td>
+            <td>NULL</td>
+            <td>NULL</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>FULL OUTER JOIN</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT *
+FROM Employee
+FULL OUTER JOIN Department
+ON Employee.DepartmentID = Department.DepartmentID;
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Employee.<br/>LastName</th>
+            <th>Employee.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>NULL</td>
+            <td>NULL</td>
+            <td>NULL</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>NULL</td>
+            <td>NULL</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>FULL OUTER JOIN</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT *
+FROM Employee
+FULL OUTER JOIN Department
+ON Employee.DepartmentID = Department.DepartmentID;
+</code></pre>
+<pre class="next" style="font-size: 80%"><code class="sql">
+SELECT *
+FROM Employee
+LEFT OUTER JOIN Department
+ON Employee.DepartmentID = Department.DepartmentID;
+ 
+UNION ALL
+ 
+SELECT *
+FROM Employee
+RIGHT OUTER JOIN Department
+ON Employee.DepartmentID = Department.DepartmentID
+WHERE Employee.DepartmentID IS NULL;
+</code></pre>
 </section>
