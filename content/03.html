@@ -442,7 +442,9 @@ SELECT * FROM sales2011;
                 </tr>
                 <tr>
                     <td>John</td>
-                    <td>NULL</td>
+                    <td>
+                        <null/>
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -527,7 +529,9 @@ SELECT * FROM sales2011;
         </tr>
         <tr>
             <td>John</td>
-            <td>NULL</td>
+            <td>
+                <null/>
+            </td>
             <td>31</td>
             <td>Sales</td>
         </tr>
@@ -563,7 +567,9 @@ SELECT * FROM sales2011;
         </tr>
         <tr>
             <td>John</td>
-            <td>NULL</td>
+            <td>
+                <null/>
+            </td>
             <td>33</td>
             <td>Engineering</td>
         </tr>
@@ -599,7 +605,9 @@ SELECT * FROM sales2011;
         </tr>
         <tr>
             <td>John</td>
-            <td>NULL</td>
+            <td>
+                <null/>
+            </td>
             <td>34</td>
             <td>Clerical</td>
         </tr>
@@ -635,7 +643,9 @@ SELECT * FROM sales2011;
         </tr>
         <tr>
             <td>John</td>
-            <td>NULL</td>
+            <td>
+                <null/>
+            </td>
             <td>35</td>
             <td>Marketing</td>
         </tr>
@@ -689,7 +699,9 @@ SELECT * FROM sales2011;
         </tr>
         <tr>
             <td>John</td>
-            <td>NULL</td>
+            <td>
+                <null/>
+            </td>
             <td>31</td>
             <td>Sales</td>
         </tr>
@@ -725,7 +737,9 @@ SELECT * FROM sales2011;
         </tr>
         <tr>
             <td>John</td>
-            <td>NULL</td>
+            <td>
+                <null/>
+            </td>
             <td>33</td>
             <td>Engineering</td>
         </tr>
@@ -761,7 +775,9 @@ SELECT * FROM sales2011;
         </tr>
         <tr>
             <td>John</td>
-            <td>NULL</td>
+            <td>
+                <null/>
+            </td>
             <td>34</td>
             <td>Clerical</td>
         </tr>
@@ -797,7 +813,9 @@ SELECT * FROM sales2011;
         </tr>
         <tr>
             <td>John</td>
-            <td>NULL</td>
+            <td>
+                <null/>
+            </td>
             <td>35</td>
             <td>Marketing</td>
         </tr>
@@ -1034,9 +1052,15 @@ ON Employee.DepartmentID = Department.DepartmentID;
         </tr>
         <tr>
             <td>John</td>
-            <td>NULL</td>
-            <td>NULL</td>
-            <td>NULL</td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
         </tr>
         <tr>
             <td>Robinson</td>
@@ -1091,9 +1115,15 @@ ON Employee.DepartmentID = Department.DepartmentID;
         </tr>
         <tr>
             <td>John</td>
-            <td>NULL</td>
-            <td>NULL</td>
-            <td>NULL</td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
         </tr>
         <tr>
             <td>Robinson</td>
@@ -1108,8 +1138,12 @@ ON Employee.DepartmentID = Department.DepartmentID;
             <td>Clerical</td>
         </tr>
         <tr>
-            <td>NULL</td>
-            <td>NULL</td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
             <td>35</td>
             <td>Marketing</td>
         </tr>
@@ -1124,7 +1158,7 @@ FROM Employee
 FULL OUTER JOIN Department
 ON Employee.DepartmentID = Department.DepartmentID;
 </code></pre>
-<pre class="next" style="font-size: 80%"><code class="sql">
+    <pre class="next" style="font-size: 80%"><code class="sql">
 SELECT *
 FROM Employee
 LEFT OUTER JOIN Department
