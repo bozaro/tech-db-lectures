@@ -119,7 +119,7 @@ WHERE
 SET @t1 = 1, @t2 = 2, @t3 := 4;
 SELECT @t1, @t2, @t3, @t4 := @t1 + @t2 + @t3
 </code></pre>
-    <table>
+    <table class="classic bordered">
         <thead>
         <tr>
             <th>@t1</th>
@@ -139,7 +139,7 @@ SELECT @t1, @t2, @t3, @t4 := @t1 + @t2 + @t3
     </table>
     <div class="next">
         <pre style="font-size: 80%"><code class="sql">SELECT @t1 := (@t2 := 1) + @t3 := 4, @t1, @t2, @t3;</code></pre>
-        <table>
+        <table class="classic bordered">
             <thead>
             <tr>
                 <th>@t1 := (@t2 := 1) + @t3 := 4</th>
@@ -259,4 +259,151 @@ FROM (
     GROUP BY column1
 ) AS t1;
 </code></pre>
+</section>
+
+<section class="slide">
+    <h2>UNION</h2>
+    <div style="font-size: 80%; display: table; width: 100%">
+        <div style="display: table-cell; width: 50%; padding: 10px">
+<pre style="font-size: 80%"><code class="sql">SELECT ...
+UNION [ALL | DISTINCT]
+SELECT ...
+[UNION [ALL | DISTINCT]
+SELECT ...]
+</code></pre>
+        </div>
+        <div style="display: table-cell; padding: 10px">
+            <table class="classic bordered">
+                <thead>
+                <tr>
+                    <th>person</th>
+                    <th>amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Joe</td>
+                    <td>1000</td>
+                </tr>
+                <tr>
+                    <td>Alex</td>
+                    <td>2000</td>
+                </tr>
+                <tr>
+                    <td>Bob</td>
+                    <td>5000</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell; padding: 10px">
+            <table class="classic bordered">
+                <thead>
+                <tr>
+                    <th>person</th>
+                    <th>amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Joe</td>
+                    <td>2000</td>
+                </tr>
+                <tr>
+                    <td>Alex</td>
+                    <td>2000</td>
+                </tr>
+                <tr>
+                    <td>Zach</td>
+                    <td>35000</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div style="font-size: 80%; display: table; width: 100%">
+        <div style="display: table-cell; width: 50%; padding: 10px">
+    <pre style="font-size: 80%"><code class="sql">SELECT * FROM sales2010
+UNION
+SELECT * FROM sales2011;
+</code></pre>
+            <table class="classic bordered">
+                <thead>
+                <tr>
+                    <th>person</th>
+                    <th>amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Joe</td>
+                    <td>1000</td>
+                </tr>
+                <tr>
+                    <td>Joe</td>
+                    <td>2000</td>
+                </tr>
+                <tr>
+                    <td>Alex</td>
+                    <td>2000</td>
+                </tr>
+                <tr>
+                    <td>Bob</td>
+                    <td>5000</td>
+                </tr>
+                <tr>
+                    <td>Zach</td>
+                    <td>35000</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell; width: 50%; padding: 10px">
+    <pre style="font-size: 80%"><code class="sql">SELECT * FROM sales2010
+UNION ALL
+SELECT * FROM sales2011;
+</code></pre>
+            <table class="classic bordered">
+                <thead>
+                <tr>
+                    <th>person</th>
+                    <th>amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Joe</td>
+                    <td>1000</td>
+                </tr>
+                <tr>
+                    <td>Joe</td>
+                    <td>2000</td>
+                </tr>
+                <tr>
+                    <td>Alex</td>
+                    <td>2000</td>
+                </tr>
+                <tr>
+                    <td>Alex</td>
+                    <td>2000</td>
+                </tr>
+                <tr>
+                    <td>Bob</td>
+                    <td>5000</td>
+                </tr>
+                <tr>
+                    <td>Zach</td>
+                    <td>35000</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>JOINS</h2>
+    <div style="text-align: center">
+        <img src="joins.svg" style="width: 75%"/>
+    </div>
 </section>
