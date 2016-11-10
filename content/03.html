@@ -1,23 +1,23 @@
 ---
 title: Лекция 3
 description: |
-  Тема данной лекции:
+Тема данной лекции:
 
-   - INSERT, UPDATE, DELETE;
-   - Переменные;
-   - Подзапросы.
+- INSERT, UPDATE, DELETE;
+- Переменные;
+- Подзапросы.
 ---
 <section class="slide">
-<h2>INSERT</h2>
-<pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | DELAYED | HIGH_PRIORITY] [IGNORE]
+    <h2>INSERT</h2>
+    <pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | DELAYED | HIGH_PRIORITY] [IGNORE]
     [INTO] tbl_name [(col_name,...)]
     {VALUES | VALUE} ({expr | DEFAULT},...),(...),...
     [ ON DUPLICATE KEY UPDATE
       col_name=expr
         [, col_name=expr] ... ]
 </code></pre>
-<p>Or:</p>
-<pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | DELAYED | HIGH_PRIORITY] [IGNORE]
+    <p>Or:</p>
+    <pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | DELAYED | HIGH_PRIORITY] [IGNORE]
     [INTO] tbl_name
     SET col_name={expr | DEFAULT}, ...
     [ ON DUPLICATE KEY UPDATE
@@ -27,8 +27,8 @@ description: |
 </section>
 
 <section class="slide">
-<h2>INSERT</h2>
-<pre><code class="sql">INSERT [LOW_PRIORITY | HIGH_PRIORITY] [IGNORE]
+    <h2>INSERT</h2>
+    <pre><code class="sql">INSERT [LOW_PRIORITY | HIGH_PRIORITY] [IGNORE]
     [INTO] tbl_name [(col_name,...)]
     SELECT ...
     [ ON DUPLICATE KEY UPDATE
@@ -38,8 +38,8 @@ description: |
 </section>
 
 <section class="slide">
-<h2>INSERT</h2>
-<pre><code class="sql">INSERT INTO tbl_temp2 (fld_id)
+    <h2>INSERT</h2>
+    <pre><code class="sql">INSERT INTO tbl_temp2 (fld_id)
     SELECT 
         tbl_temp1.fld_order_id
     FROM 
@@ -56,35 +56,35 @@ INSERT INTO table (a,b,c) VALUES (1,2,3),(4,5,6)
 </section>
 
 <section class="slide">
-<h2>UPDATE</h2>
-<pre style="font-size: 80%"><code class="sql">UPDATE [LOW_PRIORITY] [IGNORE] table_reference
+    <h2>UPDATE</h2>
+    <pre style="font-size: 80%"><code class="sql">UPDATE [LOW_PRIORITY] [IGNORE] table_reference
     SET col_name1={expr1|DEFAULT} [, col_name2={expr2|DEFAULT}] ...
     [WHERE where_condition]
     [ORDER BY ...]
     [LIMIT row_count]
 </code></pre>
-<p>Multiple-table syntax:</p> 
-<pre style="font-size: 80%"><code class="sql">UPDATE [LOW_PRIORITY] [IGNORE] table_references
+    <p>Multiple-table syntax:</p> 
+    <pre style="font-size: 80%"><code class="sql">UPDATE [LOW_PRIORITY] [IGNORE] table_references
     SET col_name1={expr1|DEFAULT} [, col_name2={expr2|DEFAULT}] ...
     [WHERE where_condition]
 </code></pre>
 </section>
 
 <section class="slide">
-<h2>DELETE</h2>
-<pre style="font-size: 80%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE] FROM tbl_name
+    <h2>DELETE</h2>
+    <pre style="font-size: 80%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE] FROM tbl_name
     [WHERE where_condition]
     [ORDER BY ...]
     [LIMIT row_count]
 </code></pre>
-<p>Multiple-table syntax:</p>
-<pre style="font-size: 80%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
+    <p>Multiple-table syntax:</p>
+    <pre style="font-size: 80%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
     tbl_name[.*] [, tbl_name[.*]] ...
     FROM table_references
     [WHERE where_condition]
 </code></pre>
-<p>Or:</p>
-<pre style="font-size: 80%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
+    <p>Or:</p>
+    <pre style="font-size: 80%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
     FROM tbl_name[.*] [, tbl_name[.*]] ...
     USING table_references
     [WHERE where_condition]
@@ -92,8 +92,8 @@ INSERT INTO table (a,b,c) VALUES (1,2,3),(4,5,6)
 </section>
 
 <section class="slide">
-<h2>DELETE</h2>
-<pre style="font-size: 80%"><code class="sql">DELETE 
+    <h2>DELETE</h2>
+    <pre style="font-size: 80%"><code class="sql">DELETE
     t1, t2 
 FROM 
     t1 INNER JOIN t2 
@@ -101,8 +101,8 @@ FROM
 WHERE 
     t1.id=t2.id AND t2.id=t3.id;
 </code></pre>
-<p>Or:</p>
-<pre style="font-size: 80%"><code class="sql">DELETE FROM 
+    <p>Or:</p>
+    <pre style="font-size: 80%"><code class="sql">DELETE FROM
     t1, t2 
 USING 
     t1 INNER JOIN t2 
@@ -113,52 +113,52 @@ WHERE
 </section>
 
 <section class="slide">
-<h2>Пользовательские переменные</h2>
-<pre style="font-size: 80%"><code class="sql">SET @var_name = expr [, @var_name = expr] ...
+    <h2>Пользовательские переменные</h2>
+    <pre style="font-size: 80%"><code class="sql">SET @var_name = expr [, @var_name = expr] ...
 
 SET @t1 = 1, @t2 = 2, @t3 := 4;
 SELECT @t1, @t2, @t3, @t4 := @t1 + @t2 + @t3
 </code></pre>
-<table>
-	<thead>
-		<tr>
-			<th>@t1</th>
-			<th>@t2</th>
-			<th>@t3</th>
-			<th>@t4 := @t1 + @t2 + @t3</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr>
-			<td>1</td>
-			<td>2</td>
-			<td>4</td>
-			<td>7</td>
-		</tr>
-	</tbody>
-</table>
-<div class="next">
-<pre style="font-size: 80%"><code class="sql">SELECT @t1 := (@t2 := 1) + @t3 := 4, @t1, @t2, @t3;</code></pre>
-<table>
-	<thead>
-		<tr>
-			<th>@t1 := (@t2 := 1) + @t3 := 4</th>
-			<th>@t1</th>
-			<th>@t2</th>
-			<th>@t3</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr>
-			<td>5</td>
-			<td>5</td>
-			<td>1</td>
-			<td>4</td>
-		</tr>
-	</tbody>
-</table>
-</div>
-<pre class="next" style="font-size: 80%"><code class="sql">SET @i := 0;
+    <table>
+        <thead>
+        <tr>
+            <th>@t1</th>
+            <th>@t2</th>
+            <th>@t3</th>
+            <th>@t4 := @t1 + @t2 + @t3</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>2</td>
+            <td>4</td>
+            <td>7</td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="next">
+        <pre style="font-size: 80%"><code class="sql">SELECT @t1 := (@t2 := 1) + @t3 := 4, @t1, @t2, @t3;</code></pre>
+        <table>
+            <thead>
+            <tr>
+                <th>@t1 := (@t2 := 1) + @t3 := 4</th>
+                <th>@t1</th>
+                <th>@t2</th>
+                <th>@t3</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>5</td>
+                <td>5</td>
+                <td>1</td>
+                <td>4</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <pre class="next" style="font-size: 80%"><code class="sql">SET @i := 0;
 SELECT @i := @i + 1 AS row_number, t.* FROM your_table AS t;
  
 SELECT @i := @i + 1 AS row_number, t.*
@@ -167,8 +167,8 @@ FROM your_table AS t, (SELECT @i:=0) AS z;
 </section>
 
 <section class="slide">
-<h2>SUBQUERIES</h2>
-<pre style="font-size: 80%"><code class="sql">
+    <h2>SUBQUERIES</h2>
+    <pre style="font-size: 80%"><code class="sql">
 SELECT
     col0,
     (SELECT col1 FROM table1 WHERE table1.id = table0.id),
@@ -176,10 +176,10 @@ SELECT
 FROM
     table0;
 </code></pre>
-<pre><code>non_subquery_operand comparison_operator (subquery)
+    <pre><code>non_subquery_operand comparison_operator (subquery)
 =  &gt;  &lt;  &gt;=  &lt;=  &lt;&gt;  !=  LIKE</code></pre>
-</code></pre>
-<pre style="font-size: 80%"><code class="sql">SELECT *
+    </code></pre>
+    <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM t1
 WHERE column1 = (SELECT MAX(column2) FROM t2);
 
@@ -189,8 +189,8 @@ WHERE 2 = (SELECT COUNT(*) FROM t1 WHERE t1.id = t.id);</code></pre>
 </section>
 
 <section class="slide">
-<h2>SUBQUERIES</h2>
-<pre style="font-size: 80%"><code class="sql">perand comparison_operator ANY (subquery)
+    <h2>SUBQUERIES</h2>
+    <pre style="font-size: 80%"><code class="sql">perand comparison_operator ANY (subquery)
 operand IN (subquery) operand
 comparison_operator SOME (subquery)
  
@@ -209,8 +209,8 @@ operand comparison_operator ALL (subquery)
 </section>
 
 <section class="slide">
-<h2>ROW SUBQUERIES</h2>
-<pre style="font-size: 80%"><code class="sql">SELECT *
+    <h2>ROW SUBQUERIES</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM t1
 WHERE (col1, col2)
 	= (SELECT col3, col4 FROM t2 WHERE id = 10);
@@ -229,8 +229,8 @@ WHERE (column1, column2, column3)
 
 
 <section class="slide">
-<h2>[NOT] EXISTS</h2>
-<pre style="font-size: 80%"><code class="sql">SELECT DISTINCT store_type
+    <h2>[NOT] EXISTS</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT DISTINCT store_type
 FROM stores
 WHERE EXISTS (
     SELECT *
@@ -249,8 +249,8 @@ WHERE NOT EXISTS (
 </section>
 
 <section class="slide">
-<h2>SUBQUERIES in FROM</h2>
-<pre style="font-size: 80%"><code class="sql">SELECT ... FROM (subquery) [AS] name ...
+    <h2>SUBQUERIES in FROM</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT ... FROM (subquery) [AS] name ...
  
 SELECT AVG(sum_column1)
 FROM (
