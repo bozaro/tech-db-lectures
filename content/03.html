@@ -1328,3 +1328,176 @@ ORDER BY F.EmployeeID, S.EmployeeID;</span>
         </tbody>
     </table>
 </section>
+
+<section class="slide">
+    <h2>SELF-JOIN</h2>
+    <dl>
+        <dt>Представление (VIEW)</dt>
+        <dd>Объект базы данных, являющийся результатом выполнения запроса к базе данных, определенного с помощью
+            оператора SELECT, в момент обращения к представлению.
+        </dd>
+    </dl>
+    <pre><code class="sql">CREATE
+    [OR REPLACE]
+    [ALGORITHM = {UNDEFINED | MERGE | TEMPTABLE}]
+    [DEFINER = { user | CURRENT_USER }]
+    [SQL SECURITY { DEFINER | INVOKER }]
+VIEW view_name [(column_list)] AS select_statement
+    [WITH [CASCADED | LOCAL] CHECK OPTION];
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Преимущества VIEW</h2>
+    <ul>
+        <li>Дает возможность гибкой настройки прав доступа к данным за счет того, что права даются не на таблицу, а на
+            представление.
+        </li>
+        <li>Позволяет разделить логику хранения данных и программного обеспечения.</li>
+        <li>Удобство в использовании за счет автоматического выполнения таких действий как доступ к определенной части
+            строк и/или столбцов, получение данных из нескольких таблиц и их преобразование с помощью различных функций.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Ограничения VIEW</h2>
+    <ul>
+        <li>Нельзя повесить триггер на представление;</li>
+        <li>Нельзя сделать представление на основе временных таблиц;</li>
+        <li>Нельзя сделать временное представление;</li>
+        <li>В определении представления нельзя использовать подзапрос в части FROM;</li>
+        <li>В определении представления нельзя использовать системные и пользовательские переменные;</li>
+        <li>Таблицы и представления, присутствующие в определении представления должны существовать.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Особенности VIEW</h2>
+    <pre><code class="sql">CREATE VIEW v AS
+    SELECT a.id, b.id FROM a,b;
+-- Error Code: 1060. Duplicate column name 'id'
+</code></pre>
+    <pre class="next"><code class="sql">
+CREATE VIEW v (a_id, b_id) AS
+    SELECT a.id, b.id FROM a,b;
+CREATE VIEW v AS
+    SELECT a.id a_id, b.id b_id FROM a,b;
+
+CREATE VIEW v AS
+    SELECT GROUP_CONCAT(
+        DISTINCT column_name
+        ORDER BY column_name separator '+'
+    )
+    FROM table_name;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Особенности VIEW</h2>
+    <ul>
+        <li>Если в обоих операторах встречается условие WHERE, то оба этих условия будут выполнены как если бы они были
+            объединены оператором AND.
+        </li>
+        <li>Если в определении представления есть конструкция ORDER BY, то она будет работать только в случае отсутствия
+            во внешнем операторе SELECT, обращающемся к представлению, собственного условия сортировки. При наличии
+            конструкции ORDER BY во внешнем операторе сортировка, имеющаяся в определении представления, будет
+            проигнорирована.
+        </li>
+        <li>При наличии в обоих операторах модификаторов, влияющих на механизм блокировки, таких как HIGH_PRIORITY,
+            результат их совместного действия неопределен. Для избежания неопределенности рекомендуется в определении
+            представления не использовать подобные модификаторы.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Алгоритмы VIEW (MERGE)</h2>
+    <pre><code class="sql">CREATE VIEW v AS
+SELECT subject, num_views / num_replies AS param
+FROM topics
+WHERE num_replies > 0;
+
+SELECT subject, param FROM v WHERE param > 1000;
+</code></pre>
+    <pre class="next"><code class="sql">
+SELECT subject, num_views / num_replies AS param
+FROM topics
+WHERE num_replies>0 AND num_views / num_replies > 1000;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Алгоритмы VIEW (TEMPTABLE)</h2>
+    <pre style="font-size: 85%"><code class="sql">CREATE VIEW v AS
+SELECT forum_id, COUNT(*) AS num
+FROM topics GROUP BY forum_id;
+
+SELECT MAX(num) FROM v;
+</code></pre>
+    <pre style="font-size: 85%" class="next"><code class="sql">
+SELECT MAX(COUNT(*))
+FROM topics GROUP BY forum_id;
+</code></pre>
+    <pre style="font-size: 85%" class="next"><code class="sql">
+CREATE TEMPORARY TABLE tmp_table
+SELECT forum_id, COUNT(*) AS num
+FROM topics GROUP BY forum_id;
+
+SELECT MAX(num) FROM tmp_table;
+
+DROP TABLE tmp_table;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Изменение VIEW</h2>
+    <pre><code class="sql">WITH [CASCADED | LOCAL] CHECK
+</code></pre>
+    <ul>
+        <li>Изменение данных (UPDATE) будет происходить только если строка с новыми значениями удовлетворяет условию
+            WHERE в определении представления.
+        </li>
+        <li>Добавление данных (INSERT) будет происходить только если новая строка удовлетворяет условию WHERE в
+            определении представления.
+        </li>
+        <li>Для LOCAL происходит проверка условия WHERE только в собственном определении представления.</li>
+        <li>Для CASCADED происходит проверка для всех представлений на которых основанно данное представление. Значением
+            по умолчанию является CASCADED.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Изменение VIEW</h2>
+    <pre style="font-size: 85%"><code class="sql">CREATE OR REPLACE VIEW v AS
+    SELECT forum_name, subject, num_views
+    FROM topics,forums f
+    WHERE forum_id = f.id AND num_views > 2000
+    WITH CHECK OPTION;
+
+
+UPDATE v SET num_views = 1999 WHERE subject = 'test';
+-- ERROR 1369 (HY000): CHECK OPTION failed 'test.v'
+
+UPDATE v SET num_views = 2003 WHERE subject = 'test';
+-- Query OK
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Изменение VIEW</h2>
+    <pre style="font-size: 85%"><code class="sql">CREATE OR REPLACE VIEW v AS
+    SELECT forum_name, subject, num_views
+    FROM topics,forums f
+    WHERE forum_id = f.id AND num_views > 2000
+    WITH CHECK OPTION;
+
+
+INSERT INTO v (subject, num_views)
+VALUES ('test1', 4000);
+-- ERROR 1369 (HY000): CHECK OPTION failed test.v
+
+INSERT INTO v (forum_id, subject, num_views)
+VALUES (1, 'test1', 4000);
+-- ERROR 1054 (42S22): Unknown COLUMN 'forum_id' IN 'field list'
+</code></pre>
+</section>
