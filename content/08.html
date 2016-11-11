@@ -26,6 +26,19 @@ Default options are read from the following files in the given order:
 </section>
 
 <section class="slide">
+<h2>Конфигурирование</h2>
+<p>В Debian/Ubuntu крайне не рекомендуется править файл <code>/etc/mysql/my.cnf</code>,
+так как он распространяется вместе с пакетом MySQL.</p>
+<p>В конце файла есть строки:</p>
+<pre><code class="text">!includedir /etc/mysql/conf.d/
+!includedir /etc/mysql/mysql.conf.d/
+</code></pre>
+<p>Специфические настройки следует держать в файлах вида: <code>/etc/mysql/mysql.conf.d/custom.cnf</code>
+(суфикс файла должен быть <code>.cnf</code>).</p>
+<p>Это сильно упрощает администрирование MySQL.</p>
+</section>
+
+<section class="slide">
 <h2>Область видимости</h2>
 <ul>
 	<li>Переменная query_cache_size имеет глобальную область видимости.</li>
