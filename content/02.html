@@ -1,0 +1,275 @@
+---
+title: Лекция 2
+description: |
+  Тема данной лекции:
+
+  - CREATE TABLE;
+  - ALTER TABLE;
+  - SELECT;
+  - INSERT;
+  - UPDATE;
+  - DELETE;
+  - Иерархические структуры в БД.
+---
+<section class="slide">
+    <h2>Архитектура MySQL</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="arhitecture.jpg"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>CREATE TABLE</h2>
+    <pre style="font-size: 90%"><code class="sql">CREATE [TEMPORARY] TABLE [IF NOT EXISTS] tbl_name
+    (create_definition,...)
+    [table_options]
+    [partition_options]
+</code></pre>
+    <p>Or:</p>
+    <pre style="font-size: 90%"><code class="sql">CREATE [TEMPORARY] TABLE [IF NOT EXISTS] tbl_name
+    [(create_definition,...)]
+    [table_options]
+    [partition_options]
+    select_statement
+</code></pre>
+    <p>Or:</p>
+    <pre style="font-size: 90%"><code class="sql">CREATE [TEMPORARY] TABLE [IF NOT EXISTS] tbl_name
+    { LIKE old_tbl_name | (LIKE old_tbl_name) }
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>create_definition</h2>
+    <pre><code style="font-size: 80%" class="sql">create_definition:
+    col_name column_definition
+  | [CONSTRAINT [symbol]] PRIMARY KEY [index_type] (index_col_name,...)
+      [index_option] ...
+  | {INDEX|KEY} [index_name] [index_type] (index_col_name,...)
+      [index_option] ...
+  | [CONSTRAINT [symbol]] UNIQUE [INDEX|KEY]
+      [index_name] [index_type] (index_col_name,...)
+      [index_option] ...
+  | {FULLTEXT|SPATIAL} [INDEX|KEY] [index_name] (index_col_name,...)
+      [index_option] ...
+  | [CONSTRAINT [symbol]] FOREIGN KEY
+      [index_name] (index_col_name,...) reference_definition
+  | CHECK (expr)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>column_definition, reference_definition</h2>
+    <pre><code style="font-size: 80%" class="sql">column_definition:
+    data_type [NOT NULL | NULL] [DEFAULT default_value]
+      [AUTO_INCREMENT] [UNIQUE [KEY] | [PRIMARY] KEY]
+      [COMMENT 'string']
+      [COLUMN_FORMAT {FIXED|DYNAMIC|DEFAULT}]
+      [STORAGE {DISK|MEMORY|DEFAULT}]
+      [reference_definition]
+ 
+reference_definition:
+    REFERENCES tbl_name (index_col_name,...)
+      [ON DELETE reference_option]
+      [ON UPDATE reference_option]
+ 
+reference_option:
+    RESTRICT | CASCADE | SET NULL | NO ACTION
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Обновление кортежа в родительском отношении</h2>
+    <img src="cascade.jpg" style="float: right"/>
+    <dl>
+        <dt>RESTRICT, NO ACTION</dt>
+        <dd>Не разрешать изменение</dd>
+
+        <dt>CASCADE</dt>
+        <dd>Изменить каскадно</dd>
+
+        <dt>SET NULL</dt>
+        <dd>Установить в NULL</dd>
+
+        <dt>SET DEFAULT</dt>
+        <dd>Установить значение по умолчанию</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>CREATE TABLE (пример)</h2>
+    <pre style="font-size: 90%"><code class="sql">CREATE TABLE shop (
+    article INT(4) UNSIGNED ZEROFILL DEFAULT '0000' NOT NULL,
+    dealer  VARCHAR(20) DEFAULT '' NOT NULL,
+    price   DECIMAL(16, 2) DEFAULT 0.00 NOT NULL,
+    PRIMARY KEY pk_shop (article, dealer)
+) ENGINE = InnoDB;
+
+CREATE TABLE test (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    UNIQUE KEY (article)
+) ENGINE = InnoDB AS SELECT article, dealer, price FROM shop;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>ALTER TABLE</h2>
+    <pre style="font-size: 65%"><code class="sql">ALTER [IGNORE] TABLE tbl_name
+    [alter_specification [, alter_specification] ...]
+    [partition_options]
+
+alter_specification:
+    table_options
+| ADD [COLUMN] (col_name column_definition,...)
+| ADD [CONSTRAINT [symbol]] PRIMARY KEY
+        [index_type] (index_col_name,...) [index_option] ...
+| ADD [CONSTRAINT [symbol]]
+        FOREIGN KEY [index_name] (index_col_name,...)
+        reference_definition
+  | CHANGE [COLUMN] old_col_name new_col_name column_definition
+        [FIRST|AFTER col_name]
+  | MODIFY [COLUMN] col_name column_definition
+        [FIRST | AFTER col_name]
+  | DROP [COLUMN] col_name
+  | DROP PRIMARY KEY
+  | DROP FOREIGN KEY fk_symbol
+  | DISABLE KEYS
+  | ENABLE KEYS
+  | RENAME [TO|AS] new_tbl_name
+  | ORDER BY col_name [, col_name] ...
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>INFORMATION_SCHEMA</h2>
+    <ul class="double compact" style="font-size: 90%">
+        <li>CHARACTER_SETS</li>
+        <li>COLLATIONS</li>
+        <li>COLUMNS</li>
+        <li>COLUMN_PRIVILEGES</li>
+        <li>ENGINES</li>
+        <li>EVENTS</li>
+        <li>GLOBAL_STATUS and SESSION_STATUS</li>
+        <li>GLOBAL_VARIABLES and SESSION_VARIABLES</li>
+        <li>KEY_COLUMN_USAGE</li>
+        <li>PARTITIONS</li>
+        <li>PLUGINS</li>
+        <li>PROCESSLIST</li>
+        <li>PROFILING</li>
+        <li>REFERENTIAL_CONSTRAINTS</li>
+        <li>ROUTINES</li>
+        <li>SCHEMATA</li>
+        <li>SCHEMA_PRIVILEGES</li>
+        <li>STATISTICS</li>
+        <li>TABLES</li>
+        <li>TABLE_CONSTRAINTS</li>
+        <li>TABLE_PRIVILEGES</li>
+        <li>TRIGGERS</li>
+        <li>USER_PRIVILEGES</li>
+        <li>VIEWS</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>INFORMATION_SCHEMA: TABLES</h2>
+    <ul class="double compact">
+        <li>TABLE_CATALOG</li>
+        <li>TABLE_SCHEMA</li>
+        <li>TABLE_NAME</li>
+        <li>TABLE_TYPE</li>
+        <li>ENGINE</li>
+        <li>VERSION</li>
+        <li>ROW_FORMAT</li>
+        <li>TABLE_ROWS</li>
+        <li>AVG_ROW_LENGTH</li>
+        <li>DATA_LENGTH</li>
+        <li>MAX_DATA_LENGTH</li>
+        <li>INDEX_LENGTH</li>
+        <li>DATA_FREE</li>
+        <li>AUTO_INCREMENT</li>
+        <li>CREATE_TIME</li>
+        <li>UPDATE_TIME</li>
+        <li>CHECK_TIME</li>
+        <li>TABLE_COLLATION</li>
+        <li>CHECKSUM</li>
+        <li>CREATE_OPTIONS</li>
+        <li>TABLE_COMMENT</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>INFORMATION_SCHEMA: COLUMNS</h2>
+    <ul class="double compact">
+        <li>TABLE_CATALOG</li>
+        <li>TABLE_SCHEMA</li>
+        <li>TABLE_NAME</li>
+        <li>COLUMN_NAME</li>
+        <li>ORDINAL_POSITION</li>
+        <li>COLUMN_DEFAULT</li>
+        <li>IS_NULLABLE</li>
+        <li>DATA_TYPE</li>
+        <li>CHARACTER_MAXIMUM_LENGTH</li>
+        <li>CHARACTER_OCTET_LENGTH</li>
+        <li>NUMERIC_PRECISION</li>
+        <li>NUMERIC_SCALE</li>
+        <li>DATETIME_PRECISION</li>
+        <li>CHARACTER_SET_NAME</li>
+        <li>COLLATION_NAME</li>
+        <li>COLUMN_TYPE</li>
+        <li>COLUMN_KEY</li>
+        <li>EXTRA</li>
+        <li>PRIVILEGES</li>
+        <li>COLUMN_COMMENT</li>
+        <li>GENERATION_EXPRESSION</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>SELECT</h2>
+    <pre style="font-size: 90%"><code class="sql">SELECT
+    [ALL | DISTINCT | DISTINCTROW ]
+      [HIGH_PRIORITY]
+      [STRAIGHT_JOIN]
+      [SQL_CACHE | SQL_NO_CACHE] [SQL_CALC_FOUND_ROWS]
+    select_expr [, select_expr ...]
+    [FROM table_references
+    [WHERE where_condition]
+    [GROUP BY {col_name | expr | position}
+      [ASC | DESC], ... [WITH ROLLUP]]
+    [HAVING where_condition]
+    [ORDER BY {col_name | expr | position}
+      [ASC | DESC], ...]
+    [LIMIT {[offset,] row_count | row_count OFFSET offset}]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Типы таблиц</h2>
+    <img src="types.jpg" style="float: right"/>
+    <ul>
+        <li>Постоянные таблицы</li>
+        <li>Временные таблицы</li>
+        <li>Виртуальные таблицы (представления)</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Фильтрация</h2>
+    <img src="filter.jpg" class="place bottom right" width="400px" style="margin: 50px"/>
+    <ul class="compact">
+        <li>=</li>
+        <li>!=, &lt;&gt;</li>
+        <li>&gt;, &lt;, &gt;=, &lt;=</li>
+        <li>BETWEEN</li>
+        <li>IN</li>
+        <li>LIKE (_, %)</li>
+        <li>OR</li>
+        <li>AND</li>
+        <li>NOT</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>JOIN-ы</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="../common/joins.svg"/>
+</section>
