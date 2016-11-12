@@ -1,0 +1,137 @@
+---
+title: Лекция 1
+description: |
+  Тема данной лекции:
+
+   - Обзор курса
+   - Что такое базы данных?
+   - Проектирование БД.
+   - Нормализация и нормальные формы.
+   - Реляционная алгебра.
+   - Типы данных.
+---
+<section class="slide">
+    <h2>Знакомство и основы проектирования БД</h2>
+    <ul>
+        <li>Обзор курса</li>
+        <li>Что такое базы данных?</li>
+        <li>Проектирование БД.</li>
+        <li>Нормализация и нормальные формы.</li>
+        <li>Реляционная алгебра.</li>
+        <li>Типы данных.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Интересные факты</h2>
+    <ul>
+        <li><img src="yahoo.png" style="float: right"/>База данных Yahoo > 2 петабайт</li>
+        <li>Отсутствие готовых решений</li>
+        <li><img src="osm.png" style="float: right"/>Архив с базой данных OpenStreetMap занимает порядка 33Гб</li>
+        <li>Практически ни одно приложение не обходится без БД</li>
+        <li>Установочные .msi файлы для Windows - это БД</li>
+        <li><img src="hh.png" style="float: right"/>В большинстве вакансий разработчика упоминается SQL, по данным hh.ru
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Стоимость типовых операций</h2>
+    <table style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Стоимость операции</th>
+            <th style="text-align: right">нс (ns)</th>
+            <th style="text-align: right">мкс (µs)</th>
+            <th style="text-align: right">мс (ms)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Получение значения из L1</td>
+            <td align="right">0.5</td>
+            <td align="right"></td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Ошибка предсказания перехода в CPU</td>
+            <td align="right">5</td>
+            <td align="right"></td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Получение значения из L2</td>
+            <td align="right">7</td>
+            <td align="right"></td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Mutex lock/unlock</td>
+            <td align="right">25</td>
+            <td align="right"></td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Получение значения из RAM</td>
+            <td align="right">100</td>
+            <td align="right"></td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Сжатие 1Кб методом Zippy</td>
+            <td align="right">3 000</td>
+            <td align="right">3</td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Отправка 1Кб через 1Гбит/сек сеть</td>
+            <td align="right">10 000</td>
+            <td align="right">10</td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Чтение 4Кб с SSD (случайный доступ)</td>
+            <td align="right">150 000</td>
+            <td align="right">150</td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Чтение 1Мб из RAM (последовательный доступ)</td>
+            <td align="right">250 000</td>
+            <td align="right">250</td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Round trip внутри одного датацентра</td>
+            <td align="right">500 000</td>
+            <td align="right">500</td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Чтение 1Мб из SSD (последовательный доступ)</td>
+            <td align="right">1 000 000</td>
+            <td align="right">1 000</td>
+            <td align="right">1</td>
+        </tr>
+        <tr>
+            <td>Позиционирование HDD</td>
+            <td align="right">10 000 000</td>
+            <td align="right">10 000</td>
+            <td align="right">10</td>
+        </tr>
+        <tr>
+            <td>Чтение 1Мб из HDD (последовательный доступ)</td>
+            <td align="right">20 000 000</td>
+            <td align="right">20 000</td>
+            <td align="right">20</td>
+        </tr>
+        <tr>
+            <td>Round trip между США и Нидерландами</td>
+            <td align="right">150 000 000</td>
+            <td align="right">150 000</td>
+            <td align="right">150</td>
+        </tr>
+        </tbody>
+    </table>
+    <a href="https://gist.github.com/jboner/2841832">https://gist.github.com/jboner/2841832</a>
+</section>
