@@ -1,15 +1,15 @@
 ---
 title: Лекция 2
 description: |
-  Тема данной лекции:
+Тема данной лекции:
 
-  - CREATE TABLE;
-  - ALTER TABLE;
-  - SELECT;
-  - INSERT;
-  - UPDATE;
-  - DELETE;
-  - Иерархические структуры в БД.
+- CREATE TABLE;
+- ALTER TABLE;
+- SELECT;
+- INSERT;
+- UPDATE;
+- DELETE;
+- Иерархические структуры в БД.
 ---
 <section class="slide">
     <h2>Архитектура MySQL</h2>
@@ -272,4 +272,272 @@ alter_specification:
     <h2>JOIN-ы</h2>
     <div style="text-align: center; height: 100%">
         <img style="height: 70%" src="../common/joins.svg"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>CASE</h2>
+    <img src="case.png" height="250px" style="position: absolute; right: 50px"/>
+    <pre style="font-size: 90%"><code class="sql">CASE case_value
+    WHEN when_value
+        THEN statement_list
+    [WHEN when_value
+        THEN statement_list] ...
+    [ELSE statement_list]
+END CASE
+</code></pre>
+    <p>Or:</p>
+    <pre style="font-size: 90%"><code class="sql">CASE
+    WHEN search_condition THEN statement_list
+    [WHEN search_condition THEN statement_list] ...
+    [ELSE statement_list]
+END CASE
+ 
+IF (EXP1, EXP2, EXP3)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Формирование групп</h2>
+    <ul>
+        <li>Группировка по одному столбцу</li>
+        <li>Группировка по нескольким столбцам</li>
+        <li>Группировка посредством выражений</li>
+        <li>WITH ROLLUP</li>
+    </ul>
+    <pre><code class="sql">SET sql_mode = 'ONLY_FULL_GROUP_BY';</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Формирование групп</h2>
+    <mark>TODO: Пример GROUP BY</mark>
+</section>
+
+<section class="slide">
+    <h2>Агрегаторы</h2>
+    <table style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>AVG()
+            <td>Return the average value of the argument</td>
+        </tr>
+        <tr>
+            <td>BIT_AND()</td>
+            <td>Return bitwise and</td>
+        </tr>
+        <tr>
+            <td>BIT_OR()</td>
+            <td>Return bitwise or</td>
+        </tr>
+        <tr>
+            <td>BIT_XOR()</td>
+            <td>Return bitwise xor</td>
+        </tr>
+        <tr>
+            <td>COUNT(DISTINCT)</td>
+            <td>Return the count of a number of different values</td>
+        </tr>
+        <tr>
+            <td>COUNT()</td>
+            <td>Return a count of the number of rows returned</td>
+        </tr>
+        <tr>
+            <td>GROUP_CONCAT()</td>
+            <td>Return a concatenated string</td>
+        </tr>
+        <tr>
+            <td>MAX()</td>
+            <td>Return the maximum value</td>
+        </tr>
+        <tr>
+            <td>MIN()</td>
+            <td>Return the minimum value</td>
+        </tr>
+        <tr>
+            <td>STD()</td>
+            <td>Return the population standard deviation</td>
+        </tr>
+        <tr>
+            <td>STDDEV()</td>
+            <td>Return the population standard deviation</td>
+        </tr>
+        <tr>
+            <td>SUM()</td>
+            <td>Return the sum</td>
+        <tr>
+            <td>VARIANCE()</td>
+            <td>Return the population standard variance</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>HAVING</h2>
+    <pre><code class="sql">SELECT
+    column_name, aggregate_function(column_name)
+FROM
+    table_name
+WHERE
+    column_name operator value
+GROUP BY
+    column_name
+HAVING
+    aggregate_function(column_name) operator value
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>ORDER BY, LIMIT</h2>
+    <pre><code class="sql">ORDER BY {col_name | expr | position}
+    [ASC | DESC], ...
+</code></pre>
+    <div style="text-align: right">
+        <img src="order-by.png" height="300px"/>
+    </div>
+    <pre><code class="sql">LIMIT {[offset,] row_count | row_count OFFSET offset}
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>INSERT</h2>
+    <pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | DELAYED | HIGH_PRIORITY] [IGNORE]
+    [INTO] tbl_name [(col_name,...)]
+    {VALUES | VALUE} ({expr | DEFAULT},...),(...),...
+    [ ON DUPLICATE KEY UPDATE
+      col_name=expr
+        [, col_name=expr] ... ]
+</code></pre>
+    <p>Есть еще специфичный для MySQL вариант:</p>
+    <pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | DELAYED | HIGH_PRIORITY] [IGNORE]
+    [INTO] tbl_name
+    SET col_name={expr | DEFAULT}, ...
+    [ ON DUPLICATE KEY UPDATE
+      col_name=expr
+        [, col_name=expr] ... ]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>INSERT</h2>
+    <pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | HIGH_PRIORITY] [IGNORE]
+    [INTO] tbl_name [(col_name,...)]
+    SELECT ...
+    [ ON DUPLICATE KEY UPDATE
+      col_name=expr
+        [, col_name=expr] ... ]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>INSERT</h2>
+    <pre style="font-size: 90%"><code class="sql">INSERT INTO tbl_temp2 (fld_id)
+    SELECT
+        tbl_temp1.fld_order_id
+    FROM
+        tbl_temp1
+    WHERE
+        tbl_temp1.fld_order_id > 100;
+ 
+INSERT INTO table (a, b, c) VALUES (1, 2, 3)
+    ON DUPLICATE KEY UPDATE c = c + 1;
+ 
+INSERT INTO table (a, b, c) VALUES (1, 2, 3), (4, 5, 6)
+    ON DUPLICATE KEY UPDATE c = VALUES(a) + VALUES(b);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>UPDATE</h2>
+    <pre style="font-size: 90%"><code class="sql">UPDATE [LOW_PRIORITY] [IGNORE] table_reference
+    SET    col_name1={expr1|DEFAULT}
+        [, col_name2={expr2|DEFAULT}] ...
+    [WHERE where_condition]
+    [ORDER BY ...]
+    [LIMIT row_count]
+</code></pre>
+    <p>Multiple-table syntax:</p>
+    <pre style="font-size: 90%"><code class="sql">UPDATE [LOW_PRIORITY] [IGNORE] table_references
+    SET    col_name1={expr1|DEFAULT}
+        [, col_name2={expr2|DEFAULT}] ...
+    [WHERE where_condition]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>UPDATE</h2>
+    <pre><code class="sql">UPDATE table1
+SET
+    col_name1 = col_name2,
+    col_name2 = col_name1
+</code></pre>
+    <div class="next" style="padding-top: 10px; padding-bottom: 10px">
+        <h3><a href="http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt">SQL92</a>
+            (13.9 &lt;update statement: positioned&gt;):</h3>
+        <p style="font-size: 80%">
+            6. The &lt;value expression&gt;s are effectively evaluated before updating the object row. If a &lt;value
+            expression&gt; contains a reference to a column of T, then the reference is to the value of that column in
+            the
+            object row before any value of the object row is updated.
+        </p>
+    </div>
+    <pre class="next"><code class="sql">UPDATE table1
+SET
+    col_name1 = (@swap := col_name1),
+    col_name1 = col_name2,
+    col_name2 = @swap
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>DELETE</h2>
+    <pre style="font-size: 90%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE] FROM tbl_name
+    [WHERE where_condition]
+    [ORDER BY ...]
+    [LIMIT row_count]
+</code></pre>
+    <p>Multiple-table syntax (MySQL only):</p>
+    <pre style="font-size: 90%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
+    tbl_name[.*] [, tbl_name[.*]] ...
+    FROM table_references
+    [WHERE where_condition]
+</code></pre>
+    <p>Or:</p>
+    <pre style="font-size: 90%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
+    FROM tbl_name[.*] [, tbl_name[.*]] ...
+    USING table_references
+    [WHERE where_condition]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>DELETE</h2>
+    <pre style="font-size: 75%"><code class="sql">DELETE FROM t1
+WHERE
+    t1.id IN (SELECT t2.id FROM t2);
+</code></pre>
+    <div class="next">
+        <p>Or:</p>
+        <pre style="font-size: 75%"><code class="sql">DELETE t1, t2
+FROM
+    t1 INNER JOIN t2
+    INNER JOIN t3
+WHERE
+    t1.id = t2.id AND t2.id = t3.id;
+</code></pre>
+        <p>Or:</p>
+        <pre style="font-size: 75%"><code class="sql">DELETE FROM t1, t2
+USING
+    t1 INNER JOIN t2
+    INNER JOIN t3
+WHERE
+    t1.id = t2.id AND t2.id = t3.id;
+</code></pre>
+    </div>
 </section>
