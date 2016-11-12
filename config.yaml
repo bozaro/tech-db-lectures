@@ -16,3 +16,4 @@ params:
   agent: navrotskiy@corp.mail.ru
   description: "Лекции для Технопарка по курсу СУБД"
   highlightTheme: "idea"
+  useMath: false
