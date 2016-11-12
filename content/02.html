@@ -1,0 +1,805 @@
+---
+title: Лекция 2
+description: |
+  Тема данной лекции:
+
+   - CREATE TABLE;
+   - ALTER TABLE;
+   - SELECT;
+   - INSERT;
+   - UPDATE;
+   - DELETE;
+   - Иерархические структуры в БД.
+---
+<section class="slide">
+    <h2>Архитектура MySQL</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="arhitecture.jpg"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>CREATE TABLE</h2>
+    <pre style="font-size: 90%"><code class="sql">CREATE [TEMPORARY] TABLE [IF NOT EXISTS] tbl_name
+    (create_definition,...)
+    [table_options]
+    [partition_options]
+</code></pre>
+    <p>Or:</p>
+    <pre style="font-size: 90%"><code class="sql">CREATE [TEMPORARY] TABLE [IF NOT EXISTS] tbl_name
+    [(create_definition,...)]
+    [table_options]
+    [partition_options]
+    select_statement
+</code></pre>
+    <p>Or:</p>
+    <pre style="font-size: 90%"><code class="sql">CREATE [TEMPORARY] TABLE [IF NOT EXISTS] tbl_name
+    { LIKE old_tbl_name | (LIKE old_tbl_name) }
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>create_definition</h2>
+    <pre><code style="font-size: 80%" class="sql">create_definition:
+    col_name column_definition
+  | [CONSTRAINT [symbol]] PRIMARY KEY [index_type] (index_col_name,...)
+      [index_option] ...
+  | {INDEX|KEY} [index_name] [index_type] (index_col_name,...)
+      [index_option] ...
+  | [CONSTRAINT [symbol]] UNIQUE [INDEX|KEY]
+      [index_name] [index_type] (index_col_name,...)
+      [index_option] ...
+  | {FULLTEXT|SPATIAL} [INDEX|KEY] [index_name] (index_col_name,...)
+      [index_option] ...
+  | [CONSTRAINT [symbol]] FOREIGN KEY
+      [index_name] (index_col_name,...) reference_definition
+  | CHECK (expr)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>column_definition, reference_definition</h2>
+    <pre><code style="font-size: 80%" class="sql">column_definition:
+    data_type [NOT NULL | NULL] [DEFAULT default_value]
+      [AUTO_INCREMENT] [UNIQUE [KEY] | [PRIMARY] KEY]
+      [COMMENT 'string']
+      [COLUMN_FORMAT {FIXED|DYNAMIC|DEFAULT}]
+      [STORAGE {DISK|MEMORY|DEFAULT}]
+      [reference_definition]
+ 
+reference_definition:
+    REFERENCES tbl_name (index_col_name,...)
+      [ON DELETE reference_option]
+      [ON UPDATE reference_option]
+ 
+reference_option:
+    RESTRICT | CASCADE | SET NULL | NO ACTION
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Обновление кортежа в родительском отношении</h2>
+    <img src="cascade.jpg" style="float: right"/>
+    <dl>
+        <dt>RESTRICT, NO ACTION</dt>
+        <dd>Не разрешать изменение</dd>
+
+        <dt>CASCADE</dt>
+        <dd>Изменить каскадно</dd>
+
+        <dt>SET NULL</dt>
+        <dd>Установить в NULL</dd>
+
+        <dt>SET DEFAULT</dt>
+        <dd>Установить значение по умолчанию</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>CREATE TABLE (пример)</h2>
+    <pre style="font-size: 90%"><code class="sql">CREATE TABLE shop (
+    article INT(4) UNSIGNED ZEROFILL DEFAULT '0000' NOT NULL,
+    dealer  VARCHAR(20) DEFAULT '' NOT NULL,
+    price   DECIMAL(16, 2) DEFAULT 0.00 NOT NULL,
+    PRIMARY KEY pk_shop (article, dealer)
+) ENGINE = InnoDB;
+
+CREATE TABLE test (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    UNIQUE KEY (article)
+) ENGINE = InnoDB AS SELECT article, dealer, price FROM shop;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>ALTER TABLE</h2>
+    <pre style="font-size: 65%"><code class="sql">ALTER [IGNORE] TABLE tbl_name
+    [alter_specification [, alter_specification] ...]
+    [partition_options]
+
+alter_specification:
+    table_options
+| ADD [COLUMN] (col_name column_definition,...)
+| ADD [CONSTRAINT [symbol]] PRIMARY KEY
+        [index_type] (index_col_name,...) [index_option] ...
+| ADD [CONSTRAINT [symbol]]
+        FOREIGN KEY [index_name] (index_col_name,...)
+        reference_definition
+  | CHANGE [COLUMN] old_col_name new_col_name column_definition
+        [FIRST|AFTER col_name]
+  | MODIFY [COLUMN] col_name column_definition
+        [FIRST | AFTER col_name]
+  | DROP [COLUMN] col_name
+  | DROP PRIMARY KEY
+  | DROP FOREIGN KEY fk_symbol
+  | DISABLE KEYS
+  | ENABLE KEYS
+  | RENAME [TO|AS] new_tbl_name
+  | ORDER BY col_name [, col_name] ...
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>INFORMATION_SCHEMA</h2>
+    <ul class="double compact" style="font-size: 90%">
+        <li>CHARACTER_SETS</li>
+        <li>COLLATIONS</li>
+        <li>COLUMNS</li>
+        <li>COLUMN_PRIVILEGES</li>
+        <li>ENGINES</li>
+        <li>EVENTS</li>
+        <li>GLOBAL_STATUS and SESSION_STATUS</li>
+        <li>GLOBAL_VARIABLES and SESSION_VARIABLES</li>
+        <li>KEY_COLUMN_USAGE</li>
+        <li>PARTITIONS</li>
+        <li>PLUGINS</li>
+        <li>PROCESSLIST</li>
+        <li>PROFILING</li>
+        <li>REFERENTIAL_CONSTRAINTS</li>
+        <li>ROUTINES</li>
+        <li>SCHEMATA</li>
+        <li>SCHEMA_PRIVILEGES</li>
+        <li>STATISTICS</li>
+        <li>TABLES</li>
+        <li>TABLE_CONSTRAINTS</li>
+        <li>TABLE_PRIVILEGES</li>
+        <li>TRIGGERS</li>
+        <li>USER_PRIVILEGES</li>
+        <li>VIEWS</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>INFORMATION_SCHEMA: TABLES</h2>
+    <ul class="double compact">
+        <li>TABLE_CATALOG</li>
+        <li>TABLE_SCHEMA</li>
+        <li>TABLE_NAME</li>
+        <li>TABLE_TYPE</li>
+        <li>ENGINE</li>
+        <li>VERSION</li>
+        <li>ROW_FORMAT</li>
+        <li>TABLE_ROWS</li>
+        <li>AVG_ROW_LENGTH</li>
+        <li>DATA_LENGTH</li>
+        <li>MAX_DATA_LENGTH</li>
+        <li>INDEX_LENGTH</li>
+        <li>DATA_FREE</li>
+        <li>AUTO_INCREMENT</li>
+        <li>CREATE_TIME</li>
+        <li>UPDATE_TIME</li>
+        <li>CHECK_TIME</li>
+        <li>TABLE_COLLATION</li>
+        <li>CHECKSUM</li>
+        <li>CREATE_OPTIONS</li>
+        <li>TABLE_COMMENT</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>INFORMATION_SCHEMA: COLUMNS</h2>
+    <ul class="double compact">
+        <li>TABLE_CATALOG</li>
+        <li>TABLE_SCHEMA</li>
+        <li>TABLE_NAME</li>
+        <li>COLUMN_NAME</li>
+        <li>ORDINAL_POSITION</li>
+        <li>COLUMN_DEFAULT</li>
+        <li>IS_NULLABLE</li>
+        <li>DATA_TYPE</li>
+        <li>CHARACTER_MAXIMUM_LENGTH</li>
+        <li>CHARACTER_OCTET_LENGTH</li>
+        <li>NUMERIC_PRECISION</li>
+        <li>NUMERIC_SCALE</li>
+        <li>DATETIME_PRECISION</li>
+        <li>CHARACTER_SET_NAME</li>
+        <li>COLLATION_NAME</li>
+        <li>COLUMN_TYPE</li>
+        <li>COLUMN_KEY</li>
+        <li>EXTRA</li>
+        <li>PRIVILEGES</li>
+        <li>COLUMN_COMMENT</li>
+        <li>GENERATION_EXPRESSION</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>SELECT</h2>
+    <pre style="font-size: 90%"><code class="sql">SELECT
+    [ALL | DISTINCT | DISTINCTROW ]
+      [HIGH_PRIORITY]
+      [STRAIGHT_JOIN]
+      [SQL_CACHE | SQL_NO_CACHE] [SQL_CALC_FOUND_ROWS]
+    select_expr [, select_expr ...]
+    [FROM table_references
+    [WHERE where_condition]
+    [GROUP BY {col_name | expr | position}
+      [ASC | DESC], ... [WITH ROLLUP]]
+    [HAVING where_condition]
+    [ORDER BY {col_name | expr | position}
+      [ASC | DESC], ...]
+    [LIMIT {[offset,] row_count | row_count OFFSET offset}]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Типы таблиц</h2>
+    <img src="types.jpg" style="float: right"/>
+    <ul>
+        <li>Постоянные таблицы</li>
+        <li>Временные таблицы</li>
+        <li>Виртуальные таблицы (представления)</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Фильтрация</h2>
+    <img src="filter.jpg" class="place bottom right" width="400px" style="margin: 50px"/>
+    <ul class="compact">
+        <li>=</li>
+        <li>!=, &lt;&gt;</li>
+        <li>&gt;, &lt;, &gt;=, &lt;=</li>
+        <li>BETWEEN</li>
+        <li>IN</li>
+        <li>LIKE (_, %)</li>
+        <li>OR</li>
+        <li>AND</li>
+        <li>NOT</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>JOIN-ы</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="../common/joins.svg"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>CASE</h2>
+    <img src="case.png" height="250px" style="position: absolute; right: 50px"/>
+    <pre style="font-size: 90%"><code class="sql">CASE case_value
+    WHEN when_value
+        THEN statement_list
+    [WHEN when_value
+        THEN statement_list] ...
+    [ELSE statement_list]
+END CASE
+</code></pre>
+    <p>Or:</p>
+    <pre style="font-size: 90%"><code class="sql">CASE
+    WHEN search_condition THEN statement_list
+    [WHEN search_condition THEN statement_list] ...
+    [ELSE statement_list]
+END CASE
+ 
+IF (EXP1, EXP2, EXP3)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Формирование групп</h2>
+    <ul>
+        <li>Группировка по одному столбцу</li>
+        <li>Группировка по нескольким столбцам</li>
+        <li>Группировка посредством выражений</li>
+        <li>WITH ROLLUP</li>
+    </ul>
+    <pre><code class="sql">SET sql_mode = 'ONLY_FULL_GROUP_BY';</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Формирование групп</h2>
+    <pre><code class="sql">SELECT * FROM employee;</code></pre>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>name</th>
+            <th>department</th>
+            <th>grade</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>John</td>
+            <td>HR</td>
+            <td>A</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Mark</td>
+            <td>HR</td>
+            <td>A</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Smit</td>
+            <td>IT</td>
+            <td>A</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>Lili</td>
+            <td>IT</td>
+            <td>B</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>Alex</td>
+            <td>PR</td>
+            <td>B</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>Walton</td>
+            <td>HR</td>
+            <td>B</td>
+        </tr>
+        <tr>
+            <td>7</td>
+            <td>Kim</td>
+            <td>PR</td>
+            <td>B</td>
+        </tr>
+        <tr>
+            <td>8</td>
+            <td>Marry</td>
+            <td>HR</td>
+            <td>A</td>
+        </tr>
+        <tr>
+            <td>9</td>
+            <td>Paul</td>
+            <td>PR</td>
+            <td>C</td>
+        </tr>
+        <tr>
+            <td>10</td>
+            <td>Christ</td>
+            <td>HR</td>
+            <td>A</td>
+        </tr>
+        <tr>
+            <td>11</td>
+            <td>Jiji</td>
+            <td>HR</td>
+            <td>B</td>
+        </tr>
+        <tr>
+            <td>12</td>
+            <td>Bob</td>
+            <td>PR</td>
+            <td>B</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+<section class="slide">
+    <h2>Формирование групп</h2>
+    <pre><code class="sql">SELECT grade, department, COUNT(*)
+FROM employee
+GROUP BY grade, department WITH ROLLUP;
+</code></pre>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>grade</th>
+            <th>department</th>
+            <th>COUNT(*)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>A</td>
+            <td>HR</td>
+            <td>4</td>
+        </tr>
+        <tr>
+            <td>A</td>
+            <td>IT</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>A</td>
+            <td>
+                <null/>
+            </td>
+            <td>5</td>
+        </tr>
+        <tr>
+            <td>B</td>
+            <td>HR</td>
+            <td>2</td>
+        </tr>
+        <tr>
+            <td>B</td>
+            <td>IT</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>B</td>
+            <td>PR</td>
+            <td>3</td>
+        </tr>
+        <tr>
+            <td>B</td>
+            <td>
+                <null/>
+            </td>
+            <td>6</td>
+        </tr>
+        <tr>
+            <td>C</td>
+            <td>PR</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>C</td>
+            <td>
+                <null/>
+            </td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+            <td>12</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Агрегаторы</h2>
+    <table style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>AVG()
+            <td>Return the average value of the argument</td>
+        </tr>
+        <tr>
+            <td>BIT_AND()</td>
+            <td>Return bitwise and</td>
+        </tr>
+        <tr>
+            <td>BIT_OR()</td>
+            <td>Return bitwise or</td>
+        </tr>
+        <tr>
+            <td>BIT_XOR()</td>
+            <td>Return bitwise xor</td>
+        </tr>
+        <tr>
+            <td>COUNT(DISTINCT)</td>
+            <td>Return the count of a number of different values</td>
+        </tr>
+        <tr>
+            <td>COUNT()</td>
+            <td>Return a count of the number of rows returned</td>
+        </tr>
+        <tr>
+            <td>GROUP_CONCAT()</td>
+            <td>Return a concatenated string</td>
+        </tr>
+        <tr>
+            <td>MAX()</td>
+            <td>Return the maximum value</td>
+        </tr>
+        <tr>
+            <td>MIN()</td>
+            <td>Return the minimum value</td>
+        </tr>
+        <tr>
+            <td>STD()</td>
+            <td>Return the population standard deviation</td>
+        </tr>
+        <tr>
+            <td>STDDEV()</td>
+            <td>Return the population standard deviation</td>
+        </tr>
+        <tr>
+            <td>SUM()</td>
+            <td>Return the sum</td>
+        <tr>
+            <td>VARIANCE()</td>
+            <td>Return the population standard variance</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>HAVING</h2>
+    <pre><code class="sql">SELECT
+    column_name, aggregate_function(column_name)
+FROM
+    table_name
+WHERE
+    column_name operator value
+GROUP BY
+    column_name
+HAVING
+    aggregate_function(column_name) operator value
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>ORDER BY, LIMIT</h2>
+    <pre><code class="sql">ORDER BY {col_name | expr | position}
+    [ASC | DESC], ...
+</code></pre>
+    <div style="text-align: right">
+        <img src="order-by.png" height="300px"/>
+    </div>
+    <pre><code class="sql">LIMIT {[offset,] row_count | row_count OFFSET offset}
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>INSERT</h2>
+    <pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | DELAYED | HIGH_PRIORITY] [IGNORE]
+    [INTO] tbl_name [(col_name,...)]
+    {VALUES | VALUE} ({expr | DEFAULT},...),(...),...
+    [ ON DUPLICATE KEY UPDATE
+      col_name=expr
+        [, col_name=expr] ... ]
+</code></pre>
+    <p>Есть еще специфичный для MySQL вариант:</p>
+    <pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | DELAYED | HIGH_PRIORITY] [IGNORE]
+    [INTO] tbl_name
+    SET col_name={expr | DEFAULT}, ...
+    [ ON DUPLICATE KEY UPDATE
+      col_name=expr
+        [, col_name=expr] ... ]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>INSERT</h2>
+    <pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | HIGH_PRIORITY] [IGNORE]
+    [INTO] tbl_name [(col_name,...)]
+    SELECT ...
+    [ ON DUPLICATE KEY UPDATE
+      col_name=expr
+        [, col_name=expr] ... ]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>INSERT</h2>
+    <pre style="font-size: 90%"><code class="sql">INSERT INTO tbl_temp2 (fld_id)
+    SELECT
+        tbl_temp1.fld_order_id
+    FROM
+        tbl_temp1
+    WHERE
+        tbl_temp1.fld_order_id > 100;
+ 
+INSERT INTO table (a, b, c) VALUES (1, 2, 3)
+    ON DUPLICATE KEY UPDATE c = c + 1;
+ 
+INSERT INTO table (a, b, c) VALUES (1, 2, 3), (4, 5, 6)
+    ON DUPLICATE KEY UPDATE c = VALUES(a) + VALUES(b);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>UPDATE</h2>
+    <pre style="font-size: 90%"><code class="sql">UPDATE [LOW_PRIORITY] [IGNORE] table_reference
+    SET    col_name1={expr1|DEFAULT}
+        [, col_name2={expr2|DEFAULT}] ...
+    [WHERE where_condition]
+    [ORDER BY ...]
+    [LIMIT row_count]
+</code></pre>
+    <p>Multiple-table syntax:</p>
+    <pre style="font-size: 90%"><code class="sql">UPDATE [LOW_PRIORITY] [IGNORE] table_references
+    SET    col_name1={expr1|DEFAULT}
+        [, col_name2={expr2|DEFAULT}] ...
+    [WHERE where_condition]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>UPDATE</h2>
+    <pre><code class="sql">UPDATE table1
+SET
+    col_name1 = col_name2,
+    col_name2 = col_name1
+</code></pre>
+    <div class="next" style="padding-top: 10px; padding-bottom: 10px">
+        <h3><a href="http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt">SQL92</a>
+            (13.9 &lt;update statement: positioned&gt;):</h3>
+        <p style="font-size: 80%">
+            6. The &lt;value expression&gt;s are effectively evaluated before updating the object row. If a &lt;value
+            expression&gt; contains a reference to a column of T, then the reference is to the value of that column in
+            the
+            object row before any value of the object row is updated.
+        </p>
+    </div>
+    <pre class="next"><code class="sql">UPDATE table1
+SET
+    col_name1 = (@swap := col_name1),
+    col_name1 = col_name2,
+    col_name2 = @swap
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>DELETE</h2>
+    <pre style="font-size: 90%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE] FROM tbl_name
+    [WHERE where_condition]
+    [ORDER BY ...]
+    [LIMIT row_count]
+</code></pre>
+    <p>Multiple-table syntax (MySQL only):</p>
+    <pre style="font-size: 90%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
+    tbl_name[.*] [, tbl_name[.*]] ...
+    FROM table_references
+    [WHERE where_condition]
+</code></pre>
+    <p>Or:</p>
+    <pre style="font-size: 90%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
+    FROM tbl_name[.*] [, tbl_name[.*]] ...
+    USING table_references
+    [WHERE where_condition]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>DELETE</h2>
+    <pre style="font-size: 75%"><code class="sql">DELETE FROM t1
+WHERE
+    t1.id IN (SELECT t2.id FROM t2);
+</code></pre>
+    <div class="next">
+        <p>Or:</p>
+        <pre style="font-size: 75%"><code class="sql">DELETE t1, t2
+FROM
+    t1 INNER JOIN t2
+    INNER JOIN t3
+WHERE
+    t1.id = t2.id AND t2.id = t3.id;
+</code></pre>
+        <p>Or:</p>
+        <pre style="font-size: 75%"><code class="sql">DELETE FROM t1, t2
+USING
+    t1 INNER JOIN t2
+    INNER JOIN t3
+WHERE
+    t1.id = t2.id AND t2.id = t3.id;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Список смежных вершин (Adjacency List)</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="tree-al.png"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Список смежных вершин (Adjacency List)</h2>
+    <div style="font-size: 85%">
+        <p>Главный недостаток такого подхода — необходимо достоверно знать количество уровней вложенности в вашей
+            иерархии, кроме того, чем больше иерархия, тем больше JOIN'ов — тем ниже производительность.</p>
+        <p>Тем не менее, данный способ обладает и существенными достоинствами — в дерево легко вносить изменения, менять
+            местами и удалять узлы.</p>
+        <p>Данный алгоритм хорошо применим, если вы оперируете с небольшими древовидными структурами, которые часто
+            поддаются изменениям.</p>
+        <p>С другой стороны, этот алгоритм также довольно уверенно себя чувствует и с большими деревьями, если считывать
+            их порциями вида «знаю родителя — прочитать всех наследников». Хороший пример такого случая — динамически
+            подгружаемые деревья.</p>
+        <p>Однако он плохо применим, когда нужно вычитывать какие-либо иные куски дерева, находить пути, предыдущие и
+            следующие узлы при обходе и вычитывать ветки дерева целиком (на всю глубину).</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Вложенное множество (Nested Set)</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="tree-ns.png"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Вложенное множество (Nested Set)</h2>
+    <div>
+        <p>Nested Set действительно хорош, когда нам необходимо считывать структуру деревьев из БД. При этом он
+            одинаково хорош для деревьев любого объема.</p>
+        <p>Тем не менее, для иерархических структур, которые подвергаются частому изменению он, очевидно, не будет
+            являться оптимальным выбором.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Материализованный путь (Materialized Path)</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="tree-mp.png"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Материализованный путь (Materialized Path)</h2>
+    <div style="font-size: 90%">
+        <p>Во-первых, по сравнению с Nested Set, он более поддается изменениям. В то же время остается достаточно
+            удобным для выборки деревьев целиком и их частей. Но, и он не идеален. Особенно по части поиска предков
+            ветки.</p>
+        <p>Использование именно этого алгоритма может быть заметно удобнее, для деревьев, над которыми часто
+            выполняются как операции чтения, так и изменения.</p>
+        <p>Алгоритм довольно уверенно себя чувствует на достаточно больших объемах данных.</p>
+        <p>Наиболее неприятной в данном алгоритме будет операция вставки узла в середину уже существующей структуры и
+            перенос одной ветки в другую.</p>
+        <p>А вот удаление, добавление в конец или изменение узла — это операции довольно простые, и, как правило, не
+            вызывают сложностей в данной модели.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Комбинированный подход</h2>
+    <p>По сути вопроса следует отметить, что скомбинировать приведенные методы можно лишь в двух направлениях:</p>
+    <ul>
+        <li>Списки смежности + материализованный путь (Adjacency List + Materialized Path)</li>
+        <li>Списки смежности + вложенные множества (Adjacency List + Nested Set)</li>
+    </ul>
+    <p>Комбинировать же Nested Set и Materialized Path особого смысла не имеет, т.к. существенного выигрыша ни в
+        чтении, ни в записи вы не получите.</p>
+</section>
+
+<section class="slide">
+    <h2>Adjacency List + Materialized Path</h2>
+    <h3>Для AL при использовании с MP:</h3>
+    <ul>
+        <li>Улучшаются операции выборки ветвей и поддеревьев целиком;</li>
+        <li>Ухудшаются операции переноса ветвей.</li>
+    </ul>
+    <h3>Для MP при использовании с AL:</h3>
+    <ul>
+        <li>Улучшаются операции выборки наследников заданного узла;</li>
+        <li>Улучшаются операции выборки родителей заданного узла.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Adjacency List + Nested Set</h2>
+    <p>Для связки AL+NS взаимовыгодность не столь очевидна.</p>
+    <p>В первую очередь это объясняется тем, что недостатки от проблем изменения узлов дерева в модели NS напрочь
+        убивают в этой сфере все достоинства AL.</p>
+    <p>Это значит, что такую связку следует рассматривать лишь как качественное улучшение поиска родителей и наследников
+        заданного узла в алгоритме NS, а также как повышение надежности самого алгоритма (ключи можно всегда перестроить
+        в случае порчи — информацию о связях хранит AL).</p>
+    <p>Но ведь и это качественное улучшение, хотя и не такое очевидное.</p>
+</section>
