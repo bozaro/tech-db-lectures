@@ -240,16 +240,20 @@ useMath: true
 
 <section class="slide">
     <h2>Литература</h2>
-    <img src="book-03.jpg" style="position: absolute; bottom: 330px; right: 50px; height: 200px; border: 1px solid gray"/>
-    <img src="book-02.jpg" style="position: absolute; bottom: 200px; right: 150px; height: 200px; border: 1px solid gray"/>
-    <img src="book-01.jpg" style="position: absolute; bottom: 50px; right: 50px; height: 200px; border: 1px solid gray"/>
+    <img src="book-03.jpg"
+         style="position: absolute; bottom: 330px; right: 50px; height: 200px; border: 1px solid gray"/>
+    <img src="book-02.jpg"
+         style="position: absolute; bottom: 200px; right: 150px; height: 200px; border: 1px solid gray"/>
+    <img src="book-01.jpg"
+         style="position: absolute; bottom: 50px; right: 50px; height: 200px; border: 1px solid gray"/>
     <ul class="compact">
         <li>Дейт К. Дж. Введение в системы баз данных</li>
         <li>Бьюли А. Изучаем SQL</li>
         <li>Молинаро Э. SQL – сборник рецептов</li>
         <li>Заводны Дж, Шварц Б., Зайцев П.,<br/>
-        Ткаченко В., Ленц А. MySQL.<br/>
-        Оптимизация производительности</li>
+            Ткаченко В., Ленц А. MySQL.<br/>
+            Оптимизация производительности
+        </li>
         <li>Саймон А. Р. Стратегические технологии баз данных</li>
         <li>http://www.intuit.ru/catalog/database/</li>
         <li>http://citforum.ru/database/</li>
@@ -332,6 +336,7 @@ useMath: true
 .rel td.str {
 	background: #cfc !important;
 }
+
     </style>
     <table class="rel classic">
         <tr class="type">
@@ -575,7 +580,7 @@ useMath: true
 
 <section class="slide">
     <h2>Объединение (A UNION B)</h2>
-    <img src="union.png" style="position: absolute; bottom: 50px; right: 100px" width="250px" />
+    <img src="union.png" style="position: absolute; bottom: 50px; right: 100px" width="250px"/>
     <div style="display: table; width: 100%">
         <div style="display: table-cell; padding-right: 10px">
             <h3>Персоны</h3>
@@ -687,7 +692,7 @@ useMath: true
 
 <section class="slide">
     <h2>Пересечение (A INTERSECT B)</h2>
-    <img src="intersect.png" style="position: absolute; bottom: 50px; right: 100px" width="250px" />
+    <img src="intersect.png" style="position: absolute; bottom: 50px; right: 100px" width="250px"/>
     <div style="display: table; width: 100%">
         <div style="display: table-cell; padding-right: 10px">
             <h3>Персоны</h3>
@@ -774,7 +779,7 @@ useMath: true
 
 <section class="slide">
     <h2>Разность (A MINUS B)</h2>
-    <img src="minus.png" style="position: absolute; bottom: 50px; right: 100px" width="250px" />
+    <img src="minus.png" style="position: absolute; bottom: 50px; right: 100px" width="250px"/>
     <div style="display: table; width: 100%">
         <div style="display: table-cell; padding-right: 10px">
             <h3>Персоны</h3>
@@ -1354,4 +1359,152 @@ useMath: true
         <li>индексы</li>
         <li>методы доступа</li>
     </ul>
+</section>
+
+<section class="slide">
+    <h2>Почему проект БД может быть плохим?</h2>
+    <table class="classic bordered" style="font-size: 67%">
+        <thead>
+        <tr>
+            <th>Блюдо</th>
+            <th>Вид</th>
+            <th>Дата</th>
+            <th>Продукт</th>
+            <th>Калорийность</th>
+            <th>Вес (г)</th>
+            <th>Поставщик</th>
+            <th>Город</th>
+            <th>Страна</th>
+            <th>Цена ($)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Лобио</td>
+            <td>Закуска</td>
+            <td>01.09.2012</td>
+            <td>Фасоль</td>
+            <td align="right">307</td>
+            <td align="right">200</td>
+            <td>&quot;Хуанхэ&quot;</td>
+            <td>Пекин</td>
+            <td>Китай</td>
+            <td align="right">0.37</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Лук</td>
+            <td align="right">45</td>
+            <td align="right">40</td>
+            <td>&quot;Наталка&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">0.52</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Масло</td>
+            <td align="right">742</td>
+            <td align="right">30</td>
+            <td>&quot;Лайма&quot;</td>
+            <td>Рига</td>
+            <td>Латвия</td>
+            <td align="right">1.55</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Зелень</td>
+            <td align="right">18</td>
+            <td align="right">10</td>
+            <td>&quot;Даугава&quot;</td>
+            <td>Рига</td>
+            <td>Латвия</td>
+            <td align="right">0.99</td>
+        </tr>
+        <tr>
+            <td>Борщ</td>
+            <td>Суп</td>
+            <td>01.09.2012</td>
+            <td>Мясо</td>
+            <td align="right">166</td>
+            <td align="right">80</td>
+            <td>&quot;Наталка&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">2.18</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Лук</td>
+            <td align="right">45</td>
+            <td align="right">30</td>
+            <td>&quot;Наталка&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">0.52</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Томаты</td>
+            <td align="right">24</td>
+            <td align="right">40</td>
+            <td>&quot;Полесье&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">0.45</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Рис</td>
+            <td align="right">334</td>
+            <td align="right">50</td>
+            <td>&quot;Хуанхэ&quot;</td>
+            <td>Пекин</td>
+            <td>Китай</td>
+            <td align="right">0.44</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Масло</td>
+            <td align="right">742</td>
+            <td align="right">15</td>
+            <td>&quot;Полесье&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">1.62</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Зелень</td>
+            <td align="right">18</td>
+            <td align="right">15</td>
+            <td>&quot;Наталка&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">0.88</td>
+        </tr>
+        </tbody>
+    </table>
+    <ol class="double compact">
+        <li>Избыточность</li>
+        <li>Потенциальная противоречивость<br/>(аномалии обновления)</li>
+        <li>Аномалии включения</li>
+        <li>Аномалии удаления</li>
+    </ol>
 </section>
