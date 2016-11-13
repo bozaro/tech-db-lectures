@@ -2564,9 +2564,70 @@ useMath: true
 <section class="slide">
     <h2>Реляционная часть</h2>
     <ul>
-        <li style="clear: both"><img src="relation-11.svg" style="float: right" />один-к-одному (1:1)</li>
-        <li style="clear: both"><img src="relation-1m.svg" style="float: right" />один-ко-многим (1:M)</li>
-        <li style="clear: both"><img src="relation-m1.svg" style="float: right" />многие-к-одному (M:1)</li>
-        <li style="clear: both"><img src="relation-mn.svg" style="float: right" />многие-ко-многим (M:N)</li>
+        <li style="clear: both"><img src="relation-11.svg" style="float: right"/>один-к-одному (1:1)</li>
+        <li style="clear: both"><img src="relation-1m.svg" style="float: right"/>один-ко-многим (1:M)</li>
+        <li style="clear: both"><img src="relation-m1.svg" style="float: right"/>многие-к-одному (M:1)</li>
+        <li style="clear: both"><img src="relation-mn.svg" style="float: right"/>многие-ко-многим (M:N)</li>
     </ul>
+</section>
+
+<section class="slide">
+    <h2>Типы данных MySQL</h2>
+    <img src="types.jpg" style="float: right" width="60%"/>
+    <ul>
+        <li>Числовые</li>
+        <li>Строковые</li>
+        <li>Календарные</li>
+        <li>NULL</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>NULL</h2>
+    <pre style="font-size: 85%"><code class="sql">SELECT 1 = NULL, 1 <> NULL, 1 < NULL, 1 > NULL;</code></pre>
+    <table class="classic bordered">
+        <thead>
+        <tr>
+            <th>1 = NULL</th>
+            <th>1 <> NULL</th>
+            <th>1 < NULL</th>
+            <th>1 > NULL</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <pre style="font-size: 85%; padding-top: 50px"><code class="sql">SELECT 1 IS NULL, 1 IS NOT NULL, NULL IS NULL, NULL IS NOT NULL;</code></pre>
+    <table class="classic bordered">
+        <thead>
+        <tr>
+            <th>1 IS NULL</th>
+            <th>1 IS NOT NULL</th>
+            <th>NULL IS NULL</th>
+            <th>NULL IS NOT NULL</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>0</td>
+            <td>1</td>
+            <td>1</td>
+            <td>0</td>
+        </tr>
+        </tbody>
+    </table>
 </section>
