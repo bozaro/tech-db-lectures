@@ -338,6 +338,7 @@ useMath: true
 }
 
 
+
     </style>
     <table class="rel classic">
         <tr class="type">
@@ -2334,7 +2335,8 @@ useMath: true
 
 <section class="slide">
     <h2>Суррогатный ключ</h2>
-    <p style="font-size: 80%">Даже при наличии естественного ключа добавление суррогатного в большинстве случаев оправдано.
+    <p style="font-size: 80%">Даже при наличии естественного ключа добавление суррогатного в большинстве случаев
+        оправдано.
     </p>
     <table class="classic bordered" style="font-size: 70%">
         <thead>
@@ -2446,7 +2448,8 @@ useMath: true
 
 <section class="slide">
     <h2>Суррогатный ключ</h2>
-    <p style="font-size: 80%">Даже при наличии естественного ключа добавление суррогатного в большинстве случаев оправдано.
+    <p style="font-size: 80%">Даже при наличии естественного ключа добавление суррогатного в большинстве случаев
+        оправдано.
     </p>
     <table class="classic bordered" style="font-size: 70%">
         <thead>
@@ -2630,4 +2633,228 @@ useMath: true
         </tr>
         </tbody>
     </table>
+</section>
+
+<section class="slide">
+    <h2>Целые числа</h2>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Тип столбца, поля</th>
+            <th>Обьем занимаемой памяти</th>
+            <th>Диапазон допустимых значений</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>TINYINT [ (M) ]</td>
+            <td>1 байт</td>
+            <td>От -128 до 127<br/>
+                От 0 до 255
+            </td>
+        </tr>
+        <tr>
+            <td>SMALLINT [ (M) ]</td>
+            <td>2 байта</td>
+            <td>От -32768 до 32767<br/>
+                От 0 до 65535
+            </td>
+        </tr>
+        <tr>
+            <td>MEDIUM INT [ (M) ]</td>
+            <td>3 байта</td>
+            <td>От -8388608 до 8388608<br/>
+                От 0 до 16777215
+            </td>
+        </tr>
+        <tr>
+            <td>INT [ (M) ]</td>
+            <td>4 байта</td>
+            <td>От -2147683648 до 2147683648<br/>
+                От 0 до 4294967295
+            </td>
+        </tr>
+        <tr>
+            <td>BIGINT [ (M) ]</td>
+            <td>8 байт</td>
+            <td>От -2<sup>63</sup> до 2<sup>63</sup> -1<br/>
+                От 0 до 2<sup>64</sup></td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Числа с плавающей точкой</h2>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Тип столбца, поля</th>
+            <th>Обьем занимаемой памяти</th>
+            <th>Диапазон допустимых значений</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>DECIMAL [ (M [, D ] ) ],<br/>
+                DEC [ (M [, D ] ) ],<br/>
+                NUMERUC [ (M [, D ] ) ]
+            </td>
+            <td>4 байта на 9 цифр</td>
+            <td>Повышенная точность<br/>до 65 цифр</td>
+        </tr>
+        <tr>
+            <td>FLOAT [ (M, D) ]</td>
+            <td>4 байта</td>
+            <td>-3.402823466E+38<br/>
+                до -1.175494351E-38<br/>
+                0<br/>
+                1.175494351E-38<br/>
+                до 3.402823466E+38
+            </td>
+        </tr>
+        <tr>
+            <td>DOUBLE [ (M, D) ],<br/>
+                REAL [ (M, D) ],<br/>
+                DOUBLE PRECISION [ (M, D) ]
+            </td>
+            <td>8 байт</td>
+            <td>-1.7976931348623157E+308<br/>
+                до -2.2250738585072014E-308<br/>
+                0<br/>
+                2.2250738585072014E-308<br/>
+                до 1.7976931348623157E+308
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Бинарные</h2>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Тип столбца, поля</th>
+            <th>Обьем занимаемой памяти</th>
+            <th>Диапазон допустимых значений</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>BIT [ (M) ]</td>
+            <td>(M + 7) / 8 байт</td>
+            <td>От 1 до 64 бита, в зависимости от M</td>
+        </tr>
+        <tr>
+            <td>BOOLEAN [ (M) ]</td>
+            <td>1 байт</td>
+            <td>0 или 1</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Строки</h2>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Тип столбца, поля</th>
+            <th>Обьем занимаемой памяти</th>
+            <th>Диапазон допустимых значений</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>CHAR (M)</td>
+            <td>M</td>
+            <td>M символов</td>
+        </tr>
+        <tr>
+            <td>VARCHAR (M)</td>
+            <td>L + 1</td>
+            <td>M символов</td>
+        </tr>
+        <tr>
+            <td>TINYBLOB, TINYTEXT</td>
+            <td>L + 1</td>
+            <td>28 - 1 символов</td>
+        </tr>
+        <tr>
+            <td>BLOB, TEXT</td>
+            <td>L + 2</td>
+            <td>216 - 1 символов</td>
+        </tr>
+        <tr>
+            <td>MEDIUMBLOB, MEDIUMTEXT</td>
+            <td>L + 3</td>
+            <td>224 - 1 символов</td>
+        </tr>
+        <tr>
+            <td>LONGBLOB, LONGTEXT</td>
+            <td>L + 4</td>
+            <td>2(32) — 1 символов</td>
+        </tr>
+        <tr>
+            <td>ENUM ('value1', 'value2',...)</td>
+            <td>1 или 2</td>
+            <td>65 536 элементов</td>
+        </tr>
+        <tr>
+            <td>SET ('value1', 'value2',...)</td>
+            <td>1,2,3,4 или 8</td>
+            <td>64 элемента</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Дата и время</h2>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Тип столбца, поля</th>
+            <th>Обьем занимаемой памяти</th>
+            <th>Диапазон допустимых значений</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>DATE</td>
+            <td>3 байта</td>
+            <td>От "1000-01-01" до "9999-12-31"</td>
+        </tr>
+        <tr>
+            <td>TIME</td>
+            <td>3 байта</td>
+            <td>От "-828:59:59" до "828:59:59"</td>
+        </tr>
+        <tr>
+            <td>DATATIME</td>
+            <td>8 байт</td>
+            <td>От "1000-01-01 00:00:00"<br/>
+                до "9999-12-31 59:59:59"
+            </td>
+        </tr>
+        <tr>
+            <td>TIMESTAMP</td>
+            <td>4 байта</td>
+            <td>От "1970-01-01 00:00:00"<br/>
+                до "2038-12-31 59:59:59"<br/>
+                "0000-00-00 00:00:00"
+            </td>
+        </tr>
+        <tr>
+            <td>YEAR</td>
+            <td>1 байт</td>
+            <td>От 1901 до 2155 для YEAR (4)<br/>
+                От 1970 до 2069 для YEAR (2)
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <p>TIMESTAMP и DATETIME по разному работают с временными зонами.</p>
+    <p>TIMESTAMP по-умолчанию автоматически обновляется при изменении кортежа.</p>
 </section>
