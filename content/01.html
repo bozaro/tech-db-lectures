@@ -577,7 +577,7 @@ useMath: true
     <h2>Объединение (A UNION B)</h2>
     <img src="union.png" style="position: absolute; bottom: 50px; right: 100px" width="250px" />
     <div style="display: table; width: 100%">
-        <div style="display: table-cell; padding: 10px">
+        <div style="display: table-cell; padding-right: 10px">
             <h3>Персоны</h3>
             <table class="classic bordered" style="font-size: 65%">
                 <thead>
@@ -689,7 +689,7 @@ useMath: true
     <h2>Пересечение (A INTERSECT B)</h2>
     <img src="intersect.png" style="position: absolute; bottom: 50px; right: 100px" width="250px" />
     <div style="display: table; width: 100%">
-        <div style="display: table-cell; padding: 10px">
+        <div style="display: table-cell; padding-right: 10px">
             <h3>Персоны</h3>
             <table class="classic bordered" style="font-size: 65%">
                 <thead>
@@ -776,7 +776,7 @@ useMath: true
     <h2>Разность (A MINUS B)</h2>
     <img src="minus.png" style="position: absolute; bottom: 50px; right: 100px" width="250px" />
     <div style="display: table; width: 100%">
-        <div style="display: table-cell; padding: 10px">
+        <div style="display: table-cell; padding-right: 10px">
             <h3>Персоны</h3>
             <table class="classic bordered" style="font-size: 65%">
                 <thead>
@@ -864,6 +864,199 @@ useMath: true
             <td>Peter</td>
             <td>34</td>
             <td>80</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Произведение (A TIMES B)</h2>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding-right: 10px">
+            <h3>Мультфильмы</h3>
+            <table class="classic bordered" style="font-size: 65%">
+                <thead>
+                <tr>
+                    <th>Код_Мульта</th>
+                    <th>Название_Мульта</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>The Simpsons</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Family Guy</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Duck Tales</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell">
+            <h3>Каналы</h3>
+            <table class="classic bordered" style="font-size: 65%">
+                <thead>
+                <tr>
+                    <th>Код_Канала</th>
+                    <th>Название_Канала</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>СТС</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>2x2</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <h3 class="math">`"Мультфильмы" xx "Каналы"`</h3>
+    <table class="classic bordered" style="font-size: 65%">
+        <thead>
+        <tr>
+            <th>Код_Мульта</th>
+            <th>Название_Мульта</th>
+            <th>Код_Канала</th>
+            <th>Название_Канала</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>The Simpsons</td>
+            <td>1</td>
+            <td>СТС</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Family Guy</td>
+            <td>1</td>
+            <td>СТС</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Duck Tales</td>
+            <td>1</td>
+            <td>СТС</td>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>The Simpsons</td>
+            <td>2</td>
+            <td>2x2</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Family Guy</td>
+            <td>2</td>
+            <td>2x2</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Duck Tales</td>
+            <td>2</td>
+            <td>2x2</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Деление (A DIVIDEBY B)</h2>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding-right: 10px">
+            <h3>Мультфильмы</h3>
+            <table class="classic bordered" style="font-size: 65%">
+                <thead>
+                <tr>
+                    <th width="110px">Код_Мульта</th>
+                    <th width="230px">Название_Мульта</th>
+                    <th>Название_Канала</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>The Simpsons</td>
+                    <td>RenTV</td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>The Simpsons</td>
+                    <td>2x2</td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>The Simpsons</td>
+                    <td>СТС</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Family Guy</td>
+                    <td>RenTV</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Family Guy</td>
+                    <td>2x2</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Duck Tales</td>
+                    <td>СТС</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Duck Tales</td>
+                    <td>2x2</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell">
+            <h3>Каналы</h3>
+            <table class="classic bordered" style="font-size: 65%">
+                <thead>
+                <tr>
+                    <th>Название_Канала</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>RenTV</td>
+                </tr>
+                <tr>
+                    <td>2x2</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <h3 class="math">`"Мультфильмы" -: "Каналы"`</h3>
+    <table class="classic bordered" style="font-size: 65%; width: auto">
+        <thead>
+        <tr>
+            <th width="110px">Код_Мульта</th>
+            <th width="230px">Название_Мульта</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>The Simpsons</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Family Guy</td>
         </tr>
         </tbody>
     </table>
