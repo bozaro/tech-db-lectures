@@ -337,6 +337,7 @@ useMath: true
 	background: #cfc !important;
 }
 
+
     </style>
     <table class="rel classic">
         <tr class="type">
@@ -1603,7 +1604,8 @@ useMath: true
 
 <section class="slide">
     <h2>Первичный ключ</h2>
-    <p>Первичный ключ выбирается исходя из соображений удобства и сохранения уникальности. Если такого ключа нет, то имеет смысл добавить специальное поле.</p>
+    <p>Первичный ключ выбирается исходя из соображений удобства и сохранения уникальности. Если такого ключа нет, то
+        имеет смысл добавить специальное поле.</p>
     <table class="classic bordered" style="font-size: 70%">
         <thead>
         <tr>
@@ -1732,8 +1734,8 @@ useMath: true
 
 <section class="slide">
     <h2>1-ая нормальная форма</h2>
-    <p>Переменная отношения находится в первой нормальной форме (1НФ) тогда и только тогда, когда в любом допустимом
-        значении отношения каждый его кортеж содержит только одно значение для каждого из атрибутов
+    <p style="font-size: 80%">Переменная отношения находится в первой нормальной форме (1НФ) тогда и только тогда, когда
+        в любом допустимом значении отношения каждый его кортеж содержит только одно значение для каждого из атрибутов.
     </p>
     <table class="classic bordered" style="font-size: 70%">
         <thead>
@@ -1785,8 +1787,8 @@ useMath: true
 
 <section class="slide">
     <h2>1-ая нормальная форма</h2>
-    <p>Переменная отношения находится в первой нормальной форме (1НФ) тогда и только тогда, когда в любом допустимом
-        значении отношения каждый его кортеж содержит только одно значение для каждого из атрибутов
+    <p style="font-size: 80%">Переменная отношения находится в первой нормальной форме (1НФ) тогда и только тогда, когда
+        в любом допустимом значении отношения каждый его кортеж содержит только одно значение для каждого из атрибутов.
     </p>
     <table class="classic bordered" style="font-size: 70%">
         <thead>
@@ -1861,6 +1863,185 @@ useMath: true
             <td>*****</td>
             <td>Пушкин А.С.</td>
             <td>06.06.1799</td>
+            <td>Админ</td>
+            <td>Поэзия</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>2-ая нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится во второй нормальной форме тогда и только тогда, когда она
+        находится в первой нормальной форме, и каждый неключевой атрибут неприводимо зависит от ее потенциального ключа.
+    </p>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Пароль</th>
+            <th>Имя</th>
+            <th>Дата</th>
+            <th>Привилегии</th>
+            <th>Разделы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Модератор</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Юмор</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>*****</td>
+            <td>Федор Михайлович</td>
+            <td>11.11.1821</td>
+            <td>Игрок</td>
+            <td>E-Mail</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>*****</td>
+            <td>Пушкин А.С.</td>
+            <td>06.06.1799</td>
+            <td>Админ</td>
+            <td>Поэзия</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>2-ая нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится во второй нормальной форме тогда и только тогда, когда она
+        находится в первой нормальной форме, и каждый неключевой атрибут неприводимо зависит от ее потенциального ключа.
+    </p>
+    <table class="classic bordered" style="font-size: 60%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Пароль</th>
+            <th>Имя</th>
+            <th>Дата</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>*****</td>
+            <td>Федор Михайлович</td>
+            <td>11.11.1821</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>*****</td>
+            <td>Пушкин А.С.</td>
+            <td>06.06.1799</td>
+        </tr>
+        </tbody>
+    </table>
+    <table class="classic bordered" style="font-size: 60%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Привилегии</th>
+            <th>Разделы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Админ</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Админ</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Модератор</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>Модератор</td>
+            <td>Юмор</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>Игрок</td>
+            <td>E-Mail</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
             <td>Админ</td>
             <td>Поэзия</td>
         </tr>
