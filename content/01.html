@@ -513,3 +513,358 @@ useMath: true
         </tbody>
     </table>
 </section>
+
+<section class="slide">
+    <h2>Проекция (PROJECT A {x, y, …, z})</h2>
+    <h3>Персоны</h3>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Возраст</th>
+            <th>Вес</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Harry</td>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        <tr>
+            <td>Donald</td>
+            <td>29</td>
+            <td>70</td>
+        </tr>
+        <tr>
+            <td>Helena</td>
+            <td>54</td>
+            <td>54</td>
+        </tr>
+        <tr>
+            <td>Peter</td>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        </tbody>
+    </table>
+    <h3 class="math">`Pi_("Возраст", "Вес")("Персоны")`</h3>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Возраст</th>
+            <th>Вес</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>29</td>
+            <td>70</td>
+        </tr>
+        <tr>
+            <td>54</td>
+            <td>54</td>
+        </tr>
+        <tr>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Объединение (A UNION B)</h2>
+    <img src="union.png" style="position: absolute; bottom: 50px; right: 100px" width="250px" />
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding: 10px">
+            <h3>Персоны</h3>
+            <table class="classic bordered" style="font-size: 65%">
+                <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Возраст</th>
+                    <th>Вес</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Harry</td>
+                    <td>34</td>
+                    <td>80</td>
+                </tr>
+                <tr>
+                    <td>Donald</td>
+                    <td>29</td>
+                    <td>70</td>
+                </tr>
+                <tr>
+                    <td>Helena</td>
+                    <td>54</td>
+                    <td>54</td>
+                </tr>
+                <tr>
+                    <td>Peter</td>
+                    <td>34</td>
+                    <td>80</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell">
+            <h3>Персонажи</h3>
+            <table class="classic bordered" style="font-size: 65%">
+                <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Возраст</th>
+                    <th>Вес</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Daffy</td>
+                    <td>24</td>
+                    <td>19</td>
+                </tr>
+                <tr>
+                    <td>Donald</td>
+                    <td>29</td>
+                    <td>70</td>
+                </tr>
+                <tr>
+                    <td>Scrooge</td>
+                    <td>81</td>
+                    <td>27</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <h3 class="math">`"Персоны" uu "Персонажи"`</h3>
+    <table class="classic bordered" style="font-size: 65%; width: 50%">
+        <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Возраст</th>
+            <th>Вес</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Harry</td>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        <tr>
+            <td>Donald</td>
+            <td>29</td>
+            <td>70</td>
+        </tr>
+        <tr>
+            <td>Helena</td>
+            <td>54</td>
+            <td>54</td>
+        </tr>
+        <tr>
+            <td>Peter</td>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        <tr>
+            <td>Daffy</td>
+            <td>24</td>
+            <td>19</td>
+        </tr>
+        <tr>
+            <td>Scrooge</td>
+            <td>81</td>
+            <td>27</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Пересечение (A INTERSECT B)</h2>
+    <img src="intersect.png" style="position: absolute; bottom: 50px; right: 100px" width="250px" />
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding: 10px">
+            <h3>Персоны</h3>
+            <table class="classic bordered" style="font-size: 65%">
+                <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Возраст</th>
+                    <th>Вес</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Harry</td>
+                    <td>34</td>
+                    <td>80</td>
+                </tr>
+                <tr>
+                    <td>Donald</td>
+                    <td>29</td>
+                    <td>70</td>
+                </tr>
+                <tr>
+                    <td>Helena</td>
+                    <td>54</td>
+                    <td>54</td>
+                </tr>
+                <tr>
+                    <td>Peter</td>
+                    <td>34</td>
+                    <td>80</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell">
+            <h3>Персонажи</h3>
+            <table class="classic bordered" style="font-size: 65%">
+                <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Возраст</th>
+                    <th>Вес</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Daffy</td>
+                    <td>24</td>
+                    <td>19</td>
+                </tr>
+                <tr>
+                    <td>Donald</td>
+                    <td>29</td>
+                    <td>70</td>
+                </tr>
+                <tr>
+                    <td>Scrooge</td>
+                    <td>81</td>
+                    <td>27</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <h3 class="math">`"Персоны" nn "Персонажи"`</h3>
+    <table class="classic bordered" style="font-size: 65%; width: 50%">
+        <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Возраст</th>
+            <th>Вес</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Donald</td>
+            <td>29</td>
+            <td>70</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Разность (A MINUS B)</h2>
+    <img src="minus.png" style="position: absolute; bottom: 50px; right: 100px" width="250px" />
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding: 10px">
+            <h3>Персоны</h3>
+            <table class="classic bordered" style="font-size: 65%">
+                <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Возраст</th>
+                    <th>Вес</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Harry</td>
+                    <td>34</td>
+                    <td>80</td>
+                </tr>
+                <tr>
+                    <td>Donald</td>
+                    <td>29</td>
+                    <td>70</td>
+                </tr>
+                <tr>
+                    <td>Helena</td>
+                    <td>54</td>
+                    <td>54</td>
+                </tr>
+                <tr>
+                    <td>Peter</td>
+                    <td>34</td>
+                    <td>80</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell">
+            <h3>Персонажи</h3>
+            <table class="classic bordered" style="font-size: 65%">
+                <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Возраст</th>
+                    <th>Вес</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Daffy</td>
+                    <td>24</td>
+                    <td>19</td>
+                </tr>
+                <tr>
+                    <td>Donald</td>
+                    <td>29</td>
+                    <td>70</td>
+                </tr>
+                <tr>
+                    <td>Scrooge</td>
+                    <td>81</td>
+                    <td>27</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <h3 class="math">`"Персоны" \\ "Персонажи"`</h3>
+    <table class="classic bordered" style="font-size: 65%; width: 50%">
+        <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Возраст</th>
+            <th>Вес</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Harry</td>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        <tr>
+            <td>Helena</td>
+            <td>54</td>
+            <td>54</td>
+        </tr>
+        <tr>
+            <td>Peter</td>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
