@@ -1671,3 +1671,199 @@ useMath: true
         </tbody>
     </table>
 </section>
+
+<section class="slide">
+    <h2>Справочник пользователей</h2>
+    <img src="user-form.png" style="float: right; width: 50%"/>
+    <dl style="font-size: 75%">
+        <dt>Нормальная форма</dt>
+        <dd>Свойство отношения в реляционной модели данных, характеризующее его с точки зрения избыточности,
+            потенциально приводящей к логически ошибочным результатам выборки или изменения данных. Нормальная форма
+            определяется как совокупность требований, которым должно удовлетворять отношение.
+        </dd>
+    </dl>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Пароль</th>
+            <th>Имя</th>
+            <th>Дата</th>
+            <th>Привилегии</th>
+            <th>Разделы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ, Модератор</td>
+            <td>Новости, Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Флуд, Юмор</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>*****</td>
+            <td>Федор Михайлович</td>
+            <td>11.11.1821</td>
+            <td>Игрок</td>
+            <td>E-Mail</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>*****</td>
+            <td>Пушкин А.С.</td>
+            <td>06.06.1799</td>
+            <td>Админ</td>
+            <td>Поэзия</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>1-ая нормальная форма</h2>
+    <p>Переменная отношения находится в первой нормальной форме (1НФ) тогда и только тогда, когда в любом допустимом
+        значении отношения каждый его кортеж содержит только одно значение для каждого из атрибутов
+    </p>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Пароль</th>
+            <th>Имя</th>
+            <th>Дата</th>
+            <th>Привилегии</th>
+            <th>Разделы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ, Модератор</td>
+            <td>Новости, Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Флуд, Юмор</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>*****</td>
+            <td>Федор Михайлович</td>
+            <td>11.11.1821</td>
+            <td>Игрок</td>
+            <td>E-Mail</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>*****</td>
+            <td>Пушкин А.С.</td>
+            <td>06.06.1799</td>
+            <td>Админ</td>
+            <td>Поэзия</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>1-ая нормальная форма</h2>
+    <p>Переменная отношения находится в первой нормальной форме (1НФ) тогда и только тогда, когда в любом допустимом
+        значении отношения каждый его кортеж содержит только одно значение для каждого из атрибутов
+    </p>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Пароль</th>
+            <th>Имя</th>
+            <th>Дата</th>
+            <th>Привилегии</th>
+            <th>Разделы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Модератор</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Юмор</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>*****</td>
+            <td>Федор Михайлович</td>
+            <td>11.11.1821</td>
+            <td>Игрок</td>
+            <td>E-Mail</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>*****</td>
+            <td>Пушкин А.С.</td>
+            <td>06.06.1799</td>
+            <td>Админ</td>
+            <td>Поэзия</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
