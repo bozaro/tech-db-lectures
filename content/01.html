@@ -268,3 +268,125 @@ description: |
     <img src="brick-02.jpg" style="float: right; width: 49%"/>
     <img src="brick-01.jpg" style="width: 49%"/>
 </section>
+
+<section class="slide">
+    <h2>Реляционная модель данных</h2>
+    <style>
+.rel td {
+	background: none;
+}
+.rel .vertical-text {
+	position: absolute;
+	margin-top: -20pt;
+	margin-left: -15pt;
+	transform: rotate(-90deg);
+	transform-origin: left top 0;
+}
+.rel .note {
+	vertical-align: middle;
+	font-style: italic;
+	background: none !important;
+	border-top: 1px dashed black;
+	border-bottom: 1px dashed black;
+}
+.rel .vnote {
+	text-align: center;
+	font-style: italic;
+	background: none !important;
+	border-left: 1px dashed black;
+	border-right: 1px dashed black;
+}
+.rel .blank {
+	background: none !important;
+}
+.rel .data td:not(.note):not(.blank) {
+	white-space: nowrap;
+	border: 1px solid black;
+}
+.rel .attr td:not(.note):not(.blank) {
+	text-align: center;
+	vertical-align: middle;
+	font-weight: bold;
+	border: 1px solid black;
+}
+.rel .domain td:not(.note):not(.blank) {
+	text-align: center;
+	vertical-align: middle;
+	font-style: italic;
+	border: 1px solid black;
+}
+.rel .type td:not(.note):not(.blank) {
+	text-align: center;
+	vertical-align: middle;
+	font-style: italic;
+	border: 1px solid black;
+	background: #ccf !important;
+}
+.rel .data td.int {
+	text-align: right;
+}
+.rel td.int {
+	background: #ccc !important;
+}
+.rel td.str {
+	background: #cfc !important;
+}
+
+
+    </style>
+    <table class="rel classic">
+        <tr class="type">
+            <td class="blank"></td>
+            <td>Целое</td>
+            <td colspan="2">Строка</td>
+            <td colspan="2">Целое</td>
+            <td class="note">Типы данных</td>
+        </tr>
+        <tr class="domain">
+            <td class="blank"></td>
+            <td class="int">номер</td>
+            <td class="str">имя</td>
+            <td class="str">должность</td>
+            <td class="int" colspan="2">деньги</td>
+            <td class="note">Домены</td>
+        </tr>
+        <tr class="attr">
+            <td rowspan="4" class="note" style="width: 30pt; vertical-align: bottom;">
+                <div class="vertical-text">Отношение</div>
+            </td>
+            <td class="int">Табельный номер</td>
+            <td class="str">Имя</td>
+            <td class="str">Должность</td>
+            <td class="int">Оклад</td>
+            <td class="int">Премия</td>
+            <td class="note">Аттрибуты</td>
+        </tr>
+        <tr class="data">
+            <td class="int">2934</td>
+            <td class="str">Иванов</td>
+            <td class="str">Инженер</td>
+            <td class="int">112</td>
+            <td class="int">40</td>
+            <td rowspan="3" class="note">Кортежи</td>
+        </tr>
+        <tr class="data">
+            <td class="int">2935</td>
+            <td class="str">Петров</td>
+            <td class="str">Вед. Инженер</td>
+            <td class="int">144</td>
+            <td class="int">50</td>
+        </tr>
+        <tr class="data">
+            <td class="int">2936</td>
+            <td class="str">Сидоров</td>
+            <td class="str">Бухгалтер</td>
+            <td class="int">92</td>
+            <td class="int">35</td>
+        </tr>
+        <tr>
+            <td class="blank"></td>
+            <td class="vnote">Ключ</td>
+            <td colspan="5"></td>
+        </tr>
+    </table>
+</section>
