@@ -1,0 +1,11 @@
+---
+title: РК-3 (практика)
+useMath: false
+---
+<section class="ticket">
+<p>Какие индексы нужно построить для эффективного выполнения запроса и почему?</p>
+<pre><code class="sql">SELECT rental_id FROM sakila.rental
+WHERE rental_date BETWEEN '2005-07-01' AND '2005-08-01'
+  AND customer_id = 2
+ORDER BY rental_date, inventory_id;</code></pre>
+</section>
