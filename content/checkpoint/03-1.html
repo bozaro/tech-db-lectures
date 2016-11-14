@@ -1,0 +1,72 @@
+---
+title: РК-3 (теория)
+useMath: false
+---
+<section class="ticket">
+<p>Почему использование индекса может замедлить выполнение запроса?</p>
+</section>
+
+<section class="ticket">
+<p>Чем полезны покрывающие индексы?</p>
+</section>
+
+<section class="ticket">
+<p>Что такое кластерный индекс?</p>
+</section>
+
+<section class="ticket">
+<p>Чем в MySQL отличаются выражения?</p>
+<ul>
+	<li>field1 = 1 OR field1 = 2 OR field1 = 3</li>
+	<li>field1 IN (1, 2, 3)</li>
+</ul>
+</section>
+
+<section class="ticket">
+<p>Чем отличаются корелирующие и не коррелирующие подзапросы?</p>
+</section>
+
+<section class="ticket">
+<p>Что такое селективность индекса?</p>
+</section>
+
+<section class="ticket">
+<p>В чем отличие BTREE и HASH индекса? Какова их применимость?</p>
+</section>
+
+<section class="ticket">
+<p>Какие индексы и почему будут созданы в результате запросов?</p>
+<pre><code class="sql">CREATE TABLE foo (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	bar_id INT,
+	baz_id INT,
+	code VARCHAR(16) UNIQUE KEY,
+	name VARCHAR(64)
+);
+CREATE INDEX idx_foo_bar ON foo (bar_id, name);
+CREATE INDEX idx_foo_baz ON foo (name, baz_id);
+ALTER TABLE foo ADD FOREIGN KEY (baz_id) REFERENCES baz (id);
+ALTER TABLE foo ADD FOREIGN KEY (bar_id) REFERENCES bar (id);
+</code></pre>
+</section>
+
+<section class="ticket">
+<p>Что такое slow_query_log?</p>
+</section>
+
+<section class="ticket">
+<p>Почему нельзя просто построить по одному индексу на каждый столбец?</p>
+</section>
+
+<section class="ticket">
+<p>Какой индекс необходимо построить?</p>
+<pre><code class="sql">SELECT * FROM foo WHERE a = 5 AND b = 6 ORDER BY c;
+SELECT * FROM foo WHERE a > 5 AND b = 6;
+</code></pre>
+</section>
+
+<section class="ticket">
+<p>Какие индексы необходимо построить?</p>
+<pre><code class="sql">SELECT * FROM foo WHERE a = 5 AND (b = 5 OR c = 6);
+</code></pre>
+</section>
