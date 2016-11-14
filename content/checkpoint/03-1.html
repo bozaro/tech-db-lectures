@@ -64,3 +64,9 @@ ALTER TABLE foo ADD FOREIGN KEY (bar_id) REFERENCES bar (id);
 SELECT * FROM foo WHERE a > 5 AND b = 6;
 </code></pre>
 </section>
+
+<section class="ticket">
+<p>Какие индексы необходимо построить?</p>
+<pre><code class="sql">SELECT * FROM foo WHERE a = 5 AND (b = 5 OR c = 6);
+</code></pre>
+</section>
