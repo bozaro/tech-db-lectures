@@ -339,6 +339,7 @@ useMath: true
 
 
 
+
     </style>
     <table class="rel classic">
         <tr class="type">
@@ -2872,5 +2873,119 @@ useMath: true
             к минимуму.
         </li>
         <li>Откатить БД на более раннюю версию так же просто, как и обновить на более новую.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Метод инкрементных изменений</h2>
+    <div style="display: table; width: 100%; font-size: 70%">
+        <div style="display: table-cell; padding-right: 10px">
+            <pre><code class="text">Database
+|- Baseline.sql
+|- 0001.03.01.sql
+|- 0002.03.01.sql
+|- 0003.03.01.sql
+|- 0004.03.02.sql
+|- 0005.03.02.sql
+|- 0006.03.02.sql
+|- 0007.03.02.sql</code></pre>
+        </div>
+        <div style="display: table-cell">
+        <pre><code class="sql">CREATE TABLE MigrationHistory (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    MajorVersion VARCHAR(2),
+    MinorVersion VARCHAR(2),
+    FileNumber   VARCHAR(4),
+    Description  VARCHAR(255),
+    DateApplied  TIMESTAMP
+);</code></pre>
+        </div>
+    </div>
+    <pre><code class="sql" style="font-size: 60%">
+INSERT INTO MigrationHistory (MajorVersion, MinorVersion, FileNumber, Description, DateApplied)
+VALUES ('03', '01', '0000', 'Baseline', NOW());
+
+INSERT INTO MigrationHistory (MajorVersion, MinorVersion, FileNumber, Description, DateApplied)
+VALUES ('03', '01', '0001', 'Update users table', NOW());</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Метод инкрементных изменений</h2>
+    <ul>
+        <li>(+) Быстрое и удобное выполнение миграции до последней версии;</li>
+        <li>(+) Механизм нумерации версий. Номер текущей версии хранится прямо в БД;</li>
+        <li>(-) Для максимального удобства нужны средства автоматизации выполнения миграций;</li>
+        <li>(-) Неудобно добавлять комментарии к структуре БД;</li>
+        <li>(?) Если хранить только "версию базы", возникают проблемы в процессе параллельной разработки в нескольких ветках
+            репозитория.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Метод идемпотентных изменений</h2>
+    <div style="display: table; width: 100%; font-size: 70%">
+        <div style="display: table-cell; padding-right: 10px">
+            <pre><code class="text">Database
+ |- 3.01
+ |   |- Baseline.sql
+ |   | - Changes.sql
+ |
+ | - 3.02
+     |- Baseline.sql
+     |- Changes.sql</code></pre>
+        </div>
+        <div style="display: table-cell">
+        <pre><code class="sql">IF NOT EXISTS
+(
+    SELECT *
+    FROM information_schema.tables
+    WHERE table_name = 'myTable'
+        AND table_schema = 'myDb'
+)
+THEN
+    CREATE TABLE myTable
+    (
+        id INT(10) NOT NULL,
+        myField VARCHAR(255) NULL,
+        PRIMARY KEY(id)
+    );
+END IF;</code></pre>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Метод идемпотентных изменений</h2>
+    <ul>
+        <li>(+) Очень удобное выполнение миграций с любой промежуточной версии до последней — нужно всего лишь выполнить
+            на базе данных один файл (Changes.sql)
+        </li>
+        <li>(-) Потенциально возможны ситуации, в которых будут теряться данные, за этим придется следить.</li>
+        <li>(-) Для того, чтобы изменения были идемпотентными, нужно потратить больше времени (и кода) на их
+            написание.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Генерация БД на базе исходного кода</h2>
+    <ul class="compact" style="font-size: 75%">
+        <li>(+) Удобно наблюдать изменения в структуре между версиями при помощи средств системы контроля версий;</li>
+        <li>(+) Как и любой исходный код, структуру БД удобно комментировать;</li>
+        <li>(+) Для того, чтобы с нуля создать чистую базу данных последней версии, нужно выполнить всего лишь один
+            файл;
+        </li>
+        <li>(+) Скрипты-миграции более надежны, чем в других методах, так как генерируются автоматически;</li>
+        <li>(+) Мигрировать с новых версий на старые почти так же просто, как со старых на новые (проблемы могут
+            возникнуть только с пресловутыми изменениями данных);
+        </li>
+        <li>(+) В случае слияния двух веток репозитория, merge структуры БД осуществляется проще, чем при использовании
+            других подходов;
+        </li>
+        <li>(-) Изменения данных придется хранить отдельно, и затем вручную вставлять в сгенерированные
+            скрипты-миграции;
+        </li>
+        <li>(-) Вручную выполнять миграции очень неудобно, необходимы автоматизированные средства.</li>
     </ul>
 </section>
