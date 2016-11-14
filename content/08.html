@@ -268,17 +268,6 @@ innodb_data_file_path = ibdata1:1G;ibdata2:1G;ibdata3:1G
 <section class="slide">
 <h2>Переменные состояния</h2>
 <dl>
-	<dt>Binlog_cache_disk_use и Binlog_cache_use</dt>
-	<dd>Если отношение Binlog_cache_disk_use к Binlog_cache_use велико, попробуйте увеличить значение binlog_cache_size. Самый лучший подход – увеличить параметр binlog_cache_size и посмотреть, уменьшится ли число непопаданий в кэш.</dd>
-
-	<dt>Bytes_received и Bytes_sent</dt>
-	<dd>Эти значения помогают понять, не слишком ли велик трафик в направлении к серверу или от него. Возможно, причина таится где-то в вашем коде.</dd>
-</dl>
-</section>
-
-<section class="slide">
-<h2>Переменные состояния</h2>
-<dl>
 	<dt>Created_tmp_disk_tables</dt>
 	<dd>Если это значение велико, то возможно одно из двух: либо запросы создают временные таблицы в результате выборки столбцов типа BLOB или TEXT, либо недостаточно велики значения конфигурационных параметров tmp_table_size и/или max_heap_table_size.</dd>
 
