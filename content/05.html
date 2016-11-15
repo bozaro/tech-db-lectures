@@ -197,14 +197,15 @@ f('Vadim') = 2458</code></pre>
 <section class="slide">
     <h2>Протоколирование запросов</h2>
     <h3>Общий журнал</h3>
-    <pre><code>log = &lt;имя_файла&gt;</code></pre>
+    <pre><code style="font-size: 90%">general_log_file = &lt;имя_файла&gt;</code></pre>
     <h3>Журнал медленных запросов</h3>
-    <pre><code>log-slow-queries = &lt;имя_файла&gt;
+    <pre><code style="font-size: 90%">slow_query_log = &lt;имя_файла&gt;
 long_query_time = 2
-log-queries-not-using-indexes
-log-slow-admin-statements
+log_queries_not_using_indexes = 1
+log_slow_admin_statements = 1
+log_throttle_queries_not_using_indexes = 60
 </code></pre>
-    <pre><code class="sql" style="font-size: 90%">
+    <pre><code class="sql" style="font-size: 80%">
 # Time: 121018 9:47:00
 # User@Host: root[root] @ localhost []
 # Query_time: 0.000652 Lock_time: 0.000109 Rows_sent: 50
