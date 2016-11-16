@@ -12,6 +12,107 @@ description: |
 useMath: true
 ---
 <section class="slide">
+    <h2>Стоимость типовых операций</h2>
+    <table style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Стоимость операции</th>
+            <th style="text-align: right">нс (ns)</th>
+            <th style="text-align: right">мкс (µs)</th>
+            <th style="text-align: right">мс (ms)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Получение значения из L1</td>
+            <td align="right">0.5</td>
+            <td align="right"></td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Ошибка предсказания перехода в CPU</td>
+            <td align="right">5</td>
+            <td align="right"></td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Получение значения из L2</td>
+            <td align="right">7</td>
+            <td align="right"></td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Mutex lock/unlock</td>
+            <td align="right">25</td>
+            <td align="right"></td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Получение значения из RAM</td>
+            <td align="right">100</td>
+            <td align="right"></td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Сжатие 1Кб методом Zippy</td>
+            <td align="right">3 000</td>
+            <td align="right">3</td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Отправка 1Кб через 1Гбит/сек сеть</td>
+            <td align="right">10 000</td>
+            <td align="right">10</td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Чтение 4Кб с SSD (случайный доступ)</td>
+            <td align="right">150 000</td>
+            <td align="right">150</td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Чтение 1Мб из RAM (последовательный доступ)</td>
+            <td align="right">250 000</td>
+            <td align="right">250</td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Round trip внутри одного датацентра</td>
+            <td align="right">500 000</td>
+            <td align="right">500</td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Чтение 1Мб из SSD (последовательный доступ)</td>
+            <td align="right">1 000 000</td>
+            <td align="right">1 000</td>
+            <td align="right">1</td>
+        </tr>
+        <tr>
+            <td>Позиционирование HDD</td>
+            <td align="right">10 000 000</td>
+            <td align="right">10 000</td>
+            <td align="right">10</td>
+        </tr>
+        <tr>
+            <td>Чтение 1Мб из HDD (последовательный доступ)</td>
+            <td align="right">20 000 000</td>
+            <td align="right">20 000</td>
+            <td align="right">20</td>
+        </tr>
+        <tr>
+            <td>Round trip между США и Нидерландами</td>
+            <td align="right">150 000 000</td>
+            <td align="right">150 000</td>
+            <td align="right">150</td>
+        </tr>
+        </tbody>
+    </table>
+    <a href="https://gist.github.com/jboner/2841832">https://gist.github.com/jboner/2841832</a>
+</section>
+
+<section class="slide">
 <h2>Конфигурирование</h2>
 <ul>
 	<li>/etc/my.cnf</li>
