@@ -182,3 +182,21 @@ REVOKE ALL PRIVILEGES ON sakila.* FROM 'homer';
 DROP USER 'homer';
 </code></pre>
 </section>
+
+<section class="slide">
+<h2>SQL-injection</h2>
+<h3>Строковой входящий параметр</h3>
+<ul>
+	<li>http://xxx/news.php?id=1
+	<pre><code class="sql">SELECT * FROM news WHERE id='<mark>$id</mark>'</code></pre>
+	</li>
+	<li>http://xxx/news.php?id=1'
+	<pre><code class="sql">SELECT * FROM news WHERE id='<mark>1'</mark>'
+</code></pre>
+	mysql_query(): You have an error in your SQL syntax check the manual that corresponds to your MySQL server version for the right syntax to use near '1''
+	</li>
+	<li>http://xxx/news.php?id=1'%20--%20
+	<pre><code class="sql">SELECT * FROM news WHERE id='<mark>1' -- </mark>'
+</code></pre>
+	</li>
+</section>
