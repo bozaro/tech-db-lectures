@@ -90,7 +90,7 @@ LOAD INDEX INTO CACHE t1, t2;</code></pre>
 <section class="slide">
 <h2>Кэш MyISAM</h2>
 <h3>Коэффициент попаданий в кэш:</h3>
-<p class="math">`100 - ("key_reads" * 100)/("key_reads_requests")`</p>
+<p class="math">`100 - ("key_reads" * 100)/("key_read_requests")`</p>
 
 <h3>Коэффициент заполненности буфера:</h3>
 <p class="math">`100 - ("key_blocks_unused" * "key_cache_block_size" * 100)/("key_buffer_size")`</p>
