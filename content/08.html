@@ -194,7 +194,29 @@ SHOW STATUS LIKE 'Threads_connected';</code></pre>
 	<dt>innodb_log_buffer_size</dt>
 	<dd>Размер буфера лога транзакций.</dd>
 </dl>
-<pre><code class="sql">ALTER TABLE sometable DELAY_KEY_WRITE = 1;</code></pre>
+</section>
+
+<section class="slide">
+<h2>Ввод / вывод в InnoDB</h2>
+<pre><code class="sql" style="font-size: 75%">mysql> pager grep sequence
+PAGER SET TO 'grep sequence'
+
+mysql> SHOW engine innodb STATUS\G SELECT sleep(60); SHOW engine innodb STATUS\G
+Log sequence number 84 3836410803
+ 1 row IN SET (0.06 sec)
+ 1 row IN SET (1 min 0.00 sec)
+Log sequence number 84 3838334638
+ 1 row IN SET (0.05 sec)
+
+mysql> SELECT (3838334638 - 3836410803) / 1024 / 1024 AS MB_per_min;
+
++------------+
+| MB_per_min |
++------------+
+| 1.83471203 |
++------------+
+</code></pre>
+<p>Размер лога выбираем примерно на 10-60 минут работы сервера.</p>
 </section>
 
 <section class="slide">
