@@ -12,3 +12,4 @@ if [ "${HUGO}" == "" ]; then
   HUGO=".build/hugo_${HUGO_VER}_linux_amd64/hugo_${HUGO_VER}_linux_amd64"
 fi
 ${HUGO} $@
+find public/ -iname ".*" -exec rm {} \;
