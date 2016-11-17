@@ -75,3 +75,18 @@ SELECT * FROM foo WHERE a > 5 AND b = 6;
 <p>Какие особенности поведения, в контексте индексов, есть у NULL-полей?</p>
 </code></pre>
 </section>
+
+<section class="ticket">
+<p>Какие индексы и почему будут созданы в результате запросов?</p>
+<pre><code class="sql">CREATE TABLE foo (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	bar_id INT,
+	baz_id INT,
+	code VARCHAR(16) UNIQUE KEY,
+	name VARCHAR(64)
+);
+CREATE UNIQUE INDEX idx_code ON foo (code);
+CREATE INDEX idx_foo_baz ON foo (name, baz_id);
+ALTER TABLE foo ADD FOREIGN KEY (baz_id) REFERENCES baz (id);
+</code></pre>
+</section>
