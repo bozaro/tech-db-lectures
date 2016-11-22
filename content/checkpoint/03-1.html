@@ -3,40 +3,11 @@ title: РК-3 (теория)
 useMath: false
 ---
 <section class="ticket">
-<p>Почему использование индекса может замедлить выполнение запроса?</p>
-</section>
-
-<section class="ticket">
-<p>Чем полезны покрывающие индексы?</p>
-</section>
-
-<section class="ticket">
-<p>Что такое кластерный индекс?</p>
-</section>
-
-<section class="ticket">
-<p>Чем в MySQL отличаются выражения?</p>
-<ul>
-	<li>field1 = 1 OR field1 = 2 OR field1 = 3</li>
-	<li>field1 IN (1, 2, 3)</li>
-</ul>
-</section>
-
-<section class="ticket">
-<p>Чем отличаются корелирующие и не коррелирующие подзапросы?</p>
-</section>
-
-<section class="ticket">
-<p>Что такое селективность индекса?</p>
-</section>
-
-<section class="ticket">
-<p>В чем отличие BTREE и HASH индекса? Какова их применимость?</p>
-</section>
-
-<section class="ticket">
-<p>Какие индексы и почему будут созданы в результате запросов?</p>
-<pre><code class="sql">CREATE TABLE foo (
+<ol>
+	<li>Чем полезны покрывающие индексы?</li>
+	<li>
+		<p>Какие индексы и почему будут созданы в результате запросов?</p>
+		<pre><code class="sql">CREATE TABLE foo (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	bar_id INT,
 	baz_id INT,
@@ -48,37 +19,16 @@ CREATE INDEX idx_foo_baz ON foo (name, baz_id);
 ALTER TABLE foo ADD FOREIGN KEY (baz_id) REFERENCES baz (id);
 ALTER TABLE foo ADD FOREIGN KEY (bar_id) REFERENCES bar (id);
 </code></pre>
+	</li>
+</ol>
 </section>
 
 <section class="ticket">
-<p>Что такое slow_query_log?</p>
-</section>
-
-<section class="ticket">
-<p>Почему нельзя просто построить по одному индексу на каждый столбец?</p>
-</section>
-
-<section class="ticket">
-<p>Какой индекс необходимо построить?</p>
-<pre><code class="sql">SELECT * FROM foo WHERE a = 5 AND b = 6 ORDER BY c;
-SELECT * FROM foo WHERE a > 5 AND b = 6;
-</code></pre>
-</section>
-
-<section class="ticket">
-<p>Какие индексы необходимо построить?</p>
-<pre><code class="sql">SELECT * FROM foo WHERE a = 5 AND (b = 5 OR c = 6);
-</code></pre>
-</section>
-
-<section class="ticket">
-<p>Какие особенности поведения, в контексте индексов, есть у NULL-полей?</p>
-</code></pre>
-</section>
-
-<section class="ticket">
-<p>Какие индексы и почему будут созданы в результате запросов?</p>
-<pre><code class="sql">CREATE TABLE foo (
+<ol>
+	<li>Что такое кластерный индекс?</li>
+	<li>
+		<p>Какие индексы и почему будут созданы в результате запросов?</p>
+		<pre><code class="sql">CREATE TABLE foo (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	bar_id INT,
 	baz_id INT,
@@ -89,12 +39,61 @@ CREATE UNIQUE INDEX idx_code ON foo (code);
 CREATE INDEX idx_foo_baz ON foo (name, baz_id);
 ALTER TABLE foo ADD FOREIGN KEY (baz_id) REFERENCES baz (id);
 </code></pre>
+	</li>
+</ol>
 </section>
 
 <section class="ticket">
-<p>Что лучше, JOIN или подзапрос? Почему?</p>
+<ol>
+	<li>Чем отличаются корелирующие и не коррелирующие подзапросы?</li>
+	<li>В чем отличие BTREE и HASH индекса? Какова их применимость?</li>
+</ol>
 </section>
 
 <section class="ticket">
-<p>Что такое filesort?</p>
+<ol>
+	<li>Что лучше, JOIN или подзапрос? Почему?</li>
+	<li>
+		<p>Какие индексы необходимо построить?</p>
+		<pre><code class="sql">SELECT * FROM foo WHERE a = 5 AND (b = 5 OR c = 6);</code></pre>
+	</li>
+</ol>
+</section>
+
+<section class="ticket">
+<ol>
+	<li>Что такое slow_query_log?</li>
+	<li>Почему нельзя просто построить по одному индексу на каждый столбец?</li>
+</ol>
+</section>
+
+<section class="ticket">
+<ol>
+	<li>Что такое filesort?</li>
+	<li>
+		<p>Какой индекс необходимо построить?</p>
+		<pre><code class="sql">SELECT * FROM foo WHERE a = 5 AND b = 6 ORDER BY c;
+SELECT * FROM foo WHERE a > 5 AND b = 6;
+</code></pre>
+	</li>
+</section>
+
+<section class="ticket">
+<ol>
+	<li>Почему использование индекса может замедлить выполнение запроса?</li>
+	<li>
+		<p>Чем в MySQL отличаются выражения?</p>
+		<ul>
+			<li>field1 = 1 OR field1 = 2 OR field1 = 3</li>
+			<li>field1 IN (1, 2, 3)</li>
+		</ul>
+	</li>
+</ol>
+</section>
+
+<section class="ticket">
+<ol>
+	<li>Что такое селективность индекса?</li>
+	<li>Какие особенности поведения, в контексте индексов, есть у NULL-полей?</li>
+</ol>
 </section>
