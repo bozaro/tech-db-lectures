@@ -1,0 +1,133 @@
+---
+title: РК-1 (домашнее задание)
+useMath: false
+---
+<section class="ticket">
+<pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+<p>Найти названия всех фильмов снятых 'Steven Spielberg', отсортировать по алфавиту.</p>
+</section>
+
+<section class="ticket">
+<pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+<p>Найти года в которых были фильмы с рейтингом 4 или 5, и отсортировать по возрастанию.</p>
+</section>
+
+<section class="ticket">
+<pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+<p>Найти названия всех фильмов которые не имеют рейтинга, отсортировать по алфавиту.</p>
+</section>
+
+<section class="ticket">
+<pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+<p>Некоторые оценки не имеют даты. Найти имена всех экспертов, имеющих оценки без даты, отсортировать по алфавиту.</p>
+</section>
+
+<section class="ticket">
+<pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+<p>Напишите запрос возвращающий информацию о рейтингах в более читаемом формате: имя эксперта, название фильма, оценка и дата оценки. Отсортируйте данные по имени эксперта, затем названию фильма и наконец оценка.</p>
+</section>
+
+<section class="ticket">
+<pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+<p>Для каждого фильма, выбрать название и "разброс оценок", то есть, разницу между самой высокой и самой низкой оценками для этого фильма. Сортировать по "разбросу оценок" от высшего к низшему, и по названию фильма.</p>
+</section>
+
+<section class="ticket">
+<pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+<p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, а средней оценкой фильмов выпущенных после 1980 года (фильмы выпущенные в 1980 году не учитываются).</p>
+<p>(Убедитесь, что для расчета используете среднюю оценку для каждого фильма. Не просто среднюю оценку фильмов до и после 1980 года.)</p>
+</section>
+
+<section class="ticket">
+<pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+<p>Найти имена всех экспертов, кто оценил "Gone with the Wind", отсортировать по алфавиту.</p>
+</section>
+
+<section class="ticket">
+<pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+<p>Для каждой оценки, где эксперт тот же человек что и режиссер, выбрать имя, название фильма и оценку, отсортировать по имени, названию фильма и оценке.</p>
+</section>
+
+<section class="ticket">
+<pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+<p>Выберите всех экспертов и названия фильмов в едином списке в алфавитном порядке.</p>
+</section>
+
+<section class="ticket">
+<pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+<p>Выберите названия всех фильмов, по алфавиту, которым не поставил оценку 'Chris Jackson'.</p>
+</section>
+
+<section class="ticket">
+<pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+<p>Для всех пар экспертов, если оба оценили один и тот же фильм, выбрать имена обоих. Устранить дубликаты, проверить отсутствие пар самих с собой и включать каждую пару только 1 раз. Выбрать имена в паре в алфавитном порядке и отсортировать по именам.</p>
+</section>
+
+<section class="ticket">
+<pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+<p>Выбрать список названий фильмов и средний рейтинг, от самого низкого до самого высокого. Если два или более фильмов имеют одинаковый средний балл, перечислить их в алфавитном порядке.</p>
+</section>
+
+<section class="ticket">
+<pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+<p>Найти имена всех экспертов, которые поставили три или более оценок, сортировка по алфавиту.</p>
+</section>
+
+<section class="ticket">
+<pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+<p>Некоторые режиссеры сняли более чем один фильм. Для всех таких режиссеров, выбрать названия всех фильмов режиссера, его имя. Сортировка по имени режиссера.</p>
+<p>Пример: Titanic,Avatar | James Cameron</p>
+</section>
+
+<section class="ticket">
+<pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+<p>Для всех случаев когда один эксперт оценивал фильм более одного раза и указал лучший рейтинг второй раз, выведите имя эксперта и название фильма, отсортировав по имени, затем по названию фильма.</p>
+</section>
