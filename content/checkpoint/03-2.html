@@ -54,7 +54,7 @@ JOIN rental ON (rental.customer_id = customer.customer_id)
 JOIN inventory ON (rental.inventory_id = inventory.inventory_id)
 JOIN film ON (inventory.film_id = film.film_id)
 JOIN payment ON (payment.rental_id = rental.rental_id)
-WHERE YEAR(rental_date) = 2005
+WHERE YEAR(rental.rental_date) = 2005
   AND customer.store_id = 2
 GROUP BY film.title;
 </code></pre>
