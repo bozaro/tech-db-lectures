@@ -2686,6 +2686,124 @@ useMath: true
 </section-->
 
 <section class="slide">
+    <h2>Пример схемы базы данных (кортежи)</h2>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding-right: 10px">
+            <h3>country</h3>
+            <table class="classic bordered" style="font-size: 80%">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>0</td>
+                    <td>Россия</td>
+                </tr>
+                <tr>
+                    <td>42</td>
+                    <td>Вьетнам</td>
+                </tr>
+                <tr>
+                    <td>55</td>
+                    <td>Гондурас</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>        
+        <div style="display: table-cell; padding-right: 10px">
+            <h3>region</h3>
+            <table class="classic bordered" style="font-size: 80%">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>country_id</th>
+                    <th>name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>Москва и Московская обл.</td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>Санкт-Петербург и область</td>
+                </tr>
+                <tr>
+                    <td>395</td>
+                    <td>55</td>
+                    <td>Тегусигальпа</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <h3>city</h3>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>region_id</th>
+            <th>name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>0</td>
+            <td>Москва</td>
+        </tr>
+        <tr>
+            <td>42</td>
+            <td>0</td>
+            <td>Жилево</td>
+        </tr>
+        <tr>
+            <td>173</td>
+            <td>1</td>
+            <td>Санкт-Петербург</td>
+        </tr>
+        <tr>
+            <td>6165</td>
+            <td>395</td>
+            <td>Тегусигальпа</td>
+        </tr>
+        </tbody>
+    </table>
+    <footer class="footer">Источник примера: https://github.com/Legostaev/contry_region_city</footer>
+</section>
+
+<section class="slide">
+    <h2>Пример схемы базы данных (DDL)</h2>
+    <pre class="sql" style="font-size: 75%"><code>
+CREATE TABLE country (
+  id bigserial NOT NULL PRIMARY KEY,
+  name varchar(128) NOT NULL
+);
+
+CREATE TABLE region (
+  id bigserial NOT NULL PRIMARY KEY,
+  country_id bigint NOT NULL,
+  name varchar(128) NOT NULL,
+  FOREIGN KEY (country_id) REFERENCES country (id)
+);
+
+CREATE TABLE city
+(
+  id bigserial NOT NULL PRIMARY KEY,
+  region_id bigint NOT NULL,
+  name varchar(128) NOT NULL,
+  FOREIGN KEY (region_id) REFERENCES region (id)
+);
+</code></pre>
+</section>
+
+<section class="slide">
     <h2>Версионирование схемы БД</h2>
     <h3>Хотелки:</h3>
     <ul style="font-size: 90%">
