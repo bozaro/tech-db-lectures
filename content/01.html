@@ -58,6 +58,7 @@ useMath: true
 
 <section class="slide">
     <h2>Семестровый проект</h2>
+    <img src="docker.svg" style="float: right; width: 200px"/>
     <p>Реализация API для "форума".</p>
     <ul>
         <li>Функциональное тестирование;</li>
@@ -67,15 +68,16 @@ useMath: true
     <p>API сформулировано в виде Swagger-схемы.</p>
     <p>Работа принимается в виде git-репозитория, из которого собирается Docker-контейнер.</p>
     <p>Задание расположено по адресу: <a href="https://github.com/bozaro/tech-db-forum">https://github.com/bozaro/tech-db-forum</a></p>
+    <p>Отправная точка: <a href="https://github.com/bozaro/tech-db-hello">https://github.com/bozaro/tech-db-hello</a></p>
 </section>
 
 <section class="slide">
     <h2>Интересные факты</h2>
     <ul>
         <li><img src="yahoo.png" style="float: right"/>Реляционная база данных Yahoo > 2 петабайт<sup>1</sup></li>
-        <li>Отсутствие готовых решений</li>
         <li><img src="osm.png" style="float: right"/>Архив с базой данных OpenStreetMap занимает порядка 55Гб<sup>2</sup></li>
         <li>Практически ни одно приложение не обходится без БД</li>
+        <li>Отсутствие готовых решений</li>
         <li>Установочные .msi файлы для Windows - это БД</li>
         <li><img src="hh.png" style="float: right"/>В большинстве вакансий разработчика упоминается SQL, по данным hh.ru
         </li>
@@ -177,7 +179,7 @@ useMath: true
             <td align="right">150</td>
             <td align="right"></td>
         </tr>
-        <tr>
+        <tr style="font-weight: bold">
             <td>Чтение 1Мб из RAM (последовательный доступ)</td>
             <td align="right">250 000</td>
             <td align="right">250</td>
@@ -189,7 +191,7 @@ useMath: true
             <td align="right">500</td>
             <td align="right"></td>
         </tr>
-        <tr>
+        <tr style="font-weight: bold">
             <td>Чтение 1Мб из SSD (последовательный доступ)</td>
             <td align="right">1 000 000</td>
             <td align="right">1 000</td>
@@ -201,7 +203,7 @@ useMath: true
             <td align="right">10 000</td>
             <td align="right">10</td>
         </tr>
-        <tr>
+        <tr style="font-weight: bold">
             <td>Чтение 1Мб из HDD (последовательный доступ)</td>
             <td align="right">20 000 000</td>
             <td align="right">20 000</td>
@@ -268,6 +270,26 @@ useMath: true
 </section>
 
 <section class="slide">
+    <h2>Кратенькая история</h2>
+    <ul class="compact" style="font-size: 85%">
+        <li>3600 до н.э. - глиняные таблички у древних шумеров;</li>
+        <li>1966 г. - появление MUMPS;</li>
+        <li>1968 г. - первая промышленная СУБД система IMS фирмы IBM;</li>
+        <li>1972 г. - компания IBM начала исследовательский проект по разработке РСУБД;</li>
+        <li>1979 г. - выход первой РСУБД Oracle;</li>
+        <li>1980 г. - появление dBase II;</li>
+        <li>1981 г. - появление IBM PC;</li>
+        <li>1982 г. - выход DB2 фирмы IBM;</li>
+        <li>1993 г. - выход Intel Pentium;</li>
+        <li>1994 г. - выход Oracle для PC;</li>
+        <li>1995 г. - появление MySQL;</li>
+        <li>1996 г. - появление PostgreSQL;</li>
+        <li>2005 г. - появление Hadoop;</li>
+        <li>2009 г. - появление MongoDB.</li>
+    </ul>
+</section>
+
+<section class="slide">
     <h2>Реляционные БД</h2>
     <figure>
         <blockquote>… многие отдали предпочтение реляционным системам баз данных, поскольку используемый в них
@@ -277,6 +299,11 @@ useMath: true
         </blockquote>
         <figcaption>Мартин Фаулер</figcaption>
     </figure>
+    <ul class="next compact">
+        <li>Поддержка нескольких СУБД может быть полезна для тестирования;</li>
+        <li>Стандарты позволяют использовать чужие наработки, например системы отчетов;</li>
+        <li>Аналитики часто знают SQL.</li>
+    </ul>
 </section>
 
 <section class="slide">
@@ -303,14 +330,14 @@ useMath: true
         <li>Бьюли А. Изучаем SQL</li>
         <li>Молинаро Э. SQL – сборник рецептов</li>
         <li>Заводны Дж, Шварц Б., Зайцев П.,<br/>
-            Ткаченко В., Ленц А. MySQL.<br/>
-            Оптимизация производительности
+            Ткаченко В., Ленц А.<br/>
+            MySQL. Оптимизация производительности
         </li>
         <li>Саймон А. Р. Стратегические технологии баз данных</li>
-        <li>https://wiki.postgresql.org/wiki/Russian</li>
-        <li>http://citforum.ru/database/</li>
-        <li>http://www.sql.ru/</li>
-        <li>http://www.mysql.com/</li>
+        <li><a href="https://wiki.postgresql.org/wiki/Russian">https://wiki.postgresql.org/wiki/Russian</a></li>
+        <li><a href="http://citforum.ru/database/">http://citforum.ru/database/</a></li>
+        <li><a href="http://www.sql.ru/">http://www.sql.ru/</a></li>
+        <li><a href="http://www.mysql.com/">http://www.mysql.com/</a></li>
     </ul>
 </section>
 
