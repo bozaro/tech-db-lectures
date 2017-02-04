@@ -1,40 +1,120 @@
 ---
 title: Лекция 1
 description: |
-  Тема данной лекции:
+  Введение.
 
-   - Обзор курса
-   - Что такое базы данных?
-   - Проектирование БД.
-   - Нормализация и нормальные формы.
-   - Реляционная алгебра.
-   - Типы данных.
+   - Обзор курса и организационные вопросы:
+     - Описание курса;
+     - Порядок сдачи рубежного контроля;
+     - Список литературы.
+   - Краткое введение в историю баз данных:
+     - Зачем нужны и где используются базы данных?
+     - Какие бывают виды СУБД?
+   - Введение в реляционные базы данных:
+     - Термины реляционных баз данных;
+     - Реляционная алгебра.
+   - Немного о схеме базы данных:
+     - Пример простой схемы;
+     - Миграция схемы между версиями.
 useMath: true
-draft: true
 ---
 <section class="slide">
     <h2>Знакомство и основы проектирования БД</h2>
     <ul>
-        <li>Обзор курса</li>
-        <li>Что такое базы данных?</li>
-        <li>Проектирование БД.</li>
-        <li>Нормализация и нормальные формы.</li>
+        <li>Обзор курса и организационные вопросы;</li>
+        <li>Краткое введение в историю баз данных;</li>
+        <li>Введение в реляционные базы данных;</li>
+        <li>Нормализация и нормальные формы;</li>
         <li>Реляционная алгебра.</li>
-        <li>Типы данных.</li>
     </ul>
+</section>
+
+<section class="slide">
+    <h2>Правила игры</h2>
+    <ul>
+        <li>9 лекций по реляционным СУБД (Навроцкий);</li>
+        <li>2 лекции по NoSQL (Ступников);</li>
+        <li>5 контрольных;</li>
+        <li>1 семестровый проект.</li>
+    </ul>
+    <p>Слайды доступны по адресу: <a href="https://bozaro.github.io/tech-db-lectures/">https://bozaro.github.io/tech-db-lectures/</a></p>
+</section>
+
+<section class="slide">
+    <h2>Контроль знаний</h2>
+    <img src="burn.png" style="position: absolute; bottom: 50px; right: 50px; width: 320px"/>
+    <figure>
+        <blockquote>Экзамен ― это уникальная возможность для студента два раза в год узнать что-то полезное хотя бы на
+            несколько дней.
+        </blockquote>
+        <figcaption>© Французский бизнесмен и творческая личность Джордж Элгози</figcaption>
+    </figure>
+    <ul>
+        <li>Рубежные контроли;</li>
+        <li>Разработка проекта;</li>
+        <li>Пересдачи.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Семестровый проект</h2>
+    <p>Реализация API для "форума".</p>
+    <ul>
+        <li>Функциональное тестирование;</li>
+        <li>Нагрузочное тестирование;</li>
+        <li>Проверка на плагиат.</li>
+    </ul>
+    <p>API сформулировано в виде Swagger-схемы.</p>
+    <p>Работа принимается в виде git-репозитория, из которого собирается Docker-контейнер.</p>
+    <p>Задание расположено по адресу: <a href="https://github.com/bozaro/tech-db-forum">https://github.com/bozaro/tech-db-forum</a></p>
 </section>
 
 <section class="slide">
     <h2>Интересные факты</h2>
     <ul>
-        <li><img src="yahoo.png" style="float: right"/>База данных Yahoo > 2 петабайт</li>
+        <li><img src="yahoo.png" style="float: right"/>Реляционная база данных Yahoo > 2 петабайт<sup>1</sup></li>
         <li>Отсутствие готовых решений</li>
-        <li><img src="osm.png" style="float: right"/>Архив с базой данных OpenStreetMap занимает порядка 33Гб</li>
+        <li><img src="osm.png" style="float: right"/>Архив с базой данных OpenStreetMap занимает порядка 55Гб<sup>2</sup></li>
         <li>Практически ни одно приложение не обходится без БД</li>
         <li>Установочные .msi файлы для Windows - это БД</li>
         <li><img src="hh.png" style="float: right"/>В большинстве вакансий разработчика упоминается SQL, по данным hh.ru
         </li>
     </ul>
+    <div style="font-size: 75%">
+        <div><sup>1</sup> https://habrahabr.ru/post/26289/</div>
+        <div><sup>2</sup> https://planet.openstreetmap.org/</div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Задача курса</h2>
+    <img src="challenge.png" style="position: absolute; bottom: 50px; right: 50px"/>
+    <ul>
+        <li>Проектирование реляционных баз данных.</li>
+        <li>Язык запросов SQL.</li>
+        <li>Оптимизация запросов и схем данных.</li>
+        <li>High-Load и Big Data.</li>
+        <li>Администрирование и настройка серверов БД.</li>
+        <li>noSQL и его использование в WEB.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Зачем ввобще нужны СУБД?</h2>
+    <p>Допустим, мы реализуем приложение "Поваренная книга" для хранения рецептов.</p>
+    <ul>
+        <li class="next">Восстановление после сбоев;</li>
+        <li class="next">Производительность;</li>
+        <li class="next">Многопользовательский доступ;</li>
+        <li class="next">Резервное копирование.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <figure style="font-size: 150%; margin-top: 100px">
+        <blockquote>Все нетривиальные абстракции дырявы.</blockquote>
+        <figcaption>© Джоэл Спольски</figcaption>
+    </figure>
 </section>
 
 <section class="slide">
@@ -139,20 +219,7 @@ draft: true
 </section>
 
 <section class="slide">
-    <h2>Задача курса</h2>
-    <img src="challenge.png" style="position: absolute; bottom: 50px; right: 50px"/>
-    <ul>
-        <li>Проектирование реляционных баз данных.</li>
-        <li>Язык запросов SQL.</li>
-        <li>Оптимизация запросов и схем данных.</li>
-        <li>High-Load и Big Data.</li>
-        <li>Администрирование и настройка серверов БД.</li>
-        <li>noSQL и его использование в WEB.</li>
-    </ul>
-</section>
-
-<section class="slide">
-    <h2>Проектирование и диаграммы</h2>
+    <h2>Проектирование</h2>
     <img src="uml.jpg" style="float: right"/>
     <ul>
         <li>Нормализация</li>
@@ -174,9 +241,10 @@ draft: true
 <section class="slide">
     <h2>Оптимизация</h2>
     <blockquote style="float: right; width: 50%">“Ну и запросы у вас”, - сказала база данных и повисла.</blockquote>
-    <img src="optimization.jpg" style="width: 30%; position: absolute; bottom: 50px; right: 50px"/>
+    <img src="../common/postgresql.svg" style="width: 30%; position: absolute; bottom: 50px; right: 50px"/>
     <ul>
-        <li>EXPLAIN, slow_log</li>
+        <li>EXPLAIN</li>
+        <li>log_min_duration_statement</li>
         <li>Индексы</li>
         <li>Денормализация</li>
     </ul>
@@ -223,23 +291,6 @@ draft: true
 </section>
 
 <section class="slide">
-    <h2>Контроль знаний</h2>
-    <img src="burn.png" style="position: absolute; bottom: 50px; right: 50px; width: 320px"/>
-    <figure>
-        <blockquote>Экзамен ― это уникальная возможность для студента два раза в год узнать что-то полезное хотя бы на
-            несколько дней.
-        </blockquote>
-        <figcaption>© Французский бизнесмен и творческая личность Джордж Элгози</figcaption>
-    </figure>
-    <ul>
-        <li>Рубежные контроли</li>
-        <li>Разработка проекта</li>
-        <li>Нагрузочное тестирование</li>
-        <li>Защита</li>
-    </ul>
-</section>
-
-<section class="slide">
     <h2>Литература</h2>
     <img src="book-03.jpg"
          style="position: absolute; bottom: 330px; right: 50px; height: 200px; border: 1px solid gray"/>
@@ -256,7 +307,7 @@ draft: true
             Оптимизация производительности
         </li>
         <li>Саймон А. Р. Стратегические технологии баз данных</li>
-        <li>http://www.intuit.ru/catalog/database/</li>
+        <li>https://wiki.postgresql.org/wiki/Russian</li>
         <li>http://citforum.ru/database/</li>
         <li>http://www.sql.ru/</li>
         <li>http://www.mysql.com/</li>
@@ -1255,6 +1306,144 @@ draft: true
 </section>
 
 <section class="slide">
+    <h2>Первичный ключ</h2>
+    <dl style="font-size: 75%">
+        <dt>Потенциальный ключ</dt>
+        <dd><p>В реляционной модели данных — подмножество атрибутов отношения, удовлетворяющее требованиям уникальности
+            и минимальности (несократимости).</p>
+            <p><dfn>Уникальность</dfn> означает, что не существует двух кортежей данного отношения, в которых значения
+                этого подмножества атрибутов совпадают (равны).</p>
+            <p><dfn>Минимальность</dfn> (несократимость) означает, что в составе потенциального ключа отсутствует
+                меньшее подмножество атрибутов, удовлетворяющее условию уникальности. Иными словами, если из
+                потенциального ключа убрать любой атрибут, он утратит свойство уникальности.</p></dd>
+        <dt>Первичный ключ (англ. primary key)</dt>
+        <dd><p>В реляционной модели данных один из потенциальных ключей отношения, выбранный в качестве основного ключа
+            (или ключа по умолчанию).</p>
+            <p>Если в отношении имеется единственный потенциальный ключ, он является и первичным ключом. Если
+                потенциальных ключей несколько, один из них выбирается в качестве первичного, а другие называют
+                «альтернативными».</p></dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Суррогатный ключ</h2>
+    <p style="font-size: 80%">Даже при наличии естественного ключа добавление суррогатного в большинстве случаев
+        оправдано.
+    </p>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>UserID</th>
+            <th>E-Mail</th>
+            <th>Пароль</th>
+            <th>Имя</th>
+            <th>Дата</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>12</td>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+        </tr>
+        <tr>
+            <td>48</td>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+        </tr>
+        <tr>
+            <td>543</td>
+            <td>fmd@mail.ru</td>
+            <td>*****</td>
+            <td>Федор Михайлович</td>
+            <td>11.11.1821</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>*****</td>
+            <td>Пушкин А.С.</td>
+            <td>06.06.1799</td>
+        </tr>
+        </tbody>
+    </table>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding-right: 10px">
+            <table class="classic bordered" style="font-size: 70%">
+                <thead>
+                <tr>
+                    <th>UserID</th>
+                    <th>Привилегии</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>12</td>
+                    <td>Админ</td>
+                </tr>
+                <tr>
+                    <td>12</td>
+                    <td>Модератор</td>
+                </tr>
+                <tr>
+                    <td>48</td>
+                    <td>Модератор</td>
+                </tr>
+                <tr>
+                    <td>543</td>
+                    <td>Игрок</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>Админ</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell">
+            <table class="classic bordered" style="font-size: 70%">
+                <thead>
+                <tr>
+                    <th>UserID</th>
+                    <th>Разделы</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>12</td>
+                    <td>Новости</td>
+                </tr>
+                <tr>
+                    <td>12</td>
+                    <td>Флуд</td>
+                </tr>
+                <tr>
+                    <td>48</td>
+                    <td>Флуд</td>
+                </tr>
+                <tr>
+                    <td>48</td>
+                    <td>Юмор</td>
+                </tr>
+                <tr>
+                    <td>543</td>
+                    <td>E-Mail</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>Поэзия</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!--section class="slide">
     <h2>Проектирования БД</h2>
     <dl>
         <dt>Проектирование баз данных</dt>
@@ -1519,26 +1708,6 @@ draft: true
     <div style="text-align: center; height: 100%">
         <img style="height: 70%" src="scheme-05.png"/>
     </div>
-</section>
-
-<section class="slide">
-    <h2>Первичный ключ</h2>
-    <dl style="font-size: 75%">
-        <dt>Потенциальный ключ</dt>
-        <dd><p>В реляционной модели данных — подмножество атрибутов отношения, удовлетворяющее требованиям уникальности
-            и минимальности (несократимости).</p>
-            <p><dfn>Уникальность</dfn> означает, что не существует двух кортежей данного отношения, в которых значения
-                этого подмножества атрибутов совпадают (равны).</p>
-            <p><dfn>Минимальность</dfn> (несократимость) означает, что в составе потенциального ключа отсутствует
-                меньшее подмножество атрибутов, удовлетворяющее условию уникальности. Иными словами, если из
-                потенциального ключа убрать любой атрибут, он утратит свойство уникальности.</p></dd>
-        <dt>Первичный ключ (англ. primary key)</dt>
-        <dd><p>В реляционной модели данных один из потенциальных ключей отношения, выбранный в качестве основного ключа
-            (или ключа по умолчанию).</p>
-            <p>Если в отношении имеется единственный потенциальный ключ, он является и первичным ключом. Если
-                потенциальных ключей несколько, один из них выбирается в качестве первичного, а другие называют
-                «альтернативными».</p></dd>
-    </dl>
 </section>
 
 <section class="slide">
@@ -2336,237 +2505,6 @@ draft: true
 </section>
 
 <section class="slide">
-    <h2>Суррогатный ключ</h2>
-    <p style="font-size: 80%">Даже при наличии естественного ключа добавление суррогатного в большинстве случаев
-        оправдано.
-    </p>
-    <table class="classic bordered" style="font-size: 70%">
-        <thead>
-        <tr>
-            <th>E-Mail</th>
-            <th>Пароль</th>
-            <th>Имя</th>
-            <th>Дата</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>tolstoy@mail.ru</td>
-            <td>*****</td>
-            <td>Толстой Л.Н.</td>
-            <td>09.09.1828</td>
-        </tr>
-        <tr>
-            <td>saltykov@inbox.ru</td>
-            <td>*****</td>
-            <td>Николай Щедрин</td>
-            <td>27.01.1826</td>
-        </tr>
-        <tr>
-            <td>fmd@mail.ru</td>
-            <td>*****</td>
-            <td>Федор Михайлович</td>
-            <td>11.11.1821</td>
-        </tr>
-        <tr>
-            <td>sukin_syn@mail.ru</td>
-            <td>*****</td>
-            <td>Пушкин А.С.</td>
-            <td>06.06.1799</td>
-        </tr>
-        </tbody>
-    </table>
-    <div style="display: table; width: 100%">
-        <div style="display: table-cell; padding-right: 10px">
-            <table class="classic bordered" style="font-size: 70%">
-                <thead>
-                <tr>
-                    <th>E-Mail</th>
-                    <th>Привилегии</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>tolstoy@mail.ru</td>
-                    <td>Админ</td>
-                </tr>
-                <tr>
-                    <td>tolstoy@mail.ru</td>
-                    <td>Модератор</td>
-                </tr>
-                <tr>
-                    <td>saltykov@inbox.ru</td>
-                    <td>Модератор</td>
-                </tr>
-                <tr>
-                    <td>fmd@mail.ru</td>
-                    <td>Игрок</td>
-                </tr>
-                <tr>
-                    <td>sukin_syn@mail.ru</td>
-                    <td>Админ</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <div style="display: table-cell">
-            <table class="classic bordered" style="font-size: 70%">
-                <thead>
-                <tr>
-                    <th>E-Mail</th>
-                    <th>Разделы</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>tolstoy@mail.ru</td>
-                    <td>Новости</td>
-                </tr>
-                <tr>
-                    <td>tolstoy@mail.ru</td>
-                    <td>Флуд</td>
-                </tr>
-                <tr>
-                    <td>saltykov@inbox.ru</td>
-                    <td>Флуд</td>
-                </tr>
-                <tr>
-                    <td>saltykov@inbox.ru</td>
-                    <td>Юмор</td>
-                </tr>
-                <tr>
-                    <td>fmd@mail.ru</td>
-                    <td>E-Mail</td>
-                </tr>
-                <tr>
-                    <td>sukin_syn@mail.ru</td>
-                    <td>Поэзия</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Суррогатный ключ</h2>
-    <p style="font-size: 80%">Даже при наличии естественного ключа добавление суррогатного в большинстве случаев
-        оправдано.
-    </p>
-    <table class="classic bordered" style="font-size: 70%">
-        <thead>
-        <tr>
-            <th>UserID</th>
-            <th>E-Mail</th>
-            <th>Пароль</th>
-            <th>Имя</th>
-            <th>Дата</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>12</td>
-            <td>tolstoy@mail.ru</td>
-            <td>*****</td>
-            <td>Толстой Л.Н.</td>
-            <td>09.09.1828</td>
-        </tr>
-        <tr>
-            <td>48</td>
-            <td>saltykov@inbox.ru</td>
-            <td>*****</td>
-            <td>Николай Щедрин</td>
-            <td>27.01.1826</td>
-        </tr>
-        <tr>
-            <td>543</td>
-            <td>fmd@mail.ru</td>
-            <td>*****</td>
-            <td>Федор Михайлович</td>
-            <td>11.11.1821</td>
-        </tr>
-        <tr>
-            <td>5</td>
-            <td>sukin_syn@mail.ru</td>
-            <td>*****</td>
-            <td>Пушкин А.С.</td>
-            <td>06.06.1799</td>
-        </tr>
-        </tbody>
-    </table>
-    <div style="display: table; width: 100%">
-        <div style="display: table-cell; padding-right: 10px">
-            <table class="classic bordered" style="font-size: 70%">
-                <thead>
-                <tr>
-                    <th>UserID</th>
-                    <th>Привилегии</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>12</td>
-                    <td>Админ</td>
-                </tr>
-                <tr>
-                    <td>12</td>
-                    <td>Модератор</td>
-                </tr>
-                <tr>
-                    <td>48</td>
-                    <td>Модератор</td>
-                </tr>
-                <tr>
-                    <td>543</td>
-                    <td>Игрок</td>
-                </tr>
-                <tr>
-                    <td>5</td>
-                    <td>Админ</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <div style="display: table-cell">
-            <table class="classic bordered" style="font-size: 70%">
-                <thead>
-                <tr>
-                    <th>UserID</th>
-                    <th>Разделы</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>12</td>
-                    <td>Новости</td>
-                </tr>
-                <tr>
-                    <td>12</td>
-                    <td>Флуд</td>
-                </tr>
-                <tr>
-                    <td>48</td>
-                    <td>Флуд</td>
-                </tr>
-                <tr>
-                    <td>48</td>
-                    <td>Юмор</td>
-                </tr>
-                <tr>
-                    <td>543</td>
-                    <td>E-Mail</td>
-                </tr>
-                <tr>
-                    <td>5</td>
-                    <td>Поэзия</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
     <h2>Реляционная часть</h2>
     <ul>
         <li style="clear: both"><img src="relation-11.svg" style="float: right"/>один-к-одному (1:1)</li>
@@ -2859,7 +2797,7 @@ draft: true
     </table>
     <p>TIMESTAMP и DATETIME по разному работают с временными зонами.</p>
     <p>TIMESTAMP по-умолчанию автоматически обновляется при изменении кортежа.</p>
-</section>
+</section-->
 
 <section class="slide">
     <h2>Версионирование схемы БД</h2>
