@@ -415,10 +415,6 @@ useMath: true
 .rel td.str {
 	background: #cfc !important;
 }
-
-
-
-
     </style>
     <table class="rel classic">
         <tr class="type">
@@ -1470,6 +1466,226 @@ useMath: true
     </div>
 </section>
 
+<section class="slide">
+    <h2>Типы данных MySQL</h2>
+    <img src="types.jpg" style="float: right" width="60%"/>
+    <ul>
+        <li>Числовые</li>
+        <li>Строковые</li>
+        <li>Календарные</li>
+        <li>NULL</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>NULL</h2>
+    <pre style="font-size: 85%"><code class="sql">SELECT 1 = NULL, 1 <> NULL, 1 < NULL, 1 > NULL;</code></pre>
+    <table class="classic bordered">
+        <thead>
+        <tr>
+            <th>1 = NULL</th>
+            <th>1 <> NULL</th>
+            <th>1 < NULL</th>
+            <th>1 > NULL</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <pre style="font-size: 85%; padding-top: 50px"><code class="sql">SELECT 1 IS NULL, 1 IS NOT NULL, NULL IS NULL, NULL IS NOT NULL;</code></pre>
+    <table class="classic bordered">
+        <thead>
+        <tr>
+            <th>1 IS NULL</th>
+            <th>1 IS NOT NULL</th>
+            <th>NULL IS NULL</th>
+            <th>NULL IS NOT NULL</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>0</td>
+            <td>1</td>
+            <td>1</td>
+            <td>0</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Числовые</h2>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Тип столбца, поля</th>
+            <th>Обьем занимаемой памяти</th>
+            <th>Диапазон допустимых значений</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>SMALLINT, INT2</td>
+            <td>2 байта</td>
+            <td>От -32768 до 32767</td>
+        </tr>
+        <tr>
+            <td>INTEGER, INT, INT4</td>
+            <td>4 байта</td>
+            <td>От -2147683648 до 2147683648</td>
+        </tr>
+        <tr>
+            <td>BIGINT, INT8</td>
+            <td>8 байт</td>
+            <td>От -2<sup>63</sup> до 2<sup>63</sup> -1</td>
+        </tr>
+        <tr>
+            <td>DECIMAL [(M[,D])],<br/>
+                NUMERUC [(M[,D])]
+            </td>
+            <td>~2 байта на 4 цифры</td>
+            <td>Повышенная точность<br/>более 10000 цифр</td>
+        </tr>
+        <tr>
+            <td>REAL</td>
+            <td>4 байта</td>
+            <td style="font-size: 75%">-3.402823466E+38 до -1.175494351E-38<br/>
+                1.175494351E-38 до 3.402823466E+38
+            </td>
+        </tr>
+        <tr>
+            <td>DOUBLE PRECISION</td>
+            <td>8 байт</td>
+            <td style="font-size: 75%">-1.7976931348623157E+308<br/>
+                до -2.2250738585072014E-308<br/>
+                2.2250738585072014E-308<br/>
+                до 1.7976931348623157E+308
+            </td>
+        </tr>
+        <tr>
+            <td>MONEY</td>
+            <td>8 байт</td>
+            <td style="font-size: 75%">От -92233720368547758.08 до +92233720368547758.07</td>
+        </tr>
+        </tbody>
+    </table>
+    <p>SMALLSERIAL, SERIAL, BIGSERIAL - то же, но с автоинкрементом.</p>
+</section>
+
+<section class="slide">
+    <h2>Бинарные</h2>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Тип столбца, поля</th>
+            <th>Обьем занимаемой памяти</th>
+            <th>Диапазон допустимых значений</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>BIT(N)</td>
+            <td>(N + 7) / 8 байт</td>
+            <td>Битовая строка с фиксированной длиной</td>
+        </tr>
+        <tr>
+            <td>BIT VARYING(N), VARBIT(N)</td>
+            <td></td>
+            <td>Битовая строка с переменной длиной</td>
+        </tr>
+        <tr>
+            <td>BOOLEAN</td>
+            <td>1 байт</td>
+            <td>0 или 1</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Строки</h2>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Тип столбца, поля</th>
+            <th>Описание</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>CHARACTER(N), CHAR(N)</td>
+            <td>Строка фиксированной длины</td>
+        </tr>
+        <tr>
+            <td>CHARACTER VARYING(N), VARCHAR(M)</td>
+            <td>Строка переменной длины</td>
+        </tr>
+        <tr>
+            <td>TEXT</td>
+            <td>Строковые данные без ограничения длины</td>
+        </tr>
+        <tr>
+            <td>BYTEA</td>
+            <td>Двоичный данные без ограничения длины</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Дата и время</h2>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Тип столбца, поля</th>
+            <th>Размер</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>TIMESTAMP [ (P) ] [ WITHOUT TIME ZONE ]</td>
+            <td>8 байт</td>
+        </tr>
+        <tr>
+            <td>TIMESTAMP [ (P) ] WITH TIME ZONE</td>
+            <td>8 байт</td>
+        </tr>
+        <tr>
+            <td>DATE</td>
+            <td>4 байта</td>
+        </tr>
+        <tr>
+            <td>TIME [ (P) ] [ WITHOUT TIME ZONE ]</td>
+            <td>8 байт</td>
+        </tr>
+        <tr>
+            <td>TIME [ (P) ] WITH TIME ZONE</td>
+            <td>12 байт</td>
+        </tr>
+        <tr>
+            <td>INTERVAL [ FIELDS ] [ (P) ]</td>
+            <td>16 байт</td>
+        </tr>
+        </tbody>
+    </table>
+    <p>Время хранится с точностью до микросекунд.</p>
+    <p>P - кол-во цифр для хранения дробной части секунд.</p>
+</section>
+
 <!--section class="slide">
     <h2>Проектирования БД</h2>
     <dl>
@@ -1789,78 +2005,6 @@ useMath: true
             <td>96</td>
         </tr>
         <tr>
-            <td>Муму</td>
-            <td>10.11.1852</td>
-            <td>Иван Тургенев</td>
-            <td>nedobobov@mail.ru</td>
-            <td>…</td>
-            <td>312</td>
-            <td>46</td>
-        </tr>
-        </tbody>
-    </table>
-</section>
-
-<section class="slide">
-    <h2>Первичный ключ</h2>
-    <p>Первичный ключ выбирается исходя из соображений удобства и сохранения уникальности. Если такого ключа нет, то
-        имеет смысл добавить специальное поле.</p>
-    <table class="classic bordered" style="font-size: 60%">
-        <thead>
-        <tr>
-            <th>TopicID</th>
-            <th>Заголовок</th>
-            <th>Дата</th>
-            <th>Автор</th>
-            <th>E-Mail</th>
-            <th>Текст</th>
-            <th>Оценка</th>
-            <th>Ответы</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>5</td>
-            <td>Руслан и Людмила</td>
-            <td>01.01.1820</td>
-            <td>Пушкин А.С.</td>
-            <td>sukin_syn@mail.ru</td>
-            <td>…</td>
-            <td>500</td>
-            <td>120</td>
-        </tr>
-        <tr>
-            <td>8</td>
-            <td>Война и Мир</td>
-            <td>01.03.1869</td>
-            <td>Толстой Л.Н.</td>
-            <td>tolstoy@inbox.ru</td>
-            <td>…</td>
-            <td>100</td>
-            <td>345</td>
-        </tr>
-        <tr>
-            <td>12</td>
-            <td>Отцы и Дети</td>
-            <td>15.08.1862</td>
-            <td>Иван Тургенев</td>
-            <td>nedobobov@mail.ru</td>
-            <td>…</td>
-            <td>256</td>
-            <td>18</td>
-        </tr>
-        <tr>
-            <td>43</td>
-            <td>Повести Белкина</td>
-            <td>12.06.1830</td>
-            <td>Пушкин А.С.</td>
-            <td>sukin_syn@mail.ru</td>
-            <td>…</td>
-            <td>400</td>
-            <td>96</td>
-        </tr>
-        <tr>
-            <td>16</td>
             <td>Муму</td>
             <td>10.11.1852</td>
             <td>Иван Тургенев</td>
@@ -2539,291 +2683,6 @@ useMath: true
         <li style="clear: both"><img src="relation-m1.svg" style="float: right"/>многие-к-одному (M:1)</li>
         <li style="clear: both"><img src="relation-mn.svg" style="float: right"/>многие-ко-многим (M:N)</li>
     </ul>
-</section>
-
-<section class="slide">
-    <h2>Типы данных MySQL</h2>
-    <img src="types.jpg" style="float: right" width="60%"/>
-    <ul>
-        <li>Числовые</li>
-        <li>Строковые</li>
-        <li>Календарные</li>
-        <li>NULL</li>
-    </ul>
-</section>
-
-<section class="slide">
-    <h2>NULL</h2>
-    <pre style="font-size: 85%"><code class="sql">SELECT 1 = NULL, 1 <> NULL, 1 < NULL, 1 > NULL;</code></pre>
-    <table class="classic bordered">
-        <thead>
-        <tr>
-            <th>1 = NULL</th>
-            <th>1 <> NULL</th>
-            <th>1 < NULL</th>
-            <th>1 > NULL</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>
-                <null/>
-            </td>
-            <td>
-                <null/>
-            </td>
-            <td>
-                <null/>
-            </td>
-            <td>
-                <null/>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    <pre style="font-size: 85%; padding-top: 50px"><code class="sql">SELECT 1 IS NULL, 1 IS NOT NULL, NULL IS NULL, NULL IS NOT NULL;</code></pre>
-    <table class="classic bordered">
-        <thead>
-        <tr>
-            <th>1 IS NULL</th>
-            <th>1 IS NOT NULL</th>
-            <th>NULL IS NULL</th>
-            <th>NULL IS NOT NULL</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>0</td>
-            <td>1</td>
-            <td>1</td>
-            <td>0</td>
-        </tr>
-        </tbody>
-    </table>
-</section>
-
-<section class="slide">
-    <h2>Целые числа</h2>
-    <table class="classic bordered" style="font-size: 75%">
-        <thead>
-        <tr>
-            <th>Тип столбца, поля</th>
-            <th>Обьем занимаемой памяти</th>
-            <th>Диапазон допустимых значений</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>TINYINT [ (M) ]</td>
-            <td>1 байт</td>
-            <td>От -128 до 127<br/>
-                От 0 до 255
-            </td>
-        </tr>
-        <tr>
-            <td>SMALLINT [ (M) ]</td>
-            <td>2 байта</td>
-            <td>От -32768 до 32767<br/>
-                От 0 до 65535
-            </td>
-        </tr>
-        <tr>
-            <td>MEDIUM INT [ (M) ]</td>
-            <td>3 байта</td>
-            <td>От -8388608 до 8388608<br/>
-                От 0 до 16777215
-            </td>
-        </tr>
-        <tr>
-            <td>INT [ (M) ]</td>
-            <td>4 байта</td>
-            <td>От -2147683648 до 2147683648<br/>
-                От 0 до 4294967295
-            </td>
-        </tr>
-        <tr>
-            <td>BIGINT [ (M) ]</td>
-            <td>8 байт</td>
-            <td>От -2<sup>63</sup> до 2<sup>63</sup> -1<br/>
-                От 0 до 2<sup>64</sup></td>
-        </tr>
-        </tbody>
-    </table>
-</section>
-
-<section class="slide">
-    <h2>Числа с плавающей точкой</h2>
-    <table class="classic bordered" style="font-size: 75%">
-        <thead>
-        <tr>
-            <th>Тип столбца, поля</th>
-            <th>Обьем занимаемой памяти</th>
-            <th>Диапазон допустимых значений</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>DECIMAL [ (M [, D ] ) ],<br/>
-                DEC [ (M [, D ] ) ],<br/>
-                NUMERUC [ (M [, D ] ) ]
-            </td>
-            <td>4 байта на 9 цифр</td>
-            <td>Повышенная точность<br/>до 65 цифр</td>
-        </tr>
-        <tr>
-            <td>FLOAT [ (M, D) ]</td>
-            <td>4 байта</td>
-            <td>-3.402823466E+38<br/>
-                до -1.175494351E-38<br/>
-                0<br/>
-                1.175494351E-38<br/>
-                до 3.402823466E+38
-            </td>
-        </tr>
-        <tr>
-            <td>DOUBLE [ (M, D) ],<br/>
-                REAL [ (M, D) ],<br/>
-                DOUBLE PRECISION [ (M, D) ]
-            </td>
-            <td>8 байт</td>
-            <td>-1.7976931348623157E+308<br/>
-                до -2.2250738585072014E-308<br/>
-                0<br/>
-                2.2250738585072014E-308<br/>
-                до 1.7976931348623157E+308
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</section>
-
-<section class="slide">
-    <h2>Бинарные</h2>
-    <table class="classic bordered" style="font-size: 75%">
-        <thead>
-        <tr>
-            <th>Тип столбца, поля</th>
-            <th>Обьем занимаемой памяти</th>
-            <th>Диапазон допустимых значений</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>BIT [ (M) ]</td>
-            <td>(M + 7) / 8 байт</td>
-            <td>От 1 до 64 бита, в зависимости от M</td>
-        </tr>
-        <tr>
-            <td>BOOLEAN [ (M) ]</td>
-            <td>1 байт</td>
-            <td>0 или 1</td>
-        </tr>
-        </tbody>
-    </table>
-</section>
-
-<section class="slide">
-    <h2>Строки</h2>
-    <table class="classic bordered" style="font-size: 75%">
-        <thead>
-        <tr>
-            <th>Тип столбца, поля</th>
-            <th>Обьем занимаемой памяти</th>
-            <th>Диапазон допустимых значений</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>CHAR (M)</td>
-            <td>M</td>
-            <td>M символов</td>
-        </tr>
-        <tr>
-            <td>VARCHAR (M)</td>
-            <td>L + 1</td>
-            <td>M символов</td>
-        </tr>
-        <tr>
-            <td>TINYBLOB, TINYTEXT</td>
-            <td>L + 1</td>
-            <td>28 - 1 символов</td>
-        </tr>
-        <tr>
-            <td>BLOB, TEXT</td>
-            <td>L + 2</td>
-            <td>216 - 1 символов</td>
-        </tr>
-        <tr>
-            <td>MEDIUMBLOB, MEDIUMTEXT</td>
-            <td>L + 3</td>
-            <td>224 - 1 символов</td>
-        </tr>
-        <tr>
-            <td>LONGBLOB, LONGTEXT</td>
-            <td>L + 4</td>
-            <td>2(32) — 1 символов</td>
-        </tr>
-        <tr>
-            <td>ENUM ('value1', 'value2',...)</td>
-            <td>1 или 2</td>
-            <td>65 536 элементов</td>
-        </tr>
-        <tr>
-            <td>SET ('value1', 'value2',...)</td>
-            <td>1,2,3,4 или 8</td>
-            <td>64 элемента</td>
-        </tr>
-        </tbody>
-    </table>
-</section>
-
-<section class="slide">
-    <h2>Дата и время</h2>
-    <table class="classic bordered" style="font-size: 75%">
-        <thead>
-        <tr>
-            <th>Тип столбца, поля</th>
-            <th>Обьем занимаемой памяти</th>
-            <th>Диапазон допустимых значений</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>DATE</td>
-            <td>3 байта</td>
-            <td>От "1000-01-01" до "9999-12-31"</td>
-        </tr>
-        <tr>
-            <td>TIME</td>
-            <td>3 байта</td>
-            <td>От "-828:59:59" до "828:59:59"</td>
-        </tr>
-        <tr>
-            <td>DATATIME</td>
-            <td>8 байт</td>
-            <td>От "1000-01-01 00:00:00"<br/>
-                до "9999-12-31 59:59:59"
-            </td>
-        </tr>
-        <tr>
-            <td>TIMESTAMP</td>
-            <td>4 байта</td>
-            <td>От "1970-01-01 00:00:00"<br/>
-                до "2038-12-31 59:59:59"<br/>
-                "0000-00-00 00:00:00"
-            </td>
-        </tr>
-        <tr>
-            <td>YEAR</td>
-            <td>1 байт</td>
-            <td>От 1901 до 2155 для YEAR (4)<br/>
-                От 1970 до 2069 для YEAR (2)
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    <p>TIMESTAMP и DATETIME по разному работают с временными зонами.</p>
-    <p>TIMESTAMP по-умолчанию автоматически обновляется при изменении кортежа.</p>
 </section-->
 
 <section class="slide">
