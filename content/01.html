@@ -551,7 +551,7 @@ useMath: true
 <section class="slide">
     <h2>Выборка (A WHERE c)</h2>
     <h3>Персоны</h3>
-    <table class="classic bordered" style="font-size: 80%">
+    <table class="classic bordered" style="font-size: 75%">
         <thead>
         <tr>
             <th>Имя</th>
@@ -583,7 +583,7 @@ useMath: true
         </tbody>
     </table>
     <h3 class="math">`sigma_("Возраст" >= 34)("Персоны")`</h3>
-    <table class="classic bordered" style="font-size: 80%">
+    <table class="classic bordered" style="font-size: 75%">
         <thead>
         <tr>
             <th>Имя</th>
@@ -609,12 +609,13 @@ useMath: true
         </tr>
         </tbody>
     </table>
+    <pre class="next"><code>SELECT * FROM "Персоны" WHERE "Возраст" >= 34</code></pre>
 </section>
 
 <section class="slide">
     <h2>Проекция (PROJECT A {x, y, …, z})</h2>
     <h3>Персоны</h3>
-    <table class="classic bordered" style="font-size: 80%">
+    <table class="classic bordered" style="font-size: 75%">
         <thead>
         <tr>
             <th>Имя</th>
@@ -646,7 +647,7 @@ useMath: true
         </tbody>
     </table>
     <h3 class="math">`Pi_("Возраст", "Вес")("Персоны")`</h3>
-    <table class="classic bordered" style="font-size: 80%">
+    <table class="classic bordered" style="font-size: 75%">
         <thead>
         <tr>
             <th>Возраст</th>
@@ -668,15 +669,16 @@ useMath: true
         </tr>
         </tbody>
     </table>
+    <pre class="next"><code>SELECT "Возраст", "Вес" FROM "Персоны"</code></pre>
 </section>
 
 <section class="slide">
     <h2>Объединение (A UNION B)</h2>
-    <img src="union.png" style="position: absolute; bottom: 50px; right: 100px" width="250px"/>
+    <img src="union.png" style="position: absolute; bottom: 120px; right: 100px" width="250px"/>
     <div style="display: table; width: 100%">
         <div style="display: table-cell; padding-right: 10px">
             <h3>Персоны</h3>
-            <table class="classic bordered" style="font-size: 65%">
+            <table class="classic bordered" style="font-size: 60%">
                 <thead>
                 <tr>
                     <th>Имя</th>
@@ -710,7 +712,7 @@ useMath: true
         </div>
         <div style="display: table-cell">
             <h3>Персонажи</h3>
-            <table class="classic bordered" style="font-size: 65%">
+            <table class="classic bordered" style="font-size: 60%">
                 <thead>
                 <tr>
                     <th>Имя</th>
@@ -739,7 +741,7 @@ useMath: true
         </div>
     </div>
     <h3 class="math">`"Персоны" uu "Персонажи"`</h3>
-    <table class="classic bordered" style="font-size: 65%; width: 50%">
+    <table class="classic bordered" style="font-size: 60%; width: 50%">
         <thead>
         <tr>
             <th>Имя</th>
@@ -780,6 +782,7 @@ useMath: true
         </tr>
         </tbody>
     </table>
+    <pre class="next"><code>SELECT * FROM "Персоны" UNION SELECT * FROM "Персонажи"</code></pre>
 </section>
 
 <section class="slide">
@@ -788,7 +791,7 @@ useMath: true
     <div style="display: table; width: 100%">
         <div style="display: table-cell; padding-right: 10px">
             <h3>Персоны</h3>
-            <table class="classic bordered" style="font-size: 65%">
+            <table class="classic bordered" style="font-size: 60%">
                 <thead>
                 <tr>
                     <th>Имя</th>
@@ -822,7 +825,7 @@ useMath: true
         </div>
         <div style="display: table-cell">
             <h3>Персонажи</h3>
-            <table class="classic bordered" style="font-size: 65%">
+            <table class="classic bordered" style="font-size: 60%">
                 <thead>
                 <tr>
                     <th>Имя</th>
@@ -851,7 +854,7 @@ useMath: true
         </div>
     </div>
     <h3 class="math">`"Персоны" nn "Персонажи"`</h3>
-    <table class="classic bordered" style="font-size: 65%; width: 50%">
+    <table class="classic bordered" style="font-size: 60%; width: 50%">
         <thead>
         <tr>
             <th>Имя</th>
@@ -867,6 +870,8 @@ useMath: true
         </tr>
         </tbody>
     </table>
+    <pre class="next"><code>SELECT * FROM "Персоны"
+NATURAL JOIN "Персонажи"</code></pre>
 </section>
 
 <section class="slide">
@@ -875,7 +880,7 @@ useMath: true
     <div style="display: table; width: 100%">
         <div style="display: table-cell; padding-right: 10px">
             <h3>Персоны</h3>
-            <table class="classic bordered" style="font-size: 65%">
+            <table class="classic bordered" style="font-size: 60%">
                 <thead>
                 <tr>
                     <th>Имя</th>
@@ -909,7 +914,7 @@ useMath: true
         </div>
         <div style="display: table-cell">
             <h3>Персонажи</h3>
-            <table class="classic bordered" style="font-size: 65%">
+            <table class="classic bordered" style="font-size: 60%">
                 <thead>
                 <tr>
                     <th>Имя</th>
@@ -938,7 +943,7 @@ useMath: true
         </div>
     </div>
     <h3 class="math">`"Персоны" \\ "Персонажи"`</h3>
-    <table class="classic bordered" style="font-size: 65%; width: 50%">
+    <table class="classic bordered" style="font-size: 60%; width: 50%">
         <thead>
         <tr>
             <th>Имя</th>
@@ -964,6 +969,9 @@ useMath: true
         </tr>
         </tbody>
     </table>
+    <pre class="next"><code>SELECT * FROM "Персоны"
+NATURAL LEFT JOIN "Персонажи"
+WHERE "Персонажи" IS NULL</code></pre>
 </section>
 
 <section class="slide">
@@ -971,7 +979,7 @@ useMath: true
     <div style="display: table; width: 100%">
         <div style="display: table-cell; padding-right: 10px">
             <h3>Мультфильмы</h3>
-            <table class="classic bordered" style="font-size: 65%">
+            <table class="classic bordered" style="font-size: 60%">
                 <thead>
                 <tr>
                     <th>Код_Мульта</th>
@@ -996,7 +1004,7 @@ useMath: true
         </div>
         <div style="display: table-cell">
             <h3>Каналы</h3>
-            <table class="classic bordered" style="font-size: 65%">
+            <table class="classic bordered" style="font-size: 60%">
                 <thead>
                 <tr>
                     <th>Код_Канала</th>
@@ -1017,7 +1025,7 @@ useMath: true
         </div>
     </div>
     <h3 class="math">`"Мультфильмы" xx "Каналы"`</h3>
-    <table class="classic bordered" style="font-size: 65%">
+    <table class="classic bordered" style="font-size: 60%">
         <thead>
         <tr>
             <th>Код_Мульта</th>
@@ -1065,6 +1073,9 @@ useMath: true
         </tr>
         </tbody>
     </table>
+    <div style="display: table-cell">
+        <pre class="next"><code>SELECT * FROM "Персоны", "Персонажи"</code></pre>
+    </div>
 </section>
 
 <section class="slide">
@@ -1072,7 +1083,7 @@ useMath: true
     <div style="display: table; width: 100%">
         <div style="display: table-cell; padding-right: 10px">
             <h3>Мультфильмы</h3>
-            <table class="classic bordered" style="font-size: 65%">
+            <table class="classic bordered" style="font-size: 60%">
                 <thead>
                 <tr>
                     <th width="110px">Код_Мульта</th>
@@ -1121,7 +1132,7 @@ useMath: true
         </div>
         <div style="display: table-cell">
             <h3>Каналы</h3>
-            <table class="classic bordered" style="font-size: 65%">
+            <table class="classic bordered" style="font-size: 60%">
                 <thead>
                 <tr>
                     <th>Название_Канала</th>
@@ -1138,25 +1149,38 @@ useMath: true
             </table>
         </div>
     </div>
-    <h3 class="math">`"Мультфильмы" -: "Каналы"`</h3>
-    <table class="classic bordered" style="font-size: 65%; width: auto">
-        <thead>
-        <tr>
-            <th width="110px">Код_Мульта</th>
-            <th width="230px">Название_Мульта</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>1</td>
-            <td>The Simpsons</td>
-        </tr>
-        <tr>
-            <td>2</td>
-            <td>Family Guy</td>
-        </tr>
-        </tbody>
-    </table>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding-right: 40px">
+            <h3 class="math">`"Мультфильмы" -: "Каналы"`</h3>
+            <table class="classic bordered" style="font-size: 60%; width: auto">
+                <thead>
+                <tr>
+                    <th width="110px">Код_Мульта</th>
+                    <th width="230px">Название_Мульта</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>The Simpsons</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Family Guy</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell">
+            <pre class="next" style="font-size: 60%"><code>SELECT "Код_Мульта", "Название_Мульта"
+FROM "Мультфильмы"
+JOIN "Каналы" USING ("Название_Канала")
+GROUP BY "Код_Мульта", "Название_Мульта"
+HAVING COUNT(DISTINCT "Название_Канала") = (
+    SELECT COUNT(DISTINCT "Название_Канала") FROM "Каналы"
+)</code></pre>
+        </div>
+    </div>
 </section>
 
 <section class="slide">
@@ -1164,7 +1188,7 @@ useMath: true
     <div style="display: table; width: 100%">
         <div style="display: table-cell; padding-right: 10px">
             <h3>Мультфильмы</h3>
-            <table class="classic bordered" style="font-size: 65%">
+            <table class="classic bordered" style="font-size: 60%">
                 <thead>
                 <tr>
                     <th>Код_Мульта</th>
@@ -1193,7 +1217,7 @@ useMath: true
         </div>
         <div style="display: table-cell">
             <h3>Каналы</h3>
-            <table class="classic bordered" style="font-size: 65%">
+            <table class="classic bordered" style="font-size: 60%">
                 <thead>
                 <tr>
                     <th>Код_Канала</th>
@@ -1214,7 +1238,7 @@ useMath: true
         </div>
     </div>
     <h3 class="math">`"Мультфильмы" ⋈ "Каналы"`</h3>
-    <table class="classic bordered" style="font-size: 65%">
+    <table class="classic bordered" style="font-size: 60%">
         <thead>
         <tr>
             <th>Код_Мульта</th>
@@ -1248,6 +1272,10 @@ useMath: true
         </tr>
         </tbody>
     </table>
+    <pre class="next"><code>SELECT *
+FROM "Мультфильмы"
+JOIN "Каналы" ON ("Название_Канала" = "Код_Канала")
+</code></pre>
 </section>
 
 <section class="slide">
