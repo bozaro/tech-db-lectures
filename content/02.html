@@ -1021,10 +1021,16 @@ description: |
 
 <section class="slide">
     <h2>CREATE TABLE</h2>
-    <pre style="font-size: 90%"><code class="sql">CREATE [TEMPORARY] TABLE [IF NOT EXISTS] tbl_name
-    (create_definition,...)
-    [table_options]
-    [partition_options]
+    <pre style="font-size: 80%"><code class="sql">CREATE [ { TEMPORARY } | UNLOGGED ] TABLE [ IF NOT EXISTS ] table_name ( [
+  { column_name data_type [ COLLATE collation ] [ column_constraint [ ... ] ]
+    | table_constraint
+    | LIKE source_table [ like_option ... ] }
+    [, ... ]
+] )
+[ INHERITS ( parent_table [, ... ] ) ]
+[ WITH ( storage_parameter [= value] [, ... ] ) | WITH OIDS | WITHOUT OIDS ]
+[ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
+[ TABLESPACE tablespace_name ]
 </code></pre>
     <p>Or:</p>
     <pre style="font-size: 90%"><code class="sql">CREATE [TEMPORARY] TABLE [IF NOT EXISTS] tbl_name
