@@ -1021,7 +1021,7 @@ description: |
 
 <section class="slide">
     <h2>CREATE TABLE</h2>
-    <pre style="font-size: 80%"><code class="sql">CREATE [ { TEMPORARY } | UNLOGGED ] TABLE [ IF NOT EXISTS ] table_name ( [
+    <pre style="font-size: 70%"><code class="sql">CREATE [ { TEMPORARY } | UNLOGGED ] TABLE [ IF NOT EXISTS ] table_name ( [
   { column_name data_type [ COLLATE collation ] [ column_constraint [ ... ] ]
     | table_constraint
     | LIKE source_table [ like_option ... ] }
@@ -1033,63 +1033,62 @@ description: |
 [ TABLESPACE tablespace_name ]
 </code></pre>
     <p>Or:</p>
-    <pre style="font-size: 90%"><code class="sql">CREATE [TEMPORARY] TABLE [IF NOT EXISTS] tbl_name
-    [(create_definition,...)]
-    [table_options]
-    [partition_options]
-    select_statement
-</code></pre>
-    <p>Or:</p>
-    <pre style="font-size: 90%"><code class="sql">CREATE [TEMPORARY] TABLE [IF NOT EXISTS] tbl_name
-    { LIKE old_tbl_name | (LIKE old_tbl_name) }
-</code></pre>
-</section>
-
-<section class="slide">
-    <h2>create_definition</h2>
-    <pre><code style="font-size: 80%" class="sql">create_definition:
-    col_name column_definition
-  | [CONSTRAINT [symbol]] PRIMARY KEY [index_type] (index_col_name,...)
-      [index_option] ...
-  | {INDEX|KEY} [index_name] [index_type] (index_col_name,...)
-      [index_option] ...
-  | [CONSTRAINT [symbol]] UNIQUE [INDEX|KEY]
-      [index_name] [index_type] (index_col_name,...)
-      [index_option] ...
-  | {FULLTEXT|SPATIAL} [INDEX|KEY] [index_name] (index_col_name,...)
-      [index_option] ...
-  | [CONSTRAINT [symbol]] FOREIGN KEY
-      [index_name] (index_col_name,...) reference_definition
-  | CHECK (expr)
+    <pre style="font-size: 70%"><code class="sql">CREATE [ { TEMPORARY | TEMP } | UNLOGGED ] TABLE [ IF NOT EXISTS ] table_name
+    OF type_name [ (
+  { column_name WITH OPTIONS [ column_constraint [ ... ] ]
+    | table_constraint }
+    [, ... ]
+) ]
+[ WITH ( storage_parameter [= value] [, ... ] ) | WITH OIDS | WITHOUT OIDS ]
+[ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
+[ TABLESPACE tablespace_name ]
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>column_definition, reference_definition</h2>
-    <pre><code style="font-size: 80%" class="sql">column_definition:
-    data_type [NOT NULL | NULL] [DEFAULT default_value]
-      [AUTO_INCREMENT] [UNIQUE [KEY] | [PRIMARY] KEY]
-      [COMMENT 'string']
-      [COLUMN_FORMAT {FIXED|DYNAMIC|DEFAULT}]
-      [STORAGE {DISK|MEMORY|DEFAULT}]
-      [reference_definition]
- 
-reference_definition:
-    REFERENCES tbl_name (index_col_name,...)
-      [ON DELETE reference_option]
-      [ON UPDATE reference_option]
- 
-reference_option:
-    RESTRICT | CASCADE | SET NULL | NO ACTION
+    <h2>CREATE TABLE</h2>
+    <h3>column_constraint:</h3>
+    <pre><code style="font-size: 70%" class="sql">[ CONSTRAINT constraint_name ]
+{ NOT NULL |
+  NULL |
+  DEFAULT default_expr |
+
+  CHECK ( expression ) [ NO INHERIT ] |
+  UNIQUE index_parameters |
+  PRIMARY KEY index_parameters |
+  REFERENCES reftable [ ( refcolumn ) ]
+    [ MATCH FULL | <strike>MATCH PARTIAL</strike> | MATCH SIMPLE ]
+    [ ON DELETE action ] [ ON UPDATE action ] }
+[ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>Обновление кортежа в родительском отношении</h2>
+    <h2>CREATE TABLE</h2>
+    <h3>table_constraint:</h3>
+    <pre><code style="font-size: 70%" class="sql">[ CONSTRAINT constraint_name ]
+{ CHECK ( expression ) [ NO INHERIT ] |
+  UNIQUE ( column_name [, ... ] ) index_parameters |
+  PRIMARY KEY ( column_name [, ... ] ) index_parameters |
+  FOREIGN KEY ( column_name [, ... ] )
+    REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+    [ MATCH FULL | <strike>MATCH PARTIAL</strike> | MATCH SIMPLE ]
+    [ ON DELETE action ] [ ON UPDATE action ] }
+  EXCLUDE [ USING index_method ] ( exclude_element WITH operator [, ... ] )
+    index_parameters [ WHERE ( predicate ) ] |
+[ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Обновление кортежа в родительском отношении (action)</h2>
     <img src="cascade.jpg" style="float: right"/>
     <dl>
-        <dt>RESTRICT, NO ACTION</dt>
+        <dt>NO ACTION</dt>
         <dd>Не разрешать изменение</dd>
+
+        <dt>RESTRICT</dt>
+        <dd>То же, что и NO ACTION, но всегда IMMEDIATE</dd>
 
         <dt>CASCADE</dt>
         <dd>Изменить каскадно</dd>
@@ -1104,17 +1103,20 @@ reference_option:
 
 <section class="slide">
     <h2>CREATE TABLE (пример)</h2>
-    <pre style="font-size: 90%"><code class="sql">CREATE TABLE shop (
-    article INT(4) UNSIGNED ZEROFILL DEFAULT '0000' NOT NULL,
-    dealer  VARCHAR(20) DEFAULT '' NOT NULL,
-    price   DECIMAL(16, 2) DEFAULT 0.00 NOT NULL,
-    PRIMARY KEY pk_shop (article, dealer)
-) ENGINE = InnoDB;
+    <pre style="font-size: 90%"><code class="sql">CREATE TABLE films (
+    code        char(5) CONSTRAINT firstkey PRIMARY KEY,
+    title       varchar(40) NOT NULL,
+    date_prod   date,
+    kind        varchar(10),
+    len         interval hour to minute,
+    imdb        varchar(20) NULL,
+    CONSTRAINT uniq_imdb UNIQUE(imdb)
+);
 
-CREATE TABLE test (
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    UNIQUE KEY (article)
-) ENGINE = InnoDB AS SELECT article, dealer, price FROM shop;
+CREATE TABLE distributors (
+     did    integer PRIMARY KEY DEFAULT nextval('serial'),
+     name   varchar(40) NOT NULL CHECK (name &lt;&gt; '')
+);
 </code></pre>
 </section>
 
