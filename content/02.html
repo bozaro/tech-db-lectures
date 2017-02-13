@@ -1122,137 +1122,144 @@ CREATE TABLE distributors (
 
 <section class="slide">
     <h2>ALTER TABLE</h2>
-    <pre style="font-size: 65%"><code class="sql">ALTER [IGNORE] TABLE tbl_name
-    [alter_specification [, alter_specification] ...]
-    [partition_options]
-
-alter_specification:
-    table_options
-| ADD [COLUMN] (col_name column_definition,...)
-| ADD [CONSTRAINT [symbol]] PRIMARY KEY
-        [index_type] (index_col_name,...) [index_option] ...
-| ADD [CONSTRAINT [symbol]]
-        FOREIGN KEY [index_name] (index_col_name,...)
-        reference_definition
-  | CHANGE [COLUMN] old_col_name new_col_name column_definition
-        [FIRST|AFTER col_name]
-  | MODIFY [COLUMN] col_name column_definition
-        [FIRST | AFTER col_name]
-  | DROP [COLUMN] col_name
-  | DROP PRIMARY KEY
-  | DROP FOREIGN KEY fk_symbol
-  | DISABLE KEYS
-  | ENABLE KEYS
-  | RENAME [TO|AS] new_tbl_name
-  | ORDER BY col_name [, col_name] ...
+    <pre style="font-size: 70%"><code class="sql">ALTER TABLE [ IF EXISTS ] [ ONLY ] name [ * ]
+    action [, ... ]
+ALTER TABLE [ IF EXISTS ] [ ONLY ] name [ * ]
+    RENAME [ COLUMN ] column_name TO new_column_name
+ALTER TABLE [ IF EXISTS ] [ ONLY ] name [ * ]
+    RENAME CONSTRAINT constraint_name TO new_constraint_name
+ALTER TABLE [ IF EXISTS ] name
+    RENAME TO new_name
+</code></pre>
+	<h3>action:</h3>
+	<pre style="font-size: 70%"><code class="sql">ADD [ COLUMN ] [ IF NOT EXISTS ] column_name data_type [ ... ]
+DROP [ COLUMN ] [ IF EXISTS ] column_name [ RESTRICT | CASCADE ]
+ALTER [ COLUMN ] column_name [ SET DATA ] TYPE data_type [ USING expression ]
+ALTER [ COLUMN ] column_name SET DEFAULT expression
+ALTER [ COLUMN ] column_name DROP DEFAULT
+ADD table_constraint [ NOT VALID ]
+DROP CONSTRAINT [ IF EXISTS ]  constraint_name [ RESTRICT | CASCADE ]
+...
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>INFORMATION_SCHEMA</h2>
+    <h2>ALTER TABLE (пример)</h2>
+    <pre style="font-size: 90%"><code class="sql">ALTER TABLE distributors
+    ADD COLUMN address varchar(30),
+    DROP COLUMN address RESTRICT,
+    ALTER COLUMN address TYPE varchar(80),
+    ALTER COLUMN name TYPE varchar(100);
+
+ALTER TABLE foo
+    ALTER COLUMN foo_timestamp DROP DEFAULT,
+    ALTER COLUMN foo_timestamp TYPE timestamp with time zone
+    USING
+        timestamp with time zone 'epoch'
+        + foo_timestamp * interval '1 second',
+    ALTER COLUMN foo_timestamp SET DEFAULT now();
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>information_schema</h2>
     <ul class="double compact" style="font-size: 90%">
-        <li>CHARACTER_SETS</li>
-        <li>COLLATIONS</li>
-        <li>COLUMNS</li>
-        <li>COLUMN_PRIVILEGES</li>
-        <li>ENGINES</li>
-        <li>EVENTS</li>
-        <li>GLOBAL_STATUS and SESSION_STATUS</li>
-        <li>GLOBAL_VARIABLES and SESSION_VARIABLES</li>
-        <li>KEY_COLUMN_USAGE</li>
-        <li>PARTITIONS</li>
-        <li>PLUGINS</li>
-        <li>PROCESSLIST</li>
-        <li>PROFILING</li>
-        <li>REFERENTIAL_CONSTRAINTS</li>
-        <li>ROUTINES</li>
-        <li>SCHEMATA</li>
-        <li>SCHEMA_PRIVILEGES</li>
-        <li>STATISTICS</li>
-        <li>TABLES</li>
-        <li>TABLE_CONSTRAINTS</li>
-        <li>TABLE_PRIVILEGES</li>
-        <li>TRIGGERS</li>
-        <li>USER_PRIVILEGES</li>
-        <li>VIEWS</li>
+        <li>attributes</li>
+        <li>character_sets</li>
+        <li>collations</li>
+        <li>columns</li>
+        <li>domain_constraints</li>
+        <li>domains</li>
+        <li>referential_constraints</li>
+        <li>role_column_grants</li>
+        <li>role_routine_grants</li>
+        <li>role_table_grants</li>
+        <li>role_usage_grants</li>
+        <li>routines</li>
+        <li>sequences</li>
+        <li>sql_features</li>
+        <li>sql_implementation_info</li>
+        <li>table_constraints</li>
+        <li>table_privileges</li>
+        <li>tables</li>
+        <li>triggers</li>
+        <li>view_column_usage</li>
+        <li>view_routine_usage</li>
+        <li>views</li>
+        <li>view_table_usage</li>
+        <li>...</li>
     </ul>
 </section>
 
 <section class="slide">
-    <h2>INFORMATION_SCHEMA: TABLES</h2>
+    <h2>information_schema.tables</h2>
     <ul class="double compact">
-        <li>TABLE_CATALOG</li>
-        <li>TABLE_SCHEMA</li>
-        <li>TABLE_NAME</li>
-        <li>TABLE_TYPE</li>
-        <li>ENGINE</li>
-        <li>VERSION</li>
-        <li>ROW_FORMAT</li>
-        <li>TABLE_ROWS</li>
-        <li>AVG_ROW_LENGTH</li>
-        <li>DATA_LENGTH</li>
-        <li>MAX_DATA_LENGTH</li>
-        <li>INDEX_LENGTH</li>
-        <li>DATA_FREE</li>
-        <li>AUTO_INCREMENT</li>
-        <li>CREATE_TIME</li>
-        <li>UPDATE_TIME</li>
-        <li>CHECK_TIME</li>
-        <li>TABLE_COLLATION</li>
-        <li>CHECKSUM</li>
-        <li>CREATE_OPTIONS</li>
-        <li>TABLE_COMMENT</li>
+        <li>table_catalog</li>
+        <li>table_schema</li>
+        <li>table_name</li>
+        <li>table_type</li>
+        <li>self_referencing_column_name</li>
+        <li>reference_generation</li>
+        <li>user_defined_type_catalog</li>
+        <li>user_defined_type_schema</li>
+        <li>user_defined_type_name</li>
+        <li>is_insertable_into</li>
+        <li>is_typed</li>
+        <li>commit_action</li>
     </ul>
 </section>
 
 <section class="slide">
-    <h2>INFORMATION_SCHEMA: COLUMNS</h2>
+    <h2>information_schema.columns</h2>
     <ul class="double compact">
-        <li>TABLE_CATALOG</li>
-        <li>TABLE_SCHEMA</li>
-        <li>TABLE_NAME</li>
-        <li>COLUMN_NAME</li>
-        <li>ORDINAL_POSITION</li>
-        <li>COLUMN_DEFAULT</li>
-        <li>IS_NULLABLE</li>
-        <li>DATA_TYPE</li>
-        <li>CHARACTER_MAXIMUM_LENGTH</li>
-        <li>CHARACTER_OCTET_LENGTH</li>
-        <li>NUMERIC_PRECISION</li>
-        <li>NUMERIC_SCALE</li>
-        <li>DATETIME_PRECISION</li>
-        <li>CHARACTER_SET_NAME</li>
-        <li>COLLATION_NAME</li>
-        <li>COLUMN_TYPE</li>
-        <li>COLUMN_KEY</li>
-        <li>EXTRA</li>
-        <li>PRIVILEGES</li>
-        <li>COLUMN_COMMENT</li>
-        <li>GENERATION_EXPRESSION</li>
+        <li>table_catalog</li>
+        <li>table_schema</li>
+        <li>table_name</li>
+        <li>column_name</li>
+        <li>ordinal_position</li>
+        <li>column_default</li>
+        <li>is_nullable</li>
+        <li>data_type</li>
+        <li>character_maximum_length</li>
+        <li>character_octet_length</li>
+        <li>numeric_precision</li>
+        <li>numeric_precision_radix</li>
+        <li>numeric_scale</li>
+        <li>datetime_precision</li>
+        <li>interval_type</li>
+        <li>interval_precision</li>
+        <li>character_set_name</li>
+        <li>collation_name</li>
+        <li>domain_name</li>
+        <li>is_self_referencing</li>
+        <li>is_identity</li>
+        <li>is_generated</li>
+        <li>is_updatable</li>
+        <li>...</li>
     </ul>
 </section>
 
 <section class="slide">
     <h2>SELECT</h2>
-    <pre style="font-size: 90%"><code class="sql">SELECT
-    [ALL | DISTINCT | DISTINCTROW ]
-      [HIGH_PRIORITY]
-      [STRAIGHT_JOIN]
-      [SQL_CACHE | SQL_NO_CACHE] [SQL_CALC_FOUND_ROWS]
-    select_expr [, select_expr ...]
-    [FROM table_references
-    [WHERE where_condition]
-    [GROUP BY {col_name | expr | position}
-      [ASC | DESC], ... [WITH ROLLUP]]
-    [HAVING where_condition]
-    [ORDER BY {col_name | expr | position}
-      [ASC | DESC], ...]
-    [LIMIT {[offset,] row_count | row_count OFFSET offset}]
+    <pre style="font-size: 70%"><code class="sql">[ WITH [ RECURSIVE ] with_query [, ...] ]
+SELECT [ ALL | DISTINCT [ ON ( expression [, ...] ) ] ]
+    [ * | expression [ [ AS ] output_name ] [, ...] ]
+    [ FROM from_item [, ...] ]
+    [ WHERE condition ]
+    [ GROUP BY grouping_element [, ...] ]
+    [ HAVING condition [, ...] ]
+    [ { UNION | INTERSECT | EXCEPT } [ ALL | DISTINCT ] select ]
+    [ ORDER BY expression [ ASC | DESC | USING operator ] [, ...] ]
+    [ LIMIT { count | ALL } ]
+    [ OFFSET start [ ROW | ROWS ] ]
+    [ FETCH { FIRST | NEXT } [ count ] { ROW | ROWS } ONLY ]
+    [ FOR { UPDATE | NO KEY UPDATE | SHARE | KEY SHARE }
+        [ OF table_name [, ...] ] [ NOWAIT | SKIP LOCKED ] [...] ]
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>Типы таблиц</h2>
+    <h2>FROM. Типы таблиц</h2>
     <img src="types.jpg" style="float: right"/>
     <ul>
         <li>Постоянные таблицы</li>
@@ -1262,19 +1269,22 @@ alter_specification:
 </section>
 
 <section class="slide">
-    <h2>Фильтрация</h2>
-    <img src="filter.jpg" class="place bottom right" width="400px" style="margin: 50px"/>
+    <h2>WHERE. Фильтрация</h2>
+    <img src="filter.jpg" style="float: right" width="400px"/>
     <ul class="compact">
         <li>=</li>
         <li>!=, &lt;&gt;</li>
         <li>&gt;, &lt;, &gt;=, &lt;=</li>
-        <li>BETWEEN</li>
-        <li>IN</li>
-        <li>LIKE (_, %)</li>
-        <li>OR</li>
-        <li>AND</li>
-        <li>NOT</li>
+        <li>OR, AND, NOT</li>
+        <li>a BETWEEN x AND y</li>
+        <li>a IN (x, y, z...)</li>
+        <li>a LIKE p (_, %)</li>
     </ul>
+    <pre><code class="sql next">SELECT *
+FROM persons
+WHERE department_id IN (
+    SELECT id FROM departments WHERE company_id = 42
+)</code></pre>
 </section>
 
 <section class="slide">
@@ -1287,38 +1297,36 @@ alter_specification:
 <section class="slide">
     <h2>CASE</h2>
     <img src="case.png" height="250px" style="position: absolute; right: 50px"/>
-    <pre style="font-size: 90%"><code class="sql">CASE case_value
-    WHEN when_value
-        THEN statement_list
-    [WHEN when_value
-        THEN statement_list] ...
-    [ELSE statement_list]
-END CASE
+    <div style="font-size: 90%">
+    <pre><code class="sql">CASE WHEN condition THEN result
+     [WHEN ...]
+     [ELSE result]
+END</code></pre>
+    <pre><code class="sql">NULLIF(value1, value2)</code></pre>
+    <pre><code class="sql">GREATEST(value [, ...])</code></pre>
+    <pre><code class="sql">LEAST(value [, ...])</code></pre>
+    <pre class="next"><code class="sql">
+SELECT a,
+   CASE WHEN a=1 THEN 'one'
+        WHEN a=2 THEN 'two'
+        ELSE 'other'
+   END
+FROM test;
 </code></pre>
-    <p>Or:</p>
-    <pre style="font-size: 90%"><code class="sql">CASE
-    WHEN search_condition THEN statement_list
-    [WHEN search_condition THEN statement_list] ...
-    [ELSE statement_list]
-END CASE
- 
-IF (EXP1, EXP2, EXP3)
-</code></pre>
+	</div>
 </section>
 
 <section class="slide">
-    <h2>Формирование групп</h2>
+    <h2>GROUP BY. Формирование групп</h2>
     <ul>
         <li>Группировка по одному столбцу</li>
         <li>Группировка по нескольким столбцам</li>
         <li>Группировка посредством выражений</li>
-        <li>WITH ROLLUP</li>
     </ul>
-    <pre><code class="sql">SET sql_mode = 'ONLY_FULL_GROUP_BY';</code></pre>
 </section>
 
 <section class="slide">
-    <h2>Формирование групп</h2>
+    <h2>GROUP BY. Формирование групп</h2>
     <pre><code class="sql">SELECT * FROM employee;</code></pre>
     <table class="classic bordered" style="font-size: 75%">
         <thead>
@@ -1406,10 +1414,11 @@ IF (EXP1, EXP2, EXP3)
     </table>
 </section>
 <section class="slide">
-    <h2>Формирование групп</h2>
+    <h2>GROUP BY. Формирование групп</h2>
     <pre><code class="sql">SELECT grade, department, COUNT(*)
 FROM employee
-GROUP BY grade, department WITH ROLLUP;
+GROUP BY grade, department
+ORDER BY grade, department;
 </code></pre>
     <table class="classic bordered" style="font-size: 75%">
         <thead>
@@ -1431,13 +1440,6 @@ GROUP BY grade, department WITH ROLLUP;
             <td>1</td>
         </tr>
         <tr>
-            <td>A</td>
-            <td>
-                <null/>
-            </td>
-            <td>5</td>
-        </tr>
-        <tr>
             <td>B</td>
             <td>HR</td>
             <td>2</td>
@@ -1453,32 +1455,9 @@ GROUP BY grade, department WITH ROLLUP;
             <td>3</td>
         </tr>
         <tr>
-            <td>B</td>
-            <td>
-                <null/>
-            </td>
-            <td>6</td>
-        </tr>
-        <tr>
             <td>C</td>
             <td>PR</td>
             <td>1</td>
-        </tr>
-        <tr>
-            <td>C</td>
-            <td>
-                <null/>
-            </td>
-            <td>1</td>
-        </tr>
-        <tr>
-            <td>
-                <null/>
-            </td>
-            <td>
-                <null/>
-            </td>
-            <td>12</td>
         </tr>
         </tbody>
     </table>
@@ -1486,7 +1465,22 @@ GROUP BY grade, department WITH ROLLUP;
 
 <section class="slide">
     <h2>Агрегаторы</h2>
-    <table style="font-size: 80%">
+    <pre><code class="sql">aggregate_name (
+    [ ALL | DISTINCT ] expression [ , ... ]
+    [ order_by_clause ]
+) [ FILTER ( WHERE filter_clause ) ]</code></pre>
+<pre><code class="sql">
+SELECT
+  string_agg(name, ',' ORDER BY name),
+  avg(age),
+  count(*) FILTER (WHERE age BETWEEN 13 AND 19) AS teens
+FROM persons;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Агрегаторы</h2>
+    <table>
         <thead>
         <tr>
             <th>Name</th>
@@ -1495,72 +1489,105 @@ GROUP BY grade, department WITH ROLLUP;
         </thead>
         <tbody>
         <tr>
-            <td>AVG()
-            <td>Return the average value of the argument</td>
+            <td>array_agg(expression)
+            <td>Сформировать массив значений</td>
         </tr>
         <tr>
-            <td>BIT_AND()</td>
-            <td>Return bitwise and</td>
+            <td>avg(expression)</td>
+            <td>Среднее арифмитическое</td>
         </tr>
         <tr>
-            <td>BIT_OR()</td>
-            <td>Return bitwise or</td>
+            <td>max(expression)</td>
+            <td>Максимальное значение</td>
         </tr>
         <tr>
-            <td>BIT_XOR()</td>
-            <td>Return bitwise xor</td>
+            <td>min(expression)</td>
+            <td>Минимальное значение</td>
         </tr>
         <tr>
-            <td>COUNT(DISTINCT)</td>
-            <td>Return the count of a number of different values</td>
+            <td>sum(expression)</td>
+            <td>Сумма</td>
         </tr>
         <tr>
-            <td>COUNT()</td>
-            <td>Return a count of the number of rows returned</td>
+            <td>count(*)</td>
+            <td>Кол-во строк</td>
         </tr>
         <tr>
-            <td>GROUP_CONCAT()</td>
-            <td>Return a concatenated string</td>
+            <td>count(expression)</td>
+            <td>Кол-во не NULL-значений</td>
         </tr>
         <tr>
-            <td>MAX()</td>
-            <td>Return the maximum value</td>
+            <td>bit_and(expression)</td>
+            <td>Битовое "И"</td>
         </tr>
         <tr>
-            <td>MIN()</td>
-            <td>Return the minimum value</td>
+            <td>bit_or(expression)</td>
+            <td>Битовое "ИЛИ"</td>
         </tr>
         <tr>
-            <td>STD()</td>
-            <td>Return the population standard deviation</td>
+            <td>bool_and(expression), every(expression)</td>
+            <td>Логическое "И"</td>
         </tr>
         <tr>
-            <td>STDDEV()</td>
-            <td>Return the population standard deviation</td>
-        </tr>
-        <tr>
-            <td>SUM()</td>
-            <td>Return the sum</td>
-        <tr>
-            <td>VARIANCE()</td>
-            <td>Return the population standard variance</td>
+            <td>bool_or(expression)</td>
+            <td>Логическое "ИЛИ"</td>
         </tr>
         </tbody>
     </table>
 </section>
 
 <section class="slide">
-    <h2>HAVING</h2>
-    <pre><code class="sql">SELECT
-    column_name, aggregate_function(column_name)
-FROM
-    table_name
-WHERE
-    column_name operator value
-GROUP BY
-    column_name
-HAVING
-    aggregate_function(column_name) operator value
+    <h2>Агрегаторы</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>json_agg(expression)</td>
+            <td>Сформировать JSON-массив</td>
+        </tr>
+        <tr>
+            <td>jsonb_agg(expression)</td>
+            <td>Сформировать JSONB-массив</td>
+        </tr>
+        <tr>
+            <td>json_object_agg(key, value)</td>
+            <td>Сформировать JSON-объект</td>
+        </tr>
+        <tr>
+            <td>jsonb_object_agg(key, value)</td>
+            <td>Сформировать JSONB-объект</td>
+        </tr>
+        <tr>
+            <td>string_agg(expression, delimiter)</td>
+            <td>Конкатенация строк</td>
+        </tr>
+        <tr>
+            <td>xmlagg(expression)</td>
+            <td>Конкатенация XML-элементов</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>HAVING. Фильтрация после группировки</h2>
+    <pre><code class="sql">SELECT grade, department, COUNT(*)
+FROM employee
+GROUP BY grade, department
+HAVING COUNT(*) > 3;
+</code></pre>
+    <pre><code class="next sql">
+SELECT * FROM (
+    SELECT grade, department, COUNT(*) as employee_cnt
+    FROM employee
+    GROUP BY grade, department
+) a
+HAVING employee_cnt > 3;
 </code></pre>
 </section>
 
