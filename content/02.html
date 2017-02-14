@@ -6,9 +6,7 @@ description: |
    - Введение в проектирование баз данных:
      - Почему проект БД может быть плохим?
      - Проектирование БД;
-     - Нормализация и нормальные формы;
-     - Первичный ключ;
-     - Типы данных.
+     - Нормализация и нормальные формы.
    - Введение в SQL:
      - CREATE TABLE;
      - ALTER TABLE;
@@ -20,6 +18,17 @@ description: |
    - Обзор INFORMATION_SCHEMA;
    - Иерархические структуры в базах данных.
 ---
+<section class="slide">
+    <h2>Введение в проектирование. Введение в SQL.</h2>
+    <ul>
+        <li>Введение в проектирование баз данных;</li>
+        <li>Введение в SQL;</li>
+        <li>Немного про JOIN-ы;</li>
+        <li>Обзор INFORMATION_SCHEMA;</li>
+        <li>Иерархические структуры в базах данных.</li>
+    </ul>
+</section>
+
 <section class="slide">
     <h2>Проектирования БД</h2>
     <dl>
@@ -1592,14 +1601,67 @@ HAVING employee_cnt > 3;
 </section>
 
 <section class="slide">
-    <h2>ORDER BY, LIMIT</h2>
-    <pre><code class="sql">ORDER BY {col_name | expr | position}
-    [ASC | DESC], ...
+    <h2>ORDER BY. Сортировка</h2>
+    <pre><code class="sql" style="font-size: 80%">SELECT select_list
+FROM table_expression
+ORDER BY sort_expression1 [ASC | DESC] [NULLS { FIRST | LAST }]
+      [, sort_expression2 [ASC | DESC] [NULLS { FIRST | LAST }] ...]
 </code></pre>
-    <div style="text-align: right">
-        <img src="order-by.png" height="300px"/>
-    </div>
-    <pre><code class="sql">LIMIT {[offset,] row_count | row_count OFFSET offset}
+	<div style="font-size: 90%">
+    <pre><code class="sql next">
+SELECT a, b FROM table1 ORDER BY a + b, c;
+</code></pre>
+    <pre><code class="sql next">
+SELECT a + b AS sum, c FROM table1 ORDER BY sum;
+SELECT a, max(b) FROM table1 GROUP BY a ORDER BY 1;
+</code></pre>
+    <pre><code class="sql next">
+# SELECT a + b AS sum, c FROM table1 ORDER BY sum + c;
+ERROR:  column "sum" does not exist
+LINE 1: SELECT a + b AS sum, c FROM table1 ORDER BY sum + c;
+                                                    ^
+</code></pre>
+	</div>
+</section>
+
+<section class="slide">
+    <h2>LIMIT. Разбивка на страницы</h2>
+    <h3>ISO SQL:2003 - Window Functions:</h3>
+	<div style="font-size: 80%">
+    <pre><code class="sql">SELECT * FROM (
+  SELECT
+    ROW_NUMBER() OVER (ORDER BY age ASC) AS rownumber,
+    person_id, person_name, age
+  FROM person
+) AS foo
+WHERE rownumber <= 10;
+</code></pre>
+    <pre><code class="sql next">
+SELECT * FROM (
+  SELECT
+    RANK() OVER (ORDER BY age ASC) AS ranking,
+    person_id, person_name, age
+  FROM person
+) AS foo
+WHERE ranking <= 10;
+</code></pre>
+	</div>
+</section>
+
+<section class="slide">
+    <h2>LIMIT. Разбивка на страницы</h2>
+    <h3>Синтаксис MySQL:</h3>
+    <pre><code class="sql" style="font-size: 80%">SELECT
+  person_id, person_name, age
+FROM person
+LIMIT 10
+OFFSET 20;
+</code></pre>
+    <h3>Синтаксис DB2:</h3>
+    <pre><code class="sql" style="font-size: 80%">SELECT
+  person_id, person_name, age
+FROM person
+FETCH FIRST 10 ROWS ONLY;
 </code></pre>
 </section>
 
