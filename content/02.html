@@ -1,89 +1,1103 @@
 ---
 title: Лекция 2
 description: |
-  Тема данной лекции:
+  Проектирование баз данных. Модификация и выборка данных (начало).
 
-   - CREATE TABLE;
-   - ALTER TABLE;
-   - SELECT;
-   - INSERT;
-   - UPDATE;
-   - DELETE;
-   - Иерархические структуры в БД.
-draft: true
+   - Введение в проектирование баз данных:
+     - Почему проект БД может быть плохим?
+     - Проектирование БД;
+     - Нормализация и нормальные формы.
+   - Введение в SQL:
+     - CREATE TABLE;
+     - ALTER TABLE;
+     - SELECT;
+     - INSERT;
+     - UPDATE;
+     - DELETE.
+   - Немного про JOIN-ы;
+   - Обзор INFORMATION_SCHEMA;
+   - Иерархические структуры в базах данных.
 ---
 <section class="slide">
-    <h2>Архитектура MySQL</h2>
-    <div style="text-align: center; height: 100%">
-        <img style="height: 70%" src="arhitecture.jpg"/>
+    <h2>Введение в проектирование. Введение в SQL.</h2>
+    <ul>
+        <li>Введение в проектирование баз данных;</li>
+        <li>Введение в SQL;</li>
+        <li>Немного про JOIN-ы;</li>
+        <li>Обзор INFORMATION_SCHEMA;</li>
+        <li>Иерархические структуры в базах данных.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Проектирования БД</h2>
+    <dl>
+        <dt>Проектирование баз данных</dt>
+        <dd>Процесс создания схемы базы данных и определения необходимых ограничений целостности.</dd>
+    </dl>
+    <div style="text-align: center">
+        <img style="height: 300px" src="not-so-easy.jpg"/>
     </div>
 </section>
 
 <section class="slide">
+    <h2>Основные задачи</h2>
+    <ul>
+        <li>Обеспечение хранения в БД всей необходимой информации.</li>
+        <li> Обеспечение возможности получения данных по всем необходимым запросам.</li>
+        <li>Сокращение избыточности и дублирования данных.</li>
+        <li>Обеспечение целостности данных (правильности их содержания): исключение противоречий в содержании данных,
+            исключение их потери и т.д.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <figure style="font-size: 150%; margin-top: 100px">
+        <blockquote>Сложная система, спроектированная наспех, никогда не работает, и исправить ее, чтобы заставить
+            работать, невозможно.
+        </blockquote>
+        <figcaption>Законы Мерфи.<br/>16-й закон систематики
+        </figcaption>
+    </figure>
+</section>
+
+<section class="slide">
+    <h2>Особенности концептуального проектирования</h2>
+    <img style="height: 400px; float: right" src="change-cost.png"/>
+    <figure class="next">
+        <blockquote>Трудно что-либо предвидеть, а уж особенно будущее.</blockquote>
+        <figcaption>Нильс Бор</figcaption>
+    </figure>
+    <ul>
+        <li>Максимум командной работы;</li>
+        <li>Привлечение наиболее опытных специалистов;</li>
+        <li>Заглядываем в будущее.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Этапы проектирования</h2>
+    <div style="text-align: center">
+        <img src="scheme-01.png" style="width: 450px"/>
+    </div>
+    <dl>
+        <dt>Внешнее представление (внешняя схема) данных</dt>
+        <dd>Совокупностью требований со стороны конкретной функции, выполняемой пользователем.</dd>
+        <dt>Концептуальная схема</dt>
+        <dd>Полная совокупностью всех требований к данным, полученной из пользовательских представлений о реальном
+            мире.
+        </dd>
+        <dt>Внутренняя схема</dt>
+        <dd>Сама база данных.</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Инфологическое проектирование</h2>
+    <dl>
+        <dt>Концептуальное (инфологическое) проектирование</dt>
+        <dd>Построение семантической модели предметной области, то есть информационной модели наиболее высокого уровня
+            абстракции.
+        </dd>
+    </dl>
+    <img src="scheme-02.png" style="float: right"/>
+    <br/>
+    <ul>
+        <li>сущности</li>
+        <li>атрибуты</li>
+        <li>связи</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Логическое проектирование</h2>
+    <dl>
+        <dt>Логическое (даталогическое) проектирование</dt>
+        <dd>Создание схемы базы данных на основе конкретной модели данных, например, реляционной модели данных.</dd>
+    </dl>
+    <img src="scheme-03.jpg" style="float: right"/>
+    <br/>
+    <ul>
+        <li>записи</li>
+        <li>элементы данных</li>
+        <li>связи между записями</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Физическое проектирование</h2>
+    <dl>
+        <dt>Физическое проектирование</dt>
+        <dd>Создание схемы базы данных для конкретной СУБД.</dd>
+    </dl>
+    <img src="scheme-04.jpg" style="float: right"/>
+    <br/>
+    <ul>
+        <li>группирование данных</li>
+        <li>индексы</li>
+        <li>методы доступа</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Почему проект БД может быть плохим?</h2>
+    <table class="classic bordered" style="font-size: 67%">
+        <thead>
+        <tr>
+            <th>Блюдо</th>
+            <th>Вид</th>
+            <th>Дата</th>
+            <th>Продукт</th>
+            <th>Калорийность</th>
+            <th>Вес (г)</th>
+            <th>Поставщик</th>
+            <th>Город</th>
+            <th>Страна</th>
+            <th>Цена ($)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Лобио</td>
+            <td>Закуска</td>
+            <td>01.09.2012</td>
+            <td>Фасоль</td>
+            <td align="right">307</td>
+            <td align="right">200</td>
+            <td>&quot;Хуанхэ&quot;</td>
+            <td>Пекин</td>
+            <td>Китай</td>
+            <td align="right">0.37</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Лук</td>
+            <td align="right">45</td>
+            <td align="right">40</td>
+            <td>&quot;Наталка&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">0.52</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Масло</td>
+            <td align="right">742</td>
+            <td align="right">30</td>
+            <td>&quot;Лайма&quot;</td>
+            <td>Рига</td>
+            <td>Латвия</td>
+            <td align="right">1.55</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Зелень</td>
+            <td align="right">18</td>
+            <td align="right">10</td>
+            <td>&quot;Даугава&quot;</td>
+            <td>Рига</td>
+            <td>Латвия</td>
+            <td align="right">0.99</td>
+        </tr>
+        <tr>
+            <td>Борщ</td>
+            <td>Суп</td>
+            <td>01.09.2012</td>
+            <td>Мясо</td>
+            <td align="right">166</td>
+            <td align="right">80</td>
+            <td>&quot;Наталка&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">2.18</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Лук</td>
+            <td align="right">45</td>
+            <td align="right">30</td>
+            <td>&quot;Наталка&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">0.52</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Томаты</td>
+            <td align="right">24</td>
+            <td align="right">40</td>
+            <td>&quot;Полесье&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">0.45</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Рис</td>
+            <td align="right">334</td>
+            <td align="right">50</td>
+            <td>&quot;Хуанхэ&quot;</td>
+            <td>Пекин</td>
+            <td>Китай</td>
+            <td align="right">0.44</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Масло</td>
+            <td align="right">742</td>
+            <td align="right">15</td>
+            <td>&quot;Полесье&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">1.62</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Зелень</td>
+            <td align="right">18</td>
+            <td align="right">15</td>
+            <td>&quot;Наталка&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">0.88</td>
+        </tr>
+        </tbody>
+    </table>
+    <ol class="double compact">
+        <li>Избыточность</li>
+        <li>Потенциальная противоречивость<br/>(аномалии обновления)</li>
+        <li>Аномалии включения</li>
+        <li>Аномалии удаления</li>
+    </ol>
+</section>
+
+<section class="slide">
+    <h2>Концептуальное проектирование</h2>
+    <h3>Выявление сущностей и связей</h3>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="scheme-05.png"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Структура таблицы тем</h2>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>Заголовок</th>
+            <th>Дата</th>
+            <th>Автор</th>
+            <th>E-Mail</th>
+            <th>Текст</th>
+            <th>Оценка</th>
+            <th>Ответы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Руслан и Людмила</td>
+            <td>01.01.1820</td>
+            <td>Пушкин А.С.</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>…</td>
+            <td>500</td>
+            <td>120</td>
+        </tr>
+        <tr>
+            <td>Война и Мир</td>
+            <td>01.03.1869</td>
+            <td>Толстой Л.Н.</td>
+            <td>tolstoy@inbox.ru</td>
+            <td>…</td>
+            <td>100</td>
+            <td>345</td>
+        </tr>
+        <tr>
+            <td>Отцы и Дети</td>
+            <td>15.08.1862</td>
+            <td>Иван Тургенев</td>
+            <td>nedobobov@mail.ru</td>
+            <td>…</td>
+            <td>256</td>
+            <td>18</td>
+        </tr>
+        <tr>
+            <td>Повести Белкина</td>
+            <td>12.06.1830</td>
+            <td>Пушкин А.С.</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>…</td>
+            <td>400</td>
+            <td>96</td>
+        </tr>
+        <tr>
+            <td>Муму</td>
+            <td>10.11.1852</td>
+            <td>Иван Тургенев</td>
+            <td>nedobobov@mail.ru</td>
+            <td>…</td>
+            <td>312</td>
+            <td>46</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Справочник пользователей</h2>
+    <img src="user-form.png" style="float: right; width: 50%"/>
+    <dl style="font-size: 75%">
+        <dt>Нормальная форма</dt>
+        <dd>Свойство отношения в реляционной модели данных, характеризующее его с точки зрения избыточности,
+            потенциально приводящей к логически ошибочным результатам выборки или изменения данных. Нормальная форма
+            определяется как совокупность требований, которым должно удовлетворять отношение.
+        </dd>
+    </dl>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Пароль</th>
+            <th>Имя</th>
+            <th>Дата</th>
+            <th>Привилегии</th>
+            <th>Разделы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ, Модератор</td>
+            <td>Новости, Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Флуд, Юмор</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>*****</td>
+            <td>Федор Михайлович</td>
+            <td>11.11.1821</td>
+            <td>Игрок</td>
+            <td>E-Mail</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>*****</td>
+            <td>Пушкин А.С.</td>
+            <td>06.06.1799</td>
+            <td>Админ</td>
+            <td>Поэзия</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>1-ая нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится в первой нормальной форме (1НФ) тогда и только тогда, когда
+        в любом допустимом значении отношения каждый его кортеж содержит только одно значение для каждого из атрибутов.
+    </p>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Пароль</th>
+            <th>Имя</th>
+            <th>Дата</th>
+            <th>Привилегии</th>
+            <th>Разделы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ, Модератор</td>
+            <td>Новости, Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Флуд, Юмор</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>*****</td>
+            <td>Федор Михайлович</td>
+            <td>11.11.1821</td>
+            <td>Игрок</td>
+            <td>E-Mail</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>*****</td>
+            <td>Пушкин А.С.</td>
+            <td>06.06.1799</td>
+            <td>Админ</td>
+            <td>Поэзия</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>1-ая нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится в первой нормальной форме (1НФ) тогда и только тогда, когда
+        в любом допустимом значении отношения каждый его кортеж содержит только одно значение для каждого из атрибутов.
+    </p>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Пароль</th>
+            <th>Имя</th>
+            <th>Дата</th>
+            <th>Привилегии</th>
+            <th>Разделы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Модератор</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Юмор</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>*****</td>
+            <td>Федор Михайлович</td>
+            <td>11.11.1821</td>
+            <td>Игрок</td>
+            <td>E-Mail</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>*****</td>
+            <td>Пушкин А.С.</td>
+            <td>06.06.1799</td>
+            <td>Админ</td>
+            <td>Поэзия</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>2-ая нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится во второй нормальной форме тогда и только тогда, когда она
+        находится в первой нормальной форме, и каждый неключевой атрибут неприводимо зависит от ее потенциального ключа.
+    </p>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Пароль</th>
+            <th>Имя</th>
+            <th>Дата</th>
+            <th>Привилегии</th>
+            <th>Разделы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Модератор</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Юмор</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>*****</td>
+            <td>Федор Михайлович</td>
+            <td>11.11.1821</td>
+            <td>Игрок</td>
+            <td>E-Mail</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>*****</td>
+            <td>Пушкин А.С.</td>
+            <td>06.06.1799</td>
+            <td>Админ</td>
+            <td>Поэзия</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>2-ая нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится во второй нормальной форме тогда и только тогда, когда она
+        находится в первой нормальной форме, и каждый неключевой атрибут неприводимо зависит от ее потенциального ключа.
+    </p>
+    <table class="classic bordered" style="font-size: 60%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Пароль</th>
+            <th>Имя</th>
+            <th>Дата</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>*****</td>
+            <td>Федор Михайлович</td>
+            <td>11.11.1821</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>*****</td>
+            <td>Пушкин А.С.</td>
+            <td>06.06.1799</td>
+        </tr>
+        </tbody>
+    </table>
+    <table class="classic bordered" style="font-size: 60%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Привилегии</th>
+            <th>Разделы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Админ</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Админ</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Модератор</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>Модератор</td>
+            <td>Юмор</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>Игрок</td>
+            <td>E-Mail</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>Админ</td>
+            <td>Поэзия</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>3-я нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится в третьей нормальной форме, когда она находится во второй
+        нормальной форме, и отсутствуют транзитивные функциональные зависимости неключевых атрибутов от ключевых.
+    </p>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>TopicId</th>
+            <th>Заголовок</th>
+            <th>Дата</th>
+            <th>E-Mail</th>
+            <th>Автор</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>5</td>
+            <td>Руслан и Людмила</td>
+            <td>01.01.1820</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>Пушкин А.С.</td>
+        </tr>
+        <tr>
+            <td>8</td>
+            <td>Война и Мир</td>
+            <td>01.03.1869</td>
+            <td>tolstoy@inbox.ru</td>
+            <td>Толстой Л.Н.</td>
+        </tr>
+        <tr>
+            <td>12</td>
+            <td>Отцы и Дети</td>
+            <td>15.08.1862</td>
+            <td>nedobobov@mail.ru</td>
+            <td>Иван Тургенев</td>
+        </tr>
+        <tr>
+            <td>43</td>
+            <td>Повести Белкина</td>
+            <td>12.06.1830</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>Пушкин А.С.</td>
+        </tr>
+        <tr>
+            <td>16</td>
+            <td>Муму</td>
+            <td>10.11.1852</td>
+            <td>nedobobov@mail.ru</td>
+            <td>Иван Тургенев</td>
+        </tr>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>3-я нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится в третьей нормальной форме, когда она находится во второй
+        нормальной форме, и отсутствуют транзитивные функциональные зависимости неключевых атрибутов от ключевых.
+    </p>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Автор</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>Пушкин А.С.</td>
+        </tr>
+        <tr>
+            <td>tolstoy@inbox.ru</td>
+            <td>Толстой Л.Н.</td>
+        </tr>
+        <tr>
+            <td>nedobobov@mail.ru</td>
+            <td>Иван Тургенев</td>
+        </tr>
+    </table>
+    <table class="classic bordered" style="font-size: 60%">
+        <thead>
+        <tr>
+            <th>TopicID</th>
+            <th>Заголовок</th>
+            <th>Дата</th>
+            <th>Автор</th>
+            <th>E-Mail</th>
+            <th>Текст</th>
+            <th>Оценка</th>
+            <th>Ответы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>5</td>
+            <td>Руслан и Людмила</td>
+            <td>01.01.1820</td>
+            <td>Пушкин А.С.</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>…</td>
+            <td>500</td>
+            <td>120</td>
+        </tr>
+        <tr>
+            <td>8</td>
+            <td>Война и Мир</td>
+            <td>01.03.1869</td>
+            <td>Толстой Л.Н.</td>
+            <td>tolstoy@inbox.ru</td>
+            <td>…</td>
+            <td>100</td>
+            <td>345</td>
+        </tr>
+        <tr>
+            <td>12</td>
+            <td>Отцы и Дети</td>
+            <td>15.08.1862</td>
+            <td>Иван Тургенев</td>
+            <td>nedobobov@mail.ru</td>
+            <td>…</td>
+            <td>256</td>
+            <td>18</td>
+        </tr>
+        <tr>
+            <td>43</td>
+            <td>Повести Белкина</td>
+            <td>12.06.1830</td>
+            <td>Пушкин А.С.</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>…</td>
+            <td>400</td>
+            <td>96</td>
+        </tr>
+        <tr>
+            <td>16</td>
+            <td>Муму</td>
+            <td>10.11.1852</td>
+            <td>Иван Тургенев</td>
+            <td>nedobobov@mail.ru</td>
+            <td>…</td>
+            <td>312</td>
+            <td>46</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>4-ая нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится в четвёртой нормальной форме, если она находится в третьей
+        нормальной форме и не содержит нетривиальных многозначных зависимостей.
+    </p>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Привилегии</th>
+            <th>Разделы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Админ</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Админ</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Модератор</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>Модератор</td>
+            <td>Юмор</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>Игрок</td>
+            <td>E-Mail</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>Админ</td>
+            <td>Поэзия</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>4-ая нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится в четвёртой нормальной форме, если она находится в третьей
+        нормальной форме и не содержит нетривиальных многозначных зависимостей.
+    </p>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding-right: 10px">
+            <table class="classic bordered" style="font-size: 80%">
+                <thead>
+                <tr>
+                    <th>E-Mail</th>
+                    <th>Привилегии</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>tolstoy@mail.ru</td>
+                    <td>Админ</td>
+                </tr>
+                <tr>
+                    <td>tolstoy@mail.ru</td>
+                    <td>Модератор</td>
+                </tr>
+                <tr>
+                    <td>saltykov@inbox.ru</td>
+                    <td>Модератор</td>
+                </tr>
+                <tr>
+                    <td>fmd@mail.ru</td>
+                    <td>Игрок</td>
+                </tr>
+                <tr>
+                    <td>sukin_syn@mail.ru</td>
+                    <td>Админ</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell">
+            <table class="classic bordered" style="font-size: 80%">
+                <thead>
+                <tr>
+                    <th>E-Mail</th>
+                    <th>Разделы</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>tolstoy@mail.ru</td>
+                    <td>Новости</td>
+                </tr>
+                <tr>
+                    <td>tolstoy@mail.ru</td>
+                    <td>Флуд</td>
+                </tr>
+                <tr>
+                    <td>saltykov@inbox.ru</td>
+                    <td>Флуд</td>
+                </tr>
+                <tr>
+                    <td>saltykov@inbox.ru</td>
+                    <td>Юмор</td>
+                </tr>
+                <tr>
+                    <td>fmd@mail.ru</td>
+                    <td>E-Mail</td>
+                </tr>
+                <tr>
+                    <td>sukin_syn@mail.ru</td>
+                    <td>Поэзия</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Реляционная часть</h2>
+    <ul>
+        <li style="clear: both"><img src="relation-11.svg" style="float: right"/>один-к-одному (1:1)</li>
+        <li style="clear: both"><img src="relation-1m.svg" style="float: right"/>один-ко-многим (1:M)</li>
+        <li style="clear: both"><img src="relation-m1.svg" style="float: right"/>многие-к-одному (M:1)</li>
+        <li style="clear: both"><img src="relation-mn.svg" style="float: right"/>многие-ко-многим (M:N)</li>
+    </ul>
+</section>
+
+<section class="slide">
     <h2>CREATE TABLE</h2>
-    <pre style="font-size: 90%"><code class="sql">CREATE [TEMPORARY] TABLE [IF NOT EXISTS] tbl_name
-    (create_definition,...)
-    [table_options]
-    [partition_options]
+    <pre style="font-size: 70%"><code class="sql">CREATE [ { TEMPORARY } | UNLOGGED ] TABLE [ IF NOT EXISTS ] table_name ( [
+  { column_name data_type [ COLLATE collation ] [ column_constraint [ ... ] ]
+    | table_constraint
+    | LIKE source_table [ like_option ... ] }
+    [, ... ]
+] )
+[ INHERITS ( parent_table [, ... ] ) ]
+[ WITH ( storage_parameter [= value] [, ... ] ) | WITH OIDS | WITHOUT OIDS ]
+[ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
+[ TABLESPACE tablespace_name ]
 </code></pre>
     <p>Or:</p>
-    <pre style="font-size: 90%"><code class="sql">CREATE [TEMPORARY] TABLE [IF NOT EXISTS] tbl_name
-    [(create_definition,...)]
-    [table_options]
-    [partition_options]
-    select_statement
-</code></pre>
-    <p>Or:</p>
-    <pre style="font-size: 90%"><code class="sql">CREATE [TEMPORARY] TABLE [IF NOT EXISTS] tbl_name
-    { LIKE old_tbl_name | (LIKE old_tbl_name) }
-</code></pre>
-</section>
-
-<section class="slide">
-    <h2>create_definition</h2>
-    <pre><code style="font-size: 80%" class="sql">create_definition:
-    col_name column_definition
-  | [CONSTRAINT [symbol]] PRIMARY KEY [index_type] (index_col_name,...)
-      [index_option] ...
-  | {INDEX|KEY} [index_name] [index_type] (index_col_name,...)
-      [index_option] ...
-  | [CONSTRAINT [symbol]] UNIQUE [INDEX|KEY]
-      [index_name] [index_type] (index_col_name,...)
-      [index_option] ...
-  | {FULLTEXT|SPATIAL} [INDEX|KEY] [index_name] (index_col_name,...)
-      [index_option] ...
-  | [CONSTRAINT [symbol]] FOREIGN KEY
-      [index_name] (index_col_name,...) reference_definition
-  | CHECK (expr)
+    <pre style="font-size: 70%"><code class="sql">CREATE [ { TEMPORARY | TEMP } | UNLOGGED ] TABLE [ IF NOT EXISTS ] table_name
+    OF type_name [ (
+  { column_name WITH OPTIONS [ column_constraint [ ... ] ]
+    | table_constraint }
+    [, ... ]
+) ]
+[ WITH ( storage_parameter [= value] [, ... ] ) | WITH OIDS | WITHOUT OIDS ]
+[ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
+[ TABLESPACE tablespace_name ]
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>column_definition, reference_definition</h2>
-    <pre><code style="font-size: 80%" class="sql">column_definition:
-    data_type [NOT NULL | NULL] [DEFAULT default_value]
-      [AUTO_INCREMENT] [UNIQUE [KEY] | [PRIMARY] KEY]
-      [COMMENT 'string']
-      [COLUMN_FORMAT {FIXED|DYNAMIC|DEFAULT}]
-      [STORAGE {DISK|MEMORY|DEFAULT}]
-      [reference_definition]
- 
-reference_definition:
-    REFERENCES tbl_name (index_col_name,...)
-      [ON DELETE reference_option]
-      [ON UPDATE reference_option]
- 
-reference_option:
-    RESTRICT | CASCADE | SET NULL | NO ACTION
+    <h2>CREATE TABLE</h2>
+    <h3>column_constraint:</h3>
+    <pre><code style="font-size: 70%" class="sql">[ CONSTRAINT constraint_name ]
+{ NOT NULL |
+  NULL |
+  DEFAULT default_expr |
+
+  CHECK ( expression ) [ NO INHERIT ] |
+  UNIQUE index_parameters |
+  PRIMARY KEY index_parameters |
+  REFERENCES reftable [ ( refcolumn ) ]
+    [ MATCH FULL | <strike>MATCH PARTIAL</strike> | MATCH SIMPLE ]
+    [ ON DELETE action ] [ ON UPDATE action ] }
+[ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>Обновление кортежа в родительском отношении</h2>
+    <h2>CREATE TABLE</h2>
+    <h3>table_constraint:</h3>
+    <pre><code style="font-size: 70%" class="sql">[ CONSTRAINT constraint_name ]
+{ CHECK ( expression ) [ NO INHERIT ] |
+  UNIQUE ( column_name [, ... ] ) index_parameters |
+  PRIMARY KEY ( column_name [, ... ] ) index_parameters |
+  FOREIGN KEY ( column_name [, ... ] )
+    REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+    [ MATCH FULL | <strike>MATCH PARTIAL</strike> | MATCH SIMPLE ]
+    [ ON DELETE action ] [ ON UPDATE action ] }
+  EXCLUDE [ USING index_method ] ( exclude_element WITH operator [, ... ] )
+    index_parameters [ WHERE ( predicate ) ] |
+[ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Обновление кортежа в родительском отношении (action)</h2>
     <img src="cascade.jpg" style="float: right"/>
     <dl>
-        <dt>RESTRICT, NO ACTION</dt>
+        <dt>NO ACTION</dt>
         <dd>Не разрешать изменение</dd>
+
+        <dt>RESTRICT</dt>
+        <dd>То же, что и NO ACTION, но всегда IMMEDIATE</dd>
 
         <dt>CASCADE</dt>
         <dd>Изменить каскадно</dd>
@@ -98,153 +1112,163 @@ reference_option:
 
 <section class="slide">
     <h2>CREATE TABLE (пример)</h2>
-    <pre style="font-size: 90%"><code class="sql">CREATE TABLE shop (
-    article INT(4) UNSIGNED ZEROFILL DEFAULT '0000' NOT NULL,
-    dealer  VARCHAR(20) DEFAULT '' NOT NULL,
-    price   DECIMAL(16, 2) DEFAULT 0.00 NOT NULL,
-    PRIMARY KEY pk_shop (article, dealer)
-) ENGINE = InnoDB;
+    <pre style="font-size: 90%"><code class="sql">CREATE TABLE films (
+    code        char(5) CONSTRAINT firstkey PRIMARY KEY,
+    title       varchar(40) NOT NULL,
+    date_prod   date,
+    kind        varchar(10),
+    len         interval hour to minute,
+    imdb        varchar(20) NULL,
+    CONSTRAINT uniq_imdb UNIQUE(imdb)
+);
 
-CREATE TABLE test (
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    UNIQUE KEY (article)
-) ENGINE = InnoDB AS SELECT article, dealer, price FROM shop;
+CREATE TABLE distributors (
+     did    integer PRIMARY KEY DEFAULT nextval('serial'),
+     name   varchar(40) NOT NULL CHECK (name &lt;&gt; '')
+);
 </code></pre>
 </section>
 
 <section class="slide">
     <h2>ALTER TABLE</h2>
-    <pre style="font-size: 65%"><code class="sql">ALTER [IGNORE] TABLE tbl_name
-    [alter_specification [, alter_specification] ...]
-    [partition_options]
-
-alter_specification:
-    table_options
-| ADD [COLUMN] (col_name column_definition,...)
-| ADD [CONSTRAINT [symbol]] PRIMARY KEY
-        [index_type] (index_col_name,...) [index_option] ...
-| ADD [CONSTRAINT [symbol]]
-        FOREIGN KEY [index_name] (index_col_name,...)
-        reference_definition
-  | CHANGE [COLUMN] old_col_name new_col_name column_definition
-        [FIRST|AFTER col_name]
-  | MODIFY [COLUMN] col_name column_definition
-        [FIRST | AFTER col_name]
-  | DROP [COLUMN] col_name
-  | DROP PRIMARY KEY
-  | DROP FOREIGN KEY fk_symbol
-  | DISABLE KEYS
-  | ENABLE KEYS
-  | RENAME [TO|AS] new_tbl_name
-  | ORDER BY col_name [, col_name] ...
+    <pre style="font-size: 70%"><code class="sql">ALTER TABLE [ IF EXISTS ] [ ONLY ] name [ * ]
+    action [, ... ]
+ALTER TABLE [ IF EXISTS ] [ ONLY ] name [ * ]
+    RENAME [ COLUMN ] column_name TO new_column_name
+ALTER TABLE [ IF EXISTS ] [ ONLY ] name [ * ]
+    RENAME CONSTRAINT constraint_name TO new_constraint_name
+ALTER TABLE [ IF EXISTS ] name
+    RENAME TO new_name
+</code></pre>
+	<h3>action:</h3>
+	<pre style="font-size: 70%"><code class="sql">ADD [ COLUMN ] [ IF NOT EXISTS ] column_name data_type [ ... ]
+DROP [ COLUMN ] [ IF EXISTS ] column_name [ RESTRICT | CASCADE ]
+ALTER [ COLUMN ] column_name [ SET DATA ] TYPE data_type [ USING expression ]
+ALTER [ COLUMN ] column_name SET DEFAULT expression
+ALTER [ COLUMN ] column_name DROP DEFAULT
+ADD table_constraint [ NOT VALID ]
+DROP CONSTRAINT [ IF EXISTS ]  constraint_name [ RESTRICT | CASCADE ]
+...
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>INFORMATION_SCHEMA</h2>
+    <h2>ALTER TABLE (пример)</h2>
+    <pre style="font-size: 90%"><code class="sql">ALTER TABLE distributors
+    ADD COLUMN address varchar(30),
+    DROP COLUMN address RESTRICT,
+    ALTER COLUMN address TYPE varchar(80),
+    ALTER COLUMN name TYPE varchar(100);
+
+ALTER TABLE foo
+    ALTER COLUMN foo_timestamp DROP DEFAULT,
+    ALTER COLUMN foo_timestamp TYPE timestamp with time zone
+    USING
+        timestamp with time zone 'epoch'
+        + foo_timestamp * interval '1 second',
+    ALTER COLUMN foo_timestamp SET DEFAULT now();
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>information_schema</h2>
     <ul class="double compact" style="font-size: 90%">
-        <li>CHARACTER_SETS</li>
-        <li>COLLATIONS</li>
-        <li>COLUMNS</li>
-        <li>COLUMN_PRIVILEGES</li>
-        <li>ENGINES</li>
-        <li>EVENTS</li>
-        <li>GLOBAL_STATUS and SESSION_STATUS</li>
-        <li>GLOBAL_VARIABLES and SESSION_VARIABLES</li>
-        <li>KEY_COLUMN_USAGE</li>
-        <li>PARTITIONS</li>
-        <li>PLUGINS</li>
-        <li>PROCESSLIST</li>
-        <li>PROFILING</li>
-        <li>REFERENTIAL_CONSTRAINTS</li>
-        <li>ROUTINES</li>
-        <li>SCHEMATA</li>
-        <li>SCHEMA_PRIVILEGES</li>
-        <li>STATISTICS</li>
-        <li>TABLES</li>
-        <li>TABLE_CONSTRAINTS</li>
-        <li>TABLE_PRIVILEGES</li>
-        <li>TRIGGERS</li>
-        <li>USER_PRIVILEGES</li>
-        <li>VIEWS</li>
+        <li>attributes</li>
+        <li>character_sets</li>
+        <li>collations</li>
+        <li>columns</li>
+        <li>domain_constraints</li>
+        <li>domains</li>
+        <li>referential_constraints</li>
+        <li>role_column_grants</li>
+        <li>role_routine_grants</li>
+        <li>role_table_grants</li>
+        <li>role_usage_grants</li>
+        <li>routines</li>
+        <li>sequences</li>
+        <li>sql_features</li>
+        <li>sql_implementation_info</li>
+        <li>table_constraints</li>
+        <li>table_privileges</li>
+        <li>tables</li>
+        <li>triggers</li>
+        <li>view_column_usage</li>
+        <li>view_routine_usage</li>
+        <li>views</li>
+        <li>view_table_usage</li>
+        <li>...</li>
     </ul>
 </section>
 
 <section class="slide">
-    <h2>INFORMATION_SCHEMA: TABLES</h2>
+    <h2>information_schema.tables</h2>
     <ul class="double compact">
-        <li>TABLE_CATALOG</li>
-        <li>TABLE_SCHEMA</li>
-        <li>TABLE_NAME</li>
-        <li>TABLE_TYPE</li>
-        <li>ENGINE</li>
-        <li>VERSION</li>
-        <li>ROW_FORMAT</li>
-        <li>TABLE_ROWS</li>
-        <li>AVG_ROW_LENGTH</li>
-        <li>DATA_LENGTH</li>
-        <li>MAX_DATA_LENGTH</li>
-        <li>INDEX_LENGTH</li>
-        <li>DATA_FREE</li>
-        <li>AUTO_INCREMENT</li>
-        <li>CREATE_TIME</li>
-        <li>UPDATE_TIME</li>
-        <li>CHECK_TIME</li>
-        <li>TABLE_COLLATION</li>
-        <li>CHECKSUM</li>
-        <li>CREATE_OPTIONS</li>
-        <li>TABLE_COMMENT</li>
+        <li>table_catalog</li>
+        <li>table_schema</li>
+        <li>table_name</li>
+        <li>table_type</li>
+        <li>self_referencing_column_name</li>
+        <li>reference_generation</li>
+        <li>user_defined_type_catalog</li>
+        <li>user_defined_type_schema</li>
+        <li>user_defined_type_name</li>
+        <li>is_insertable_into</li>
+        <li>is_typed</li>
+        <li>commit_action</li>
     </ul>
 </section>
 
 <section class="slide">
-    <h2>INFORMATION_SCHEMA: COLUMNS</h2>
+    <h2>information_schema.columns</h2>
     <ul class="double compact">
-        <li>TABLE_CATALOG</li>
-        <li>TABLE_SCHEMA</li>
-        <li>TABLE_NAME</li>
-        <li>COLUMN_NAME</li>
-        <li>ORDINAL_POSITION</li>
-        <li>COLUMN_DEFAULT</li>
-        <li>IS_NULLABLE</li>
-        <li>DATA_TYPE</li>
-        <li>CHARACTER_MAXIMUM_LENGTH</li>
-        <li>CHARACTER_OCTET_LENGTH</li>
-        <li>NUMERIC_PRECISION</li>
-        <li>NUMERIC_SCALE</li>
-        <li>DATETIME_PRECISION</li>
-        <li>CHARACTER_SET_NAME</li>
-        <li>COLLATION_NAME</li>
-        <li>COLUMN_TYPE</li>
-        <li>COLUMN_KEY</li>
-        <li>EXTRA</li>
-        <li>PRIVILEGES</li>
-        <li>COLUMN_COMMENT</li>
-        <li>GENERATION_EXPRESSION</li>
+        <li>table_catalog</li>
+        <li>table_schema</li>
+        <li>table_name</li>
+        <li>column_name</li>
+        <li>ordinal_position</li>
+        <li>column_default</li>
+        <li>is_nullable</li>
+        <li>data_type</li>
+        <li>character_maximum_length</li>
+        <li>character_octet_length</li>
+        <li>numeric_precision</li>
+        <li>numeric_precision_radix</li>
+        <li>numeric_scale</li>
+        <li>datetime_precision</li>
+        <li>interval_type</li>
+        <li>interval_precision</li>
+        <li>character_set_name</li>
+        <li>collation_name</li>
+        <li>domain_name</li>
+        <li>is_self_referencing</li>
+        <li>is_identity</li>
+        <li>is_generated</li>
+        <li>is_updatable</li>
+        <li>...</li>
     </ul>
 </section>
 
 <section class="slide">
     <h2>SELECT</h2>
-    <pre style="font-size: 90%"><code class="sql">SELECT
-    [ALL | DISTINCT | DISTINCTROW ]
-      [HIGH_PRIORITY]
-      [STRAIGHT_JOIN]
-      [SQL_CACHE | SQL_NO_CACHE] [SQL_CALC_FOUND_ROWS]
-    select_expr [, select_expr ...]
-    [FROM table_references
-    [WHERE where_condition]
-    [GROUP BY {col_name | expr | position}
-      [ASC | DESC], ... [WITH ROLLUP]]
-    [HAVING where_condition]
-    [ORDER BY {col_name | expr | position}
-      [ASC | DESC], ...]
-    [LIMIT {[offset,] row_count | row_count OFFSET offset}]
+    <pre style="font-size: 70%"><code class="sql">[ WITH [ RECURSIVE ] with_query [, ...] ]
+SELECT [ ALL | DISTINCT [ ON ( expression [, ...] ) ] ]
+    [ * | expression [ [ AS ] output_name ] [, ...] ]
+    [ FROM from_item [, ...] ]
+    [ WHERE condition ]
+    [ GROUP BY grouping_element [, ...] ]
+    [ HAVING condition [, ...] ]
+    [ { UNION | INTERSECT | EXCEPT } [ ALL | DISTINCT ] select ]
+    [ ORDER BY expression [ ASC | DESC | USING operator ] [, ...] ]
+    [ LIMIT { count | ALL } ]
+    [ OFFSET start [ ROW | ROWS ] ]
+    [ FETCH { FIRST | NEXT } [ count ] { ROW | ROWS } ONLY ]
+    [ FOR { UPDATE | NO KEY UPDATE | SHARE | KEY SHARE }
+        [ OF table_name [, ...] ] [ NOWAIT | SKIP LOCKED ] [...] ]
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>Типы таблиц</h2>
+    <h2>FROM. Типы таблиц</h2>
     <img src="types.jpg" style="float: right"/>
     <ul>
         <li>Постоянные таблицы</li>
@@ -254,19 +1278,22 @@ alter_specification:
 </section>
 
 <section class="slide">
-    <h2>Фильтрация</h2>
-    <img src="filter.jpg" class="place bottom right" width="400px" style="margin: 50px"/>
+    <h2>WHERE. Фильтрация</h2>
+    <img src="filter.jpg" style="float: right" width="400px"/>
     <ul class="compact">
         <li>=</li>
         <li>!=, &lt;&gt;</li>
         <li>&gt;, &lt;, &gt;=, &lt;=</li>
-        <li>BETWEEN</li>
-        <li>IN</li>
-        <li>LIKE (_, %)</li>
-        <li>OR</li>
-        <li>AND</li>
-        <li>NOT</li>
+        <li>OR, AND, NOT</li>
+        <li>a BETWEEN x AND y</li>
+        <li>a IN (x, y, z...)</li>
+        <li>a LIKE p (_, %)</li>
     </ul>
+    <pre><code class="sql next">SELECT *
+FROM persons
+WHERE department_id IN (
+    SELECT id FROM departments WHERE company_id = 42
+)</code></pre>
 </section>
 
 <section class="slide">
@@ -279,38 +1306,36 @@ alter_specification:
 <section class="slide">
     <h2>CASE</h2>
     <img src="case.png" height="250px" style="position: absolute; right: 50px"/>
-    <pre style="font-size: 90%"><code class="sql">CASE case_value
-    WHEN when_value
-        THEN statement_list
-    [WHEN when_value
-        THEN statement_list] ...
-    [ELSE statement_list]
-END CASE
+    <div style="font-size: 90%">
+    <pre><code class="sql">CASE WHEN condition THEN result
+     [WHEN ...]
+     [ELSE result]
+END</code></pre>
+    <pre><code class="sql">NULLIF(value1, value2)</code></pre>
+    <pre><code class="sql">GREATEST(value [, ...])</code></pre>
+    <pre><code class="sql">LEAST(value [, ...])</code></pre>
+    <pre class="next"><code class="sql">
+SELECT a,
+   CASE WHEN a=1 THEN 'one'
+        WHEN a=2 THEN 'two'
+        ELSE 'other'
+   END
+FROM test;
 </code></pre>
-    <p>Or:</p>
-    <pre style="font-size: 90%"><code class="sql">CASE
-    WHEN search_condition THEN statement_list
-    [WHEN search_condition THEN statement_list] ...
-    [ELSE statement_list]
-END CASE
- 
-IF (EXP1, EXP2, EXP3)
-</code></pre>
+	</div>
 </section>
 
 <section class="slide">
-    <h2>Формирование групп</h2>
+    <h2>GROUP BY. Формирование групп</h2>
     <ul>
         <li>Группировка по одному столбцу</li>
         <li>Группировка по нескольким столбцам</li>
         <li>Группировка посредством выражений</li>
-        <li>WITH ROLLUP</li>
     </ul>
-    <pre><code class="sql">SET sql_mode = 'ONLY_FULL_GROUP_BY';</code></pre>
 </section>
 
 <section class="slide">
-    <h2>Формирование групп</h2>
+    <h2>GROUP BY. Формирование групп</h2>
     <pre><code class="sql">SELECT * FROM employee;</code></pre>
     <table class="classic bordered" style="font-size: 75%">
         <thead>
@@ -398,10 +1423,11 @@ IF (EXP1, EXP2, EXP3)
     </table>
 </section>
 <section class="slide">
-    <h2>Формирование групп</h2>
+    <h2>GROUP BY. Формирование групп</h2>
     <pre><code class="sql">SELECT grade, department, COUNT(*)
 FROM employee
-GROUP BY grade, department WITH ROLLUP;
+GROUP BY grade, department
+ORDER BY grade, department;
 </code></pre>
     <table class="classic bordered" style="font-size: 75%">
         <thead>
@@ -423,13 +1449,6 @@ GROUP BY grade, department WITH ROLLUP;
             <td>1</td>
         </tr>
         <tr>
-            <td>A</td>
-            <td>
-                <null/>
-            </td>
-            <td>5</td>
-        </tr>
-        <tr>
             <td>B</td>
             <td>HR</td>
             <td>2</td>
@@ -445,32 +1464,9 @@ GROUP BY grade, department WITH ROLLUP;
             <td>3</td>
         </tr>
         <tr>
-            <td>B</td>
-            <td>
-                <null/>
-            </td>
-            <td>6</td>
-        </tr>
-        <tr>
             <td>C</td>
             <td>PR</td>
             <td>1</td>
-        </tr>
-        <tr>
-            <td>C</td>
-            <td>
-                <null/>
-            </td>
-            <td>1</td>
-        </tr>
-        <tr>
-            <td>
-                <null/>
-            </td>
-            <td>
-                <null/>
-            </td>
-            <td>12</td>
         </tr>
         </tbody>
     </table>
@@ -478,7 +1474,22 @@ GROUP BY grade, department WITH ROLLUP;
 
 <section class="slide">
     <h2>Агрегаторы</h2>
-    <table style="font-size: 80%">
+    <pre><code class="sql">aggregate_name (
+    [ ALL | DISTINCT ] expression [ , ... ]
+    [ order_by_clause ]
+) [ FILTER ( WHERE filter_clause ) ]</code></pre>
+<pre><code class="sql">
+SELECT
+  string_agg(name, ',' ORDER BY name),
+  avg(age),
+  count(*) FILTER (WHERE age BETWEEN 13 AND 19) AS teens
+FROM persons;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Агрегаторы</h2>
+    <table>
         <thead>
         <tr>
             <th>Name</th>
@@ -487,133 +1498,222 @@ GROUP BY grade, department WITH ROLLUP;
         </thead>
         <tbody>
         <tr>
-            <td>AVG()
-            <td>Return the average value of the argument</td>
+            <td>array_agg(expression)
+            <td>Сформировать массив значений</td>
         </tr>
         <tr>
-            <td>BIT_AND()</td>
-            <td>Return bitwise and</td>
+            <td>avg(expression)</td>
+            <td>Среднее арифмитическое</td>
         </tr>
         <tr>
-            <td>BIT_OR()</td>
-            <td>Return bitwise or</td>
+            <td>max(expression)</td>
+            <td>Максимальное значение</td>
         </tr>
         <tr>
-            <td>BIT_XOR()</td>
-            <td>Return bitwise xor</td>
+            <td>min(expression)</td>
+            <td>Минимальное значение</td>
         </tr>
         <tr>
-            <td>COUNT(DISTINCT)</td>
-            <td>Return the count of a number of different values</td>
+            <td>sum(expression)</td>
+            <td>Сумма</td>
         </tr>
         <tr>
-            <td>COUNT()</td>
-            <td>Return a count of the number of rows returned</td>
+            <td>count(*)</td>
+            <td>Кол-во строк</td>
         </tr>
         <tr>
-            <td>GROUP_CONCAT()</td>
-            <td>Return a concatenated string</td>
+            <td>count(expression)</td>
+            <td>Кол-во не NULL-значений</td>
         </tr>
         <tr>
-            <td>MAX()</td>
-            <td>Return the maximum value</td>
+            <td>bit_and(expression)</td>
+            <td>Битовое "И"</td>
         </tr>
         <tr>
-            <td>MIN()</td>
-            <td>Return the minimum value</td>
+            <td>bit_or(expression)</td>
+            <td>Битовое "ИЛИ"</td>
         </tr>
         <tr>
-            <td>STD()</td>
-            <td>Return the population standard deviation</td>
+            <td>bool_and(expression), every(expression)</td>
+            <td>Логическое "И"</td>
         </tr>
         <tr>
-            <td>STDDEV()</td>
-            <td>Return the population standard deviation</td>
-        </tr>
-        <tr>
-            <td>SUM()</td>
-            <td>Return the sum</td>
-        <tr>
-            <td>VARIANCE()</td>
-            <td>Return the population standard variance</td>
+            <td>bool_or(expression)</td>
+            <td>Логическое "ИЛИ"</td>
         </tr>
         </tbody>
     </table>
 </section>
 
 <section class="slide">
-    <h2>HAVING</h2>
-    <pre><code class="sql">SELECT
-    column_name, aggregate_function(column_name)
-FROM
-    table_name
-WHERE
-    column_name operator value
-GROUP BY
-    column_name
-HAVING
-    aggregate_function(column_name) operator value
+    <h2>Агрегаторы</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>json_agg(expression)</td>
+            <td>Сформировать JSON-массив</td>
+        </tr>
+        <tr>
+            <td>jsonb_agg(expression)</td>
+            <td>Сформировать JSONB-массив</td>
+        </tr>
+        <tr>
+            <td>json_object_agg(key, value)</td>
+            <td>Сформировать JSON-объект</td>
+        </tr>
+        <tr>
+            <td>jsonb_object_agg(key, value)</td>
+            <td>Сформировать JSONB-объект</td>
+        </tr>
+        <tr>
+            <td>string_agg(expression, delimiter)</td>
+            <td>Конкатенация строк</td>
+        </tr>
+        <tr>
+            <td>xmlagg(expression)</td>
+            <td>Конкатенация XML-элементов</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>HAVING. Фильтрация после группировки</h2>
+    <pre><code class="sql">SELECT grade, department, COUNT(*)
+FROM employee
+GROUP BY grade, department
+HAVING COUNT(*) > 3;
+</code></pre>
+    <pre><code class="next sql">
+SELECT * FROM (
+    SELECT grade, department, COUNT(*) as employee_cnt
+    FROM employee
+    GROUP BY grade, department
+) a
+HAVING employee_cnt > 3;
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>ORDER BY, LIMIT</h2>
-    <pre><code class="sql">ORDER BY {col_name | expr | position}
-    [ASC | DESC], ...
+    <h2>ORDER BY. Сортировка</h2>
+    <pre><code class="sql" style="font-size: 80%">SELECT select_list
+FROM table_expression
+ORDER BY sort_expression1 [ASC | DESC] [NULLS { FIRST | LAST }]
+      [, sort_expression2 [ASC | DESC] [NULLS { FIRST | LAST }] ...]
 </code></pre>
-    <div style="text-align: right">
-        <img src="order-by.png" height="300px"/>
-    </div>
-    <pre><code class="sql">LIMIT {[offset,] row_count | row_count OFFSET offset}
+	<div style="font-size: 90%">
+    <pre><code class="sql next">
+SELECT a, b FROM table1 ORDER BY a + b, c;
+</code></pre>
+    <pre><code class="sql next">
+SELECT a + b AS sum, c FROM table1 ORDER BY sum;
+SELECT a, max(b) FROM table1 GROUP BY a ORDER BY 1;
+</code></pre>
+    <pre><code class="sql next">
+# SELECT a + b AS sum, c FROM table1 ORDER BY sum + c;
+ERROR:  column "sum" does not exist
+LINE 1: SELECT a + b AS sum, c FROM table1 ORDER BY sum + c;
+                                                    ^
+</code></pre>
+	</div>
+</section>
+
+<section class="slide">
+    <h2>LIMIT. Разбивка на страницы</h2>
+    <h3>ISO SQL:2003 - Window Functions:</h3>
+	<div style="font-size: 80%">
+    <pre><code class="sql">SELECT * FROM (
+  SELECT
+    ROW_NUMBER() OVER (ORDER BY age ASC) AS rownumber,
+    person_id, person_name, age
+  FROM person
+) AS foo
+WHERE rownumber <= 10;
+</code></pre>
+    <pre><code class="sql next">
+SELECT * FROM (
+  SELECT
+    RANK() OVER (ORDER BY age ASC) AS ranking,
+    person_id, person_name, age
+  FROM person
+) AS foo
+WHERE ranking <= 10;
+</code></pre>
+	</div>
+</section>
+
+<section class="slide">
+    <h2>LIMIT. Разбивка на страницы</h2>
+    <h3>Синтаксис MySQL:</h3>
+    <pre><code class="sql" style="font-size: 80%">SELECT
+  person_id, person_name, age
+FROM person
+LIMIT 10
+OFFSET 20;
+</code></pre>
+    <h3>Синтаксис DB2:</h3>
+    <pre><code class="sql" style="font-size: 80%">SELECT
+  person_id, person_name, age
+FROM person
+FETCH FIRST 10 ROWS ONLY;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>WITH</h2>
+</section>
+
+<section class="slide">
+    <h2>INSERT</h2>
+    <pre style="font-size: 70%"><code class="sql">[ WITH [ RECURSIVE ] with_query [, ...] ]
+INSERT INTO table_name [ AS alias ] [ ( column_name [, ...] ) ]
+    { DEFAULT VALUES | VALUES ( { expression | DEFAULT } [, ...] ) [, ...] | query }
+    [ ON CONFLICT [ conflict_target ] conflict_action ]
+    [ RETURNING * | output_expression [ [ AS ] output_name ] [, ...] ]
+</code></pre>
+	<h3>conflict_target:</h3>
+    <pre style="font-size: 70%"><code class="sql">( { index_column_name | ( index_expression ) } ... [, ...] )
+[ WHERE index_predicate ]
+ON CONSTRAINT constraint_name
+</code></pre>
+	<h3>conflict_target:</h3>
+    <pre style="font-size: 70%"><code class="sql">DO NOTHING
+DO UPDATE SET { column_name = { expression | DEFAULT } |
+                ( column_name [, ...] ) = ( { expression | DEFAULT } [, ...] ) |
+                ( column_name [, ...] ) = ( sub-SELECT )
+              } [, ...]
+          [ WHERE condition ]
 </code></pre>
 </section>
 
 <section class="slide">
     <h2>INSERT</h2>
-    <pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | DELAYED | HIGH_PRIORITY] [IGNORE]
-    [INTO] tbl_name [(col_name,...)]
-    {VALUES | VALUE} ({expr | DEFAULT},...),(...),...
-    [ ON DUPLICATE KEY UPDATE
-      col_name=expr
-        [, col_name=expr] ... ]
+    <div style="font-size: 90%">
+    <pre><code class="sql">INSERT INTO films (code, title, did, date_prod, kind) VALUES
+('B6717', 'Tampopo', 110, '1985-02-10', 'Comedy'),
+('HG120', 'The Dinner Game', 140, DEFAULT, 'Comedy')
+RETURNING *;
 </code></pre>
-    <p>Есть еще специфичный для MySQL вариант:</p>
-    <pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | DELAYED | HIGH_PRIORITY] [IGNORE]
-    [INTO] tbl_name
-    SET col_name={expr | DEFAULT}, ...
-    [ ON DUPLICATE KEY UPDATE
-      col_name=expr
-        [, col_name=expr] ... ]
+    <pre><code class="sql next">
+INSERT INTO films
+SELECT * FROM tmp_films WHERE date_prod < '2004-05-07';
 </code></pre>
-</section>
-
-<section class="slide">
-    <h2>INSERT</h2>
-    <pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | HIGH_PRIORITY] [IGNORE]
-    [INTO] tbl_name [(col_name,...)]
-    SELECT ...
-    [ ON DUPLICATE KEY UPDATE
-      col_name=expr
-        [, col_name=expr] ... ]
+    <pre><code class="sql next">
+INSERT INTO distributors (id, dname)
+VALUES (5, 'Gizmo Transglobal'), (6, 'Associated Computing, Inc')
+ON CONFLICT (id) DO UPDATE SET dname = EXCLUDED.dname;
 </code></pre>
-</section>
-
-<section class="slide">
-    <h2>INSERT</h2>
-    <pre style="font-size: 90%"><code class="sql">INSERT INTO tbl_temp2 (fld_id)
-    SELECT
-        tbl_temp1.fld_order_id
-    FROM
-        tbl_temp1
-    WHERE
-        tbl_temp1.fld_order_id > 100;
- 
-INSERT INTO table (a, b, c) VALUES (1, 2, 3)
-    ON DUPLICATE KEY UPDATE c = c + 1;
- 
-INSERT INTO table (a, b, c) VALUES (1, 2, 3), (4, 5, 6)
-    ON DUPLICATE KEY UPDATE c = VALUES(a) + VALUES(b);
+    <pre><code class="sql next">
+INSERT INTO distributors (id, dname) VALUES (7, 'Redline GmbH')
+ON CONFLICT (id) DO NOTHING;
 </code></pre>
+	</code>
 </section>
 
 <section class="slide">
