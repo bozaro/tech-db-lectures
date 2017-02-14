@@ -1666,51 +1666,54 @@ FETCH FIRST 10 ROWS ONLY;
 </section>
 
 <section class="slide">
+    <h2>WITH</h2>
+</section>
+
+<section class="slide">
     <h2>INSERT</h2>
-    <pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | DELAYED | HIGH_PRIORITY] [IGNORE]
-    [INTO] tbl_name [(col_name,...)]
-    {VALUES | VALUE} ({expr | DEFAULT},...),(...),...
-    [ ON DUPLICATE KEY UPDATE
-      col_name=expr
-        [, col_name=expr] ... ]
+    <pre style="font-size: 70%"><code class="sql">[ WITH [ RECURSIVE ] with_query [, ...] ]
+INSERT INTO table_name [ AS alias ] [ ( column_name [, ...] ) ]
+    { DEFAULT VALUES | VALUES ( { expression | DEFAULT } [, ...] ) [, ...] | query }
+    [ ON CONFLICT [ conflict_target ] conflict_action ]
+    [ RETURNING * | output_expression [ [ AS ] output_name ] [, ...] ]
 </code></pre>
-    <p>Есть еще специфичный для MySQL вариант:</p>
-    <pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | DELAYED | HIGH_PRIORITY] [IGNORE]
-    [INTO] tbl_name
-    SET col_name={expr | DEFAULT}, ...
-    [ ON DUPLICATE KEY UPDATE
-      col_name=expr
-        [, col_name=expr] ... ]
+	<h3>conflict_target:</h3>
+    <pre style="font-size: 70%"><code class="sql">( { index_column_name | ( index_expression ) } ... [, ...] )
+[ WHERE index_predicate ]
+ON CONSTRAINT constraint_name
+</code></pre>
+	<h3>conflict_target:</h3>
+    <pre style="font-size: 70%"><code class="sql">DO NOTHING
+DO UPDATE SET { column_name = { expression | DEFAULT } |
+                ( column_name [, ...] ) = ( { expression | DEFAULT } [, ...] ) |
+                ( column_name [, ...] ) = ( sub-SELECT )
+              } [, ...]
+          [ WHERE condition ]
 </code></pre>
 </section>
 
 <section class="slide">
     <h2>INSERT</h2>
-    <pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | HIGH_PRIORITY] [IGNORE]
-    [INTO] tbl_name [(col_name,...)]
-    SELECT ...
-    [ ON DUPLICATE KEY UPDATE
-      col_name=expr
-        [, col_name=expr] ... ]
+    <div style="font-size: 90%">
+    <pre><code class="sql">INSERT INTO films (code, title, did, date_prod, kind) VALUES
+('B6717', 'Tampopo', 110, '1985-02-10', 'Comedy'),
+('HG120', 'The Dinner Game', 140, DEFAULT, 'Comedy')
+RETURNING *;
 </code></pre>
-</section>
-
-<section class="slide">
-    <h2>INSERT</h2>
-    <pre style="font-size: 90%"><code class="sql">INSERT INTO tbl_temp2 (fld_id)
-    SELECT
-        tbl_temp1.fld_order_id
-    FROM
-        tbl_temp1
-    WHERE
-        tbl_temp1.fld_order_id > 100;
- 
-INSERT INTO table (a, b, c) VALUES (1, 2, 3)
-    ON DUPLICATE KEY UPDATE c = c + 1;
- 
-INSERT INTO table (a, b, c) VALUES (1, 2, 3), (4, 5, 6)
-    ON DUPLICATE KEY UPDATE c = VALUES(a) + VALUES(b);
+    <pre><code class="sql next">
+INSERT INTO films
+SELECT * FROM tmp_films WHERE date_prod < '2004-05-07';
 </code></pre>
+    <pre><code class="sql next">
+INSERT INTO distributors (id, dname)
+VALUES (5, 'Gizmo Transglobal'), (6, 'Associated Computing, Inc')
+ON CONFLICT (id) DO UPDATE SET dname = EXCLUDED.dname;
+</code></pre>
+    <pre><code class="sql next">
+INSERT INTO distributors (id, dname) VALUES (7, 'Redline GmbH')
+ON CONFLICT (id) DO NOTHING;
+</code></pre>
+	</code>
 </section>
 
 <section class="slide">
