@@ -1718,89 +1718,104 @@ ON CONFLICT (id) DO NOTHING;
 
 <section class="slide">
     <h2>UPDATE</h2>
-    <pre style="font-size: 90%"><code class="sql">UPDATE [LOW_PRIORITY] [IGNORE] table_reference
-    SET    col_name1={expr1|DEFAULT}
-        [, col_name2={expr2|DEFAULT}] ...
-    [WHERE where_condition]
-    [ORDER BY ...]
-    [LIMIT row_count]
-</code></pre>
-    <p>Multiple-table syntax:</p>
-    <pre style="font-size: 90%"><code class="sql">UPDATE [LOW_PRIORITY] [IGNORE] table_references
-    SET    col_name1={expr1|DEFAULT}
-        [, col_name2={expr2|DEFAULT}] ...
-    [WHERE where_condition]
+    <pre style="font-size: 70%"><code class="sql">[ WITH [ RECURSIVE ] with_query [, ...] ]
+UPDATE [ ONLY ] table_name [ * ] [ [ AS ] alias ]
+    SET { column_name = { expression | DEFAULT } |
+          ( column_name [, ...] ) = ( { expression | DEFAULT } [, ...] ) |
+          ( column_name [, ...] ) = ( sub-SELECT )
+        } [, ...]
+    [ FROM from_list ]
+    [ WHERE condition | WHERE CURRENT OF cursor_name ]
+    [ RETURNING * | output_expression [ [ AS ] output_name ] [, ...] ]
 </code></pre>
 </section>
 
 <section class="slide">
     <h2>UPDATE</h2>
+    <div style="font-size: 80%">
     <pre><code class="sql">UPDATE table1
 SET
     col_name1 = col_name2,
     col_name2 = col_name1
+WHERE id = 42;
 </code></pre>
-    <div class="next" style="padding-top: 10px; padding-bottom: 10px">
-        <h3><a href="http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt">SQL92</a>
-            (13.9 &lt;update statement: positioned&gt;):</h3>
-        <p style="font-size: 80%">
-            6. The &lt;value expression&gt;s are effectively evaluated before updating the object row. If a &lt;value
-            expression&gt; contains a reference to a column of T, then the reference is to the value of that column in
-            the
-            object row before any value of the object row is updated.
-        </p>
-    </div>
-    <pre class="next"><code class="sql">UPDATE table1
-SET
-    col_name1 = (@swap := col_name1),
-    col_name1 = col_name2,
-    col_name2 = @swap
+	<pre><code class="sql">
+UPDATE weather
+  SET temp_lo = temp_lo+1, temp_hi = temp_lo+15, prcp = DEFAULT
+  WHERE city = 'San Francisco' AND date = '2003-07-03'
+  RETURNING temp_lo, temp_hi, prcp;
 </code></pre>
+	<pre><code class="sql next">
+UPDATE weather
+  SET (temp_lo, temp_hi, prcp) = (temp_lo+1, temp_lo+15, DEFAULT)
+  WHERE city = 'San Francisco' AND date = '2003-07-03'
+  RETURNING temp_lo, temp_hi, prcp;
+</code></pre>
+	</div>
+</section>
+
+<section class="slide">
+    <h2>UPDATE</h2>
+    <div style="font-size: 80%">
+	<pre><code class="sql">
+UPDATE accounts SET
+  contact_first_name = (
+    SELECT first_name FROM salesmen WHERE salesmen.id = accounts.sales_id
+  ),
+  contact_last_name) = (
+    SELECT last_name  FROM salesmen WHERE salesmen.id = accounts.sales_id
+  );
+</code></pre>
+	<pre><code class="sql next">
+UPDATE accounts SET (contact_first_name, contact_last_name) =
+    (SELECT first_name, last_name FROM salesmen
+     WHERE salesmen.id = accounts.sales_id);
+</code></pre>
+	<pre><code class="sql next">
+UPDATE accounts SET contact_first_name = first_name,
+                    contact_last_name = last_name
+  FROM salesmen WHERE salesmen.id = accounts.sales_id;
+</code></pre>
+	</div>
 </section>
 
 <section class="slide">
     <h2>DELETE</h2>
-    <pre style="font-size: 90%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE] FROM tbl_name
-    [WHERE where_condition]
-    [ORDER BY ...]
-    [LIMIT row_count]
+    <div style="font-size: 80%">
+    <pre><code class="sql">[ WITH [ RECURSIVE ] with_query [, ...] ]
+DELETE FROM [ ONLY ] table_name [ * ] [ [ AS ] alias ]
+    [ USING using_list ]
+    [ WHERE condition | WHERE CURRENT OF cursor_name ]
+    [ RETURNING * | output_expression [ [ AS ] output_name ] [, ...] ]
 </code></pre>
-    <p>Multiple-table syntax (MySQL only):</p>
-    <pre style="font-size: 90%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
-    tbl_name[.*] [, tbl_name[.*]] ...
-    FROM table_references
-    [WHERE where_condition]
+    <pre><code class="sql next">
+DELETE FROM films;
 </code></pre>
-    <p>Or:</p>
-    <pre style="font-size: 90%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
-    FROM tbl_name[.*] [, tbl_name[.*]] ...
-    USING table_references
-    [WHERE where_condition]
+    <pre><code class="sql next">
+TRUNCATE [ TABLE ] [ ONLY ] name [ * ] [, ... ]
+    [ RESTART IDENTITY | CONTINUE IDENTITY ] [ CASCADE | RESTRICT ]
 </code></pre>
+    <pre><code class="sql next">
+TRUNCATE TABLE films;
+</code></pre>
+	</div>
 </section>
 
 <section class="slide">
     <h2>DELETE</h2>
-    <pre style="font-size: 75%"><code class="sql">DELETE FROM t1
-WHERE
-    t1.id IN (SELECT t2.id FROM t2);
+    <div style="font-size: 80%">
+	<pre><code class="sql">DELETE FROM films WHERE kind &lt;&gt; 'Musical';
 </code></pre>
-    <div class="next">
-        <p>Or:</p>
-        <pre style="font-size: 75%"><code class="sql">DELETE t1, t2
-FROM
-    t1 INNER JOIN t2
-    INNER JOIN t3
-WHERE
-    t1.id = t2.id AND t2.id = t3.id;
+    <pre><code class="sql">
+DELETE FROM tasks WHERE status = 'DONE' RETURNING *;
 </code></pre>
-        <p>Or:</p>
-        <pre style="font-size: 75%"><code class="sql">DELETE FROM t1, t2
-USING
-    t1 INNER JOIN t2
-    INNER JOIN t3
-WHERE
-    t1.id = t2.id AND t2.id = t3.id;
+    <pre><code class="sql next">
+DELETE FROM films
+  WHERE producer_id IN (SELECT id FROM producers WHERE name = 'foo');
+</code></pre>
+    <pre><code class="sql next">
+DELETE FROM films USING producers
+  WHERE producer_id = producers.id AND producers.name = 'foo';
 </code></pre>
     </div>
 </section>
