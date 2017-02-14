@@ -44,7 +44,7 @@ description: |
     <h2>Основные задачи</h2>
     <ul>
         <li>Обеспечение хранения в БД всей необходимой информации.</li>
-        <li> Обеспечение возможности получения данных по всем необходимым запросам.</li>
+        <li>Обеспечение возможности получения данных по всем необходимым запросам.</li>
         <li>Сокращение избыточности и дублирования данных.</li>
         <li>Обеспечение целостности данных (правильности их содержания): исключение противоречий в содержании данных,
             исключение их потери и т.д.
@@ -740,81 +740,6 @@ description: |
     <p style="font-size: 80%">Переменная отношения находится в третьей нормальной форме, когда она находится во второй
         нормальной форме, и отсутствуют транзитивные функциональные зависимости неключевых атрибутов от ключевых.
     </p>
-    <table class="classic bordered" style="font-size: 70%">
-        <thead>
-        <tr>
-            <th>TopicId</th>
-            <th>Заголовок</th>
-            <th>Дата</th>
-            <th>E-Mail</th>
-            <th>Автор</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>5</td>
-            <td>Руслан и Людмила</td>
-            <td>01.01.1820</td>
-            <td>sukin_syn@mail.ru</td>
-            <td>Пушкин А.С.</td>
-        </tr>
-        <tr>
-            <td>8</td>
-            <td>Война и Мир</td>
-            <td>01.03.1869</td>
-            <td>tolstoy@inbox.ru</td>
-            <td>Толстой Л.Н.</td>
-        </tr>
-        <tr>
-            <td>12</td>
-            <td>Отцы и Дети</td>
-            <td>15.08.1862</td>
-            <td>nedobobov@mail.ru</td>
-            <td>Иван Тургенев</td>
-        </tr>
-        <tr>
-            <td>43</td>
-            <td>Повести Белкина</td>
-            <td>12.06.1830</td>
-            <td>sukin_syn@mail.ru</td>
-            <td>Пушкин А.С.</td>
-        </tr>
-        <tr>
-            <td>16</td>
-            <td>Муму</td>
-            <td>10.11.1852</td>
-            <td>nedobobov@mail.ru</td>
-            <td>Иван Тургенев</td>
-        </tr>
-    </table>
-</section>
-
-<section class="slide">
-    <h2>3-я нормальная форма</h2>
-    <p style="font-size: 80%">Переменная отношения находится в третьей нормальной форме, когда она находится во второй
-        нормальной форме, и отсутствуют транзитивные функциональные зависимости неключевых атрибутов от ключевых.
-    </p>
-    <table class="classic bordered" style="font-size: 70%">
-        <thead>
-        <tr>
-            <th>E-Mail</th>
-            <th>Автор</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>sukin_syn@mail.ru</td>
-            <td>Пушкин А.С.</td>
-        </tr>
-        <tr>
-            <td>tolstoy@inbox.ru</td>
-            <td>Толстой Л.Н.</td>
-        </tr>
-        <tr>
-            <td>nedobobov@mail.ru</td>
-            <td>Иван Тургенев</td>
-        </tr>
-    </table>
     <table class="classic bordered" style="font-size: 60%">
         <thead>
         <tr>
@@ -874,6 +799,94 @@ description: |
             <td>Муму</td>
             <td>10.11.1852</td>
             <td>Иван Тургенев</td>
+            <td>nedobobov@mail.ru</td>
+            <td>…</td>
+            <td>312</td>
+            <td>46</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>3-я нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится в третьей нормальной форме, когда она находится во второй
+        нормальной форме, и отсутствуют транзитивные функциональные зависимости неключевых атрибутов от ключевых.
+    </p>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Автор</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>Пушкин А.С.</td>
+        </tr>
+        <tr>
+            <td>tolstoy@inbox.ru</td>
+            <td>Толстой Л.Н.</td>
+        </tr>
+        <tr>
+            <td>nedobobov@mail.ru</td>
+            <td>Иван Тургенев</td>
+        </tr>
+    </table>
+    <table class="classic bordered" style="font-size: 60%">
+        <thead>
+        <tr>
+            <th>TopicID</th>
+            <th>Заголовок</th>
+            <th>Дата</th>
+            <th>E-Mail</th>
+            <th>Текст</th>
+            <th>Оценка</th>
+            <th>Ответы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>5</td>
+            <td>Руслан и Людмила</td>
+            <td>01.01.1820</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>…</td>
+            <td>500</td>
+            <td>120</td>
+        </tr>
+        <tr>
+            <td>8</td>
+            <td>Война и Мир</td>
+            <td>01.03.1869</td>
+            <td>tolstoy@inbox.ru</td>
+            <td>…</td>
+            <td>100</td>
+            <td>345</td>
+        </tr>
+        <tr>
+            <td>12</td>
+            <td>Отцы и Дети</td>
+            <td>15.08.1862</td>
+            <td>nedobobov@mail.ru</td>
+            <td>…</td>
+            <td>256</td>
+            <td>18</td>
+        </tr>
+        <tr>
+            <td>43</td>
+            <td>Повести Белкина</td>
+            <td>12.06.1830</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>…</td>
+            <td>400</td>
+            <td>96</td>
+        </tr>
+        <tr>
+            <td>16</td>
+            <td>Муму</td>
+            <td>10.11.1852</td>
             <td>nedobobov@mail.ru</td>
             <td>…</td>
             <td>312</td>
