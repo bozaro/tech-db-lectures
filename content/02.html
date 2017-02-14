@@ -1140,8 +1140,8 @@ ALTER TABLE [ IF EXISTS ] [ ONLY ] name [ * ]
 ALTER TABLE [ IF EXISTS ] name
     RENAME TO new_name
 </code></pre>
-	<h3>action:</h3>
-	<pre style="font-size: 70%"><code class="sql">ADD [ COLUMN ] [ IF NOT EXISTS ] column_name data_type [ ... ]
+    <h3>action:</h3>
+    <pre style="font-size: 70%"><code class="sql">ADD [ COLUMN ] [ IF NOT EXISTS ] column_name data_type [ ... ]
 DROP [ COLUMN ] [ IF EXISTS ] column_name [ RESTRICT | CASCADE ]
 ALTER [ COLUMN ] column_name [ SET DATA ] TYPE data_type [ USING expression ]
 ALTER [ COLUMN ] column_name SET DEFAULT expression
@@ -1311,10 +1311,10 @@ WHERE department_id IN (
      [WHEN ...]
      [ELSE result]
 END</code></pre>
-    <pre><code class="sql">NULLIF(value1, value2)</code></pre>
-    <pre><code class="sql">GREATEST(value [, ...])</code></pre>
-    <pre><code class="sql">LEAST(value [, ...])</code></pre>
-    <pre class="next"><code class="sql">
+        <pre><code class="sql">NULLIF(value1, value2)</code></pre>
+        <pre><code class="sql">GREATEST(value [, ...])</code></pre>
+        <pre><code class="sql">LEAST(value [, ...])</code></pre>
+        <pre class="next"><code class="sql">
 SELECT a,
    CASE WHEN a=1 THEN 'one'
         WHEN a=2 THEN 'two'
@@ -1322,7 +1322,7 @@ SELECT a,
    END
 FROM test;
 </code></pre>
-	</div>
+    </div>
 </section>
 
 <section class="slide">
@@ -1478,7 +1478,7 @@ ORDER BY grade, department;
     [ ALL | DISTINCT ] expression [ , ... ]
     [ order_by_clause ]
 ) [ FILTER ( WHERE filter_clause ) ]</code></pre>
-<pre><code class="sql">
+    <pre><code class="sql">
 SELECT
   string_agg(name, ',' ORDER BY name),
   avg(age),
@@ -1607,27 +1607,27 @@ FROM table_expression
 ORDER BY sort_expression1 [ASC | DESC] [NULLS { FIRST | LAST }]
       [, sort_expression2 [ASC | DESC] [NULLS { FIRST | LAST }] ...]
 </code></pre>
-	<div style="font-size: 90%">
+    <div style="font-size: 90%">
     <pre><code class="sql next">
 SELECT a, b FROM table1 ORDER BY a + b, c;
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 SELECT a + b AS sum, c FROM table1 ORDER BY sum;
 SELECT a, max(b) FROM table1 GROUP BY a ORDER BY 1;
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 # SELECT a + b AS sum, c FROM table1 ORDER BY sum + c;
 ERROR:  column "sum" does not exist
 LINE 1: SELECT a + b AS sum, c FROM table1 ORDER BY sum + c;
                                                     ^
 </code></pre>
-	</div>
+    </div>
 </section>
 
 <section class="slide">
     <h2>LIMIT. Разбивка на страницы</h2>
     <h3>ISO SQL:2003 - Window Functions:</h3>
-	<div style="font-size: 80%">
+    <div style="font-size: 80%">
     <pre><code class="sql">SELECT * FROM (
   SELECT
     ROW_NUMBER() OVER (ORDER BY age ASC) AS rownumber,
@@ -1636,7 +1636,7 @@ LINE 1: SELECT a + b AS sum, c FROM table1 ORDER BY sum + c;
 ) AS foo
 WHERE rownumber <= 10;
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 SELECT * FROM (
   SELECT
     RANK() OVER (ORDER BY age ASC) AS ranking,
@@ -1645,7 +1645,7 @@ SELECT * FROM (
 ) AS foo
 WHERE ranking <= 10;
 </code></pre>
-	</div>
+    </div>
 </section>
 
 <section class="slide">
@@ -1667,6 +1667,145 @@ FETCH FIRST 10 ROWS ONLY;
 
 <section class="slide">
     <h2>WITH</h2>
+    <pre><code class="sql" style="font-size: 70%">WITH regional_sales AS (
+        SELECT region, SUM(amount) AS total_sales
+        FROM orders
+        GROUP BY region
+     ),
+     top_regions AS (
+        SELECT region
+        FROM regional_sales
+        WHERE total_sales > (SELECT SUM(total_sales)/10 FROM regional_sales)
+     )
+SELECT region,
+       product,
+       SUM(quantity) AS product_units,
+       SUM(amount) AS product_sales
+FROM orders
+WHERE region IN (SELECT region FROM top_regions)
+GROUP BY region, product;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>WITH RECURSIVE</h2>
+    <pre><code class="sql" style="font-size: 80%">WITH RECURSIVE recursetree (id, parent_id, level, name) AS (
+    SELECT id, parent_id, 0, name FROM tree
+    WHERE parent_id = 0
+  UNION ALL
+    SELECT t.id, t.parent_id, level+1, t.name
+    FROM tree t
+    JOIN recursetree rt ON rt.id = t.parent_id
+  )
+SELECT * FROM recursetree;
+
+</code></pre>
+    <table class="classic bordered" style="font-size: 67%">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>parent</th>
+            <th>level</th>
+            <th>name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>0</td>
+            <td>0</td>
+            <td>Россия</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>0</td>
+            <td>0</td>
+            <td>США</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>1</td>
+            <td>1</td>
+            <td>Москва</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>1</td>
+            <td>1</td>
+            <td>Нью Йорк</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>1</td>
+            <td>1</td>
+            <td>Вашингтон</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>3</td>
+            <td>2</td>
+            <td>Бутово</td>
+        </tr>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>WITH RECURSIVE</h2>
+    <pre><code class="sql" style="font-size: 80%">WITH RECURSIVE recursetree (id, path, name) AS (
+    SELECT id, array_append('{}'::int[], id), name FROM tree
+    WHERE parent_id = 0
+  UNION ALL
+    SELECT t.id, array_append(path, t.id), t.name
+    FROM tree t
+    JOIN recursetree rt ON rt.id = t.parent_id
+  )
+SELECT id, array_to_string(path, '.') as path, name FROM recursetree
+ORDER BY path;
+</code></pre>
+    <table class="classic bordered next" style="font-size: 67%">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>path</th>
+            <th>name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>1</td>
+            <td>Россия</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>1.3</td>
+            <td>Москва</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>1.3.6</td>
+            <td>Бутово</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>2</td>
+            <td>США</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>2.4</td>
+            <td>Нью Йорк</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>2.5</td>
+            <td>Вашингтон</td>
+        </tr>
+        </tr>
+        </tbody>
+    </table>
 </section>
 
 <section class="slide">
@@ -1677,12 +1816,12 @@ INSERT INTO table_name [ AS alias ] [ ( column_name [, ...] ) ]
     [ ON CONFLICT [ conflict_target ] conflict_action ]
     [ RETURNING * | output_expression [ [ AS ] output_name ] [, ...] ]
 </code></pre>
-	<h3>conflict_target:</h3>
+    <h3>conflict_target:</h3>
     <pre style="font-size: 70%"><code class="sql">( { index_column_name | ( index_expression ) } ... [, ...] )
 [ WHERE index_predicate ]
 ON CONSTRAINT constraint_name
 </code></pre>
-	<h3>conflict_target:</h3>
+    <h3>conflict_target:</h3>
     <pre style="font-size: 70%"><code class="sql">DO NOTHING
 DO UPDATE SET { column_name = { expression | DEFAULT } |
                 ( column_name [, ...] ) = ( { expression | DEFAULT } [, ...] ) |
@@ -1700,20 +1839,20 @@ DO UPDATE SET { column_name = { expression | DEFAULT } |
 ('HG120', 'The Dinner Game', 140, DEFAULT, 'Comedy')
 RETURNING *;
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 INSERT INTO films
 SELECT * FROM tmp_films WHERE date_prod < '2004-05-07';
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 INSERT INTO distributors (id, dname)
 VALUES (5, 'Gizmo Transglobal'), (6, 'Associated Computing, Inc')
 ON CONFLICT (id) DO UPDATE SET dname = EXCLUDED.dname;
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 INSERT INTO distributors (id, dname) VALUES (7, 'Redline GmbH')
 ON CONFLICT (id) DO NOTHING;
 </code></pre>
-	</code>
+        </code>
 </section>
 
 <section class="slide">
@@ -1739,19 +1878,19 @@ SET
     col_name2 = col_name1
 WHERE id = 42;
 </code></pre>
-	<pre><code class="sql">
+        <pre><code class="sql">
 UPDATE weather
   SET temp_lo = temp_lo+1, temp_hi = temp_lo+15, prcp = DEFAULT
   WHERE city = 'San Francisco' AND date = '2003-07-03'
   RETURNING temp_lo, temp_hi, prcp;
 </code></pre>
-	<pre><code class="sql next">
+        <pre><code class="sql next">
 UPDATE weather
   SET (temp_lo, temp_hi, prcp) = (temp_lo+1, temp_lo+15, DEFAULT)
   WHERE city = 'San Francisco' AND date = '2003-07-03'
   RETURNING temp_lo, temp_hi, prcp;
 </code></pre>
-	</div>
+    </div>
 </section>
 
 <section class="slide">
@@ -1766,17 +1905,17 @@ UPDATE accounts SET
     SELECT last_name  FROM salesmen WHERE salesmen.id = accounts.sales_id
   );
 </code></pre>
-	<pre><code class="sql next">
+        <pre><code class="sql next">
 UPDATE accounts SET (contact_first_name, contact_last_name) =
     (SELECT first_name, last_name FROM salesmen
      WHERE salesmen.id = accounts.sales_id);
 </code></pre>
-	<pre><code class="sql next">
+        <pre><code class="sql next">
 UPDATE accounts SET contact_first_name = first_name,
                     contact_last_name = last_name
   FROM salesmen WHERE salesmen.id = accounts.sales_id;
 </code></pre>
-	</div>
+    </div>
 </section>
 
 <section class="slide">
@@ -1788,17 +1927,17 @@ DELETE FROM [ ONLY ] table_name [ * ] [ [ AS ] alias ]
     [ WHERE condition | WHERE CURRENT OF cursor_name ]
     [ RETURNING * | output_expression [ [ AS ] output_name ] [, ...] ]
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 DELETE FROM films;
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 TRUNCATE [ TABLE ] [ ONLY ] name [ * ] [, ... ]
     [ RESTART IDENTITY | CONTINUE IDENTITY ] [ CASCADE | RESTRICT ]
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 TRUNCATE TABLE films;
 </code></pre>
-	</div>
+    </div>
 </section>
 
 <section class="slide">
@@ -1806,14 +1945,14 @@ TRUNCATE TABLE films;
     <div style="font-size: 80%">
 	<pre><code class="sql">DELETE FROM films WHERE kind &lt;&gt; 'Musical';
 </code></pre>
-    <pre><code class="sql">
+        <pre><code class="sql">
 DELETE FROM tasks WHERE status = 'DONE' RETURNING *;
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 DELETE FROM films
   WHERE producer_id IN (SELECT id FROM producers WHERE name = 'foo');
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 DELETE FROM films USING producers
   WHERE producer_id = producers.id AND producers.name = 'foo';
 </code></pre>
