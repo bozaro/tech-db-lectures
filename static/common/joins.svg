@@ -6,8 +6,7 @@
         wigth="600px"
         height="454px"
         version="1.1">
-    <defs
-            id="defs4">
+    <defs>
         <style
                 id="style4"><![CDATA[
 .filled {
@@ -39,26 +38,15 @@ text {
     dominant-baseline: hanging;
 }
 ]]></style>
-        <mask id="mask_side">
-            <path style="fill: #fff; fill-rule: evenodd"
-                  d="M-27,0m-52,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0 M27,0m-52,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0"/>
-        </mask>
-        <mask id="mask_circle">
-            <path style="fill: #fff"
-                  d="M27,0m-52,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0"/>
-        </mask>
         <path id="join_c"
               class="filled"
-              mask="url(#mask_circle)"
-              d="M-27,0m-52,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0"/>
+              d="M0,-44.5a52,52 0 0,0 0,89a52,52 0 0,0 0,-89"/>
         <path id="join_a"
               class="filled"
-              mask="url(#mask_side)"
-              d="M-27,0m-52,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0"/>
+              d="M-27,0m-52,0a52,52 0 0,0 79,44.5a52,52 0 0,1 0,-89a52,52 0 0,0 -79,44.5"/>
         <path id="join_b"
               class="filled"
-              mask="url(#mask_side)"
-              d="M27,0m-52,0a52,52 0 1,0 104,0a52,52 0 1,0 -104,0"/>
+              d="M27,0m52,0a52,52 0 0,1 -79,44.5a52,52 0 0,0 0,-89a52,52 0 0,1 79,44.5"/>
         <g id="join_l">
             <path class="lines"
                   d="M -79,0 A 52,52 0 0 0 25,0 52,52 0 1 0 -79,0 m 54,0 A 52,52 0 0 0 79,0 52,52 0 1 0 -25,0"/>
