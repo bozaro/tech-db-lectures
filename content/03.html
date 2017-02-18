@@ -1405,6 +1405,65 @@ JOIN Department D ON (E.DepartmentID = D.DepartmentID);
 </section>
 
 <section class="slide">
+    <h2>Составление запроса. Пример 1</h2>
+    <pre style="font-size: 90%"><code class="sql">CREATE TABLE highschooler (
+    id    BIGSERIAL PRIMARY KEY,
+    name  VARCHAR(128),
+    grade INT
+);
+
+CREATE TABLE friend (
+    id1 INT REFERENCES highschooler (id) ON DELETE CASCADE,
+    id2 INT REFERENCES highschooler (id) ON DELETE CASCADE
+);
+</code></pre>
+    <p>Дружба взаимная, если есть запись (123, 456), то есть и (456, 123)</p>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 1</h2>
+    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу, затем имени в классе.</p>
+    <div style="text-align: center" class="next">
+        <img src="q1s01.svg" style="width: 75%" />
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 1</h2>
+    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу, затем имени в классе.</p>
+    <div style="text-align: center">
+        <img src="q1s02.svg" style="width: 75%" />
+    </div>
+    <p align="center">
+        Есть в том же классе и нет в других классах<br/>==<br/>Есть друзья и нет в друих классах
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 1</h2>
+    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу, затем имени в классе.</p>
+    <div style="text-align: center">
+        <img src="q1s03.svg" style="width: 75%" />
+    </div>
+    <pre class="next" style="font-size: 80%; position: absolute;"><code class="sql">
+    <span style="display: none">SELECT H.name, H.grade</span>
+FROM Highschooler AS H
+JOIN Friend AS F ON (H.Id = F.Id1)
+LEFT JOIN Highschooler AS O ON (F.Id2 = O.Id AND H.Grade &lt;&gt; O.Grade)
+WHERE O.Id IS NULL
+</code></pre>
+    <pre class="next" style="font-size: 80%"><code class="sql">
+SELECT H.name, H.grade
+<span style="display: none">FROM Highschooler AS H</span>
+<span style="display: none">JOIN Friend AS F ON (H.Id = F.Id1)</span>
+<span style="display: none">LEFT JOIN Highschooler AS O ON (F.Id2 = O.Id AND H.Grade &lt;&gt; O.Grade)</span>
+<span style="display: none">WHERE O.Id IS NULL</span>
+GROUP BY H.grade, H.name, H.id
+ORDER BY H.grade, H.name
+    </code></pre>
+</section>
+
+<section class="slide">
     <h2>VIEW</h2>
     <dl>
         <dt>Представление (VIEW)</dt>
