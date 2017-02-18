@@ -806,6 +806,7 @@ SELECT * FROM sales2011;
 
 <section class="slide">
     <h2>INNER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-inner.svg">
     <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM Employee
 INNER JOIN Department
@@ -857,6 +858,7 @@ ON Employee.DepartmentID = Department.DepartmentID;
 
 <section class="slide">
     <h2>INNER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-inner.svg">
     <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM Employee, Department
 WHERE Employee.DepartmentID = Department.DepartmentID;
@@ -908,6 +910,7 @@ WHERE Employee.DepartmentID = Department.DepartmentID;
 
 <section class="slide">
     <h2>NATURAL (EQUAL) JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-inner.svg">
     <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM Employee
 NATURAL JOIN Department;
@@ -953,6 +956,7 @@ NATURAL JOIN Department;
 
 <section class="slide">
     <h2>NATURAL JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-inner.svg">
     <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM Employee
 JOIN Department USING (DepartmentID);
@@ -998,6 +1002,7 @@ JOIN Department USING (DepartmentID);
 
 <section class="slide">
     <h2>LEFT OUTER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-left.svg">
     <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM Employee
 LEFT OUTER JOIN Department
@@ -1060,7 +1065,72 @@ ON Employee.DepartmentID = Department.DepartmentID;
 </section>
 
 <section class="slide">
+    <h2>RIGHT OUTER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-right.svg">
+    <pre style="font-size: 80%"><code class="sql">SELECT Employee.*, Department.*
+FROM Department
+RIGHT OUTER JOIN Employee
+ON Employee.DepartmentID = Department.DepartmentID;
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Employee.<br/>LastName</th>
+            <th>Employee.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
     <h2>FULL OUTER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-full.svg">
     <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM Employee
 FULL OUTER JOIN Department
@@ -1134,6 +1204,7 @@ ON Employee.DepartmentID = Department.DepartmentID;
 
 <section class="slide">
     <h2>FULL OUTER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-full.svg">
     <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM Employee
 FULL OUTER JOIN Department
@@ -1311,7 +1382,30 @@ ORDER BY F.EmployeeID, S.EmployeeID;</span>
 </section>
 
 <section class="slide">
-    <h2>SELF-JOIN</h2>
+    <h2>SUBQUERIES vs JOIN</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT E.*
+FROM Employee E
+WHERE EXISTS (
+  SELECT *
+  FROM Department D
+  WHERE D.DepartmentID = E.DepartmentID
+);
+
+SELECT E.*
+FROM Employee E
+WHERE E.DepartmentID IN (
+  SELECT DepartmentID
+  FROM Department D
+);
+
+SELECT E.*
+FROM Employee E
+JOIN Department D ON (E.DepartmentID = D.DepartmentID);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>VIEW</h2>
     <dl>
         <dt>Представление (VIEW)</dt>
         <dd>Объект базы данных, являющийся результатом выполнения запроса к базе данных, определенного с помощью
