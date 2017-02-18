@@ -75,6 +75,47 @@ description: |
 </section>
 
 <section class="slide">
+    <h2>COLLATION</h2>
+    <p>В разных языках разные преобразования в верхний/нижний регистр</p>
+    <pre style="font-size: 90%"><code class="sql">SELECT
+    LOWER('WINDOWS' COLLATE "en_US.utf8"),
+    UPPER('linux' COLLATE "en_US.utf8")
+</code></pre>
+    <table class="classic bordered">
+        <thead>
+        <tr>
+            <th width="50%">lower</th>
+            <th width="50%">upper</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>windows</td>
+            <td>LINUX</td>
+        </tr>
+        </tbody>
+    </table>
+    <pre style="font-size: 90%" class="next"><code class="sql">SELECT
+    LOWER('WINDOWS' COLLATE "tr_TR.utf8"),
+    UPPER('linux' COLLATE "tr_TR.utf8")
+</code></pre>
+    <table class="classic bordered next">
+        <thead>
+        <tr>
+            <th width="50%">lower</th>
+            <th width="50%">upper</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>wındows</td>
+            <td>LİNUX</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
     <h2>LOWER(name)</h2>
     <pre style="font-size: 90%"><code class="sql">
 CREATE TABLE person (
