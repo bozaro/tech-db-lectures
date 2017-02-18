@@ -1406,6 +1406,7 @@ JOIN Department D ON (E.DepartmentID = D.DepartmentID);
 
 <section class="slide">
     <h2>Составление запроса. Пример 1</h2>
+    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу, затем имени в классе.</p>
     <pre style="font-size: 90%"><code class="sql">CREATE TABLE highschooler (
     id    BIGSERIAL PRIMARY KEY,
     name  VARCHAR(128),
@@ -1417,7 +1418,7 @@ CREATE TABLE friend (
     id2 INT REFERENCES highschooler (id) ON DELETE CASCADE
 );
 </code></pre>
-    <p>Дружба взаимная, если есть запись (123, 456), то есть и (456, 123)</p>
+    <p>Дружба взаимная, если есть запись (123, 456), то есть и (456, 123).</p>
 </section>
 
 <section class="slide">
@@ -1447,20 +1448,98 @@ CREATE TABLE friend (
     </div>
     <pre class="next" style="font-size: 80%; position: absolute;"><code class="sql">
     <span style="display: none">SELECT H.name, H.grade</span>
-FROM Highschooler AS H
-JOIN Friend AS F ON (H.Id = F.Id1)
-LEFT JOIN Highschooler AS O ON (F.Id2 = O.Id AND H.Grade &lt;&gt; O.Grade)
+FROM highschooler AS H
+JOIN friend AS F ON (H.Id = F.Id1)
+LEFT JOIN highschooler AS O ON (F.Id2 = O.Id AND H.Grade &lt;&gt; O.Grade)
 WHERE O.Id IS NULL
 </code></pre>
     <pre class="next" style="font-size: 80%"><code class="sql">
 SELECT H.name, H.grade
-<span style="display: none">FROM Highschooler AS H</span>
-<span style="display: none">JOIN Friend AS F ON (H.Id = F.Id1)</span>
-<span style="display: none">LEFT JOIN Highschooler AS O ON (F.Id2 = O.Id AND H.Grade &lt;&gt; O.Grade)</span>
+<span style="display: none">FROM highschooler AS H</span>
+<span style="display: none">JOIN friend AS F ON (H.Id = F.Id1)</span>
+<span style="display: none">LEFT JOIN highschooler AS O ON (F.Id2 = O.Id AND H.Grade &lt;&gt; O.Grade)</span>
 <span style="display: none">WHERE O.Id IS NULL</span>
 GROUP BY H.grade, H.name, H.id
 ORDER BY H.grade, H.name
     </code></pre>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 2</h2>
+    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после 1980 года.</p>
+<pre style="font-size: 80%"><code class="sql">CREATE TABLE movie (
+    mID      SERIAL PRIMARY KEY,
+    title    VARCHAR(128),
+    year     INT,
+    director VARCHAR(128)
+);
+
+CREATE TABLE rating (
+    rID        SERIAL PRIMARY KEY,
+    mID        INT REFERENCES movie (mID) ON DELETE CASCADE,
+    stars      INT,
+    ratingDate TIMESTAMP
+);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 2</h2>
+    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после 1980 года.</p>
+    <pre style="font-size: 80%; position: absolute"><code class="sql">
+<span style="display: none">SELECT</span>
+<span style="display: none">    AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) AS after,</span>
+<span style="display: none">    AVG(CASE WHEN year < 1980 THEN stars ELSE NULL END) AS before</span>
+<span style="display: none">FROM (</span>
+    SELECT M.mID, M.year, AVG(R.stars) as stars
+    FROM movie M
+    JOIN rating R USING (mID)
+    GROUP BY M.mID, M.year
+<span style="display: none">) AS R</span>
+</code></pre>
+    <pre class="next" style="font-size: 80%"><code class="sql">
+SELECT
+    AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) AS after,
+    AVG(CASE WHEN year < 1980 THEN stars ELSE NULL END) AS before
+FROM (
+<span style="display: none">    SELECT M.mID, M.year, AVG(R.stars) as stars</span>
+<span style="display: none">    FROM Movie M</span>
+<span style="display: none">    JOIN Rating R USING (mID)</span>
+<span style="display: none">    GROUP BY M.mID, M.year</span>
+) AS R
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 2</h2>
+    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после 1980 года.</p>
+    <pre style="font-size: 80%; position: absolute"><code class="sql">
+SELECT
+    AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) -
+    AVG(CASE WHEN year < 1980 THEN stars ELSE NULL END) AS result
+FROM (
+    SELECT M.mID, M.year, AVG(R.stars) as stars
+    FROM movie M
+    JOIN rating R USING (mID)
+    GROUP BY M.mID, M.year
+) AS R
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 2</h2>
+    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после 1980 года.</p>
+    <pre style="font-size: 80%; position: absolute"><code class="sql">
+SELECT R.s_after - R.s_before AS result
+FROM (
+    SELECT
+        AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) AS s_after,
+        AVG(CASE WHEN year < 1980 THEN stars ELSE NULL END) AS s_before
+    FROM movie M 
+    JOIN rating R USING (mID)
+    GROUP BY M.mID
+) AS R
+</code></pre>
 </section>
 
 <section class="slide">
