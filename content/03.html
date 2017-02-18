@@ -75,6 +75,41 @@ description: |
 </section>
 
 <section class="slide">
+    <h2>LOWER(name)</h2>
+    <pre style="font-size: 90%"><code class="sql">
+CREATE TABLE person (
+    id SERIAL PRIMARY KEY,
+    name TEXT COLLATE "ru_RU.utf8",
+    ...
+);
+CREATE UNIQUE INDEX uniq_name ON person (LOWER(name));
+
+SELECT * FROM person WHERE LOWER(name) = LOWER('Jack Sparrow');
+
+</code></pre>
+    <p>Проблемы:</p>
+    <ul>
+        <li>Нужно не забывать LOWER(name) во всех запросах.</li>
+        <li>Если вы объявляете столбец как UNIQUE или PRIMARY KEY, неявно создаваемый индекс будет чувствительным к регистру.</li>
+    <ul>
+</section>
+
+<section class="slide">
+    <h2>CITEXT</h2>
+    <pre style="font-size: 90%"><code class="sql">CREATE EXTENSION IF NOT EXISTS citext;
+CREATE TABLE person (
+    id SERIAL PRIMARY KEY,
+    name CITEXT COLLATE "ru_RU.utf8",
+    ...
+);
+CREATE UNIQUE INDEX uniq_name ON person (name);
+
+SELECT * FROM person WHERE name = 'Jack Sparrow';
+
+</code></pre>
+</section>
+
+<section class="slide">
     <h2>INSERT</h2>
     <pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | DELAYED | HIGH_PRIORITY] [IGNORE]
     [INTO] tbl_name [(col_name,...)]
