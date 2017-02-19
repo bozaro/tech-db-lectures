@@ -1435,9 +1435,62 @@ JOIN Department D ON (E.DepartmentID = D.DepartmentID);
 </section>
 
 <section class="slide">
+    <h2>FAKE TABLE</h2>
+    <div style="font-size: 80%">
+    <pre><code class="sql">SELECT 1 AS n UNION ALL
+SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5;
+</code></pre>
+    <pre><code class="sql next">
+WITH RECURSIVE series(n) AS (
+  SELECT 1
+  UNION ALL
+  SELECT n + 1 FROM series WHERE n < 5
+)
+SELECT * FROM series ORDER BY n;
+</code></pre>
+    <pre><code class="sql next">
+SELECT n FROM unnest(ARRAY[
+    1, 2, 3, 4, 5
+]) n ORDER BY n;
+</code></pre>
+    <pre><code class="sql next">
+SELECT n
+FROM generate_series(1, 5) n;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Получение идентификаторов до вставки</h2>
+    <pre><code class="sql">CREATE TABLE city (
+    id bigserial NOT NULL PRIMARY KEY,
+    region_id bigint NOT NULL,
+    name varchar(128) NOT NULL
+);
+
+SELECT nextval(pg_get_serial_sequence('city', 'id'));
+</code></pre>
+    <pre><code class="sql next">
+SELECT nextval(pg_get_serial_sequence('city', 'id'))
+FROM generate_series(1, 100);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>SELF UNION</h2>
+    <pre><code class="sql">SELECT col1 FROM tbl
+UNION ALL
+SELECT col2 FROM tbl;
+</code></pre>
+    <pre><code class="sql next">
+SELECT unnest(array[col1, col2]) as col1 FROM tbl;
+</code></pre>
+</section>
+
+<section class="slide">
     <h2>WITH RECURSIVE</h2>
     <pre><code class="sql" style="font-size: 80%">WITH RECURSIVE recursetree (id, path, name) AS (
-    SELECT id, array_append('{}'::int[], id), name FROM tree
+    SELECT id, array[id], name FROM tree
     WHERE parent_id = 0
   UNION ALL
     SELECT t.id, array_append(path, t.id), t.name
