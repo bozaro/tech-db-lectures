@@ -1,0 +1,65 @@
+---
+title: Docker
+description: |
+  Вводная лекция про Docker.
+
+   - Почему Docker?
+   - Какие есть виды вируализации?
+   - Что такое Dockerfile?
+   - Работа с контейнерами.
+---
+<section class="slide">
+    <h2>Docker</h2>
+    <img src="docker.svg" style="position: absolute; bottom: 50px; right: 50px; width: 320px"/>
+    <ul>
+        <li>Почему Docker?</li>
+        <li>Какие есть виды вируализации?</li>
+        <li>Что такое Dockerfile?</li>
+        <li>Работа с контейнерами.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Почему Docker?</h2>
+    <h3>Как проходила сдача семестровых работ раньше?</h3>
+    <ul>
+        <li>Студентам выдавали по виртуальной машине;</li>
+        <li>Каждый локально растраивал виртуальную машину и разворачивал там приложение и окружение;</li>
+        <li>С преподавательской виртуальной машины скрипт осуществлял нагрузочное тестирование.
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Почему Docker?</h2>
+    <h3>В чем проблема?</h3>
+    <ul>
+        <li class="next">В случае если виртуальная машина сломалась, её может восстановить только администратор;</li>
+        <li class="next">Производительность виртуальной машины не предсказуема;</li>
+        <li class="next">Нет никакой гарантии, что на тестируемой машине и в репозитории студента один и тот же проект.
+            <img src="facepalm.png" style="z-index: -1; position: absolute; bottom: 0px; right: 50px; height: 300px"/>
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Почему Docker?</h2>
+    <h3>Что делать?</h3>
+    <ul>
+        <li>Студент пишет инструкцию по установке приложения;</li>
+        <li>Преподавать устанавливает приложение на эталонном компьтере и проводит нагрузочное тестирование.</li>
+    </ul>
+    <div class="next">
+        <p>Но есть проблема...</p>
+        <img src="queue.jpg" style="z-index: -1; position: absolute; bottom: 50px; right: 50px; height: 300px"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Почему Docker?</h2>
+    <h3>Решение:</h3>
+    <ul>
+        <li>Студент пишет инструкцию по установке приложения: Dockerfile;</li>
+        <li>Автоматизированные установка и проведение нагрузочного тестирования на эталонном компьтере.</li>
+    </ul>
+    <img src="profit.jpg" style="z-index: -1; position: absolute; bottom: 50px; right: 50px; width: 400px"/>
+</section>
