@@ -116,6 +116,17 @@ description: |
 </section>
 
 <section class="slide">
+    <h2>COLLATION</h2>
+    <p>В PostgreSQL поддержка COLLATION реализована на базе C-функции strcoll_l.</p>
+    <p>Это порождает ряд проблем:</p>
+    <ul>
+        <li>Список COLLATION-ов зависит от настроек операционной системы;</li>
+        <li>Разное поведение COLLATION-ов под Linux/Windows/MacOS;</li>
+        <li>Нет регистронезависимого сравнения.</li>
+    </ul>
+</section>
+
+<section class="slide">
     <h2>LOWER(name)</h2>
     <pre style="font-size: 90%"><code class="sql">
 CREATE TABLE person (
