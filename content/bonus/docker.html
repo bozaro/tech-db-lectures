@@ -117,3 +117,49 @@ description: |
 		<img src="docker-io-rnd.png" style="max-width: 100%; max-height: 460px" />
 	</div>
 </section>
+
+<section class="slide">
+	<h2>Dockerfile</h2>
+	<pre><code>FROM ubuntu:16.04
+MAINTAINER Artem V. Navrotskiy
+RUN apt-get -y update
+RUN apt-get install -y openjdk-8-jdk-headless
+ENV WORK /opt/tech-db-hello
+ADD java-spring/ $WORK/java-spring/
+ADD common/ $WORK/common/
+WORKDIR $WORK/java-spring
+RUN ./gradlew assemble
+EXPOSE 5000
+CMD java -Xmx300M -Xmx300M -jar \
+    $WORK/java-spring/build/libs/java-spring.jar
+</code></pre>
+</section>
+
+<section class="slide">
+	<h2>Dockerfile</h2>
+	<h3>Сборка:</h3>
+	<pre><code class="bash">docker build -t hello-docker
+</code></pre>
+	<h3>Результат сборки:</h3>
+	<pre><code class="bash">docker history hello-docker
+</code></pre>
+	<pre style="font-size: 50%"><code>
+IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+142e08487e9f        3 minutes ago       /bin/sh -c #(nop)  CMD ["/bin/sh" "-c" "java    0 B                 
+89554758e753        3 minutes ago       /bin/sh -c #(nop)  EXPOSE 5000/tcp              0 B                 
+5bf1ec77528d        3 minutes ago       /bin/sh -c ./gradlew assemble                   209.4 MB            
+f627d2a79e3b        5 minutes ago       /bin/sh -c #(nop)  WORKDIR /opt/tech-db-hello   0 B                 
+c86551883943        5 minutes ago       /bin/sh -c #(nop) ADD dir:f6c361eff4dcd18df9a   3.968 MB            
+854f85a7870a        5 minutes ago       /bin/sh -c #(nop) ADD dir:b3d037b5a457bd71162   23.65 MB            
+92a00899fc26        5 minutes ago       /bin/sh -c #(nop)  ENV WORK=/opt/tech-db-hell   0 B                 
+329813b55a21        5 minutes ago       /bin/sh -c apt-get install -y openjdk-8-jdk-h   186.1 MB            
+7c973a535a50        5 minutes ago       /bin/sh -c apt-get -y update                    39.76 MB            
+f0c74fcd39ff        5 minutes ago       /bin/sh -c #(nop)  MAINTAINER Artem V. Navrot   0 B                 
+104bec311bcd        9 weeks ago         /bin/sh -c #(nop)  CMD ["/bin/bash"]            0 B                 
+&lt;missing>           9 weeks ago         /bin/sh -c mkdir -p /run/systemd &amp;&amp; echo 'doc   7 B                 
+&lt;missing>           9 weeks ago         /bin/sh -c sed -i 's/^#\s*\(deb.*universe\)$/   1.895 kB            
+&lt;missing>           9 weeks ago         /bin/sh -c rm -rf /var/lib/apt/lists/*          0 B                 
+&lt;missing>           9 weeks ago         /bin/sh -c set -xe   &amp;&amp; echo '#!/bin/sh' > /u   745 B               
+&lt;missing>           9 weeks ago         /bin/sh -c #(nop) ADD file:7529d28035b43a2281   128.9 MB  
+</code></pre>
+</section>
