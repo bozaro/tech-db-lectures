@@ -120,7 +120,7 @@ description: |
 
 <section class="slide">
 	<h2>Dockerfile</h2>
-	<pre><code>FROM ubuntu:16.04
+	<pre><code class="text">FROM ubuntu:16.04
 MAINTAINER Artem V. Navrotskiy
 RUN apt-get -y update
 RUN apt-get install -y openjdk-8-jdk-headless
@@ -143,7 +143,7 @@ CMD java -Xmx300M -Xmx300M -jar \
 	<h3>Результат сборки:</h3>
 	<pre><code class="bash">docker history hello-docker
 </code></pre>
-	<pre style="font-size: 50%"><code>
+	<pre style="font-size: 50%"><code class="text">
 IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
 142e08487e9f        3 minutes ago       /bin/sh -c #(nop)  CMD ["/bin/sh" "-c" "java    0 B                 
 89554758e753        3 minutes ago       /bin/sh -c #(nop)  EXPOSE 5000/tcp              0 B                 
@@ -162,4 +162,10 @@ f0c74fcd39ff        5 minutes ago       /bin/sh -c #(nop)  MAINTAINER Artem V. N
 &lt;missing>           9 weeks ago         /bin/sh -c set -xe   &amp;&amp; echo '#!/bin/sh' > /u   745 B               
 &lt;missing>           9 weeks ago         /bin/sh -c #(nop) ADD file:7529d28035b43a2281   128.9 MB  
 </code></pre>
+</section>
+
+<section class="slide">
+	<h2>Работа с контейнером</h2>
+	<h3>Запуск:</h3>
+	<pre><code class="bash">docker run -n hello hello-docker</code>
 </section>
