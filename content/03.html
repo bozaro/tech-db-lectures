@@ -1800,13 +1800,14 @@ FROM (
             оператора SELECT, в момент обращения к представлению.
         </dd>
     </dl>
-    <pre><code class="sql">CREATE
-    [OR REPLACE]
-    [ALGORITHM = {UNDEFINED | MERGE | TEMPTABLE}]
-    [DEFINER = { user | CURRENT_USER }]
-    [SQL SECURITY { DEFINER | INVOKER }]
-VIEW view_name [(column_list)] AS select_statement
-    [WITH [CASCADED | LOCAL] CHECK OPTION];
+    <pre style="font-size: 90%"><code class="sql">CREATE
+    [ OR REPLACE ]
+    [ TEMP | TEMPORARY ]
+    [ RECURSIVE ]
+VIEW name [ ( column_name [, ...] ) ]
+    [ WITH ( view_option_name [= view_option_value] [, ... ] ) ]
+    AS query
+    [ WITH [ CASCADED | LOCAL ] CHECK OPTION ];
 </code></pre>
 </section>
 
@@ -1827,19 +1828,17 @@ VIEW view_name [(column_list)] AS select_statement
     <h2>Ограничения VIEW</h2>
     <ul>
         <li>Нельзя повесить триггер на представление;</li>
-        <li>Нельзя сделать представление на основе временных таблиц;</li>
-        <li>Нельзя сделать временное представление;</li>
-        <li>В определении представления нельзя использовать подзапрос в части FROM;</li>
-        <li>В определении представления нельзя использовать системные и пользовательские переменные;</li>
         <li>Таблицы и представления, присутствующие в определении представления должны существовать.</li>
     </ul>
 </section>
 
 <section class="slide">
     <h2>Особенности VIEW</h2>
+    <div style="font-size: 90%">
     <pre><code class="sql">CREATE VIEW v AS
-    SELECT a.id, b.id FROM a,b;
--- Error Code: 1060. Duplicate column name 'id'
+    SELECT a.id, b.id FROM a, b;
+-- ERROR: column "id" specified more than once
+-- SQL-состояние: 42701
 </code></pre>
     <pre class="next"><code class="sql">
 CREATE VIEW v (a_id, b_id) AS
@@ -1854,6 +1853,7 @@ CREATE VIEW v AS
     )
     FROM table_name;
 </code></pre>
+    </div>
 </section>
 
 <section class="slide">
