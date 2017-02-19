@@ -1,189 +1,196 @@
 ---
 title: Лекция 3
 description: |
-  Тема данной лекции:
+  Выборка данных (продолжение).
 
-  - INSERT, UPDATE, DELETE;
-  - Переменные;
-  - Подзапросы;
-  - UNION;
-  - JOIN-ы;
-  - VIEW.
-draft: true
+   - COLLATION и регистронезависимый поиск;
+   - Выборка данных:
+     - Еще раз про JOIN-ы;
+     - Подзапросы;
+     - Агрегация;
+     - HAVING, GROUP, ORDER BY;
+     - UNION;
+     - Рекурсивные запросы.
+   - VIEW.
 ---
 <section class="slide">
-    <h2>INSERT</h2>
-    <pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | DELAYED | HIGH_PRIORITY] [IGNORE]
-    [INTO] tbl_name [(col_name,...)]
-    {VALUES | VALUE} ({expr | DEFAULT},...),(...),...
-    [ ON DUPLICATE KEY UPDATE
-      col_name=expr
-        [, col_name=expr] ... ]
-</code></pre>
-    <p>Or:</p>
-    <pre style="font-size: 90%"><code class="sql">INSERT [LOW_PRIORITY | DELAYED | HIGH_PRIORITY] [IGNORE]
-    [INTO] tbl_name
-    SET col_name={expr | DEFAULT}, ...
-    [ ON DUPLICATE KEY UPDATE
-      col_name=expr
-        [, col_name=expr] ... ]
-</code></pre>
+    <h2>Регистронезависимый поиск</h2>
+    <ul>
+        <li>COLLATION</li>
+        <li>LOWER(name)</li>
+        <li>CITEXT</li>
+    </ul>
 </section>
 
 <section class="slide">
-    <h2>INSERT</h2>
-    <pre><code class="sql">INSERT [LOW_PRIORITY | HIGH_PRIORITY] [IGNORE]
-    [INTO] tbl_name [(col_name,...)]
-    SELECT ...
-    [ ON DUPLICATE KEY UPDATE
-      col_name=expr
-        [, col_name=expr] ... ]
-</code></pre>
-</section>
-
-<section class="slide">
-    <h2>INSERT</h2>
-    <pre><code class="sql">INSERT INTO tbl_temp2 (fld_id)
-    SELECT 
-        tbl_temp1.fld_order_id
-    FROM 
-        tbl_temp1 
-    WHERE 
-        tbl_temp1.fld_order_id > 100;
- 
-INSERT INTO table (a,b,c) VALUES (1,2,3) 
-    ON DUPLICATE KEY UPDATE c=c+1;
- 
-INSERT INTO table (a,b,c) VALUES (1,2,3),(4,5,6) 
-    ON DUPLICATE KEY UPDATE c=VALUES(a)+VALUES(b);
-</code></pre>
-</section>
-
-<section class="slide">
-    <h2>UPDATE</h2>
-    <pre style="font-size: 80%"><code class="sql">UPDATE [LOW_PRIORITY] [IGNORE] table_reference
-    SET col_name1={expr1|DEFAULT} [, col_name2={expr2|DEFAULT}] ...
-    [WHERE where_condition]
-    [ORDER BY ...]
-    [LIMIT row_count]
-</code></pre>
-    <p>Multiple-table syntax:</p> 
-    <pre style="font-size: 80%"><code class="sql">UPDATE [LOW_PRIORITY] [IGNORE] table_references
-    SET col_name1={expr1|DEFAULT} [, col_name2={expr2|DEFAULT}] ...
-    [WHERE where_condition]
-</code></pre>
-</section>
-
-<section class="slide">
-    <h2>DELETE</h2>
-    <pre style="font-size: 80%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE] FROM tbl_name
-    [WHERE where_condition]
-    [ORDER BY ...]
-    [LIMIT row_count]
-</code></pre>
-    <p>Multiple-table syntax:</p>
-    <pre style="font-size: 80%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
-    tbl_name[.*] [, tbl_name[.*]] ...
-    FROM table_references
-    [WHERE where_condition]
-</code></pre>
-    <p>Or:</p>
-    <pre style="font-size: 80%"><code class="sql">DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
-    FROM tbl_name[.*] [, tbl_name[.*]] ...
-    USING table_references
-    [WHERE where_condition]
-</code></pre>
-</section>
-
-<section class="slide">
-    <h2>DELETE</h2>
-    <pre style="font-size: 80%"><code class="sql">DELETE
-    t1, t2 
-FROM 
-    t1 INNER JOIN t2 
-    INNER JOIN t3 
-WHERE 
-    t1.id=t2.id AND t2.id=t3.id;
-</code></pre>
-    <p>Or:</p>
-    <pre style="font-size: 80%"><code class="sql">DELETE FROM
-    t1, t2 
-USING 
-    t1 INNER JOIN t2 
-    INNER JOIN t3 
-WHERE 
-    t1.id=t2.id AND t2.id=t3.id;
-</code></pre>
-</section>
-
-<section class="slide">
-    <h2>Пользовательские переменные</h2>
-    <pre style="font-size: 80%"><code class="sql">SET @var_name = expr [, @var_name = expr] ...
-
-SET @t1 = 1, @t2 = 2, @t3 := 4;
-SELECT @t1, @t2, @t3, @t4 := @t1 + @t2 + @t3
-</code></pre>
-    <table class="classic bordered">
+    <h2>COLLATION</h2>
+    <p>Простая сортировка обычно даёт не тот результат, который ожидается пользователем.</p>
+    <table class="classic bordered" style="font-size: 90%">
         <thead>
         <tr>
-            <th>@t1</th>
-            <th>@t2</th>
-            <th>@t3</th>
-            <th>@t4 := @t1 + @t2 + @t3</th>
+            <th width="33%">ucs_basic (C)</th>
+            <th width="34%">en_US.utf8 (ISO-14651)</th>
+            <th width="33%">ru_RU.utf8</th>
         </tr>
         </thead>
         <tbody>
         <tr>
-            <td>1</td>
-            <td>2</td>
-            <td>4</td>
-            <td>7</td>
+            <td>_ель</td>
+            <td>ґвалт</td>
+            <td>джаз</td>
+        </tr>
+        <tr>
+            <td>Есенин</td>
+            <td>джаз</td>
+            <td>ґвалт</td>
+        </tr>
+        <tr>
+            <td>джаз</td>
+            <td>ель</td>
+            <td>ель</td>
+        </tr>
+        <tr>
+            <td>ель</td>
+            <td>_ель</td>
+            <td>_ель</td>
+        </tr>
+        <tr>
+            <td>жаркое</td>
+            <td>Есенин</td>
+            <td>Есенин</td>
+        </tr>
+        <tr>
+            <td>ёжик</td>
+            <td>ёжик</td>
+            <td>ёжик</td>
+        </tr>
+        <tr>
+            <td>ґвалт</td>
+            <td>жаркое</td>
+            <td>жаркое</td>
         </tr>
         </tbody>
     </table>
-    <div class="next">
-        <pre style="font-size: 80%"><code class="sql">SELECT @t1 := (@t2 := 1) + @t3 := 4, @t1, @t2, @t3;</code></pre>
-        <table class="classic bordered">
-            <thead>
-            <tr>
-                <th>@t1 := (@t2 := 1) + @t3 := 4</th>
-                <th>@t1</th>
-                <th>@t2</th>
-                <th>@t3</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>5</td>
-                <td>5</td>
-                <td>1</td>
-                <td>4</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-    <pre class="next" style="font-size: 80%"><code class="sql">SET @i := 0;
-SELECT @i := @i + 1 AS row_number, t.* FROM your_table AS t;
- 
-SELECT @i := @i + 1 AS row_number, t.*
-FROM your_table AS t, (SELECT @i:=0) AS z;
+    <a href="http://collation-charts.org/mysql60/mysql604.utf8_general_ci.european.html">http://collation-charts.org/mysql60/mysql604.utf8_general_ci.european.html</a>
+</section>
+
+<section class="slide">
+    <h2>COLLATION</h2>
+    <p>В разных языках разные преобразования в верхний/нижний регистр</p>
+    <pre style="font-size: 90%"><code class="sql">SELECT
+    LOWER('WINDOWS' COLLATE "en_US.utf8"),
+    UPPER('linux' COLLATE "en_US.utf8")
+</code></pre>
+    <table class="classic bordered">
+        <thead>
+        <tr>
+            <th width="50%">lower</th>
+            <th width="50%">upper</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>windows</td>
+            <td>LINUX</td>
+        </tr>
+        </tbody>
+    </table>
+    <pre style="font-size: 90%" class="next"><code class="sql">SELECT
+    LOWER('WINDOWS' COLLATE "tr_TR.utf8"),
+    UPPER('linux' COLLATE "tr_TR.utf8")
+</code></pre>
+    <table class="classic bordered next">
+        <thead>
+        <tr>
+            <th width="50%">lower</th>
+            <th width="50%">upper</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>wındows</td>
+            <td>LİNUX</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>COLLATION</h2>
+    <p>В PostgreSQL поддержка COLLATION реализована на базе C-функции strcoll_l.</p>
+    <p>Это порождает ряд проблем:</p>
+    <ul>
+        <li>Список COLLATION-ов зависит от настроек операционной системы;</li>
+        <li>Разное поведение COLLATION-ов под Linux/Windows/MacOS;</li>
+        <li>Нет регистронезависимого сравнения.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>LOWER(name)</h2>
+    <pre style="font-size: 90%"><code class="sql">
+CREATE TABLE person (
+    id SERIAL PRIMARY KEY,
+    name TEXT COLLATE "ru_RU.utf8",
+    ...
+);
+CREATE UNIQUE INDEX uniq_name ON person (LOWER(name));
+
+SELECT * FROM person WHERE LOWER(name) = LOWER('Jack Sparrow');
+
+</code></pre>
+    <p>Проблемы:</p>
+    <ul>
+        <li>Нужно не забывать LOWER(name) во всех запросах.</li>
+        <li>Если вы объявляете столбец как UNIQUE или PRIMARY KEY, неявно создаваемый индекс будет чувствительным к регистру.</li>
+    <ul>
+</section>
+
+<section class="slide">
+    <h2>CITEXT</h2>
+    <pre style="font-size: 90%"><code class="sql">CREATE EXTENSION IF NOT EXISTS citext;
+CREATE TABLE person (
+    id SERIAL PRIMARY KEY,
+    name CITEXT COLLATE "ru_RU.utf8",
+    ...
+);
+CREATE UNIQUE INDEX uniq_name ON person (name);
+
+SELECT * FROM person WHERE name = 'Jack Sparrow';
+
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>SELECT</h2>
+    <pre style="font-size: 70%"><code class="sql">[ WITH [ RECURSIVE ] with_query [, ...] ]
+SELECT [ ALL | DISTINCT [ ON ( expression [, ...] ) ] ]
+    [ * | expression [ [ AS ] output_name ] [, ...] ]
+    [ FROM from_item [, ...] ]
+    [ WHERE condition ]
+    [ GROUP BY grouping_element [, ...] ]
+    [ HAVING condition [, ...] ]
+    [ { UNION | INTERSECT | EXCEPT } [ ALL | DISTINCT ] select ]
+    [ ORDER BY expression [ ASC | DESC | USING operator ] [, ...] ]
+    [ LIMIT { count | ALL } ]
+    [ OFFSET start [ ROW | ROWS ] ]
+    [ FETCH { FIRST | NEXT } [ count ] { ROW | ROWS } ONLY ]
+    [ FOR { UPDATE | NO KEY UPDATE | SHARE | KEY SHARE }
+        [ OF table_name [, ...] ] [ NOWAIT | SKIP LOCKED ] [...] ]
 </code></pre>
 </section>
 
 <section class="slide">
     <h2>SUBQUERIES</h2>
-    <pre style="font-size: 80%"><code class="sql">
+    <pre style="font-size: 90%"><code class="sql">
 SELECT
     col0,
     (SELECT col1 FROM table1 WHERE table1.id = table0.id),
     (SELECT col2 FROM table1 WHERE table1.id = table0.id)
 FROM
     table0;
-</code></pre>
-    <pre><code>non_subquery_operand comparison_operator (subquery)
-=  &gt;  &lt;  &gt;=  &lt;=  &lt;&gt;  !=  LIKE</code></pre>
-    </code></pre>
-    <pre style="font-size: 80%"><code class="sql">SELECT *
+
+SELECT *
 FROM t1
 WHERE column1 = (SELECT MAX(column2) FROM t2);
 
@@ -193,28 +200,28 @@ WHERE 2 = (SELECT COUNT(*) FROM t1 WHERE t1.id = t.id);</code></pre>
 </section>
 
 <section class="slide">
-    <h2>SUBQUERIES</h2>
-    <pre style="font-size: 80%"><code class="sql">perand comparison_operator ANY (subquery)
-operand IN (subquery) operand
-comparison_operator SOME (subquery)
+    <h2>SUBQUERIES: Expressions</h2>
+    <ul class="compact">
+        <li>EXISTS (subquery)
+        <li>expression [NOT] IN (subquery)
+        <li>expression operator ANY/SOME (subquery)
+        <li>expression operator ALL (subquery)
+    </ul>
+    <pre style="font-size: 90%"><code class="sql">SELECT s1 FROM t1 WHERE s1 > ANY (SELECT s1 FROM t2);
  
-    SELECT s1 FROM t1 WHERE s1 > ANY (SELECT s1 FROM t2);
+SELECT s1 FROM t1 WHERE s1 = ANY (SELECT s1 FROM t2);
+SELECT s1 FROM t1 WHERE s1 IN (SELECT s1 FROM t2);
  
-    SELECT s1 FROM t1 WHERE s1 = ANY (SELECT s1 FROM t2);
-    SELECT s1 FROM t1 WHERE s1 IN (SELECT s1 FROM t2);
+SELECT s1 FROM t1 WHERE s1 > ALL (SELECT s1 FROM t2);
  
-operand comparison_operator ALL (subquery)
- 
-    SELECT s1 FROM t1 WHERE s1 > ALL (SELECT s1 FROM t2);
- 
-    SELECT s1 FROM t1 WHERE s1 <> ALL (SELECT s1 FROM t2);
-    SELECT s1 FROM t1 WHERE s1 NOT IN (SELECT s1 FROM t2);
+SELECT s1 FROM t1 WHERE s1 &lt;&gt; ALL (SELECT s1 FROM t2);
+SELECT s1 FROM t1 WHERE s1 NOT IN (SELECT s1 FROM t2);
 </code></pre>
 </section>
 
 <section class="slide">
     <h2>ROW SUBQUERIES</h2>
-    <pre style="font-size: 80%"><code class="sql">SELECT *
+    <pre style="font-size: 90%"><code class="sql">SELECT *
 FROM t1
 WHERE (col1, col2)
 	= (SELECT col3, col4 FROM t2 WHERE id = 10);
@@ -234,7 +241,7 @@ WHERE (column1, column2, column3)
 
 <section class="slide">
     <h2>[NOT] EXISTS</h2>
-    <pre style="font-size: 80%"><code class="sql">SELECT DISTINCT store_type
+    <pre style="font-size: 90%"><code class="sql">SELECT DISTINCT store_type
 FROM stores
 WHERE EXISTS (
     SELECT *
@@ -254,7 +261,7 @@ WHERE NOT EXISTS (
 
 <section class="slide">
     <h2>SUBQUERIES in FROM</h2>
-    <pre style="font-size: 80%"><code class="sql">SELECT ... FROM (subquery) [AS] name ...
+    <pre style="font-size: 90%"><code class="sql">SELECT ... FROM (subquery) [AS] name ...
  
 SELECT AVG(sum_column1)
 FROM (
@@ -340,20 +347,20 @@ SELECT * FROM sales2011;
                 </thead>
                 <tbody>
                 <tr>
-                    <td>Joe</td>
-                    <td>1000</td>
-                </tr>
-                <tr>
-                    <td>Joe</td>
-                    <td>2000</td>
-                </tr>
-                <tr>
                     <td>Alex</td>
                     <td>2000</td>
                 </tr>
                 <tr>
                     <td>Bob</td>
                     <td>5000</td>
+                </tr>
+                <tr>
+                    <td>Joe</td>
+                    <td>1000</td>
+                </tr>
+                <tr>
+                    <td>Joe</td>
+                    <td>2000</td>
                 </tr>
                 <tr>
                     <td>Zach</td>
@@ -380,20 +387,20 @@ SELECT * FROM sales2011;
                     <td>1000</td>
                 </tr>
                 <tr>
-                    <td>Joe</td>
-                    <td>2000</td>
-                </tr>
-                <tr>
-                    <td>Alex</td>
-                    <td>2000</td>
-                </tr>
-                <tr>
                     <td>Alex</td>
                     <td>2000</td>
                 </tr>
                 <tr>
                     <td>Bob</td>
                     <td>5000</td>
+                </tr>
+                <tr>
+                    <td>Joe</td>
+                    <td>2000</td>
+                </tr>
+                <tr>
+                    <td>Alex</td>
+                    <td>2000</td>
                 </tr>
                 <tr>
                     <td>Zach</td>
@@ -829,6 +836,7 @@ SELECT * FROM sales2011;
 
 <section class="slide">
     <h2>INNER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-inner.svg">
     <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM Employee
 INNER JOIN Department
@@ -880,6 +888,7 @@ ON Employee.DepartmentID = Department.DepartmentID;
 
 <section class="slide">
     <h2>INNER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-inner.svg">
     <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM Employee, Department
 WHERE Employee.DepartmentID = Department.DepartmentID;
@@ -931,6 +940,7 @@ WHERE Employee.DepartmentID = Department.DepartmentID;
 
 <section class="slide">
     <h2>NATURAL (EQUAL) JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-inner.svg">
     <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM Employee
 NATURAL JOIN Department;
@@ -976,6 +986,7 @@ NATURAL JOIN Department;
 
 <section class="slide">
     <h2>NATURAL JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-inner.svg">
     <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM Employee
 JOIN Department USING (DepartmentID);
@@ -1021,6 +1032,7 @@ JOIN Department USING (DepartmentID);
 
 <section class="slide">
     <h2>LEFT OUTER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-left.svg">
     <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM Employee
 LEFT OUTER JOIN Department
@@ -1083,7 +1095,72 @@ ON Employee.DepartmentID = Department.DepartmentID;
 </section>
 
 <section class="slide">
+    <h2>RIGHT OUTER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-right.svg">
+    <pre style="font-size: 80%"><code class="sql">SELECT Employee.*, Department.*
+FROM Department
+RIGHT OUTER JOIN Employee
+ON Employee.DepartmentID = Department.DepartmentID;
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Employee.<br/>LastName</th>
+            <th>Employee.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
     <h2>FULL OUTER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-full.svg">
     <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM Employee
 FULL OUTER JOIN Department
@@ -1157,6 +1234,7 @@ ON Employee.DepartmentID = Department.DepartmentID;
 
 <section class="slide">
     <h2>FULL OUTER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-full.svg">
     <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM Employee
 FULL OUTER JOIN Department
@@ -1334,20 +1412,402 @@ ORDER BY F.EmployeeID, S.EmployeeID;</span>
 </section>
 
 <section class="slide">
-    <h2>SELF-JOIN</h2>
+    <h2>SUBQUERIES vs JOIN</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT E.*
+FROM Employee E
+WHERE EXISTS (
+  SELECT *
+  FROM Department D
+  WHERE D.DepartmentID = E.DepartmentID
+);
+
+SELECT E.*
+FROM Employee E
+WHERE E.DepartmentID IN (
+  SELECT DepartmentID
+  FROM Department D
+);
+
+SELECT E.*
+FROM Employee E
+JOIN Department D ON (E.DepartmentID = D.DepartmentID);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>FAKE TABLE</h2>
+    <div style="font-size: 80%">
+    <pre><code class="sql">SELECT 1 AS n UNION ALL
+SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5;
+</code></pre>
+    <pre><code class="sql next">
+WITH RECURSIVE series(n) AS (
+  SELECT 1
+  UNION ALL
+  SELECT n + 1 FROM series WHERE n < 5
+)
+SELECT * FROM series ORDER BY n;
+</code></pre>
+    <pre><code class="sql next">
+SELECT n FROM unnest(ARRAY[
+    1, 2, 3, 4, 5
+]) n ORDER BY n;
+</code></pre>
+    <pre><code class="sql next">
+SELECT n
+FROM generate_series(1, 5) n;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Получение идентификаторов до вставки</h2>
+    <pre><code class="sql">CREATE TABLE city (
+    id bigserial NOT NULL PRIMARY KEY,
+    region_id bigint NOT NULL,
+    name varchar(128) NOT NULL
+);
+
+SELECT nextval(pg_get_serial_sequence('city', 'id'));
+</code></pre>
+    <pre><code class="sql next">
+SELECT nextval(pg_get_serial_sequence('city', 'id'))
+FROM generate_series(1, 100);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>SELF UNION</h2>
+    <pre><code class="sql">SELECT col1 FROM tbl
+UNION ALL
+SELECT col2 FROM tbl;
+</code></pre>
+    <pre><code class="sql next">
+SELECT unnest(array[col1, col2]) as col1 FROM tbl;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>WITH RECURSIVE</h2>
+    <pre><code class="sql" style="font-size: 80%">WITH RECURSIVE recursetree (id, path, name) AS (
+    SELECT id, array[id], name FROM tree
+    WHERE parent_id = 0
+  UNION ALL
+    SELECT t.id, array_append(path, t.id), t.name
+    FROM tree t
+    JOIN recursetree rt ON rt.id = t.parent_id
+  )
+SELECT id, array_to_string(path, '.') as path, name FROM recursetree
+ORDER BY path;
+</code></pre>
+    <table class="classic bordered next" style="font-size: 67%">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>path</th>
+            <th>name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>1</td>
+            <td>Россия</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>1.3</td>
+            <td>Москва</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>1.3.6</td>
+            <td>Бутово</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>2</td>
+            <td>США</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>2.4</td>
+            <td>Нью Йорк</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>2.5</td>
+            <td>Вашингтон</td>
+        </tr>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Еще немного про WITH</h2>
+    <p>Надо всем аватарам, у которых сдан квест на "Кащея" отправить "Меч кладенец" по игровой почте.</p>
+    <pre style="font-size: 65%"><code class="sql">CREATE TABLE avatar (
+    id        SERIAL PRIMARY KEY,
+    name      VARCHAR(64)
+);
+CREATE TABLE quest (
+    id        BIGSERIAL PRIMARY KEY,
+    quest_rid INT,
+    avatar_id INT REFERENCES avatar (id) ON DELETE CASCADE
+);
+CREATE TABLE mail (
+    id           SERIAL PRIMARY KEY,
+    recipient_id INT REFERENCES avatar (id) ON DELETE CASCADE,
+    mail_rid     INT
+);
+CREATE TABLE item (
+    id           BIGSERIAL PRIMARY KEY,
+    mail_id      INT REFERENCES mail (id) ON DELETE CASCADE,
+    item_rid     INT
+);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Еще немного про WITH</h2>
+    <p>Надо всем аватарам, у которых сдан квест на "Кащея" отправить "Меч кладенец" по игровой почте.</p>
+    <div style="font-size: 80%">
+    <pre><code class="sql">-- Получить всех, кто выполнил квест
+SELECT * FROM quest q WHERE q.quest_rid = 42;
+</code></pre>
+    <pre><code class="sql next">
+-- Создать письма
+INSERT INTO mail (recipient_id, mail_rid)
+SELECT q.avatar_id, 17
+FROM quest q WHERE q.quest_rid = 42;
+</code></pre>
+    <pre><code class="sql next">
+-- Создать предметы в письмах
+INSERT INTO item (mail_id, item_rid)
+SELECT mail_id, 7291
+FROM mail m WHERE ???;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Еще немного про WITH</h2>
+    <p>Надо всем аватарам, у которых сдан квест на "Кащея" отправить "Меч кладенец" по игровой почте.</p>
+    <div style="font-size: 80%">
+    <pre><code class="sql">--- Сохраняем номер последнего добавленного письма
+CREATE TEMPORARY TABLE tmp_mail ON COMMIT DROP AS
+    SELECT GREATEST(MAX(id), 0) as last_id FROM mail;
+
+-- Создать письма
+INSERT INTO mail (recipient_id, mail_rid)
+SELECT q.avatar_id, 17
+FROM quest q WHERE q.quest_rid = 42;
+</code></pre>
+    <pre><code class="sql next">
+-- Создать предметы в письмах
+INSERT INTO item (mail_id, item_rid)
+SELECT m.id, 7291
+FROM mail m WHERE m.id > (SELECT last_id FROM tmp_mail);
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Еще немного про WITH</h2>
+    <p>Надо всем аватарам, у которых сдан квест на "Кащея" отправить "Меч кладенец" по игровой почте.</p>
+    <div style="font-size: 80%">
+    <pre><code class="sql">-- Создать письма и сохранить их идентификаторы
+CREATE TEMPORARY TABLE tmp_mail ON COMMIT DROP AS
+WITH new_mail AS (
+  INSERT INTO mail (recipient_id, mail_rid)
+  SELECT q.avatar_id, 17
+  FROM quest q WHERE q.quest_rid = 42
+  RETURNING id
+)
+SELECT * FROM new_mail;
+</code></pre>
+    <pre><code class="sql next">
+-- Создать предметы в письмах
+INSERT INTO item (mail_id, item_rid)
+SELECT m.id, 7291
+FROM mail m WHERE m.id > (SELECT last_id FROM tmp_mail);
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Еще немного про WITH</h2>
+    <p>Надо всем аватарам, у которых сдан квест на "Кащея" отправить "Меч кладенец" по игровой почте.</p>
+    <div style="font-size: 80%">
+    <pre><code class="sql">-- Создать письма и предметы в письмах
+WITH new_mail AS (
+  INSERT INTO mail (recipient_id, mail_rid)
+  SELECT q.avatar_id, 17
+  FROM quest q WHERE q.quest_rid = 42
+  RETURNING id
+)
+INSERT INTO item (mail_id, item_rid)
+SELECT m.id, 7291
+FROM mail m WHERE m.id > (SELECT last_id FROM tmp_mail);
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 1</h2>
+    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу, затем имени в классе.</p>
+    <pre style="font-size: 90%"><code class="sql">CREATE TABLE highschooler (
+    id    BIGSERIAL PRIMARY KEY,
+    name  VARCHAR(128),
+    grade INT
+);
+
+CREATE TABLE friend (
+    id1 INT REFERENCES highschooler (id) ON DELETE CASCADE,
+    id2 INT REFERENCES highschooler (id) ON DELETE CASCADE
+);
+</code></pre>
+    <p>Дружба взаимная, если есть запись (123, 456), то есть и (456, 123).</p>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 1</h2>
+    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу, затем имени в классе.</p>
+    <div style="text-align: center" class="next">
+        <img src="q1s01.svg" style="width: 75%" />
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 1</h2>
+    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу, затем имени в классе.</p>
+    <div style="text-align: center">
+        <img src="q1s02.svg" style="width: 75%" />
+    </div>
+    <p align="center">
+        Есть в том же классе и нет в других классах<br/>==<br/>Есть друзья и нет в друих классах
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 1</h2>
+    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу, затем имени в классе.</p>
+    <div style="text-align: center">
+        <img src="q1s03.svg" style="width: 75%" />
+    </div>
+    <pre class="next" style="font-size: 80%; position: absolute;"><code class="sql">
+    <span style="display: none">SELECT H.name, H.grade</span>
+FROM highschooler AS H
+JOIN friend AS F ON (H.Id = F.Id1)
+LEFT JOIN highschooler AS O ON (F.Id2 = O.Id AND H.Grade &lt;&gt; O.Grade)
+WHERE O.Id IS NULL
+</code></pre>
+    <pre class="next" style="font-size: 80%"><code class="sql">
+SELECT H.name, H.grade
+<span style="display: none">FROM highschooler AS H</span>
+<span style="display: none">JOIN friend AS F ON (H.Id = F.Id1)</span>
+<span style="display: none">LEFT JOIN highschooler AS O ON (F.Id2 = O.Id AND H.Grade &lt;&gt; O.Grade)</span>
+<span style="display: none">WHERE O.Id IS NULL</span>
+GROUP BY H.grade, H.name, H.id
+ORDER BY H.grade, H.name
+    </code></pre>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 2</h2>
+    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после 1980 года.</p>
+<pre style="font-size: 80%"><code class="sql">CREATE TABLE movie (
+    mID      SERIAL PRIMARY KEY,
+    title    VARCHAR(128),
+    year     INT,
+    director VARCHAR(128)
+);
+
+CREATE TABLE rating (
+    rID        SERIAL PRIMARY KEY,
+    mID        INT REFERENCES movie (mID) ON DELETE CASCADE,
+    stars      INT,
+    ratingDate TIMESTAMP
+);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 2</h2>
+    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после 1980 года.</p>
+    <pre style="font-size: 80%; position: absolute"><code class="sql">
+<span style="display: none">SELECT</span>
+<span style="display: none">    AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) AS after,</span>
+<span style="display: none">    AVG(CASE WHEN year < 1980 THEN stars ELSE NULL END) AS before</span>
+<span style="display: none">FROM (</span>
+    SELECT M.mID, M.year, AVG(R.stars) as stars
+    FROM movie M
+    JOIN rating R USING (mID)
+    GROUP BY M.mID, M.year
+<span style="display: none">) AS R</span>
+</code></pre>
+    <pre class="next" style="font-size: 80%"><code class="sql">
+SELECT
+    AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) AS after,
+    AVG(CASE WHEN year < 1980 THEN stars ELSE NULL END) AS before
+FROM (
+<span style="display: none">    SELECT M.mID, M.year, AVG(R.stars) as stars</span>
+<span style="display: none">    FROM Movie M</span>
+<span style="display: none">    JOIN Rating R USING (mID)</span>
+<span style="display: none">    GROUP BY M.mID, M.year</span>
+) AS R
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 2</h2>
+    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после 1980 года.</p>
+    <pre style="font-size: 80%; position: absolute"><code class="sql">
+SELECT
+    AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) -
+    AVG(CASE WHEN year < 1980 THEN stars ELSE NULL END) AS result
+FROM (
+    SELECT M.mID, M.year, AVG(R.stars) as stars
+    FROM movie M
+    JOIN rating R USING (mID)
+    GROUP BY M.mID, M.year
+) AS R
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 2</h2>
+    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после 1980 года.</p>
+    <pre style="font-size: 80%; position: absolute"><code class="sql">
+SELECT R.s_after - R.s_before AS result
+FROM (
+    SELECT
+        AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) AS s_after,
+        AVG(CASE WHEN year < 1980 THEN stars ELSE NULL END) AS s_before
+    FROM movie M 
+    JOIN rating R USING (mID)
+    GROUP BY M.mID
+) AS R
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>VIEW</h2>
     <dl>
         <dt>Представление (VIEW)</dt>
         <dd>Объект базы данных, являющийся результатом выполнения запроса к базе данных, определенного с помощью
             оператора SELECT, в момент обращения к представлению.
         </dd>
     </dl>
-    <pre><code class="sql">CREATE
-    [OR REPLACE]
-    [ALGORITHM = {UNDEFINED | MERGE | TEMPTABLE}]
-    [DEFINER = { user | CURRENT_USER }]
-    [SQL SECURITY { DEFINER | INVOKER }]
-VIEW view_name [(column_list)] AS select_statement
-    [WITH [CASCADED | LOCAL] CHECK OPTION];
+    <pre style="font-size: 90%"><code class="sql">CREATE
+    [ OR REPLACE ]
+    [ TEMP | TEMPORARY ]
+    [ RECURSIVE ]
+VIEW name [ ( column_name [, ...] ) ]
+    [ WITH ( view_option_name [= view_option_value] [, ... ] ) ]
+    AS query
+    [ WITH [ CASCADED | LOCAL ] CHECK OPTION ];
 </code></pre>
 </section>
 
@@ -1368,19 +1828,17 @@ VIEW view_name [(column_list)] AS select_statement
     <h2>Ограничения VIEW</h2>
     <ul>
         <li>Нельзя повесить триггер на представление;</li>
-        <li>Нельзя сделать представление на основе временных таблиц;</li>
-        <li>Нельзя сделать временное представление;</li>
-        <li>В определении представления нельзя использовать подзапрос в части FROM;</li>
-        <li>В определении представления нельзя использовать системные и пользовательские переменные;</li>
         <li>Таблицы и представления, присутствующие в определении представления должны существовать.</li>
     </ul>
 </section>
 
 <section class="slide">
     <h2>Особенности VIEW</h2>
+    <div style="font-size: 90%">
     <pre><code class="sql">CREATE VIEW v AS
-    SELECT a.id, b.id FROM a,b;
--- Error Code: 1060. Duplicate column name 'id'
+    SELECT a.id, b.id FROM a, b;
+-- ERROR: column "id" specified more than once
+-- SQL-состояние: 42701
 </code></pre>
     <pre class="next"><code class="sql">
 CREATE VIEW v (a_id, b_id) AS
@@ -1395,6 +1853,7 @@ CREATE VIEW v AS
     )
     FROM table_name;
 </code></pre>
+    </div>
 </section>
 
 <section class="slide">
