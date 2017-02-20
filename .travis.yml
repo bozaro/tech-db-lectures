@@ -1,12 +1,6 @@
 sudo: false
 script:
 - ./hugo.sh
-after_success: |
-  [ $TRAVIS_BRANCH = master ] &&
-  [ $TRAVIS_PULL_REQUEST = false ] &&
-  pip install ghp-import --user $USER &&
-  $HOME/.local/bin/ghp-import -n public &&
-  git push -qf https://${TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
 before_deploy:
 - cd public && zip ../gh-pages.zip -r -q . && cd ..
 env:

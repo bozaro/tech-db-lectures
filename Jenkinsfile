@@ -9,7 +9,7 @@ node  ('linux') {
       doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
       extensions: scm.extensions + [
         [$class: 'CleanCheckout'],
-        [$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: false],
+        [$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: true],
       ],
       userRemoteConfigs: scm.userRemoteConfigs
     ])
