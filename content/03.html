@@ -1875,92 +1875,35 @@ CREATE VIEW v AS
 </section>
 
 <section class="slide">
-    <h2>Алгоритмы VIEW (MERGE)</h2>
-    <pre><code class="sql">CREATE VIEW v AS
-SELECT subject, num_views / num_replies AS param
-FROM topics
-WHERE num_replies > 0;
-
-SELECT subject, param FROM v WHERE param > 1000;
-</code></pre>
-    <pre class="next"><code class="sql">
-SELECT subject, num_views / num_replies AS param
-FROM topics
-WHERE num_replies>0 AND num_views / num_replies > 1000;</code></pre>
-</section>
-
-<section class="slide">
-    <h2>Алгоритмы VIEW (TEMPTABLE)</h2>
-    <pre style="font-size: 85%"><code class="sql">CREATE VIEW v AS
-SELECT forum_id, COUNT(*) AS num
-FROM topics GROUP BY forum_id;
-
-SELECT MAX(num) FROM v;
-</code></pre>
-    <pre style="font-size: 85%" class="next"><code class="sql">
-SELECT MAX(COUNT(*))
-FROM topics GROUP BY forum_id;
-</code></pre>
-    <pre style="font-size: 85%" class="next"><code class="sql">
-CREATE TEMPORARY TABLE tmp_table
-SELECT forum_id, COUNT(*) AS num
-FROM topics GROUP BY forum_id;
-
-SELECT MAX(num) FROM tmp_table;
-
-DROP TABLE tmp_table;</code></pre>
-</section>
-
-<section class="slide">
-    <h2>Изменение VIEW</h2>
-    <pre><code class="sql">WITH [CASCADED | LOCAL] CHECK
-</code></pre>
+    <h2>Изменяемые VIEW</h2>
     <ul>
-        <li>Изменение данных (UPDATE) будет происходить только если строка с новыми значениями удовлетворяет условию
-            WHERE в определении представления.
-        </li>
-        <li>Добавление данных (INSERT) будет происходить только если новая строка удовлетворяет условию WHERE в
-            определении представления.
-        </li>
-        <li>Для LOCAL происходит проверка условия WHERE только в собственном определении представления.</li>
-        <li>Для CASCADED происходит проверка для всех представлений на которых основанно данное представление. Значением
-            по умолчанию является CASCADED.
-        </li>
+        <li>Список FROM в запросе, определяющем представлении, должен содержать ровно один элемент, и это должна быть таблица или другое изменяемое представление.</li>
+        <li>Определение представления не должно содержать предложения WITH, DISTINCT, GROUP BY, HAVING, LIMIT и OFFSET на верхнем уровне запроса.</li>
+        <li>Определение представления не должно содержать операции с множествами (UNION, INTERSECT и EXCEPT) на верхнем уровне запроса.</li>
+        <li>Список выборки в запросе не должен содержать агрегатные и оконные функции, а также функции, возвращающие множества.</li>
     </ul>
 </section>
 
 <section class="slide">
     <h2>Изменение VIEW</h2>
-    <pre style="font-size: 85%"><code class="sql">CREATE OR REPLACE VIEW v AS
-    SELECT forum_name, subject, num_views
-    FROM topics,forums f
-    WHERE forum_id = f.id AND num_views > 2000
-    WITH CHECK OPTION;
+    <pre style="font-size: 80%"><code class="sql">CREATE TABLE films (
+    imdb        varchar(16) PRIMARY KEY,
+    title       varchar(40) NOT NULL,
+    kind        varchar(10)
+);
 
+CREATE OR REPLACE VIEW comedies AS
+    SELECT *
+    FROM films
+    WHERE kind = 'Comedy'
+    WITH CASCADED CHECK OPTION;
 
-UPDATE v SET num_views = 1999 WHERE subject = 'test';
--- ERROR 1369 (HY000): CHECK OPTION failed 'test.v'
+INSERT INTO comedies (imdb, title, kind)
+    VALUES ('tt0114709', 'Toy Story 1', 'Animation');
+-- ERROR:  new row violates check option for view "comedies"
+-- DETAIL:  Failing row contains (tt0114709, Toy Story 1, Animation).
 
-UPDATE v SET num_views = 2003 WHERE subject = 'test';
--- Query OK
-</code></pre>
-</section>
-
-<section class="slide">
-    <h2>Изменение VIEW</h2>
-    <pre style="font-size: 85%"><code class="sql">CREATE OR REPLACE VIEW v AS
-    SELECT forum_name, subject, num_views
-    FROM topics,forums f
-    WHERE forum_id = f.id AND num_views > 2000
-    WITH CHECK OPTION;
-
-
-INSERT INTO v (subject, num_views)
-VALUES ('test1', 4000);
--- ERROR 1369 (HY000): CHECK OPTION failed test.v
-
-INSERT INTO v (forum_id, subject, num_views)
-VALUES (1, 'test1', 4000);
--- ERROR 1054 (42S22): Unknown COLUMN 'forum_id' IN 'field list'
+INSERT INTO comedies (imdb, title, kind)
+    VALUES ('tt1156398', 'Zombieland', 'Comedy');
 </code></pre>
 </section>
