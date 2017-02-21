@@ -5,14 +5,30 @@ description: |
 
    - COLLATION и регистронезависимый поиск;
    - Выборка данных:
-     - Еще раз про JOIN-ы;
+     - Оконные функции;
      - Подзапросы;
-     - Агрегация;
-     - HAVING, GROUP, ORDER BY;
      - UNION;
+     - Еще раз про JOIN-ы;
      - Рекурсивные запросы.
    - VIEW.
 ---
+<section class="slide">
+    <h2>Выборка данных (продолжение)</h2>
+    <ul>
+        <li>COLLATION и регистронезависимый поиск;</li>
+        <li>Выборка данных:
+            <ul>
+                <li>Подзапросы;</li>
+                <li>Оконные функции;</li>
+                <li>UNION;</li>
+                <li>Еще раз про JOIN-ы;</li>
+                <li>Рекурсивные запросы.</li>
+            </ul>
+        </li>
+        <li>VIEW.</li>
+    </ul>
+</section>
+
 <section class="slide">
     <h2>Регистронезависимый поиск</h2>
     <ul>
@@ -269,6 +285,87 @@ FROM (
     FROM t1
     GROUP BY column1
 ) AS t1;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Оконные функции</h2>
+    <pre style="font-size: 90%"><code class="sql">SELECT
+  ROW_NUMBER() OVER (ORDER BY age ASC) AS rownumber,
+  person_id, person_name, age
+FROM person;
+
+SELECT
+  ROW_NUMBER() OVER w AS rownumber,
+  RANK() OVER w AS ranking,
+  person_id, person_name, age
+FROM person
+WINDOW w AS (ORDER BY age ASC);
+
+SELECT
+  count(*) AS unfiltered,
+  count(*) FILTER (WHERE i < 5) AS filtered
+FROM generate_series(1,10) AS s(i);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Оконные функции</h2>
+    <table style="font-size: 90%">
+        <thead>
+        <tr>
+            <th>Функция</th>
+            <th>Описание</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>row_number()</td>
+            <td>номер текущей строки в её разделе, начиная с 1</td>
+        </tr>
+        <tr>
+            <td>rank()</td>
+            <td>ранг текущей строки с пропусками; то же, что и row_number для первой родственной ей строки</td>
+        </tr>
+        <tr>
+            <td>dense_rank()</td>
+            <td>ранг текущей строки без пропусков; эта функция считает группы родственных строк</td>
+        </tr>
+        <tr>
+            <td>percent_rank()</td>
+            <td>относительный ранг текущей строки:<br/>(rank - 1) / (общее число строк - 1)</td>
+        </tr>
+        <tr>
+            <td>first_value(any)</td>
+            <td>возвращает значение, вычисленное для первой строки в рамке окна</td>
+        </tr>
+        <tr>
+            <td>last_value(any)</td>
+            <td>возвращает значение, вычисленное для последней строки в рамке окна</td>
+        </tr>
+        <tr>
+            <td><nobr>nth_value(any, n)</nobr></td>
+            <td>возвращает значение, вычисленное в н-ой строке в рамке окна (считая с 1), или NULL, если такой строки нет.</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Оконные функции</h2>
+    <pre><code class="sql">SELECT DISTINCT
+  department_id,
+  FIRST_VALUE(person_name) OVER w,
+  FIRST_VALUE(age) OVER w
+FROM person
+WINDOW w as (PARTITION BY department_id);
+</code></pre>
+    <pre><code class="sql next">
+SELECT DISTINCT ON (department_id)
+  department_id,
+  person_name,
+  age
+FROM person;
 </code></pre>
 </section>
 
@@ -1875,92 +1972,35 @@ CREATE VIEW v AS
 </section>
 
 <section class="slide">
-    <h2>Алгоритмы VIEW (MERGE)</h2>
-    <pre><code class="sql">CREATE VIEW v AS
-SELECT subject, num_views / num_replies AS param
-FROM topics
-WHERE num_replies > 0;
-
-SELECT subject, param FROM v WHERE param > 1000;
-</code></pre>
-    <pre class="next"><code class="sql">
-SELECT subject, num_views / num_replies AS param
-FROM topics
-WHERE num_replies>0 AND num_views / num_replies > 1000;</code></pre>
-</section>
-
-<section class="slide">
-    <h2>Алгоритмы VIEW (TEMPTABLE)</h2>
-    <pre style="font-size: 85%"><code class="sql">CREATE VIEW v AS
-SELECT forum_id, COUNT(*) AS num
-FROM topics GROUP BY forum_id;
-
-SELECT MAX(num) FROM v;
-</code></pre>
-    <pre style="font-size: 85%" class="next"><code class="sql">
-SELECT MAX(COUNT(*))
-FROM topics GROUP BY forum_id;
-</code></pre>
-    <pre style="font-size: 85%" class="next"><code class="sql">
-CREATE TEMPORARY TABLE tmp_table
-SELECT forum_id, COUNT(*) AS num
-FROM topics GROUP BY forum_id;
-
-SELECT MAX(num) FROM tmp_table;
-
-DROP TABLE tmp_table;</code></pre>
-</section>
-
-<section class="slide">
-    <h2>Изменение VIEW</h2>
-    <pre><code class="sql">WITH [CASCADED | LOCAL] CHECK
-</code></pre>
+    <h2>Изменяемые VIEW</h2>
     <ul>
-        <li>Изменение данных (UPDATE) будет происходить только если строка с новыми значениями удовлетворяет условию
-            WHERE в определении представления.
-        </li>
-        <li>Добавление данных (INSERT) будет происходить только если новая строка удовлетворяет условию WHERE в
-            определении представления.
-        </li>
-        <li>Для LOCAL происходит проверка условия WHERE только в собственном определении представления.</li>
-        <li>Для CASCADED происходит проверка для всех представлений на которых основанно данное представление. Значением
-            по умолчанию является CASCADED.
-        </li>
+        <li>Список FROM в запросе, определяющем представлении, должен содержать ровно один элемент, и это должна быть таблица или другое изменяемое представление.</li>
+        <li>Определение представления не должно содержать предложения WITH, DISTINCT, GROUP BY, HAVING, LIMIT и OFFSET на верхнем уровне запроса.</li>
+        <li>Определение представления не должно содержать операции с множествами (UNION, INTERSECT и EXCEPT) на верхнем уровне запроса.</li>
+        <li>Список выборки в запросе не должен содержать агрегатные и оконные функции, а также функции, возвращающие множества.</li>
     </ul>
 </section>
 
 <section class="slide">
     <h2>Изменение VIEW</h2>
-    <pre style="font-size: 85%"><code class="sql">CREATE OR REPLACE VIEW v AS
-    SELECT forum_name, subject, num_views
-    FROM topics,forums f
-    WHERE forum_id = f.id AND num_views > 2000
-    WITH CHECK OPTION;
+    <pre style="font-size: 80%"><code class="sql">CREATE TABLE films (
+    imdb        varchar(16) PRIMARY KEY,
+    title       varchar(40) NOT NULL,
+    kind        varchar(10)
+);
 
+CREATE OR REPLACE VIEW comedies AS
+    SELECT *
+    FROM films
+    WHERE kind = 'Comedy'
+    WITH CASCADED CHECK OPTION;
 
-UPDATE v SET num_views = 1999 WHERE subject = 'test';
--- ERROR 1369 (HY000): CHECK OPTION failed 'test.v'
+INSERT INTO comedies (imdb, title, kind)
+    VALUES ('tt0114709', 'Toy Story 1', 'Animation');
+-- ERROR:  new row violates check option for view "comedies"
+-- DETAIL:  Failing row contains (tt0114709, Toy Story 1, Animation).
 
-UPDATE v SET num_views = 2003 WHERE subject = 'test';
--- Query OK
-</code></pre>
-</section>
-
-<section class="slide">
-    <h2>Изменение VIEW</h2>
-    <pre style="font-size: 85%"><code class="sql">CREATE OR REPLACE VIEW v AS
-    SELECT forum_name, subject, num_views
-    FROM topics,forums f
-    WHERE forum_id = f.id AND num_views > 2000
-    WITH CHECK OPTION;
-
-
-INSERT INTO v (subject, num_views)
-VALUES ('test1', 4000);
--- ERROR 1369 (HY000): CHECK OPTION failed test.v
-
-INSERT INTO v (forum_id, subject, num_views)
-VALUES (1, 'test1', 4000);
--- ERROR 1054 (42S22): Unknown COLUMN 'forum_id' IN 'field list'
+INSERT INTO comedies (imdb, title, kind)
+    VALUES ('tt1156398', 'Zombieland', 'Comedy');
 </code></pre>
 </section>
