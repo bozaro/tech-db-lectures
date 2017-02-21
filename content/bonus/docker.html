@@ -138,10 +138,10 @@ CMD java -Xmx300M -Xmx300M -jar \
 <section class="slide">
 	<h2>Dockerfile</h2>
 	<h3>Сборка:</h3>
-	<pre><code class="bash">docker build -t hello-docker
+	<pre><code class="bash">docker build --no-cache -t web
 </code></pre>
 	<h3>Результат сборки:</h3>
-	<pre><code class="bash">docker history hello-docker
+	<pre><code class="bash">docker history web
 </code></pre>
 	<pre style="font-size: 50%"><code class="text">
 IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
@@ -165,7 +165,58 @@ f0c74fcd39ff        5 minutes ago       /bin/sh -c #(nop)  MAINTAINER Artem V. N
 </section>
 
 <section class="slide">
-	<h2>Работа с контейнером</h2>
-	<h3>Запуск:</h3>
-	<pre><code class="bash">docker run -n hello hello-docker</code>
+    <h2>Работа с образами</h2>
+    <h3>Список образов:</h3>
+    <pre><code class="bash">docker images</code></pre>
+    <h3>Удалить образ из локального хранилища:</h3>
+    <pre><code class="bash">docker rmi alpine:3.4</code></pre>
+    <h3>Удалить не используемые образы:</h3>
+    <pre><code class="bash">docker images -q -f dangling=true |
+xargs --no-run-if-empty docker rmi</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Работа с контейнером</h2>
+    <h3>Запуск:</h3>
+    <pre><code class="bash">docker run
+          --rm # удалить контейнер после остановки
+           -it # подключить контейнер к терминалу
+            -d # запуск в фоновом режиме
+   -- name web # имя контейнера
+    -p 5000:80 # опубликовать на 5000-ом порту 80-ый
+               # порт контейнера
+-v ~/dev:/code # использовать директорию внутри контейнера
+    alpine:3.4 # имя запускаемого образа
+       /bin/sh # команда, запускаемая внутри контейнера
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Работа с контейнером</h2>
+    <h3>Остановка (SIGTERM):</h3>
+    <pre><code class="bash">docker stop web</code></pre>
+    <h3>Остановка (SIGKILL):</h3>
+    <pre><code class="bash">docker kill web</code></pre>
+    <h3>Список запущенных контейнеров:</h3>
+    <pre><code class="bash">docker ps</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Работа с контейнером</h2>
+    <h3>Удалить все остановленные контейнеры:</h3>
+    <pre><code class="bash">docker ps -q -f status=exited |
+xargs --no-run-if-empty docker rm</code></pre>
+    <h3>Запустить термианл внутри контейнера:</h3>
+    <pre><code class="bash">docker exec -it web bash</code></pre>
+    <h3>Посмотреть вывод контейнера:</h3>
+    <pre><code class="bash">docker logs --tail 100 web</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Полезные ссылки</h2>
+    <ul style="font-size: 90%">
+        <li><a href="https://docs.docker.com/">https://docs.docker.com/</a></li>
+        <li><a href="https://www.docker.com/sites/default/files/Docker_CheatSheet_08.09.2016_0.pdf">https://www.docker.com/sites/default/files/Docker_CheatSheet_08.09.2016_0.pdf</a></li>
+        <li><a href="https://github.com/wsargent/docker-cheat-sheet">https://github.com/wsargent/docker-cheat-sheet</a></li>
+    </ul>
 </section>
