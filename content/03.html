@@ -5,11 +5,10 @@ description: |
 
    - COLLATION и регистронезависимый поиск;
    - Выборка данных:
-     - Еще раз про JOIN-ы;
+     - Оконные функции;
      - Подзапросы;
-     - Агрегация;
-     - HAVING, GROUP, ORDER BY;
      - UNION;
+     - Еще раз про JOIN-ы;
      - Рекурсивные запросы.
    - VIEW.
 ---
@@ -19,11 +18,10 @@ description: |
         <li>COLLATION и регистронезависимый поиск;</li>
         <li>Выборка данных:
             <ul>
-                <li>Еще раз про JOIN-ы;</li>
                 <li>Подзапросы;</li>
-                <!--li>Агрегация;</li-->
-                <!--li>HAVING, GROUP, ORDER BY;</li-->
+                <li>Оконные функции;</li>
                 <li>UNION;</li>
+                <li>Еще раз про JOIN-ы;</li>
                 <li>Рекурсивные запросы.</li>
             </ul>
         </li>
@@ -287,6 +285,87 @@ FROM (
     FROM t1
     GROUP BY column1
 ) AS t1;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Оконные функции</h2>
+    <pre style="font-size: 90%"><code class="sql">SELECT
+  ROW_NUMBER() OVER (ORDER BY age ASC) AS rownumber,
+  person_id, person_name, age
+FROM person;
+
+SELECT
+  ROW_NUMBER() OVER w AS rownumber,
+  RANK() OVER w AS ranking,
+  person_id, person_name, age
+FROM person
+WINDOW w AS (ORDER BY age ASC);
+
+SELECT
+  count(*) AS unfiltered,
+  count(*) FILTER (WHERE i < 5) AS filtered
+FROM generate_series(1,10) AS s(i);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Оконные функции</h2>
+    <table style="font-size: 90%">
+        <thead>
+        <tr>
+            <th>Функция</th>
+            <th>Описание</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>row_number()</td>
+            <td>номер текущей строки в её разделе, начиная с 1</td>
+        </tr>
+        <tr>
+            <td>rank()</td>
+            <td>ранг текущей строки с пропусками; то же, что и row_number для первой родственной ей строки</td>
+        </tr>
+        <tr>
+            <td>dense_rank()</td>
+            <td>ранг текущей строки без пропусков; эта функция считает группы родственных строк</td>
+        </tr>
+        <tr>
+            <td>percent_rank()</td>
+            <td>относительный ранг текущей строки:<br/>(rank - 1) / (общее число строк - 1)</td>
+        </tr>
+        <tr>
+            <td>first_value(any)</td>
+            <td>возвращает значение, вычисленное для первой строки в рамке окна</td>
+        </tr>
+        <tr>
+            <td>last_value(any)</td>
+            <td>возвращает значение, вычисленное для последней строки в рамке окна</td>
+        </tr>
+        <tr>
+            <td><nobr>nth_value(any, n)</nobr></td>
+            <td>возвращает значение, вычисленное в н-ой строке в рамке окна (считая с 1), или NULL, если такой строки нет.</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Оконные функции</h2>
+    <pre><code class="sql">SELECT DISTINCT
+  department_id,
+  FIRST_VALUE(person_name) OVER w,
+  FIRST_VALUE(age) OVER w
+FROM person
+WINDOW w as (PARTITION BY department_id);
+</code></pre>
+    <pre><code class="sql next">
+SELECT DISTINCT ON (department_id)
+  department_id,
+  person_name,
+  age
+FROM person;
 </code></pre>
 </section>
 
