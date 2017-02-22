@@ -1752,7 +1752,7 @@ WITH new_mail AS (
 )
 INSERT INTO item (mail_id, item_rid)
 SELECT m.id, 7291
-FROM mail m WHERE m.id > (SELECT last_id FROM tmp_mail);
+FROM new_mail m;
 </code></pre>
     </div>
 </section>
