@@ -1036,7 +1036,7 @@ WHERE Employee.DepartmentID = Department.DepartmentID;
 </section>
 
 <section class="slide">
-    <h2>NATURAL (EQUAL) JOIN</h2>
+    <h2>NATURAL JOIN</h2>
     <img style="position: absolute; right: 20px; bottom: 20px" src="join-inner.svg">
     <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM Employee
@@ -1082,7 +1082,7 @@ NATURAL JOIN Department;
 </section>
 
 <section class="slide">
-    <h2>NATURAL JOIN</h2>
+    <h2>JOIN USING</h2>
     <img style="position: absolute; right: 20px; bottom: 20px" src="join-inner.svg">
     <pre style="font-size: 80%"><code class="sql">SELECT *
 FROM Employee
@@ -1510,22 +1510,22 @@ ORDER BY F.EmployeeID, S.EmployeeID;</span>
 
 <section class="slide">
     <h2>SUBQUERIES vs JOIN</h2>
-    <pre style="font-size: 80%"><code class="sql">SELECT E.*
-FROM Employee E
-WHERE EXISTS (
+    <h3>Коррелирующий подзапрос</h3>
+    <pre style="font-size: 75%"><code class="sql">SELECT E.*
+FROM Employee E WHERE EXISTS (
   SELECT *
-  FROM Department D
-  WHERE D.DepartmentID = E.DepartmentID
+  FROM Department D WHERE D.DepartmentID = E.DepartmentID
 );
-
-SELECT E.*
-FROM Employee E
-WHERE E.DepartmentID IN (
+</code></pre>
+    <h3>Не коррелирующий подзапрос</h3>
+    <pre style="font-size: 75%"><code class="sql">SELECT E.*
+FROM Employee E WHERE E.DepartmentID IN (
   SELECT DepartmentID
   FROM Department D
 );
-
-SELECT E.*
+</code></pre>
+    <h3>JOIN</h3>
+    <pre style="font-size: 75%"><code class="sql">SELECT E.*
 FROM Employee E
 JOIN Department D ON (E.DepartmentID = D.DepartmentID);
 </code></pre>

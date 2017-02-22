@@ -90,32 +90,32 @@ description: |
 </section>
 
 <section class="slide">
-	<h2>Производительность</h2>
-	<div style="width: 100%; text-align: center">
-		<img src="docker-rtl.png" style="max-width: 100%; max-height: 460px" />
-	</div>
-    <footer class="footer">Источник: <a href="http://domino.research.ibm.com/library/cyberdig.nsf/papers/0929052195DD819C85257D2300681E7B/$File/rc25482.pdf">http://domino.research.ibm.com/library/cyberdig.nsf/papers/0929052195DD819C85257D2300681E7B/$File/rc25482.pdf</a> (копия: <a href="rc25482.pdf">rc25482.pdf</a>)</footer>	
+    <h2>Производительность (TCP, CPU cycles/byte)</h2>
+    <div style="width: 100%; text-align: center">
+        <img src="docker-rtl.png" style="max-width: 100%; max-height: 460px" />
+    </div>
+    <footer class="footer">Источник: <a href="http://domino.research.ibm.com/library/cyberdig.nsf/papers/0929052195DD819C85257D2300681E7B/$File/rc25482.pdf">http://domino.research.ibm.com/library/cyberdig.nsf/papers/0929052195DD819C85257D2300681E7B/$File/rc25482.pdf</a> (копия: <a href="rc25482.pdf">rc25482.pdf</a>)</footer>
 </section>
 
 <section class="slide">
-	<h2>Производительность</h2>
-	<div style="width: 100%; text-align: center">
-		<img src="docker-netcpu.png" style="max-width: 100%; max-height: 460px" />
-	</div>
+    <h2>Производительность (TCP)</h2>
+    <div style="width: 100%; text-align: center">
+        <img src="docker-netcpu.png" style="max-width: 100%; max-height: 460px" />
+    </div>
 </section>
 
 <section class="slide">
-	<h2>Производительность</h2>
-	<div style="width: 100%; text-align: center">
-		<img src="docker-io-seq.png" style="max-width: 100%; max-height: 460px" />
-	</div>
+    <h2>Производительность (IO)</h2>
+    <div style="width: 100%; text-align: center">
+        <img src="docker-io-seq.png" style="max-width: 100%; max-height: 460px" />
+    </div>
 </section>
 
 <section class="slide">
-	<h2>Производительность</h2>
-	<div style="width: 100%; text-align: center">
-		<img src="docker-io-rnd.png" style="max-width: 100%; max-height: 460px" />
-	</div>
+    <h2>Производительность (IO)</h2>
+    <div style="width: 100%; text-align: center">
+        <img src="docker-io-rnd.png" style="max-width: 100%; max-height: 460px" />
+    </div>
 </section>
 
 <section class="slide">
@@ -137,6 +137,7 @@ CMD java -Xmx300M -Xmx300M -jar \
 
 <section class="slide">
 	<h2>Dockerfile</h2>
+	<img src="layers.jpg" style="z-index: -1; position: absolute; top: 40px; right: 30px; width: 400px"/>
 	<h3>Сборка:</h3>
 	<pre><code class="bash">docker build --no-cache -t web
 </code></pre>
