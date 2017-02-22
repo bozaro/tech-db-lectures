@@ -158,8 +158,10 @@ SELECT * FROM person WHERE LOWER(name) = LOWER('Jack Sparrow');
     <p>Проблемы:</p>
     <ul>
         <li>Нужно не забывать LOWER(name) во всех запросах.</li>
-        <li>Если вы объявляете столбец как UNIQUE или PRIMARY KEY, неявно создаваемый индекс будет чувствительным к регистру.</li>
-    <ul>
+        <li>Если вы объявляете столбец как UNIQUE или PRIMARY KEY, неявно создаваемый индекс будет чувствительным к
+            регистру.
+        </li>
+        <ul>
 </section>
 
 <section class="slide">
@@ -344,8 +346,12 @@ FROM generate_series(1,10) AS s(i);
             <td>возвращает значение, вычисленное для последней строки в рамке окна</td>
         </tr>
         <tr>
-            <td><nobr>nth_value(any, n)</nobr></td>
-            <td>возвращает значение, вычисленное в н-ой строке в рамке окна (считая с 1), или NULL, если такой строки нет.</td>
+            <td>
+                <nobr>nth_value(any, n)</nobr>
+            </td>
+            <td>возвращает значение, вычисленное в н-ой строке в рамке окна (считая с 1), или NULL, если такой строки
+                нет.
+            </td>
         </tr>
         </tbody>
     </table>
@@ -1537,7 +1543,7 @@ JOIN Department D ON (E.DepartmentID = D.DepartmentID);
     <pre><code class="sql">SELECT 1 AS n UNION ALL
 SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5;
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 WITH RECURSIVE series(n) AS (
   SELECT 1
   UNION ALL
@@ -1545,12 +1551,12 @@ WITH RECURSIVE series(n) AS (
 )
 SELECT * FROM series ORDER BY n;
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 SELECT n FROM unnest(ARRAY[
     1, 2, 3, 4, 5
 ]) n ORDER BY n;
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 SELECT n
 FROM generate_series(1, 5) n;
 </code></pre>
@@ -1673,13 +1679,13 @@ CREATE TABLE item (
     <pre><code class="sql">-- Получить всех, кто выполнил квест
 SELECT * FROM quest q WHERE q.quest_rid = 42;
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 -- Создать письма
 INSERT INTO mail (recipient_id, mail_rid)
 SELECT q.avatar_id, 17
 FROM quest q WHERE q.quest_rid = 42;
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 -- Создать предметы в письмах
 INSERT INTO item (mail_id, item_rid)
 SELECT mail_id, 7291
@@ -1701,7 +1707,7 @@ INSERT INTO mail (recipient_id, mail_rid)
 SELECT q.avatar_id, 17
 FROM quest q WHERE q.quest_rid = 42;
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 -- Создать предметы в письмах
 INSERT INTO item (mail_id, item_rid)
 SELECT m.id, 7291
@@ -1724,7 +1730,7 @@ WITH new_mail AS (
 )
 SELECT * FROM new_mail;
 </code></pre>
-    <pre><code class="sql next">
+        <pre><code class="sql next">
 -- Создать предметы в письмах
 INSERT INTO item (mail_id, item_rid)
 SELECT m.id, 7291
@@ -1753,7 +1759,8 @@ FROM mail m WHERE m.id > (SELECT last_id FROM tmp_mail);
 
 <section class="slide">
     <h2>Составление запроса. Пример 1</h2>
-    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу, затем имени в классе.</p>
+    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу,
+        затем имени в классе.</p>
     <pre style="font-size: 90%"><code class="sql">CREATE TABLE highschooler (
     id    BIGSERIAL PRIMARY KEY,
     name  VARCHAR(128),
@@ -1770,17 +1777,19 @@ CREATE TABLE friend (
 
 <section class="slide">
     <h2>Составление запроса. Пример 1</h2>
-    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу, затем имени в классе.</p>
+    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу,
+        затем имени в классе.</p>
     <div style="text-align: center" class="next">
-        <img src="q1s01.svg" style="width: 75%" />
+        <img src="q1s01.svg" style="width: 75%"/>
     </div>
 </section>
 
 <section class="slide">
     <h2>Составление запроса. Пример 1</h2>
-    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу, затем имени в классе.</p>
+    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу,
+        затем имени в классе.</p>
     <div style="text-align: center">
-        <img src="q1s02.svg" style="width: 75%" />
+        <img src="q1s02.svg" style="width: 75%"/>
     </div>
     <p align="center">
         Есть в том же классе и нет в других классах<br/>==<br/>Есть друзья и нет в друих классах
@@ -1789,9 +1798,10 @@ CREATE TABLE friend (
 
 <section class="slide">
     <h2>Составление запроса. Пример 1</h2>
-    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу, затем имени в классе.</p>
+    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу,
+        затем имени в классе.</p>
     <div style="text-align: center">
-        <img src="q1s03.svg" style="width: 75%" />
+        <img src="q1s03.svg" style="width: 75%"/>
     </div>
     <pre class="next" style="font-size: 80%; position: absolute;"><code class="sql">
     <span style="display: none">SELECT H.name, H.grade</span>
@@ -1813,8 +1823,9 @@ ORDER BY H.grade, H.name
 
 <section class="slide">
     <h2>Составление запроса. Пример 2</h2>
-    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после 1980 года.</p>
-<pre style="font-size: 80%"><code class="sql">CREATE TABLE movie (
+    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после
+        1980 года.</p>
+    <pre style="font-size: 80%"><code class="sql">CREATE TABLE movie (
     mID      SERIAL PRIMARY KEY,
     title    VARCHAR(128),
     year     INT,
@@ -1832,7 +1843,8 @@ CREATE TABLE rating (
 
 <section class="slide">
     <h2>Составление запроса. Пример 2</h2>
-    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после 1980 года.</p>
+    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после
+        1980 года.</p>
     <pre style="font-size: 80%; position: absolute"><code class="sql">
 <span style="display: none">SELECT</span>
 <span style="display: none">    AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) AS after,</span>
@@ -1859,7 +1871,8 @@ FROM (
 
 <section class="slide">
     <h2>Составление запроса. Пример 2</h2>
-    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после 1980 года.</p>
+    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после
+        1980 года.</p>
     <pre style="font-size: 80%; position: absolute"><code class="sql">
 SELECT
     AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) -
@@ -1875,7 +1888,8 @@ FROM (
 
 <section class="slide">
     <h2>Составление запроса. Пример 2</h2>
-    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после 1980 года.</p>
+    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после
+        1980 года.</p>
     <pre style="font-size: 80%; position: absolute"><code class="sql">
 SELECT R.s_after - R.s_before AS result
 FROM (
@@ -1937,7 +1951,7 @@ VIEW name [ ( column_name [, ...] ) ]
 -- ERROR: column "id" specified more than once
 -- SQL-состояние: 42701
 </code></pre>
-    <pre class="next"><code class="sql">
+        <pre class="next"><code class="sql">
 CREATE VIEW v (a_id, b_id) AS
     SELECT a.id, b.id FROM a,b;
 CREATE VIEW v AS
@@ -1974,10 +1988,18 @@ CREATE VIEW v AS
 <section class="slide">
     <h2>Изменяемые VIEW</h2>
     <ul>
-        <li>Список FROM в запросе, определяющем представлении, должен содержать ровно один элемент, и это должна быть таблица или другое изменяемое представление.</li>
-        <li>Определение представления не должно содержать предложения WITH, DISTINCT, GROUP BY, HAVING, LIMIT и OFFSET на верхнем уровне запроса.</li>
-        <li>Определение представления не должно содержать операции с множествами (UNION, INTERSECT и EXCEPT) на верхнем уровне запроса.</li>
-        <li>Список выборки в запросе не должен содержать агрегатные и оконные функции, а также функции, возвращающие множества.</li>
+        <li>Список FROM в запросе, определяющем представлении, должен содержать ровно один элемент, и это должна быть
+            таблица или другое изменяемое представление.
+        </li>
+        <li>Определение представления не должно содержать предложения WITH, DISTINCT, GROUP BY, HAVING, LIMIT и OFFSET
+            на верхнем уровне запроса.
+        </li>
+        <li>Определение представления не должно содержать операции с множествами (UNION, INTERSECT и EXCEPT) на верхнем
+            уровне запроса.
+        </li>
+        <li>Список выборки в запросе не должен содержать агрегатные и оконные функции, а также функции, возвращающие
+            множества.
+        </li>
     </ul>
 </section>
 

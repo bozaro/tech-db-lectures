@@ -66,61 +66,74 @@ description: |
 
 <section class="slide">
     <h2>Docker</h2>
-	<dl>
-		<dt>Docker</dt>
-		<dd>
-			<p>Программное обеспечение для автоматизации развёртывания и управления приложениями в среде виртуализации на уровне операционной системы.</p>
-			<p>Позволяет «упаковать» приложение со всем его окружением и зависимостями в контейнер, который может быть перенесён на любую Linux-систему с поддержкой cgroups в ядре, а также предоставляет среду по управлению контейнерами.</p>
-		</dd>
-	</dl>
+    <dl>
+        <dt>Docker</dt>
+        <dd>
+            <p>Программное обеспечение для автоматизации развёртывания и управления приложениями в среде виртуализации
+                на уровне операционной системы.</p>
+            <p>Позволяет «упаковать» приложение со всем его окружением и зависимостями в контейнер, который может быть
+                перенесён на любую Linux-систему с поддержкой cgroups в ядре, а также предоставляет среду по управлению
+                контейнерами.</p>
+        </dd>
+    </dl>
 </section>
 
 <section class="slide">
     <h2>Виды виртуализации</h2>
     <dl style="font-size: 90%">
         <dt>Динамическая трансляция (KVM, VMware, VirutalBox)</dt>
-        <dd>При динамической (бинарной) трансляции проблемные команды гостевой операционной системы перехватываются гипервизором. После того как эти команды заменяются на безопасные, происходит возврат управления гостевой системе.</dd>
+        <dd>При динамической (бинарной) трансляции проблемные команды гостевой операционной системы перехватываются
+            гипервизором. После того как эти команды заменяются на безопасные, происходит возврат управления гостевой
+            системе.
+        </dd>
 
         <dt>Паравиртуализация (Xen)</dt>
-        <dd>Техника виртуализации, при которой гостевые операционные системы подготавливаются для исполнения в виртуализированной среде, для чего их ядро незначительно модифицируется.</dd>
+        <dd>Техника виртуализации, при которой гостевые операционные системы подготавливаются для исполнения в
+            виртуализированной среде, для чего их ядро незначительно модифицируется.
+        </dd>
 
         <dt>Контейнерная виртуализация (OpenVZ, LXC, Docker)</dt>
-        <dd>Метод вир­ту­а­ли­за­ции, при кото­ром ядро опе­ра­ци­он­ной системы под­дер­жи­вает несколько изо­ли­ро­ван­ных экзем­пля­ров про­стран­ства поль­зо­ва­те­ля, вме­сто одно­го.</dd>
+        <dd>Метод виртуализации, при котором ядро операционной системы поддерживает несколько экземпляров пространства
+            пользователя, вместо одного.
+        </dd>
     </dl>
 </section>
 
 <section class="slide">
     <h2>Производительность (TCP, CPU cycles/byte)</h2>
     <div style="width: 100%; text-align: center">
-        <img src="docker-rtl.png" style="max-width: 100%; max-height: 460px" />
+        <img src="docker-rtl.png" style="max-width: 100%; max-height: 460px"/>
     </div>
-    <footer class="footer">Источник: <a href="http://domino.research.ibm.com/library/cyberdig.nsf/papers/0929052195DD819C85257D2300681E7B/$File/rc25482.pdf">http://domino.research.ibm.com/library/cyberdig.nsf/papers/0929052195DD819C85257D2300681E7B/$File/rc25482.pdf</a> (копия: <a href="rc25482.pdf">rc25482.pdf</a>)</footer>
+    <footer class="footer">Источник: <a
+            href="http://domino.research.ibm.com/library/cyberdig.nsf/papers/0929052195DD819C85257D2300681E7B/$File/rc25482.pdf">http://domino.research.ibm.com/library/cyberdig.nsf/papers/0929052195DD819C85257D2300681E7B/$File/rc25482.pdf</a>
+        (копия: <a href="rc25482.pdf">rc25482.pdf</a>)
+    </footer>
 </section>
 
 <section class="slide">
     <h2>Производительность (TCP)</h2>
     <div style="width: 100%; text-align: center">
-        <img src="docker-netcpu.png" style="max-width: 100%; max-height: 460px" />
+        <img src="docker-netcpu.png" style="max-width: 100%; max-height: 460px"/>
     </div>
 </section>
 
 <section class="slide">
     <h2>Производительность (IO)</h2>
     <div style="width: 100%; text-align: center">
-        <img src="docker-io-seq.png" style="max-width: 100%; max-height: 460px" />
+        <img src="docker-io-seq.png" style="max-width: 100%; max-height: 460px"/>
     </div>
 </section>
 
 <section class="slide">
     <h2>Производительность (IO)</h2>
     <div style="width: 100%; text-align: center">
-        <img src="docker-io-rnd.png" style="max-width: 100%; max-height: 460px" />
+        <img src="docker-io-rnd.png" style="max-width: 100%; max-height: 460px"/>
     </div>
 </section>
 
 <section class="slide">
-	<h2>Dockerfile</h2>
-	<pre><code class="text">FROM ubuntu:16.04
+    <h2>Dockerfile</h2>
+    <pre><code class="text">FROM ubuntu:16.04
 MAINTAINER Artem V. Navrotskiy
 RUN apt-get -y update
 RUN apt-get install -y openjdk-8-jdk-headless
@@ -136,15 +149,15 @@ CMD java -Xmx300M -Xmx300M -jar \
 </section>
 
 <section class="slide">
-	<h2>Dockerfile</h2>
-	<img src="layers.jpg" style="z-index: -1; position: absolute; top: 40px; right: 30px; width: 400px"/>
-	<h3>Сборка:</h3>
-	<pre><code class="bash">docker build --no-cache -t web
+    <h2>Dockerfile</h2>
+    <img src="layers.jpg" style="z-index: -1; position: absolute; top: 40px; right: 30px; width: 400px"/>
+    <h3>Сборка:</h3>
+    <pre><code class="bash">docker build --no-cache -t web
 </code></pre>
-	<h3>Результат сборки:</h3>
-	<pre><code class="bash">docker history web
+    <h3>Результат сборки:</h3>
+    <pre><code class="bash">docker history web
 </code></pre>
-	<pre style="font-size: 50%"><code class="text">
+    <pre style="font-size: 50%"><code class="text">
 IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
 142e08487e9f        3 minutes ago       /bin/sh -c #(nop)  CMD ["/bin/sh" "-c" "java    0 B                 
 89554758e753        3 minutes ago       /bin/sh -c #(nop)  EXPOSE 5000/tcp              0 B                 
@@ -217,7 +230,9 @@ xargs --no-run-if-empty docker rm</code></pre>
     <h2>Полезные ссылки</h2>
     <ul style="font-size: 90%">
         <li><a href="https://docs.docker.com/">https://docs.docker.com/</a></li>
-        <li><a href="https://www.docker.com/sites/default/files/Docker_CheatSheet_08.09.2016_0.pdf">https://www.docker.com/sites/default/files/Docker_CheatSheet_08.09.2016_0.pdf</a></li>
-        <li><a href="https://github.com/wsargent/docker-cheat-sheet">https://github.com/wsargent/docker-cheat-sheet</a></li>
+        <li><a href="https://www.docker.com/sites/default/files/Docker_CheatSheet_08.09.2016_0.pdf">https://www.docker.com/sites/default/files/Docker_CheatSheet_08.09.2016_0.pdf</a>
+        </li>
+        <li><a href="https://github.com/wsargent/docker-cheat-sheet">https://github.com/wsargent/docker-cheat-sheet</a>
+        </li>
     </ul>
 </section>
