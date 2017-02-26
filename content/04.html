@@ -51,6 +51,31 @@ description: |
 </section>
 
 <section class="slide">
+    <h2>Atomicity — Атомарность</h2>
+    <img style="position: absolute; right: 50px; bottom: 50px" height="320" src="atomicity.png">
+    <p>Атомарность гарантирует, что никакая транзакция не будет зафиксирована в системе частично. Будут либо выполнены все её подоперации, либо не выполнено ни одной.</p>
+</section>
+
+<section class="slide">
+    <h2>Consistency — Согласованность</h2>
+    <img style="position: absolute; right: 50px; bottom: 50px" height="320" src="consistency.png">
+    <p>Транзакция, достигающая своего нормального завершения и, фиксирующая свои результаты, сохраняет согласованность базы данных.</p>
+    <p>Другими словами, каждая успешная транзакция по определению фиксирует только допустимые результаты.</p>
+</section>
+
+<section class="slide">
+    <h2>Isolation — Изолированность</h2>
+    <img style="position: absolute; right: 50px; bottom: 50px" height="320" src="isolation.png">
+    <p>Во время выполнения транзакции параллельные транзакции не должны оказывать влияние на её результат.</p>
+</section>
+
+<section class="slide">
+    <h2>Durability — Долговечность</h2>
+    <img style="position: absolute; right: 50px; bottom: 50px" height="320" src="durability.png">
+    <p>Независимо от проблем на нижних уровнях (к примеру, обесточивание системы или сбои в оборудовании) изменения, сделанные успешно завершённой транзакцией, должны остаться сохранёнными после возвращения системы в работу.</p>
+</section>
+
+<section class="slide">
 <h2>Хранимые процедуры</h2>
 <pre style="font-size: 80%"><code class="sql">CREATE
 	[DEFINER = { user | CURRENT_USER }]
