@@ -41,7 +41,8 @@ description: |
 <section class="slide">
     <h2>ACID</h2>
     <img style="position: absolute; right: 50px; bottom: 50px; border: 1px solid black" height="280" src="jim-gray.jpg">
-    <p>ACID описывает требования к транзакционной системе, обеспечивающие наиболее надёжную и предсказуемую её работу. Требования ACID были в основном сформулированы в конце 70-х годов Джимом Греем.</p>
+    <p>ACID описывает требования к транзакционной системе, обеспечивающие наиболее надёжную и предсказуемую её работу.
+        Требования ACID были в основном сформулированы в конце 70-х годов Джимом Греем.</p>
     <ul>
         <li><b>A</b>tomicity — Атомарность</li>
         <li><b>C</b>onsistency — Согласованность</li>
@@ -53,13 +54,15 @@ description: |
 <section class="slide">
     <h2>Atomicity — Атомарность</h2>
     <img style="position: absolute; right: 50px; bottom: 50px" height="320" src="atomicity.png">
-    <p>Атомарность гарантирует, что никакая транзакция не будет зафиксирована в системе частично. Будут либо выполнены все её подоперации, либо не выполнено ни одной.</p>
+    <p>Атомарность гарантирует, что никакая транзакция не будет зафиксирована в системе частично. Будут либо выполнены
+        все её подоперации, либо не выполнено ни одной.</p>
 </section>
 
 <section class="slide">
     <h2>Consistency — Согласованность</h2>
     <img style="position: absolute; right: 50px; bottom: 50px" height="320" src="consistency.png">
-    <p>Транзакция, достигающая своего нормального завершения и, фиксирующая свои результаты, сохраняет согласованность базы данных.</p>
+    <p>Транзакция, достигающая своего нормального завершения и, фиксирующая свои результаты, сохраняет согласованность
+        базы данных.</p>
     <p>Другими словами, каждая успешная транзакция по определению фиксирует только допустимые результаты.</p>
 </section>
 
@@ -72,12 +75,13 @@ description: |
 <section class="slide">
     <h2>Durability — Долговечность</h2>
     <img style="position: absolute; right: 50px; bottom: 50px" height="320" src="durability.png">
-    <p>Независимо от проблем на нижних уровнях (к примеру, обесточивание системы или сбои в оборудовании) изменения, сделанные успешно завершённой транзакцией, должны остаться сохранёнными после возвращения системы в работу.</p>
+    <p>Независимо от проблем на нижних уровнях (к примеру, обесточивание системы или сбои в оборудовании) изменения,
+        сделанные успешно завершённой транзакцией, должны остаться сохранёнными после возвращения системы в работу.</p>
 </section>
 
 <section class="slide">
-	<h2>Пример транзакции</h2>
-	<pre><code class="sql">BEGIN;
+    <h2>Пример транзакции</h2>
+    <pre><code class="sql">BEGIN;
 
 UPDATE accounts SET balance = balance - 100.00
     WHERE name = 'Alice';
@@ -90,12 +94,15 @@ COMMIT;</code></pre>
 
 <section class="slide">
     <h2>Журнал транзакций</h2>
-    <p>В простейшем случае журнализация изменений заключается в последовательной записи всех изменений, выполняемых в базе данных.</p>
+    <p>В простейшем случае журнализация изменений заключается в последовательной записи всех изменений, выполняемых в
+        базе данных.</p>
     <p>Записывается следующая информация:</p>
     <ul class="compact">
         <li>порядковый номер, тип и время изменения;</li>
         <li>идентификатор транзакции;</li>
-        <li>объект, подвергшийся изменению (номер хранимого файла и номер блока данных в нём, номер строки внутри блока);</li>
+        <li>объект, подвергшийся изменению (номер хранимого файла и номер блока данных в нём, номер строки внутри
+            блока);
+        </li>
         <li>предыдущее состояние объекта и новое состояние объекта.</li>
     </ul>
     <p>Журнал содержит отметки начала и завершения транзакции, и отметки принятия контрольной точки.</p>
@@ -113,13 +120,13 @@ COMMIT;</code></pre>
         <li>данные страниц БД сбрасываются на диск.</li>
     </ul>
     <div class="important next" style="width: 550px">
-    	<p>Минимальное время транзакции не меньше времени сброса данных на диск.</p>
+        <p>Минимальное время транзакции не меньше времени сброса данных на диск.</p>
     </div>
     <footer class="footer">https://habrahabr.ru/post/181584/</footer>
 </section>
 
 <section class="slide">
-	<h2>Приблизительные значения IOPS</h2>
+    <h2>Приблизительные значения IOPS</h2>
     <table class="classic">
         <thead>
         <tr>
@@ -189,15 +196,15 @@ COMMIT;</code></pre>
             <td>OCZ Z-Drive R4 CloudServ</td>
             <td>~500 000 IOPS</td>
             <td>PCIe</td>
-		</tr>
-		</tbody>
-	</table>
+        </tr>
+        </tbody>
+    </table>
     <footer class="footer">https://ru.wikipedia.org/wiki/IOPS</footer>
 </section>
 
 <section class="slide">
-<h2>Хранимые процедуры</h2>
-<pre style="font-size: 80%"><code class="sql">characteristic:
+    <h2>Хранимые процедуры</h2>
+    <pre style="font-size: 80%"><code class="sql">characteristic:
 	COMMENT 'string'
 	| LANGUAGE SQL
 	| [NOT] DETERMINISTIC
@@ -215,27 +222,37 @@ routine_body:
 </section>
 
 <section class="slide">
-<h2>Хранимые процедуры (+)</h2>
-<ul>
-	<li>Разделение логики с другими приложениями. Хранимые процедуры инкапсулируют функциональность; это обеспечивает связность доступа к данным и управления ими между различными приложениями.</li>
-	<li>Изоляция пользователей от таблиц базы данных. Это позволяет давать доступ к хранимым процедурам, но не к самим данным таблиц.</li>
-	<li>Обеспечивает механизм защиты.</li>
-	<li>Улучшение выполнения как следствие сокращения сетевого трафика. С помощью хранимых процедур множество запросов могут быть объединены.</li>
-</ul>
+    <h2>Хранимые процедуры (+)</h2>
+    <ul>
+        <li>Разделение логики с другими приложениями. Хранимые процедуры инкапсулируют функциональность; это
+            обеспечивает связность доступа к данным и управления ими между различными приложениями.
+        </li>
+        <li>Изоляция пользователей от таблиц базы данных. Это позволяет давать доступ к хранимым процедурам, но не к
+            самим данным таблиц.
+        </li>
+        <li>Обеспечивает механизм защиты.</li>
+        <li>Улучшение выполнения как следствие сокращения сетевого трафика. С помощью хранимых процедур множество
+            запросов могут быть объединены.
+        </li>
+    </ul>
 </section>
 
 <section class="slide">
-<h2>Хранимые процедуры (-)</h2>
-<ul>
-	<li>Повышение нагрузки на сервер баз данных в связи с тем, что большая часть работы выполняется на серверной части, а меньшая - на клиентской.</li>
-	<li>Дублирование логики своего приложения в двух местах: серверный код и код для хранимых процедур, тем самым усложняя процесс манипулирования данными.</li>
-	<li>Миграция с одной СУБД на другую (DB2, SQL Server и др.) может привести к проблемам.</li>
-</ul>
+    <h2>Хранимые процедуры (-)</h2>
+    <ul>
+        <li>Повышение нагрузки на сервер баз данных в связи с тем, что большая часть работы выполняется на серверной
+            части, а меньшая - на клиентской.
+        </li>
+        <li>Дублирование логики своего приложения в двух местах: серверный код и код для хранимых процедур, тем самым
+            усложняя процесс манипулирования данными.
+        </li>
+        <li>Миграция с одной СУБД на другую (DB2, SQL Server и др.) может привести к проблемам.</li>
+    </ul>
 </section>
 
 <section class="slide">
-<h2>Хранимые процедуры: пример</h2>
-<pre style="font-size: 80%"><code class="sql">DELIMITER //
+    <h2>Хранимые процедуры: пример</h2>
+    <pre style="font-size: 80%"><code class="sql">DELIMITER //
 DROP PROCEDURE IF EXISTS p1//
 CREATE PROCEDURE `p1` ()
 	LANGUAGE SQL
@@ -251,8 +268,8 @@ CALL p1();
 </section>
 
 <section class="slide">
-<h2>Хранимые процедуры: пример</h2>
-<pre style="font-size: 80%"><code class="sql">DELIMITER //
+    <h2>Хранимые процедуры: пример</h2>
+    <pre style="font-size: 80%"><code class="sql">DELIMITER //
 CREATE PROCEDURE `var_proc` (IN paramstr VARCHAR(20))  
 BEGIN  
 	DECLARE a, b INT DEFAULT 5;  
@@ -268,8 +285,8 @@ END //
 </section>
 
 <section class="slide">
-<h2>Хранимые процедуры: условия</h2>
-<pre style="font-size: 80%"><code class="sql">IF search_condition THEN statement_list
+    <h2>Хранимые процедуры: условия</h2>
+    <pre style="font-size: 80%"><code class="sql">IF search_condition THEN statement_list
 	[ELSEIF search_condition THEN statement_list] ...
 	[ELSE statement_list]
 END IF
@@ -289,8 +306,8 @@ END CASE
 </section>
 
 <section class="slide">
-<h2>Хранимые процедуры: LOOP</h2>
-<pre style="font-size: 80%"><code class="sql">[begin_label:] LOOP
+    <h2>Хранимые процедуры: LOOP</h2>
+    <pre style="font-size: 80%"><code class="sql">[begin_label:] LOOP
 	statement_list
 END LOOP [end_label]
  
@@ -309,8 +326,8 @@ END;
 </section>
 
 <section class="slide">
-<h2>Хранимые процедуры: REPEAT, WHILE</h2>
-<pre style="font-size: 80%"><code class="sql">[begin_label:] REPEAT
+    <h2>Хранимые процедуры: REPEAT, WHILE</h2>
+    <pre style="font-size: 80%"><code class="sql">[begin_label:] REPEAT
 	statement_list
 UNTIL search_condition
 END REPEAT [end_label]
@@ -331,8 +348,8 @@ END;
 </section>
 
 <section class="slide">
-<h2>Хранимые процедуры: HANDLER</h2>
-<pre style="font-size: 80%"><code class="sql">DECLARE handler_action HANDLER
+    <h2>Хранимые процедуры: HANDLER</h2>
+    <pre style="font-size: 80%"><code class="sql">DECLARE handler_action HANDLER
 	FOR condition_value [, condition_value] ...
 	statement
 
@@ -352,8 +369,8 @@ condition_value:
 </section>
 
 <section class="slide">
-<h2>Хранимые процедуры: курсоры</h2>
-<pre style="font-size: 80%"><code class="sql">DECLARE cursor-name CURSOR FOR SELECT ...;       
+    <h2>Хранимые процедуры: курсоры</h2>
+    <pre style="font-size: 80%"><code class="sql">DECLARE cursor-name CURSOR FOR SELECT ...;
 OPEN cursor-name;                                
 FETCH cursor-name INTO variable [, variable];   
 CLOSE cursor-name; 
@@ -375,8 +392,8 @@ CLOSE BankCursor;
 </section>
 
 <section class="slide">
-<h2>Хранимые процедуры: EXECUTE</h2>
-<pre style="font-size: 80%"><code class="sql">EXECUTE stmt_name   [USING @var_name [, @var_name] ...]
+    <h2>Хранимые процедуры: EXECUTE</h2>
+    <pre style="font-size: 80%"><code class="sql">EXECUTE stmt_name   [USING @var_name [, @var_name] ...]
 
 DELIMITER $$
 DROP PROCEDURE IF EXISTS `create_archive`$$
@@ -398,8 +415,8 @@ END$$
 </section>
 
 <section class="slide">
-<h2>Триггеры</h2>
-<pre style="font-size: 80%"><code class="sql">CREATE
+    <h2>Триггеры</h2>
+    <pre style="font-size: 80%"><code class="sql">CREATE
     [DEFINER = { user | CURRENT_USER }]
     TRIGGER trigger_name trigger_time trigger_event
     ON tbl_name FOR EACH ROW trigger_body
@@ -411,8 +428,8 @@ trigger_event = INSERT | UPDATE | DELETE
 </section>
 
 <section class="slide">
-<h2>Триггеры: пример</h2>
-<pre style="font-size: 80%"><code class="sql">CREATE TRIGGER 
+    <h2>Триггеры: пример</h2>
+    <pre style="font-size: 80%"><code class="sql">CREATE TRIGGER
 	add_count_comment 
 AFTER INSERT ON comments 
 FOR EACH ROW BEGIN
@@ -424,8 +441,8 @@ WHERE  user.id = NEW.user_id; 
 </section>
 
 <section class="slide">
-<h2>Триггеры: пример</h2>
-<pre style="font-size: 80%"><code class="sql">CASE NEW.owner_name
+    <h2>Триггеры: пример</h2>
+    <pre style="font-size: 80%"><code class="sql">CASE NEW.owner_name
 	WHEN 'Blog' THEN
 		UPDATE blog 
 		SET comment = comment + 1 
@@ -443,8 +460,8 @@ END CASE;
 </section>
 
 <section class="slide">
-<h2>Триггеры: пример</h2>
-<pre style="font-size: 80%"><code class="sql">CASE NEW.owner_name
+    <h2>Триггеры: пример</h2>
+    <pre style="font-size: 80%"><code class="sql">CASE NEW.owner_name
 	WHEN 'Blog' THEN
 		SET usertitle = (
 			SELECT title FROM blog WHERE id=NEW.owner_id
