@@ -76,6 +76,19 @@ description: |
 </section>
 
 <section class="slide">
+	<h2>Пример транзакции</h2>
+	<pre><code class="sql">BEGIN;
+
+UPDATE accounts SET balance = balance - 100.00
+    WHERE name = 'Alice';
+
+UPDATE accounts SET balance = balance + 100.00
+    WHERE name = 'Bob';
+
+COMMIT;</code></pre>
+</section>
+
+<section class="slide">
     <h2>Журнал транзакций</h2>
     <p>В простейшем случае журнализация изменений заключается в последовательной записи всех изменений, выполняемых в базе данных.</p>
     <p>Записывается следующая информация:</p>
@@ -86,28 +99,100 @@ description: |
         <li>предыдущее состояние объекта и новое состояние объекта.</li>
     </ul>
     <p>Журнал содержит отметки начала и завершения транзакции, и отметки принятия контрольной точки.</p>
-    <footer class="footer">https://habrahabr.ru/post/223449/</footer>
 </section>
 
 <section class="slide">
-<h2>Хранимые процедуры</h2>
-<pre style="font-size: 80%"><code class="sql">CREATE
-	[DEFINER = { user | CURRENT_USER }]
-	PROCEDURE sp_name ([proc_parameter[,...]])
-	[characteristic ...] routine_body
- 
-CREATE
-	[DEFINER = { user | CURRENT_USER }]
-	FUNCTION sp_name ([func_parameter[,...]])
-	RETURNS type
-	[characteristic ...] routine_body
- 
-proc_parameter:
-	[ IN | OUT | INOUT ] param_name type
- 
-func_parameter:
-	param_name type
-</code></pre>
+    <h2>Журнал транзакций</h2>
+    <img style="position: absolute; right: 50px; bottom: 50px" height="280" src="hdd.png">
+    <p>Общий алгоритм:</p>
+    <ul class="compact">
+        <li>измения пишутся в журнал транзакций (состояние до и после) и изменяются страницы БД в памяти;</li>
+        <li>в журнал транзакций сбрасывается маркер успешного завершения транзакции;</li>
+        <li>журнал транзакций сбрасывается на диск;</li>
+        <li>данные страниц БД пишутся на диск;</li>
+        <li>данные страниц БД сбрасываются на диск.</li>
+    </ul>
+    <div class="important next" style="width: 550px">
+    	<p>Минимальное время транзакции не меньше времени сброса данных на диск.</p>
+    </div>
+    <footer class="footer">https://habrahabr.ru/post/181584/</footer>
+</section>
+
+<section class="slide">
+	<h2>Приблизительные значения IOPS</h2>
+    <table class="classic">
+        <thead>
+        <tr>
+            <th>Тип</th>
+            <th>Устройство</th>
+            <th>IOPS</th>
+            <th>Интерфейс</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>HDD</td>
+            <td>7,200 об/мин SATA-диски</td>
+            <td>~75-100</td>
+            <td>SATA 3 Гбит/с</td>
+        </tr>
+        <tr>
+            <td>HDD</td>
+            <td>10,000 об/мин SATA-диски</td>
+            <td>~125-150</td>
+            <td>SATA 3 Гбит/с</td>
+        </tr>
+        <tr>
+            <td>HDD</td>
+            <td>10,000 об/мин SAS-диски</td>
+            <td>~140</td>
+            <td>SAS</td>
+        </tr>
+        <tr>
+            <td>HDD</td>
+            <td>15,000 об/мин SAS-диски</td>
+            <td>~175-210</td>
+            <td>SAS</td>
+        </tr>
+        <tr>
+            <td>SSD</td>
+            <td>Intel X25-M G2 MLC</td>
+            <td>~8 600</td>
+            <td>SATA 3 Гбит/с</td>
+        </tr>
+        <tr>
+            <td>SSD</td>
+            <td>OCZ Vertex 3</td>
+            <td>~60 000 (4K)</td>
+            <td>SATA 6 Гбит/с</td>
+        </tr>
+        <tr>
+            <td>SSD</td>
+            <td>OCZ Vertex 3 MAX IOPS</td>
+            <td>~75 000 (4K)</td>
+            <td>SATA 6 Гбит/с</td>
+        </tr>
+        <tr>
+            <td>SSD</td>
+            <td>OCZ Vertex 4</td>
+            <td>~120 000 IOPS (4K)</td>
+            <td>SATA 6 Гбит/с</td>
+        </tr>
+        <tr>
+            <td>SSD</td>
+            <td>OCZ RevoDrive 3 X2</td>
+            <td>~200 000 IOPS (4K)</td>
+            <td>PCIe</td>
+        </tr>
+        <tr>
+            <td>SSD</td>
+            <td>OCZ Z-Drive R4 CloudServ</td>
+            <td>~500 000 IOPS</td>
+            <td>PCIe</td>
+		</tr>
+		</tbody>
+	</table>
+    <footer class="footer">https://ru.wikipedia.org/wiki/IOPS</footer>
 </section>
 
 <section class="slide">
