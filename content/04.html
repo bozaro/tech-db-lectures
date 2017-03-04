@@ -17,6 +17,78 @@ description: |
      - Примеры хранимых процедур.
    - Распределенные транзакции (XA) и персистентные очереди.
 ---
+<div>
+    <style>
+tr.read {
+/*background: linear-gradient(-45deg,
+      transparent 48.9%,
+      skyblue 51%, skyblue 78%,
+      transparent 50%
+      ),
+    linear-gradient(to left top,
+      skyblue 28%,
+      transparent 0%
+      );*/
+
+    background: linear-gradient(
+        -45deg,
+        transparent 49.9%,
+        skyblue 49.9%,
+        skyblue 60%,
+        transparent 60%
+    ), linear-gradient(
+        -45deg,
+        skyblue 10%,
+        transparent 10%
+    );
+    background-size: 8px 8px;
+}
+
+tr.update {
+    background-color: #ffb !important;
+}
+
+tr.delete {
+    background-color: #fbb !important;
+}
+
+tr.insert {
+    background-color: #bfb !important;
+    font-weight: bold;
+}
+
+.changed {
+    font-weight: bold;
+}
+
+.obsolete {
+    font-style: italic;
+}
+
+.label-l, .label-r {
+    position: absolute;
+    font-weight: bold;
+    font-style: normal;
+}
+
+.label-l {
+    left: 100px;
+}
+
+.label-r {
+    right: 100px;
+}
+
+.mvcc {
+    margin-left: 120px;
+    margin-right: 120px;
+}
+
+.mvcc table {
+     width: 100%;
+}
+    </style>
+</div>
 <section class="slide">
     <h2>Транзакции, триггеры и процедуры</h2>
     <ul>
@@ -210,7 +282,805 @@ COMMIT;</code></pre>
 </section>
 
 <section class="slide">
-    <h2>А</h2>
+    <h2>Журнал транзакций. Бонус</h2>
+    <img style="position: absolute; right: 50px; bottom: 50px" height="360" src="bonus.png">
+    <p>На базе журнала транзакций так же реализуется ряд дополнительных возможностей:</p>
+    <ul>
+        <li>Point in time recovery;</li>
+        <li>Репликация.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Изолированность. MVCC</h2>
+    <dl>
+        <dt>MVCC</dt>
+        <dd>MultiVersion Concurrency Control</dd>
+    </dl>
+    <ul>
+        <li>Разные пользователи могут одновременно работать с одними и теми же данными;</li>
+        <li>Каждый пользователь видит свой изолированный срез данных;</li>
+        <li>Изменения, вносимые пользователем, никому не видны до завершения транзации.</li>
+    </ul>
+    <footer class="footer">
+        <ul>
+            <li>https://www.slideshare.net/robertsosinski/mvcc-robert-sosinski</li>
+            <li>http://momjian.us/main/writings/pgsql/mvcc.pdf</li>
+        </ul>
+    </footer>
+</section>
+
+<section class="slide">
+    <h2>UPDATE IN PLACE 1: TABLE</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talking to alice</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>UPDATE IN PLACE 2: SCAN</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="read">
+                <td>1</td>
+                <td>Alice</td>
+                <td>
+                    <div class="label-r">read</div>
+                    Great at programming
+                </td>
+            </tr>
+            <tr class="read">
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talking to alice</td>
+            </tr>
+            <tr class="read">
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>UPDATE IN PLACE 3: UPDATE</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update">
+                <td>
+                    <div class="label-l">~ update</div>
+                    2
+                </td>
+                <td>Bob</td>
+                <td>Always talking to alice</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>UPDATE IN PLACE 4: UPDATED</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update">
+                <td>
+                    <div class="label-l">~ update</div>
+                    2
+                </td>
+                <td>Bob</td>
+                <td class="changed">Working very hard</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>UPDATE IN PLACE 5: INSERT</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update">
+                <td>2</td>
+                <td>Bob</td>
+                <td class="changed">Working very hard</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="insert">
+                <td>
+                    <div class="label-l">+ insert</div>
+                    4
+                </td>
+                <td>Dave</td>
+                <td>Very promising new-hire</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>UPDATE IN PLACE 6: DELETE</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update">
+                <td>2</td>
+                <td>Bob</td>
+                <td class="changed">Working very hard</td>
+            </tr>
+            <tr class="delete">
+                <td>
+                    <div class="label-l">- delete</div>
+                    3
+                </td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="insert">
+                <td>4</td>
+                <td>Dave</td>
+                <td>Very promising new-hire</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>UPDATE IN PLACE 7</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update">
+                <td>2</td>
+                <td>Bob</td>
+                <td class="changed">Working very hard</td>
+            </tr>
+            <tr class="insert">
+                <td>4</td>
+                <td>Dave</td>
+                <td>Very promising new-hire</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>UPDATE IN PLACE 8: REALITY</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="read">
+                <td>1</td>
+                <td>Alice</td>
+                <td>
+                    <div class="label-r">read</div>
+                    Great at programming
+                </td>
+            </tr>
+            <tr class="read update">
+                <td>
+                    <div class="label-l">+ update</div>
+                    2
+                </td>
+                <td>Bob</td>
+                <td class="read changed">Working very hard</td>
+            </tr>
+            <tr class="read delete">
+                <td>
+                    <div class="label-l">- delete</div>
+                    3
+                </td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="insert">
+                <td>
+                    <div class="label-l">+ insert</div>
+                    4
+                </td>
+                <td>Dave</td>
+                <td>Very promising new-hire</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 1: TABLE</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 103</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr>
+                <td>101</td>
+                <td>0</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr>
+                <td>102</td>
+                <td>0</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 2: UPDATE</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 103</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update">
+                <td>
+                    <div class="label-l">- update</div>
+                    101
+                </td>
+                <td>0</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr>
+                <td>102</td>
+                <td>0</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 3: UPDATE IN PROGRESS</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 103</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update obsolete">
+                <td>
+                    <div class="label-l">- update</div>
+                    101
+                </td>
+                <td class="changed">103</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr>
+                <td>102</td>
+                <td>0</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 4: UPDATE IN PROGRESS</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 103</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update obsolete">
+                <td>
+                    <div class="label-l">- update</div>
+                    101
+                </td>
+                <td class="changed">103</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr>
+                <td>102</td>
+                <td>0</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="update changed">
+                <td>
+                    <div class="label-l">+ update</div>
+                    103
+                </td>
+                <td>0</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Working very hard</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 5: UPDATED</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 104</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update obsolete">
+                <td>101</td>
+                <td class="changed">103</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr>
+                <td>102</td>
+                <td>0</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="update changed">
+                <td>103</td>
+                <td>0</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Working very hard</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 6: INSERT</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 104</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update obsolete">
+                <td>101</td>
+                <td class="changed">103</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr>
+                <td>102</td>
+                <td>0</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="update changed">
+                <td>103</td>
+                <td>0</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Working very hard</td>
+            </tr>
+            <tr class="insert">
+                <td>
+                    <div class="label-l">+ insert</div>
+                    104
+                </td>
+                <td>0</td>
+                <td>4</td>
+                <td>Dave</td>
+                <td>Very promising new-hire</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 7: INSERTED</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 105</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update obsolete">
+                <td>101</td>
+                <td class="changed">103</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr>
+                <td>102</td>
+                <td>0</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="update changed">
+                <td>103</td>
+                <td>0</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Working very hard</td>
+            </tr>
+            <tr class="insert">
+                <td>104</td>
+                <td>0</td>
+                <td>4</td>
+                <td>Dave</td>
+                <td>Very promising new-hire</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 8: DELETE</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 105</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update obsolete">
+                <td>101</td>
+                <td class="changed">103</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr class="delete obsolete">
+                <td>
+                    <div class="label-l">- delete</div>
+                    102
+                </td>
+                <td>105</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="update changed">
+                <td>103</td>
+                <td>0</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Working very hard</td>
+            </tr>
+            <tr class="insert">
+                <td>104</td>
+                <td>0</td>
+                <td>4</td>
+                <td>Dave</td>
+                <td>Very promising new-hire</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 9: DELETED</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 106</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update obsolete">
+                <td>101</td>
+                <td class="changed">103</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr class="delete obsolete">
+                <td>102</td>
+                <td>105</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="update changed">
+                <td>103</td>
+                <td>0</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Working very hard</td>
+            </tr>
+            <tr class="insert">
+                <td>104</td>
+                <td>0</td>
+                <td>4</td>
+                <td>Dave</td>
+                <td>Very promising new-hire</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </section>
 
 <section class="slide">
