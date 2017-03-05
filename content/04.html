@@ -138,6 +138,8 @@ tr.insert {
 .mvcc table {
      width: 100%;
 }
+
+
     </style>
 </div>
 <section class="slide">
@@ -1237,6 +1239,202 @@ COMMIT
             </code></pre>
         </div>
     </div>
+</section>
+
+<section class="slide">
+    <h2>Уровни изолированности транзакций</h2>
+    <ul class="compact">
+        <li>Read uncommitted - чтение незафиксированных данных</li>
+        <li>Read committed (по-умолчанию) - чтение фиксированных данных</li>
+        <li>Repeatable read - повторяемость чтения</li>
+        <li>Serializable - упорядочиваемость</li>
+    </ul>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <th>Уровень изоляции</th>
+        <th>Потерянное обновление</th>
+        <th>«Грязное» чтение</th>
+        <th>Неповторяющееся чтение</th>
+        <th>Фантомное чтение</th>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Read&nbsp;uncommited</td>
+            <td>+</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td>Read&nbsp;commited</td>
+            <td>+</td>
+            <td>+</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td>Repeatable&nbsp;read</td>
+            <td>+</td>
+            <td>+</td>
+            <td>+</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td>Serializable</td>
+            <td>+</td>
+            <td>+</td>
+            <td>+</td>
+            <td>+</td>
+        </tr>
+        </tbody>
+    </table>
+    <footer class="footer">https://technet.microsoft.com/en-us/library/cc546518.aspx</footer>
+</section>
+
+<section class="slide">
+    <h2>Потерянное обновление (Lost Update)</h2>
+    <p>Потерянное обновление происходит в случае перезатирания изменений другой транзакцией до заврешнения транзакции,
+        сделавшей изменения.</p>
+    <table class="classic bordered">
+        <thead>
+        <th>Транзакция 1</th>
+        <th>Транзакция 2</th>
+        </thead>
+        <tbody style="font-size: 70%">
+        <tr>
+            <td>
+                <pre><code class="sql">UPDATE tbl1 SET f2=f2+20 WHERE f1=1;</code></pre>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                <pre><code class="sql">UPDATE tbl1 SET f2=f2+25 WHERE f1=1;</code></pre>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>«Грязное» чтение (Dirty Read)</h2>
+    <p>Чтение данных, добавленных или изменённых еще не завершенной транзакцией.</p>
+    <table class="classic bordered">
+        <thead>
+        <th>Транзакция 1</th>
+        <th>Транзакция 2</th>
+        </thead>
+        <tbody style="font-size: 70%">
+        <tr>
+            <td><pre><code class="sql">SELECT f2 FROM tbl1 WHERE f1=1;
+f2
+---------
+100
+(1 row)</code></pre>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>
+                <pre><code class="sql">UPDATE tbl1 SET f2=200 WHERE f1=1;</code></pre>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td><pre><code class="sql">SELECT f2 FROM tbl1 WHERE f1=1;
+f2
+---------
+200
+(1 row)</code></pre>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <pre><code class="sql">ROLLBACK;</code></pre>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Неповторяющееся чтение (Non-Repeatable Read)</h2>
+    <p>При повторном чтении в рамках одной транзакции ранее прочитанные данные оказываются изменёнными.</p>
+    <table class="classic bordered">
+        <thead>
+        <th>Транзакция 1</th>
+        <th>Транзакция 2</th>
+        </thead>
+        <tbody style="font-size: 70%">
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                <pre><code class="sql">SELECT f2 FROM tbl1 WHERE f1=1;</code></pre>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <pre><code class="sql">UPDATE tbl1 SET f2=f2+1 WHERE f1=1;</code></pre>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>
+                <pre><code class="sql">COMMIT;</code></pre>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                <pre><code class="sql">SELECT f2 FROM tbl1 WHERE f1=1;</code></pre>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Чтение "фантомов" (Phantom Reads)</h2>
+    <p>Ситуация, когда при повторном чтении в рамках одной транзакции одна и та же выборка дает разные множества
+        строк.</p>
+    <p>От неповторяющегося чтения оно отличается тем, что результат повторного обращения к данным изменился не из-за
+        изменения/удаления самих этих данных, а из-за появления новых (фантомных) данных.</p>
+    <table class="classic bordered">
+        <thead>
+        <th>Транзакция 1</th>
+        <th>Транзакция 2</th>
+        </thead>
+        <tbody style="font-size: 70%">
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                <pre><code class="sql">SELECT SUM(f2) FROM tbl1;</code></pre>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <pre><code class="sql">INSERT INTO tbl1 (f1,f2) VALUES (15,20);</code></pre>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>
+                <pre><code class="sql">COMMIT;</code></pre>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                <pre><code class="sql">SELECT SUM(f2) FROM tbl1;</code></pre>
+            </td>
+        </tr>
+        </tbody>
+    </table>
 </section>
 
 <section class="slide">
