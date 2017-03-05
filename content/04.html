@@ -1439,21 +1439,26 @@ f2
 
 <section class="slide">
     <h2>Хранимые процедуры</h2>
-    <pre style="font-size: 80%"><code class="sql">characteristic:
-	COMMENT 'string'
-	| LANGUAGE SQL
-	| [NOT] DETERMINISTIC
-	| {
-		CONTAINS SQL
-		| NO SQL
-		| READS SQL DATA
-		| MODIFIES SQL DATA
-	}
-	| SQL SECURITY { DEFINER | INVOKER }
- 
-routine_body:
-	Valid SQL routine statement
+    <pre style="font-size: 65%"><code class="sql">CREATE [ OR REPLACE ] FUNCTION
+    name ( [ [ argmode ] [ argname ] argtype [ { DEFAULT | = } default_expr ] [, ...] ] )
+    [ RETURNS rettype
+      | RETURNS TABLE ( column_name column_type [, ...] ) ]
+  { LANGUAGE lang_name
+    | TRANSFORM { FOR TYPE type_name } [, ... ]
+    | WINDOW
+    | IMMUTABLE | STABLE | VOLATILE | [ NOT ] LEAKPROOF
+    | CALLED ON NULL INPUT | RETURNS NULL ON NULL INPUT | STRICT
+    | [ EXTERNAL ] SECURITY INVOKER | [ EXTERNAL ] SECURITY DEFINER
+    | PARALLEL { UNSAFE | RESTRICTED | SAFE }
+    | COST execution_cost
+    | ROWS result_rows
+    | SET configuration_parameter { TO value | = value | FROM CURRENT }
+    | AS 'definition'
+    | AS 'obj_file', 'link_symbol'
+  } ...
+    [ WITH ( attribute [, ...] ) ]
 </code></pre>
+    <footer class="footer">https://www.postgresql.org/docs/9.6/static/sql-createfunction.html</footer>
 </section>
 
 <section class="slide">
@@ -1487,56 +1492,58 @@ routine_body:
 
 <section class="slide">
     <h2>Хранимые процедуры: пример</h2>
-    <pre style="font-size: 80%"><code class="sql">DELIMITER //
-DROP PROCEDURE IF EXISTS p1//
-CREATE PROCEDURE `p1` ()
-	LANGUAGE SQL
-	DETERMINISTIC
-	SQL SECURITY DEFINER
-	COMMENT 'A procedure'
-BEGIN
-	SELECT 'Hello World !';
-END//
- 
-CALL p1();
+    <pre style="font-size: 80%"><code class="sql">DROP FUNCTION IF EXISTS add(integer, integer);
+
+CREATE FUNCTION add(integer, integer) RETURNS integer
+    AS 'select $1 + $2;'
+    LANGUAGE SQL
+    IMMUTABLE
+    RETURNS NULL ON NULL INPUT;
+
+CREATE OR REPLACE FUNCTION inc(i integer) RETURNS integer AS $$
+        BEGIN
+                RETURN i + 1;
+        END;
+$$ LANGUAGE plpgsql;
+
+SELECT inc(42), add(2, 3);
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>Хранимые процедуры: пример</h2>
-    <pre style="font-size: 80%"><code class="sql">DELIMITER //
-CREATE PROCEDURE `var_proc` (IN paramstr VARCHAR(20))  
-BEGIN  
-	DECLARE a, b INT DEFAULT 5;  
-	DECLARE str VARCHAR(50);  
-	DECLARE today TIMESTAMP DEFAULT CURRENT_DATE;  
-	DECLARE v1, v2, v3 TINYINT;      
- 
-	INSERT INTO table1 VALUES (a);  
-	SET str = 'I am a string';  
-	SELECT CONCAT(str,paramstr), today FROM table2 WHERE b >=5;  
-END //
+    <h2>PL/pgSQL: IF</h2>
+    <pre style="font-size: 80%"><code class="sql">IF boolean-expression THEN
+    statements
+[ ELSIF boolean-expression THEN
+    statements
+    ...]]
+[ ELSE
+    statements ]
+END IF;
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>Хранимые процедуры: условия</h2>
-    <pre style="font-size: 80%"><code class="sql">IF search_condition THEN statement_list
-	[ELSEIF search_condition THEN statement_list] ...
-	[ELSE statement_list]
-END IF
-
-CASE case_value
-	WHEN when_value THEN statement_list
-	[WHEN when_value THEN statement_list] ...
-	[ELSE statement_list]
-END CASE
+    <h2>PL/pgSQL: CASE</h2>
+    <pre style="font-size: 80%"><code class="sql">CASE search-expression
+    WHEN expression [, expression [ ... ]] THEN
+      statements
+  [ WHEN expression [, expression [ ... ]] THEN
+      statements
+    ... ]
+  [ ELSE
+      statements ]
+END CASE;
 
 CASE
-	WHEN search_condition THEN statement_list
-	[WHEN search_condition THEN statement_list] ...
-	[ELSE statement_list]
-END CASE
+    WHEN boolean-expression THEN
+      statements
+  [ WHEN boolean-expression THEN
+      statements
+    ... ]
+  [ ELSE
+      statements ]
+END CASE;
 </code></pre>
 </section>
 
