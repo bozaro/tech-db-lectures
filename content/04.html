@@ -20,16 +20,6 @@ description: |
 <div>
     <style>
 tr.read {
-/*background: linear-gradient(-45deg,
-      transparent 48.9%,
-      skyblue 51%, skyblue 78%,
-      transparent 50%
-      ),
-    linear-gradient(to left top,
-      skyblue 28%,
-      transparent 0%
-      );*/
-
     background: linear-gradient(
         -45deg,
         transparent 49.9%,
@@ -67,16 +57,77 @@ tr.insert {
 
 .label-l, .label-r {
     position: absolute;
+    padding-top: 2px;
+    height: 36px;
+    font-size: 80%;
     font-weight: bold;
     font-style: normal;
 }
 
 .label-l {
     left: 100px;
+    width: 99px;
+    padding-left: 6px;
+}
+
+.label-l:after {
+    content: "";
+    position: absolute;
+    top: 0px;
+    left: 98px;
+    height: 36px;
+    width: 19px;
+    border: 18px solid transparent;
+    border-right: 0;
+}
+
+.update .label-l {
+    background-color: #ffb;
+}
+
+.delete .label-l {
+    background-color: #fbb;
+}
+
+.insert .label-l {
+    background-color: #bfb;
+}
+
+.update .label-l:after {
+    border-left-color: #ffb;
+}
+
+.delete .label-l:after {
+    border-left-color: #fbb;
+}
+
+.insert .label-l:after {
+    border-left-color: #bfb;
+}
+
+.read .label-r {
+    background-color: #bbf;
+}
+
+.read .label-r:before {
+    border-right-color: #bbf;
 }
 
 .label-r {
     right: 100px;
+    width: 99px;
+    padding-left: 6px;
+}
+
+.label-r:before {
+    content: "";
+    position: absolute;
+    top: 0px;
+    right: 98px;
+    height: 36px;
+    width: 19px;
+    border: 18px solid transparent;
+    border-left: 0;
 }
 
 .mvcc {
