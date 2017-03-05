@@ -1135,16 +1135,121 @@ COMMIT;</code></pre>
 </section>
 
 <section class="slide">
+    <h2>Блокировки</h2>
+    <div style="display: table; width: 100%; font-size: 60%">
+        <div style="display: table-cell; width: 50%; padding: 10px">
+            <pre><code class="sql">test=# BEGIN TRANSACTION
+test-# ISOLATION LEVEL REPEATABLE READ;
+BEGIN
+test=# SELECT balance
+test-# FROM accounts WHERE name = 'Alice';
+balance
+---------
+400
+(1 row)
+
+test=# UPDATE accounts
+test-# SET balance = balance + 100
+test-# WHERE name = 'Alice';
+UPDATE 1
+
+
+
+test=# COMMIT;
+COMMIT
+            </code></pre>
+        </div>
+        <div style="display: table-cell; padding: 10px">
+            <pre><code class="sql">test=# BEGIN TRANSACTION
+test-# ISOLATION LEVEL REPEATABLE READ;
+BEGIN
+test=# SELECT balance
+test-# FROM accounts WHERE name = 'Alice';
+balance
+---------
+400
+(1 row)
+
+
+
+
+
+test=# UPDATE accounts
+test-# SET balance = balance + 100
+test-# WHERE name = 'Alice';
+
+
+ERROR:  could not serialize access
+        due to concurrent update
+            </code></pre>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Блокировки</h2>
+    <div style="display: table; width: 100%; font-size: 60%">
+        <div style="display: table-cell; width: 50%; padding: 10px">
+            <pre><code class="sql">test=# BEGIN TRANSACTION
+test-# ISOLATION LEVEL REPEATABLE READ;
+BEGIN
+test=# SELECT balance
+test-# FROM accounts WHERE name = 'Alice';
+balance
+---------
+500
+(1 row)
+
+test=# UPDATE accounts
+test-# SET balance = balance + 100
+test-# WHERE name = 'Alice';
+UPDATE 1
+
+
+
+test=# ROLLBACK;
+ROLLBACK
+            </code></pre>
+        </div>
+        <div style="display: table-cell; padding: 10px">
+            <pre><code class="sql">test=# BEGIN TRANSACTION
+test-# ISOLATION LEVEL REPEATABLE READ;
+BEGIN
+test=# SELECT balance
+test-# FROM accounts WHERE name = 'Alice';
+balance
+---------
+500
+(1 row)
+
+
+
+
+
+test=# UPDATE accounts
+test-# SET balance = balance + 100
+test-# WHERE name = 'Alice';
+
+
+UPDATE 1
+test=# COMMIT;
+COMMIT
+            </code></pre>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
     <h2>Хранимые процедуры</h2>
     <pre style="font-size: 80%"><code class="sql">characteristic:
 	COMMENT 'string'
 	| LANGUAGE SQL
 	| [NOT] DETERMINISTIC
-	| { 
-		CONTAINS SQL 
-		| NO SQL 
-		| READS SQL DATA 
-		| MODIFIES SQL DATA 
+	| {
+		CONTAINS SQL
+		| NO SQL
+		| READS SQL DATA
+		| MODIFIES SQL DATA
 	}
 	| SQL SECURITY { DEFINER | INVOKER }
  
