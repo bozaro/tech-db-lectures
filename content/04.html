@@ -140,6 +140,8 @@ tr.insert {
 }
 
 
+
+
     </style>
 </div>
 <section class="slide">
@@ -1521,7 +1523,7 @@ AS $$
   return b
 $$ LANGUAGE plpythonu;
 </code></pre>
-    <pre class="next"><code class="sql">
+        <pre class="next"><code class="sql">
 CREATE FUNCTION perl_max (integer, integer) RETURNS integer AS $$
     my ($x, $y) = @_;
     if (not defined $x) {
@@ -1669,7 +1671,9 @@ where event can be one of:
         <dd>Тип данных name. Переменная содержит имя сработавшего триггера.</dd>
 
         <dt>TG_OP</dt>
-        <dd>Тип данных text. Строка, содержащая INSERT, UPDATE, DELETE или TRUNCATE, в зависимости от того, для какой операции сработал триггер.</dd>
+        <dd>Тип данных text. Строка, содержащая INSERT, UPDATE, DELETE или TRUNCATE, в зависимости от того, для какой
+            операции сработал триггер.
+        </dd>
 
         <dt>TG_TABLE_NAME</dt>
         <dd>Тип данных name. Имя таблицы, для которой сработал триггер.</dd>
@@ -1702,4 +1706,74 @@ CREATE TRIGGER emp_audit
 AFTER INSERT OR UPDATE OR DELETE ON emp
     FOR EACH ROW EXECUTE PROCEDURE process_emp_audit();
 </code></pre>
+</section>
+
+<section class="slide">
+    <h2>XA-транзакции</h2>
+    <ol class="compact">
+        <li>Приложение начинает транзакцию. Управление передается координатору.</li>
+        <li>Для каждой транзакции координатор вызывает xa_open() для инициализации. Транзакции как таковой ещё нет.</li>
+        <li>Для каждой БД вызывается xa_start() с параметром xid, в котором global_id одно, а branch_id разные.
+            Транзакция началась.
+        </li>
+        <li>Управление возвращается приложению, которое выполняет бизнес логику.</li>
+        <li>Координатор завершает транзакцию, вызывая xa_end().</li>
+        <li>Координатор закрепляет транзакцию, используя протокол двухфазной фиксации (xa_prepare() и xa_commit() или
+            xa_rollback()).
+        </li>
+    </ol>
+</section>
+
+<section class="slide">
+    <h2>XA-транзакции</h2>
+    <pre><code class="sql">BEGIN;
+
+UPDATE accounts SET balance = balance - 100.00
+WHERE name = 'Alice';
+
+PREPARE TRANSACTION 'tx-42';
+
+SELECT * FROM pg_prepared_xacts;</code></pre>
+    <table class="classic bordered" style="font-size: 95%">
+        <thead>
+        <th>transaction</th>
+        <th>gid</th>
+        <th>prepared</th>
+        <th>owner</th>
+        <th>database</th>
+        </thead>
+        <tbody>
+        <tr>
+            <td>48892</td>
+            <td>tx-41</td>
+            <td>2017-03-06 22:17:58.231435+03</td>
+            <td>postgres</td>
+            <td>test</td>
+        </tr>
+        <tr>
+            <td>48893</td>
+            <td>tx-42</td>
+            <td>2017-03-06 22:18:00.294129+03</td>
+            <td>postgres</td>
+            <td>test</td>
+        </tr>
+        </tbody>
+    </table>
+    <pre><code class="sql">ROLLBACK PREPARED 'tx-41';
+COMMIT PREPARED 'tx-42';
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>XA-транзакции</h2>
+    <h3>Плюсы</h3>
+    <ul>
+        <li>Простота использования и поддержка из коробки во многих фреймворках.</li>
+    </ul>
+    <h3>Минусы</h3>
+    <ul>
+        <li>Более дорогие с точки зрения записи на диск;</li>
+        <li>Проблема согласованности резервных копий;</li>
+        <li>Координатор - потенциальная точка отказа.</li>
+    </ul>
 </section>
