@@ -9,12 +9,12 @@ description: |
      - Обеспечение изолированности и атомарности. MVCC;
      - Немного про консистентность;
      - Уровни изолированности транзакций.
+   - Хранимые процедуры и функции:
+     - Примеры хранимых процедур.
    - Триггеры:
      - Использование триггеров для поддержания целостности и бизнес-логики;
      - Примеры триггеров;
      - Недостатки триггеров.
-   - Хранимые процедуры и функции:
-     - Примеры хранимых процедур.
    - Распределенные транзакции (XA) и персистентные очереди.
 ---
 <div>
@@ -1511,6 +1511,32 @@ SELECT inc(42), add(2, 3);
 </section>
 
 <section class="slide">
+    <h2>Хранимые процедуры: пример</h2>
+    <div style="font-size: 80%">
+    <pre class="next"><code class="sql">CREATE FUNCTION python_max (a integer, b integer)
+  RETURNS integer
+AS $$
+  if a > b:
+    return a
+  return b
+$$ LANGUAGE plpythonu;
+</code></pre>
+    <pre class="next"><code class="sql">
+CREATE FUNCTION perl_max (integer, integer) RETURNS integer AS $$
+    my ($x, $y) = @_;
+    if (not defined $x) {
+        return undef if not defined $y;
+        return $y;
+    }
+    return $x if not defined $y;
+    return $x if $x > $y;
+    return $y;
+$$ LANGUAGE plperl;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
     <h2>PL/pgSQL: IF</h2>
     <pre style="font-size: 80%"><code class="sql">IF boolean-expression THEN
     statements
@@ -1524,201 +1550,156 @@ END IF;
 </section>
 
 <section class="slide">
-    <h2>PL/pgSQL: CASE</h2>
-    <pre style="font-size: 80%"><code class="sql">CASE search-expression
-    WHEN expression [, expression [ ... ]] THEN
-      statements
-  [ WHEN expression [, expression [ ... ]] THEN
-      statements
-    ... ]
-  [ ELSE
-      statements ]
-END CASE;
+    <h2>PL/pgSQL: LOOP</h2>
+    <pre style="font-size: 80%"><code class="sql">LOOP
+    -- some computations
+    EXIT WHEN count > 100;
+    CONTINUE WHEN count < 50;
+    -- some computations for count IN [50 .. 100]
+END LOOP;
 
-CASE
-    WHEN boolean-expression THEN
-      statements
-  [ WHEN boolean-expression THEN
-      statements
-    ... ]
-  [ ELSE
-      statements ]
-END CASE;
+WHILE amount_owed > 0 LOOP
+    -- some computations here
+END LOOP;
+
+WHILE NOT done LOOP
+    -- some computations here
+END LOOP;
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>Хранимые процедуры: LOOP</h2>
-    <pre style="font-size: 80%"><code class="sql">[begin_label:] LOOP
-	statement_list
-END LOOP [end_label]
- 
-CREATE PROCEDURE doiterate(p1 INT)
+    <h2>PL/pgSQL: FOR</h2>
+    <pre style="font-size: 80%"><code class="sql">FOR i IN 1..10 LOOP
+    -- i will take on the values 1,2,3,4,5,6,7,8,9,10 within the loop
+END LOOP;
+
+FOR i IN REVERSE 10..1 LOOP
+    -- i will take on the values 10,9,8,7,6,5,4,3,2,1 within the loop
+END LOOP;
+
+FOR i IN REVERSE 10..1 BY 2 LOOP
+    -- i will take on the values 10,8,6,4,2 within the loop
+END LOOP;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>PL/pgSQL: FOR target IN query LOOP</h2>
+    <pre style="font-size: 70%"><code class="sql">CREATE FUNCTION cs_refresh_mviews() RETURNS integer AS $$
+DECLARE
+    mviews RECORD;
 BEGIN
-	label1: LOOP
-		SET p1 = p1 + 1;
-		IF p1 < 10 THEN
-			ITERATE label1;
-		END IF;
-		LEAVE label1;
-	END LOOP label1;
-	SET @x = p1;
+    RAISE NOTICE 'Refreshing materialized views...';
+
+    FOR mviews IN SELECT * FROM cs_materialized_views ORDER BY sort_key LOOP
+
+        -- Now "mviews" has one record from cs_materialized_views
+
+        RAISE NOTICE 'Refreshing view %s ...', quote_ident(mviews.mv_name);
+        EXECUTE format('TRUNCATE TABLE %I', mviews.mv_name);
+        EXECUTE format('INSERT INTO %I %s', mviews.mv_name, mviews.mv_query);
+    END LOOP;
+
+    RAISE NOTICE 'Done refreshing materialized views.';
+    RETURN 1;
 END;
+$$ LANGUAGE plpgsql;
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>Хранимые процедуры: REPEAT, WHILE</h2>
-    <pre style="font-size: 80%"><code class="sql">[begin_label:] REPEAT
-	statement_list
-UNTIL search_condition
-END REPEAT [end_label]
+    <h2>PL/pgSQL: FOR target IN query LOOP</h2>
+    <pre style="font-size: 70%"><code class="sql">CREATE TABLE foo (fooid INT, foosubid INT, fooname TEXT);
+INSERT INTO foo VALUES (1, 2, 'three');
+INSERT INTO foo VALUES (4, 5, 'six');
 
-[begin_label:] WHILE search_condition DO
-	statement_list
-END WHILE [end_label]
-
-CREATE PROCEDURE dowhile()
+CREATE OR REPLACE FUNCTION get_all_foo() RETURNS SETOF foo AS
+$BODY$
+DECLARE
+    r foo%rowtype;
 BEGIN
-	DECLARE v1 INT DEFAULT 5;
-		WHILE v1 > 0 DO
-		...
-		SET v1 = v1 - 1;
-	END WHILE;
-END;
-</code></pre>
-</section>
+    FOR r IN
+        SELECT * FROM foo WHERE fooid > 0
+    LOOP
+        -- can do some processing here
+        RETURN NEXT r; -- return current row of SELECT
+    END LOOP;
+    RETURN;
+END
+$BODY$
+LANGUAGE plpgsql;
 
-<section class="slide">
-    <h2>Хранимые процедуры: HANDLER</h2>
-    <pre style="font-size: 80%"><code class="sql">DECLARE handler_action HANDLER
-	FOR condition_value [, condition_value] ...
-	statement
-
-handler_action:
-	  CONTINUE
-	| EXIT
-	| UNDO
-
-condition_value:
-	  mysql_error_code
-	| SQLSTATE [VALUE] sqlstate_value
-	| condition_name
-	| SQLWARNING
-	| NOT FOUND
-	| SQLEXCEPTION
-</code></pre>
-</section>
-
-<section class="slide">
-    <h2>Хранимые процедуры: курсоры</h2>
-    <pre style="font-size: 80%"><code class="sql">DECLARE cursor-name CURSOR FOR SELECT ...;
-OPEN cursor-name;                                
-FETCH cursor-name INTO variable [, variable];   
-CLOSE cursor-name; 
-
-DECLARE vBankId INTEGER;
-DECLARE vBankName VARCHAR(50);
-DECLARE vAddress VARCHAR(50);
-DECLARE done INTEGER DEFAULT 0;
-DECLARE BankCursor CURSOR FOR
-	SELECT `bank`.`BankId`, `bank`.`BankName`, `bank`.`Address`
-	FROM `bank`; 
-DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET done=1;
-OPEN BankCursor;
-WHILE done = 0 DO 
-	FETCH BankCursor INTO vBankId,vBankName,vAddress;
-END WHILE;
-CLOSE BankCursor; 
-</code></pre>
-</section>
-
-<section class="slide">
-    <h2>Хранимые процедуры: EXECUTE</h2>
-    <pre style="font-size: 80%"><code class="sql">EXECUTE stmt_name   [USING @var_name [, @var_name] ...]
-
-DELIMITER $$
-DROP PROCEDURE IF EXISTS `create_archive`$$
-CREATE PROCEDURE `create_archive`(IN current_table VARCHAR(50))
-BEGIN
-DECLARE template,archive_template VARCHAR(50);
-SET archive_template=REPLACE(CURDATE(),"-","");
-SET template=CONCAT(current_table,"_",archive_template);
-
-SET @archive_query:=CONCAT("CREATE TABLE ",template,
-	" ENGINE=ARCHIVE AS (SELECT * FROM ",current_table," )");
-
-PREPARE archive_query FROM @archive_query;
-EXECUTE archive_query;
-DEALLOCATE PREPARE archive_query;
-
-END$$
+SELECT * FROM get_all_foo();
 </code></pre>
 </section>
 
 <section class="slide">
     <h2>Триггеры</h2>
-    <pre style="font-size: 80%"><code class="sql">CREATE
-    [DEFINER = { user | CURRENT_USER }]
-    TRIGGER trigger_name trigger_time trigger_event
-    ON tbl_name FOR EACH ROW trigger_body
- 
-trigger_time = BEFORE | AFTER
- 
-trigger_event = INSERT | UPDATE | DELETE
+    <pre style="font-size: 80%"><code class="sql">CREATE [ CONSTRAINT ] TRIGGER name
+       { BEFORE | AFTER | INSTEAD OF }{ event [ OR ... ] }
+    ON table_name
+    [ FROM referenced_table_name ]
+    [ NOT DEFERRABLE | [ DEFERRABLE ]
+        [ INITIALLY IMMEDIATE | INITIALLY DEFERRED ] ]
+    [ FOR [ EACH ] { ROW | STATEMENT } ]
+    [ WHEN ( condition ) ]
+    EXECUTE PROCEDURE function_name ( arguments )
+
+where event can be one of:
+
+    INSERT
+    UPDATE [ OF column_name [, ... ] ]
+    DELETE
+    TRUNCATE
+    TRUNCATE
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>Триггеры: пример</h2>
-    <pre style="font-size: 80%"><code class="sql">CREATE TRIGGER
-	add_count_comment 
-AFTER INSERT ON comments 
-FOR EACH ROW BEGIN
+    <h2>Триггеры: переменные</h2>
+    <dl style="font-size: 90%">
+        <dt>NEW</dt>
+        <dd>Тип данных RECORD. Переменная содержит новую строку базы данных для команд INSERT/UPDATE.</dd>
 
-UPDATE user
-SET    user.countcomment = user.countcomment + 1 
-WHERE  user.id = NEW.user_id; 
-</code></pre>
+        <dt>OLD</dt>
+        <dd>Тип данных RECORD. Переменная содержит старую строку базы данных для команд UPDATE/DELETE.</dd>
+
+        <dt>TG_NAME</dt>
+        <dd>Тип данных name. Переменная содержит имя сработавшего триггера.</dd>
+
+        <dt>TG_OP</dt>
+        <dd>Тип данных text. Строка, содержащая INSERT, UPDATE, DELETE или TRUNCATE, в зависимости от того, для какой операции сработал триггер.</dd>
+
+        <dt>TG_TABLE_NAME</dt>
+        <dd>Тип данных name. Имя таблицы, для которой сработал триггер.</dd>
+    </dl>
 </section>
 
 <section class="slide">
     <h2>Триггеры: пример</h2>
-    <pre style="font-size: 80%"><code class="sql">CASE NEW.owner_name
-	WHEN 'Blog' THEN
-		UPDATE blog 
-		SET comment = comment + 1 
-		WHERE id = NEW.owner_id;
-	WHEN 'Article' THEN 
-		UPDATE article 
-		SET comment = comment + 1
-		WHERE id = NEW.owner_id;
-	WHEN 'PopulatePlace' THEN 
-		UPDATE populate_place 
-		SET comment = comment + 1 
-		WHERE id = NEW.owner_id;
-END CASE;
-</code></pre>
-</section>
+    <pre style="font-size: 65%"><code class="sql">CREATE OR REPLACE FUNCTION process_emp_audit() RETURNS TRIGGER AS $emp_audit$
+    BEGIN
+        --
+        -- Create a row in emp_audit to reflect the operation performed on emp,
+        -- make use of the special variable TG_OP to work out the operation.
+        --
+        IF (TG_OP = 'DE&shy;LETE') THEN
+            INSERT INTO emp_audit SELECT 'D', now(), user, OLD.*;
+            RETURN OLD;
+        ELSIF (TG_OP = 'UP&shy;DATE') THEN
+            INSERT INTO emp_audit SELECT 'U', now(), user, NEW.*;
+            RETURN NEW;
+        ELSIF (TG_OP = 'IN&shy;SERT') THEN
+            INSERT INTO emp_audit SELECT 'I', now(), user, NEW.*;
+            RETURN NEW;
+        END IF;
+        RETURN NULL; -- result is ignored since this is an AFTER trigger
+    END;
+$emp_audit$ LANGUAGE plpgsql;
 
-<section class="slide">
-    <h2>Триггеры: пример</h2>
-    <pre style="font-size: 80%"><code class="sql">CASE NEW.owner_name
-	WHEN 'Blog' THEN
-		SET usertitle = (
-			SELECT title FROM blog WHERE id=NEW.owner_id
-		);
-	WHEN 'Article' THEN 
-		SET usertitle = (
-			SELECT title FROM article WHERE id=NEW.owner_id
-		);
-	WHEN 'PopulatePlace' THEN
-		SET usertitle = '';
-END CASE;
-
-INSERT INTO user_has_events
-VALUES (NEW.user_id, NEW.id, "Comments", NOW() , usertitle);
-
-END;
+CREATE TRIGGER emp_audit
+AFTER INSERT OR UPDATE OR DELETE ON emp
+    FOR EACH ROW EXECUTE PROCEDURE process_emp_audit();
 </code></pre>
 </section>
