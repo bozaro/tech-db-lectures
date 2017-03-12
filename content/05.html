@@ -53,6 +53,114 @@ description: |
 </section>
 
 <section class="slide">
+    <h2>Тестовая база</h2>
+    <p>Для примеров данной лекции используется база рейтингов кинофильмов.</p>
+    <ul class="compact">
+        <li>Источник:
+            <nobr><a href="https://movielens.org/">https://movielens.org/</a></nobr>
+        </li>
+        <li>Скрипт для разворачивания:
+            <nobr><a href="https://github.com/bozaro/tech-db-lectures/blob/master/scripts/movielens/load-pgsql.sh">https://github.com/bozaro/tech-db-lectures/.../load-pgsql.sh</a>
+            </nobr>
+        </li>
+    </ul>
+    <p>С сайта movielens используются файлы:</p>
+    <ul class="compact">
+        <li>movies.csv - данные фильмов (id, название, жанры);</li>
+        <li>ratings.csv - рейтинги фильмов (id фильма, id пользователя, оценка, время);</li>
+        <li>tags.csv - тэги фильмов (id фильма, id пользователя, тэг, время);</li>
+        <li>links.csv - идентификаторы фильмов в других системах (id фильма, IMDB, TMDB).</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Тестовая база</h2>
+    <table>
+        <thead>
+        <th>Таблица</th>
+        <th style="text-align: right">Кортежей</th>
+        <th style="text-align: right">Размер</th>
+        </thead>
+        <tbody>
+        <tr>
+            <td>genres</td>
+            <td align="right">19</td>
+            <td align="right">48 kB</td>
+        </tr>
+        <tr>
+            <td>links</td>
+            <td align="right">40 110</td>
+            <td align="right">2 944 kB</td>
+        </tr>
+        <tr>
+            <td>movie_genres</td>
+            <td align="right">74 229</td>
+            <td align="right">4 856 kB</td>
+        </tr>
+        <tr>
+            <td>movie_tags</td>
+            <td align="right">668 953</td>
+            <td align="right">49 152 kB</td>
+        </tr>
+        <tr>
+            <td>movies</td>
+            <td align="right">40 110</td>
+            <td align="right">3 400 kB</td>
+        </tr>
+        <tr>
+            <td>rating</td>
+            <td align="right">24 404 096</td>
+            <td align="right">1 971 200 kB</td>
+        </tr>
+        <tr>
+            <td>genres</td>
+            <td align="right">49 657</td>
+            <td align="right">5 344 kB</td>
+        </tr>
+        </tbody>
+    </table>
+    <p>Обзщий размер: ~1995MB</p>
+    <p>FOREIGN KEY объявлены, но никакие индексы не создавались.</p>
+</section>
+
+<section class="slide">
+    <h2>Рейтинг комедий про зомби</h2>
+    <pre><code class="sql">select m.id, m.title, avg(r.rating)
+from movies       m
+join movie_genres gm on (gm.movie_id = m.id)
+join genres       g  on (g.id = gm.genre_id)
+join movie_tags   tm on (tm.movie_id = m.id)
+join tags         t  on (t.id = tm.tag_id)
+join ratings      r  on (r.movie_id = m.id)
+where g.name = 'Comedy'
+  and t.name like 'Zombie%'
+group by m.id, m.title
+order by avg(r.rating) desc;</code></pre>
+    <div class="next">
+        <pre><code class="text">
+Total query runtime: 01:34 minutes
+60 строк получено.</code></pre>
+    </div>
+    <img class="next" src="zombie-sad.png" height="250px" style="position: absolute; right: 50px; bottom: 50px"/>
+</section>
+
+<section class="slide">
+    <h2>Как выполняется простой запрос?</h2>
+    <h3>Получить все фильмы</h3>
+    <pre><code class="sql">select * from movies;</code></pre>
+    <p>Данный запрос идет по всей таблице с фильмами и возвращает из в качестве результата.</p>
+
+    <div class="next">
+        <h3>Получить все фильмы по имени</h3>
+        <pre><code class="sql">select * from movies where title = 'Alice in Wonderland';</code></pre>
+        <div class="next">
+            <p>Данный запрос идет по всей таблице с фильмами и возвращает из них, только те, у которых название 'Alice
+                in Wonderland'.</p>
+            <p>В данном случае он просмотрит более 40 000 строк, чтобы найти 8 фильмов.</p></div>
+    </div>
+</section>
+
+<section class="slide">
     <h2>Индексирование</h2>
     <div style="font-size: 80%">
         <p>Индексы используются для:</p>
