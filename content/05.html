@@ -23,7 +23,6 @@ description: |
 .covering_index {
 	font-size: 75%;
 }
-
 </style>
 
 <section class="slide">
@@ -472,6 +471,24 @@ ON movies USING gin (genres);
 
 <section class="slide">
     <h2>Частичный индекс</h2>
+    <pre style="font-size: 80%"><code class="sql">CREATE TABLE items (
+    id BIGSERIAL PRIMARY KEY,
+    avatar_id INT NULL,
+    mail_id INT NULL,
+    auction_id INT NULL,
+    ...
+    CHECK (
+        CASE WHEN avatar_id IS NULL THEN 1 ELSE 0 END +
+        CASE WHEN mail_id IS NULL THEN 1 ELSE 0 END +
+        CASE WHEN auction_id IS NULL THEN 1 ELSE 0 END = 1
+    )
+);
+CREATE INDEX idx_items_avatar_id  ON items (avatar_id)
+    WHERE avatar_id IS NOT NULL;
+CREATE INDEX idx_items_mail_id    ON items (mail_id)
+    WHERE mail_id IS NOT NULL;
+CREATE INDEX idx_items_auction_id ON items (auction_id)
+    WHERE auction_id IS NOT NULL;</code></pre>
 </section>
 
 <section class="slide">
@@ -488,10 +505,15 @@ ON movies USING gin (genres);
 
 <section class="slide">
     <h2>Индексирование. Расплата</h2>
-    <img src="devil.jpg" height="500px" style="position: absolute; right: 20px; bottom: 0px; z-index: -1" />
+    <img src="devil.jpg" height="500px" style="position: absolute; right: 20px; bottom: 0px; z-index: -1"/>
     <ul style="width: 560px">
-        <li>Увеличение числа индексов замедляет операции добавления, обновления, удаления строк таблицы, поскольку при этом приходится обновлять сами индексы.</li>
-        <li>Индексы занимают дополнительный объем памяти, поэтому перед созданием индекса следует убедиться, что планируемый выигрыш в производительности запросов превысит дополнительную затрату ресурсов компьютера на сопровождение индекса.</li>
+        <li>Увеличение числа индексов замедляет операции добавления, обновления, удаления строк таблицы, поскольку при
+            этом приходится обновлять сами индексы.
+        </li>
+        <li>Индексы занимают дополнительный объем памяти, поэтому перед созданием индекса следует убедиться, что
+            планируемый выигрыш в производительности запросов превысит дополнительную затрату ресурсов компьютера на
+            сопровождение индекса.
+        </li>
     </ul>
 </section>
 
