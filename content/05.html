@@ -322,6 +322,65 @@ f('Vadim') = 2458</code></pre>
 </section>
 
 <section class="slide">
+    <h2>Индексирование: битовый индекс</h2>
+    <h3>Данные</h3>
+    <table class="classic bordered" style="font-size: 90%">
+        <thead>
+            <th>id</th>
+            <th>name</th>
+            <th>gender</th>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>Иван</td>
+            <td>Мужской</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Евгений</td>
+            <td>Мужской</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Александра</td>
+            <td>Женский</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>Петр</td>
+            <td>Мужской</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>Мария</td>
+            <td>Женский</td>
+        </tr>
+        </tbody>
+    </table>
+    <h3>Битовые маски</h3>
+    <table class="classic bordered" style="font-size: 90%">
+        <thead>
+        <th>value</th>
+        <th>first-id</th>
+        <th>bitmask</th>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Женский</td>
+            <td>1</td>
+            <td style="font-family: mono">00101</td>
+        </tr>
+        <tr>
+            <td>Мужской</td>
+            <td>1</td>
+            <td style="font-family: mono">11010</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
     <h2>Индексирование. Специфика MySQL</h2>
     <div>
         <ul>
