@@ -182,14 +182,14 @@ Total query runtime: 01:34 minutes
 </section>
 
 <section class="slide">
-    <h2>Индексирование B-tree</h2>
+    <h2>Индексирование btree</h2>
     <div style="text-align: center; height: 100%">
         <img style="height: 70%" src="index-btree.png"/>
     </div>
 </section>
 
 <section class="slide">
-    <h2>Индексирование B-tree (пример)</h2>
+    <h2>Индексирование btree (пример)</h2>
     <img style="position: absolute; bottom: 50px; right: 50px; height: 380px" src="index-btree-2.png"/>
     <pre style="font-size: 80%"><code class="sql">CREATE TABLE people (
 	last_name TEXT NOT NULL,
@@ -207,7 +207,7 @@ ON people USING btree
 </section>
 
 <section class="slide">
-    <h2>Индексирование B-tree (особенности)</h2>
+    <h2>Индексирование btree (особенности)</h2>
     <div>
         <h3>Можно:</h3>
         <ul class="compact">
@@ -228,7 +228,7 @@ ON people USING btree
 </section>
 
 <section class="slide">
-    <h2>Индексирование ХЕШ-индексы</h2>
+    <h2>Индексирование hash-индексы</h2>
     <pre><code class="sql">CREATE TEMPORARY TABLE testhash (
 	fname TEXT NOT NULL,
 	lname TEXT NOT NULL
@@ -264,7 +264,7 @@ ON testhash USING hash (fname);</code></pre>
 </section>
 
 <section class="slide">
-    <h2>Индексирование ХЕШ-индексы</h2>
+    <h2>Индексирование hash-индексы</h2>
     <pre><code>
 f('Arjen') = 2323
 f('Baron') = 7437
@@ -300,11 +300,11 @@ f('Vadim') = 2458</code></pre>
 </section>
 
 <section class="slide">
-    <h2>Индексирование B-tree (особенности)</h2>
-    <div style="font-size: 85%">
-        <ul>
-            <li>MySQL не может использовать данные в индексе, чтобы избежать чтения строк.</li>
-            <li>MySQL не может использовать хеш-индексы для сортировки, поскольку строки в нем не хранятся в
+    <h2>Индексирование hash (особенности)</h2>
+    <div style="font-size: 90%">
+        <ul class="compact">
+            <li>Нельзя использовать данные в индексе, чтобы избежать чтения строк.</li>
+            <li>Нельзя использовать для сортировки, поскольку строки в нем не хранятся в
                 отсортированном порядке.
             </li>
             <li>Хеш-индексы не поддерживают поиск по частичному ключу, так как хеш-коды вычисляются для всего
@@ -315,6 +315,9 @@ f('Vadim') = 2458</code></pre>
             <li>Некоторые операции обслуживания индекса могут оказаться медленными, если количество коллизий велико.
             </li>
         </ul>
+        <div class="important">
+            <p>В PostgreSQL hash-индекс не записывается в WAL-лог, т. е. он не транзакционен.</p>
+        </div>
     </div>
 </section>
 
