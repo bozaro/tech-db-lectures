@@ -508,6 +508,20 @@ CLUSTER;
 
 <section class="slide">
     <h2>Покрывающий индекс</h2>
+    <pre style="font-size: 90%"><code class="sql">CREATE TABLE movies (
+	id SERIAL PRIMARY KEY,
+	title TEXT NOT NULL
+);
+
+CREATE INDEX idx_movies_title ON movies (title);
+
+SELECT title FROM movies
+WHERE title = 'Alice in Wonderland';
+</code></pre>
+    <p>Покрывающий индекс содержит все данные, необходимые для выполнения запроса.</p>
+    <div class="important">
+        <p>В PostgreSQL покрывающие индексы не реализованы, так как в индексе нет информации о видимости записи для MVCC.</p>
+    </div>
 </section>
 
 <section class="slide">
