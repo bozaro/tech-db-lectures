@@ -23,6 +23,7 @@ description: |
 .covering_index {
 	font-size: 75%;
 }
+
 </style>
 
 <section class="slide">
@@ -323,13 +324,106 @@ f('Vadim') = 2458</code></pre>
 </section>
 
 <section class="slide">
+    <h2>Индексирование GiST (R-Tree)</h2>
+    <img style="position: absolute; right: 50px; width: 45%" src="index-rtree.png"/>
+    <pre><code class="sql">CREATE TABLE city (
+	id SERIAL PRIMARY KEY,
+	name TEXT NOT NULL,
+	area polygon
+);
+
+CREATE INDEX idx_city_area
+ON city USING gist (area);
+
+</code></pre>
+    <p style="width: 55%">В PostgreSQL GiST позволяет создать для любого собственного типа данных индекс основанный на
+        R-Tree.</p>
+</section>
+
+<section class="slide">
+    <h2>Индексирование GIN (инвертированный)</h2>
+    <pre><code class="sql">CREATE TABLE movies (
+	id SERIAL PRIMARY KEY,
+	title TEXT NOT NULL,
+	genres TEXT[] NOT NULL
+);
+
+CREATE INDEX idx_movies_genres
+ON movies USING gin (genres);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Индексирование GIN (инвертированный)</h2>
+    <h3>Данные</h3>
+    <table class="bordered classic" style="font-size: 80%">
+        <thead>
+        <th>id</th>
+        <th>title</th>
+        <th>genres</th>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>Toy Story</td>
+            <td>{'Animation', 'Children', 'Comedy'}</td>
+        </tr>
+        <tr>
+            <td>589</td>
+            <td>Terminator 2: Judgment Day</td>
+            <td>{'Action', 'Sci-Fi'}</td>
+        </tr>
+        <tr>
+            <td>741</td>
+            <td>Ghost in the Shell</td>
+            <td>{'Animation', 'Sci-Fi'}</td>
+        </tr>
+        <tr>
+            <td>45517</td>
+            <td>Cars</td>
+            <td>{'Animation', 'Children', 'Comedy'}</td>
+        </tr>
+        </tbody>
+    </table>
+    <h3>Индекс</h3>
+    <table class="bordered classic" style="font-size: 80%">
+        <thead>
+        <th>key</th>
+        <th>ids</th>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Action</td>
+            <td>589</td>
+        </tr>
+        <tr>
+            <td>Animation</td>
+            <td>1, 741, 45517</td>
+        </tr>
+        <tr>
+            <td>Children</td>
+            <td>1, 45517</td>
+        </tr>
+        <tr>
+            <td>Comedy</td>
+            <td>1, 45517</td>
+        </tr>
+        <tr>
+            <td>Sci-Fi</td>
+            <td>589, 741</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
     <h2>Индексирование: битовый индекс</h2>
     <h3>Данные</h3>
     <table class="classic bordered" style="font-size: 90%">
         <thead>
-            <th>id</th>
-            <th>name</th>
-            <th>gender</th>
+        <th>id</th>
+        <th>name</th>
+        <th>gender</th>
         </thead>
         <tbody>
         <tr>
@@ -379,22 +473,6 @@ f('Vadim') = 2458</code></pre>
         </tr>
         </tbody>
     </table>
-</section>
-
-<section class="slide">
-    <h2>Индексирование GiST (R-Tree)</h2>
-    <img style="position: absolute; right: 50px; width: 45%" src="index-rtree.png"/>
-    <pre><code class="sql">CREATE TABLE city (
-	id SERIAL PRIMARY KEY,
-	name TEXT NOT NULL,
-	area polygon
-);
-
-CREATE INDEX idx_city_area
-ON city USING gist (area);
-
-</code></pre>
-    <p style="width: 55%">В PostgreSQL GiST позволяет создать для любого собственного типа данных индекс основанный на R-Tree.</p>
 </section>
 
 <section class="slide">
