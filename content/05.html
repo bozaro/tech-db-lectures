@@ -493,6 +493,17 @@ CREATE INDEX idx_items_auction_id ON items (auction_id)
 
 <section class="slide">
     <h2>Кластерный индекс</h2>
+    <pre><code class="sql">CREATE TABLE movies (
+	id SERIAL PRIMARY KEY,
+	title TEXT NOT NULL
+);
+
+CLUSTER movies USING movies_pkey;
+CLUSTER movies;
+CLUSTER;
+</code></pre>
+    <p>Кластерный индекс (или кластерный ключ) сохраняет не только значения колонки в отсортированном виде, а и данные всей строки.</p>
+    <p>Это позволяет минимизировать количество операций чтения с диска при работе с таким индексом. В таблице может быть только один кластерный индекс.</p>
 </section>
 
 <section class="slide">
