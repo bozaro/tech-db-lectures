@@ -382,6 +382,22 @@ f('Vadim') = 2458</code></pre>
 </section>
 
 <section class="slide">
+    <h2>Индексирование GiST (R-Tree)</h2>
+    <img style="position: absolute; right: 50px; width: 45%" src="index-rtree.png"/>
+    <pre><code class="sql">CREATE TABLE city (
+	id SERIAL PRIMARY KEY,
+	name TEXT NOT NULL,
+	area polygon
+);
+
+CREATE INDEX idx_city_area
+ON city USING gist (area);
+
+</code></pre>
+    <p style="width: 55%">В PostgreSQL GiST позволяет создать для любого собственного типа данных индекс основанный на R-Tree.</p>
+</section>
+
+<section class="slide">
     <h2>Индексирование. Специфика MySQL</h2>
     <div>
         <ul>
