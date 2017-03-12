@@ -28,18 +28,16 @@ description: |
 
 <section class="slide">
     <h2>Индексы. Профилирование и оптимизация запросов.</h2>
-    <ul>
-        <li>Протоколирование запросов;</li>
+    <ul class="compact">
         <li>Индексы:
             <ul>
                 <li>Назначение индексов;</li>
-                <li>B-Tree индексы;</li>
-                <li>Hash индексы;</li>
-                <li>Bitmap индексы;</li>
+                <li>Типы индексов;</li>
                 <li>Частичные индексы;</li>
                 <li>Кластерные и покрывающие индексы.</li>
             </ul>
         </li>
+        <li>Протоколирование запросов;</li>
         <li>План запросов EXPLAIN;</li>
         <li>Варианты соединения таблиц:
             <ul>
@@ -56,7 +54,7 @@ description: |
 
 <section class="slide">
     <h2>Тестовая база</h2>
-    <p>Для примеров данной лекции используется база рейтингов кинофильмов.</p>
+    <p>Для примеров в данной лекции используется база рейтингов кинофильмов.</p>
     <ul class="compact">
         <li>Источник:
             <nobr><a href="https://movielens.org/">https://movielens.org/</a></nobr>
@@ -71,7 +69,7 @@ description: |
         <li>movies.csv - данные фильмов (id, название, жанры);</li>
         <li>ratings.csv - рейтинги фильмов (id фильма, id пользователя, оценка, время);</li>
         <li>tags.csv - тэги фильмов (id фильма, id пользователя, тэг, время);</li>
-        <li>links.csv - идентификаторы фильмов в других системах (id фильма, IMDB, TMDB).</li>
+        <li>links.csv - идентификаторы фильмов (id фильма, IMDB, TMDB).</li>
     </ul>
 </section>
 
@@ -164,23 +162,20 @@ Total query runtime: 01:34 minutes
 
 <section class="slide">
     <h2>Индексирование</h2>
-    <div style="font-size: 80%">
-        <p>Индексы используются для:</p>
-        <ul>
-            <li>Быстрого поиска записей по условию WHERE;</li>
-            <li>Для объединения таблиц с посредством JOIN. Необходимо использовать одинаковые типы сравниваемых полей.
-                Если для сравнения необходимо произвести преобразование типов, то индексы использоваться не будут;
-            </li>
-            <li>Для выборки наименьшего количества записей из таблицы. Если есть множественный индекс, то использоваться
-                будет тот индекс, который находит самое маленький число строк;
-            </li>
-            <li>Поиска MAX и MIN значений для ключевых полей;</li>
-            <li>Для сортировки и группировки таблиц (…ORDER BY и GROUP BY);</li>
-            <li>Для извлечения данных не из таблицы с данными, а из индексного файла. Это возможно только в некоторых
-                случаях, например, когда все извлекаемые поля проиндексированы.
-            </li>
-        </ul>
-    </div>
+    <ul class="compact">
+        <li>Быстрый поиск записей по условию WHERE;</li>
+        <li>Объединение таблиц с посредством JOIN. Необходимо использовать одинаковые типы сравниваемых полей.
+            Если для сравнения необходимо произвести преобразование типов, то индексы использоваться не будут;
+        </li>
+        <li>Выборка наименьшего количества записей из таблицы. Если есть множественный индекс, то использоваться
+            будет тот индекс, который находит самое маленький число строк;
+        </li>
+        <li>Поиск MAX и MIN значений для ключевых полей;</li>
+        <li>Сортировка и группировка таблиц (…ORDER BY и GROUP BY);</li>
+        <li>Извлечения данных не из таблицы с данными, а из индексного файла. Это возможно только в некоторых
+            случаях, например, когда все извлекаемые поля проиндексированы.
+        </li>
+    </ul>
 </section>
 
 <section class="slide">
@@ -476,60 +471,47 @@ ON movies USING gin (genres);
 </section>
 
 <section class="slide">
-    <h2>Индексирование. Специфика MySQL</h2>
-    <div>
-        <ul>
-            <li>MySQL для регистронезависимого сравнения использует COLLATIONS (например: utf8_general_ci):<br/>
-                <a style="font-size: 85%"
-                   href="http://collation-charts.org/mysql60/mysql604.utf8_general_ci.european.html">http://collation-charts.org/mysql60/mysql604.utf8_general_ci.european.html</a>
-            </li>
-            <li>В MySQL нет разницы между UNIQUE INDEX и UNIQUE CONSTRAINT.</li>
-            <li>MySQL автоматически создаёт индексы для FOREIGN KEY, но некоторые СУБД этого не делают (например:
-                PostgreSQL).
-            </li>
-        </ul>
-    </div>
+    <h2>Частичный индекс</h2>
+</section>
+
+<section class="slide">
+    <h2>Кластерный индекс</h2>
+</section>
+
+<section class="slide">
+    <h2>Покрывающий индекс</h2>
+</section>
+
+<section class="slide">
+    <h2>Индексирование. Подытоживание</h2>
 </section>
 
 <section class="slide">
     <h2>Профилирование</h2>
     <ul>
-        <li>К каким данным MySQL обращается чаще всего?</li>
-        <li>Какие типы запросов MySQL выполняет чаще всего?</li>
-        <li>В каких состояниях преимущественно находятся потоки (threads) MySQL?</li>
-        <li>Какие подсистемы MySQL чаще всего использует для выполнения запросов?</li>
+        <li>К каким данным СУБД обращается чаще всего?</li>
+        <li>Какие типы запросов СУБД выполняет чаще всего?</li>
         <li>Какие виды обращения к данным встречаются наиболее часто?</li>
-        <li>Сколько различных видов действий, например просмотра индексов, выполняет MySQL?</li>
     </ul>
 </section>
 
 <section class="slide">
     <h2>Протоколирование запросов</h2>
-    <h3>Общий журнал</h3>
-    <pre><code style="font-size: 80%">general_log_file = &lt;имя_файла&gt;</code></pre>
-    <h3>Журнал медленных запросов</h3>
-    <pre><code style="font-size: 80%">slow_query_log_file = &lt;имя_файла&gt;
-slow_query_log = 1
-long_query_time = 2.5
-log_queries_not_using_indexes = 1
-log_slow_admin_statements = 1
-log_throttle_queries_not_using_indexes = 60
+    <h3>Конфигурация:</h3>
+    <pre><code>log_duration = on
+log_min_duration_statement = 50</code></pre>
+    <h3>Запрос:</h3>
+    <pre class="sql"><code>set log_min_duration_statement = 50;
+select * from movies where title = 'Alice in Wonderland';
 </code></pre>
-    <pre><code class="sql" style="font-size: 80%">
-# Time: 121018 9:47:00
-# User@Host: root[root] @ localhost []
-# Query_time: 0.000652 Lock_time: 0.000109 Rows_sent: 50
-# Rows_examined: 3268
-SELECT ...
-</code></pre>
+    <h3>Пример:</h3>
+    <pre class="sql"><code style="padding-right: 100px; white-space: pre-wrap; font-size: 90%">2017-03-12 22:34:32 MSK [8960-5] postgres@movielens LOG:  duration: 50.157 ms  statement: select * from movies where title = 'Alice in Wonderland'</code></pre>
+    <pre class="sql"><code style="padding-right: 100px; white-space: pre-wrap; font-size: 90%">2017-03-12 22:35:42 MSK [8960-6] postgres@movielens LOG:  duration: 54.305 ms  statement: select * from movies where title = 'Alice in Wonderland'</code></pre>
 </section>
 
 <section class="slide">
     <h2>Протоколирование запросов</h2>
     <ul>
-        <li>Таблица могла быть заблокирована, поэтому запрос был вынужден ждать. Величина Lock_time показывает, как
-            долго запрос ждал освобождения блокировки.
-        </li>
         <li>Данные или индексы могли к тому моменту еще отсутствовать в кэше. Это обычный случай, когда сервер MySQL
             только запущен или не настроен должным образом.
         </li>
