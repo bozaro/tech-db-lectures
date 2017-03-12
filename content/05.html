@@ -166,14 +166,14 @@ Total query runtime: 01:34 minutes
         <p>Индексы используются для:</p>
         <ul>
             <li>Быстрого поиска записей по условию WHERE;</li>
-            <li>Для объединения таблиц с посредством JOIN. Необходимо использовать одинаковые типы сравниваемых полей.bo
+            <li>Для объединения таблиц с посредством JOIN. Необходимо использовать одинаковые типы сравниваемых полей.
                 Если для сравнения необходимо произвести преобразование типов, то индексы использоваться не будут;
             </li>
-            <li>Для выбора наименьшего количества совпадений. Если есть множественный индекс, то использоваться будет
-                тот индекс, который находит самое маленький число строк;
+            <li>Для выборки наименьшего количества записей из таблицы. Если есть множественный индекс, то использоваться
+                будет тот индекс, который находит самое маленький число строк;
             </li>
             <li>Поиска MAX и MIN значений для ключевых полей;</li>
-            <li>Для сортировки и группировки таблиц (……ORDER BY и GROUP BY);</li>
+            <li>Для сортировки и группировки таблиц (…ORDER BY и GROUP BY);</li>
             <li>Для извлечения данных не из таблицы с данными, а из индексного файла. Это возможно только в некоторых
                 случаях, например, когда все извлекаемые поля проиндексированы.
             </li>
@@ -192,19 +192,25 @@ Total query runtime: 01:34 minutes
     <h2>Индексирование B-tree (пример)</h2>
     <img style="position: absolute; bottom: 50px; right: 50px; height: 380px" src="index-btree-2.png"/>
     <pre style="font-size: 80%"><code class="sql">CREATE TABLE people (
-	last_name VARCHAR(50) NOT NULL,
-	first_name VARCHAR(50) NOT NULL,
-	dob DATE NOT NULL,
-	gender ENUM(m, f) NOT NULL,
-	KEY (last_name, first_name, dob)
-);</code></pre>
+	last_name TEXT NOT NULL,
+	first_name TEXT NOT NULL,
+	dob TIMESTAMP NOT NULL,
+	gender INT NOT NULL
+);
+
+
+
+
+CREATE INDEX idx_people_name
+ON people USING btree
+(last_name, first_name, dob);</code></pre>
 </section>
 
 <section class="slide">
     <h2>Индексирование B-tree (особенности)</h2>
-    <div style="font-size: 75%">
+    <div>
         <h3>Можно:</h3>
-        <ul>
+        <ul class="compact">
             <li>Поиск по полному значению;</li>
             <li>Поиск по самому левому префиксу;</li>
             <li>Поиск по префиксу столбца;</li>
@@ -213,7 +219,7 @@ Total query runtime: 01:34 minutes
             <li>Запросы только по индексу.</li>
         </ul>
         <h3>Нельзя:</h3>
-        <ul>
+        <ul class="compact">
             <li>Поиск без использования левой части ключа;</li>
             <li>Нельзя пропускать столбцы;</li>
             <li>Оптимизация после поиска в диапазоне.</li>
@@ -223,11 +229,12 @@ Total query runtime: 01:34 minutes
 
 <section class="slide">
     <h2>Индексирование ХЕШ-индексы</h2>
-    <pre><code class="sql">CREATE TABLE testhash (
-	fname VARCHAR(50) NOT NULL,
-	lname VARCHAR(50) NOT NULL,
-	KEY USING HASH (fname)
-) ENGINE=MEMORY;</code></pre>
+    <pre><code class="sql">CREATE TEMPORARY TABLE testhash (
+	fname TEXT NOT NULL,
+	lname TEXT NOT NULL
+);
+CREATE INDEX idx_testhash_fname
+ON testhash USING hash (fname);</code></pre>
     <table class="classic bordered">
         <thead>
         <tr>
