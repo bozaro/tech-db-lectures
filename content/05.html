@@ -596,6 +596,27 @@ select * from movies where title = 'Alice in Wonderland';
 
 <section class="slide">
     <h2>Протоколирование запросов</h2>
+    <img src="pgbadger.png" height="170px" style="position: absolute; right: 50px"/>
+    <h3>Конфигурация:</h3>
+    <pre><code>log_duration = on
+log_lock_waits = on;
+log_min_duration_statement = 50;
+log_filename = 'postgresql-%Y-%m-%d_%H%M%S'
+log_directory = '/var/log/postgresql'
+log_destination = 'csvlog'
+logging_collector = on
+</code></pre>
+    <p>Логирование в CSV создаёт файлы в формате, пригодном для анализа утилитами вида <a href="https://github.com/dalibo/pgbadger">pgbadger</a>:</p>
+    <pre class="bash"><code>sudo apt instal libtext-csv-xs-perl pgbadger
+pgbadger /var/log/*.csv</code></pre>
+</section>
+
+set debug_pretty_print = on;
+set log_min_duration_statement = 0;
+select * from movies where title = 'Ghost вава'
+
+<section class="slide">
+    <h2>Протоколирование запросов</h2>
     <ul>
         <li>Данные или индексы могли к тому моменту еще отсутствовать в кэше. Это обычный случай, когда сервер СУБД
             только запущен или не настроен должным образом.
