@@ -492,6 +492,25 @@ CREATE INDEX idx_items_auction_id ON items (auction_id)
 </section>
 
 <section class="slide">
+    <h2>Функциональный индекс</h2>
+    <pre><code class="sql">CREATE TABLE movies (
+	id SERIAL PRIMARY KEY,
+	title TEXT NOT NULL,
+	genres TEXT[] NOT NULL
+);
+
+CREATE INDEX idx_movies_title
+ON movies (LOWER(title));
+
+SELECT * FROM movies
+WHERE title = 'Alice in Wonderland';
+
+SELECT * FROM movies
+WHERE LOWER(title) = LOWER('Alice in Wonderland');
+</code></pre>
+</section>
+
+<section class="slide">
     <h2>Кластерный индекс</h2>
     <pre><code class="sql">CREATE TABLE movies (
 	id SERIAL PRIMARY KEY,
@@ -502,8 +521,10 @@ CLUSTER movies USING movies_pkey;
 CLUSTER movies;
 CLUSTER;
 </code></pre>
-    <p>Кластерный индекс (или кластерный ключ) сохраняет не только значения колонки в отсортированном виде, а и данные всей строки.</p>
-    <p>Это позволяет минимизировать количество операций чтения с диска при работе с таким индексом. В таблице может быть только один кластерный индекс.</p>
+    <p>Кластерный индекс (или кластерный ключ) сохраняет не только значения колонки в отсортированном виде, а и данные
+        всей строки.</p>
+    <p>Это позволяет минимизировать количество операций чтения с диска при работе с таким индексом. В таблице может быть
+        только один кластерный индекс.</p>
 </section>
 
 <section class="slide">
@@ -519,13 +540,8 @@ SELECT title FROM movies
 WHERE title = 'Alice in Wonderland';
 </code></pre>
     <p>Покрывающий индекс содержит все данные, необходимые для выполнения запроса.</p>
-    <div class="important">
-        <p>В PostgreSQL покрывающие индексы не реализованы, так как в индексе нет информации о видимости записи для MVCC.</p>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Индексирование. Подытоживание</h2>
+    <p>В PostgreSQL индексы не хранят информацию о видимости записи для MVCC. Из-за этого они могут быть покрывающими
+        только если в таблице нет мертвых кортежей.</p>
 </section>
 
 <section class="slide">
@@ -539,6 +555,19 @@ WHERE title = 'Alice in Wonderland';
             планируемый выигрыш в производительности запросов превысит дополнительную затрату ресурсов компьютера на
             сопровождение индекса.
         </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Индексирование. Подытоживание</h2>
+    <ul class="compact">
+        <li>В большинстве случаев нужен btree-индекс;</li>
+        <li>Для специфических случаев нужны GIN и GiST-индексы;</li>
+        <li>Битовые и hash-индексы PostgreSQL активно используюет в процессе выполнения запросов;</li>
+        <li>Частичные индексы могут заметно сократить объем индексов;</li>
+        <li>В PostgreSQL нужно явно создавать индексы для FOREIGN KEY;</li>
+        <li>Можно получить очень большой выйгрыш при использовании покрывающих индексов;</li>
+        <li>Каждый индекс требует долнительных затрат на своё поддержание (I/O и память).</li>
     </ul>
 </section>
 
