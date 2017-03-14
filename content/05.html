@@ -36,7 +36,8 @@ description: |
         <li>Партиционирование.</li>
     </ul>
     <footer class="footer">https://habrahabr.ru/post/102785/
-https://habrahabr.ru/post/203386/</footer>
+        https://habrahabr.ru/post/203386/
+    </footer>
 </section>
 
 <section class="slide">
@@ -232,9 +233,11 @@ ON movies USING gin (genres);
     <h3>Данные</h3>
     <table class="bordered classic" style="font-size: 80%">
         <thead>
-        <tr><th>id</th>
-        <th>title</th>
-        <th>genres</th></tr>
+        <tr>
+            <th>id</th>
+            <th>title</th>
+            <th>genres</th>
+        </tr>
         </thead>
         <tbody>
         <tr>
@@ -262,8 +265,10 @@ ON movies USING gin (genres);
     <h3>Индекс</h3>
     <table class="bordered classic" style="font-size: 80%">
         <thead>
-        <tr><th>key</th>
-            <th>ids</th></tr>
+        <tr>
+            <th>key</th>
+            <th>ids</th>
+        </tr>
         </thead>
         <tbody>
         <tr>
@@ -295,9 +300,11 @@ ON movies USING gin (genres);
     <h3>Данные</h3>
     <table class="classic bordered" style="font-size: 90%">
         <thead>
-        <tr><th>id</th>
-        <th>name</th>
-        <th>gender</th></tr>
+        <tr>
+            <th>id</th>
+            <th>name</th>
+            <th>gender</th>
+        </tr>
         </thead>
         <tbody>
         <tr>
@@ -331,9 +338,9 @@ ON movies USING gin (genres);
     <table class="classic bordered" style="font-size: 90%">
         <thead>
         <tr>
-        <th>value</th>
-        <th>first-id</th>
-        <th>bitmask</th>
+            <th>value</th>
+            <th>first-id</th>
+            <th>bitmask</th>
         </tr>
         </thead>
         <tbody>
@@ -477,11 +484,13 @@ WHERE title = 'Alice in Wonderland';
 <section class="slide">
     <h2>Тестовая база</h2>
     <table>
-        <thead><tr>
-        <th>Таблица</th>
-        <th style="text-align: right">Кортежей</th>
-        <th style="text-align: right">Размер</th>
-        </tr></thead>
+        <thead>
+        <tr>
+            <th>Таблица</th>
+            <th style="text-align: right">Кортежей</th>
+            <th style="text-align: right">Размер</th>
+        </tr>
+        </thead>
         <tbody>
         <tr>
             <td>genres</td>
@@ -566,9 +575,9 @@ Total query runtime: 01:34 minutes
     <h3>Получить фильмы по имени</h3>
     <pre><code class="sql">create index idx_movies_title on movies (title);
 select * from movies where title = 'Alice in Wonderland';</code></pre>
-            <p>Данный запрос идет по индексу и находит фильмы с названием 'Alice
-                in Wonderland'.</p>
-            <p>В данном случае он просмотрит 8 записей, чтобы найти 8 фильмов.</p>
+    <p>Данный запрос идет по индексу и находит фильмы с названием 'Alice
+        in Wonderland'.</p>
+    <p>В данном случае он просмотрит 8 записей, чтобы найти 8 фильмов.</p>
     <div class="next">
         <h3>Чуть поменяем запрос</h3>
         <pre><code class="sql">select * from movies where title <> 'Alice in Wonderland';</code></pre>
@@ -677,7 +686,8 @@ log_directory = '/var/log/postgresql'
 log_destination = 'csvlog'
 logging_collector = on
 </code></pre>
-    <p>Логирование в CSV создаёт файлы в формате, пригодном для анализа утилитами вида <a href="https://github.com/dalibo/pgbadger">pgbadger</a>:</p>
+    <p>Логирование в CSV создаёт файлы в формате, пригодном для анализа утилитами вида <a
+            href="https://github.com/dalibo/pgbadger">pgbadger</a>:</p>
     <pre class="bash"><code>sudo apt instal libtext-csv-xs-perl pgbadger
 pgbadger /var/log/*.csv</code></pre>
 </section>
@@ -774,7 +784,7 @@ EXPLAIN SELECT * FROM foo;
  Seq Scan on foo  (cost=0.00..18334.00 rows=1000000 width=37)
 (1 строка)
 </code></pre>
-<pre class="next" style="font-size: 80%"><code class="sql">
+    <pre class="next" style="font-size: 80%"><code class="sql">
 ANALYZE foo;
 EXPLAIN SELECT * FROM foo;
                           QUERY PLAN
@@ -875,6 +885,89 @@ EXPLAIN SELECT c1 FROM foo WHERE c1 < 500;
  Index Only Scan using foo_c1_idx on foo  (cost=0.42..25.23 rows=503 width=4)
    Index Cond: (c1 < 500)
 (2 строки)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: TEXT</h2>
+    <pre style="font-size: 70%"><code class="sql">CREATE INDEX ON foo(c2 text_pattern_ops);
+
+EXPLAIN SELECT * FROM foo WHERE c2 LIKE 'abcd%';
+                                QUERY PLAN
+---------------------------------------------------------------------------
+ Bitmap Heap Scan on foo  (cost=4.57..51.35 rows=100 width=37)
+   Filter: (c2 ~~ 'abcd%'::text)
+   ->  Bitmap Index Scan on foo_c2_idx1  (cost=0.00..4.54 rows=12 width=0)
+         Index Cond: ((c2 ~>=~ 'abcd'::text) AND (c2 ~<~ 'abce'::text))
+(4 строки)
+
+EXPLAIN SELECT c1 FROM foo WHERE c1 < 500;
+                                  QUERY PLAN
+------------------------------------------------------------------------------
+ Index Only Scan using foo_c1_idx on foo  (cost=0.42..25.23 rows=503 width=4)
+   Index Cond: (c1 < 500)
+(2 строки)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: ORDER BY</h2>
+    <pre style="font-size: 70%"><code class="sql">DROP INDEX foo_c1_idx;
+
+EXPLAIN SELECT * FROM foo ORDER BY c1;
+                             QUERY PLAN
+--------------------------------------------------------------------
+ Sort  (cost=145338.51..147838.54 rows=1000010 width=37)
+   Sort Key: c1
+   ->  Seq Scan on foo  (cost=0.00..18334.10 rows=1000010 width=37)
+(3 строки)
+
+CREATE INDEX ON foo(c1);
+
+EXPLAIN SELECT * FROM foo ORDER BY c1;
+                             QUERY PLAN
+--------------------------------------------------------------------
+ Sort  (cost=145338.51..147838.54 rows=1000010 width=37)
+   Sort Key: c1
+   ->  Seq Scan on foo  (cost=0.00..18334.10 rows=1000010 width=37)
+(3 строки)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: JOIN</h2>
+    <pre style="font-size: 70%"><code class="sql">CREATE TABLE bar (c1 integer, c2 boolean);
+INSERT INTO bar
+  SELECT i, i%2=1
+  FROM generate_series(1, 500000) AS i;
+ANALYZE bar;
+
+EXPLAIN SELECT * FROM foo JOIN bar ON foo.c1=bar.c1 LIMIT 10000;
+                                 QUERY PLAN
+-----------------------------------------------------------------------------
+ Limit  (cost=15417.00..16310.28 rows=10000 width=42)
+   ->  Hash Join  (cost=15417.00..60081.14 rows=500000 width=42)
+         Hash Cond: (foo.c1 = bar.c1)
+         ->  Seq Scan on foo  (cost=0.00..18334.10 rows=1000010 width=37)
+         ->  Hash  (cost=7213.00..7213.00 rows=500000 width=5)
+               ->  Seq Scan on bar  (cost=0.00..7213.00 rows=500000 width=5)
+(6 строк)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: JOIN</h2>
+    <pre style="font-size: 70%"><code class="sql">CREATE INDEX ON bar(c1);
+
+EXPLAIN SELECT * FROM foo JOIN bar ON foo.c1=bar.c1 LIMIT 10000;
+                                    QUERY PLAN
+----------------------------------------------------------------------------------
+ Limit  (cost=0.42..9654.15 rows=10000 width=42)
+   ->  Nested Loop  (cost=0.42..482686.60 rows=500000 width=42)
+         ->  Seq Scan on foo  (cost=0.00..18334.10 rows=1000010 width=37)
+         ->  Index Scan using bar_c1_idx on bar  (cost=0.42..0.45 rows=1 width=5)
+               Index Cond: (c1 = foo.c1)
+(5 строк)
 </code></pre>
 </section>
 
