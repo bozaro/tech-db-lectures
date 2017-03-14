@@ -35,7 +35,8 @@ description: |
         <li>Временные таблицы;</li>
         <li>Партиционирование.</li>
     </ul>
-    <footer class="footer">https://habrahabr.ru/post/102785/</footer>
+    <footer class="footer">https://habrahabr.ru/post/102785/
+https://habrahabr.ru/post/203386/</footer>
 </section>
 
 <section class="slide">
@@ -231,9 +232,9 @@ ON movies USING gin (genres);
     <h3>Данные</h3>
     <table class="bordered classic" style="font-size: 80%">
         <thead>
-        <th>id</th>
+        <tr><th>id</th>
         <th>title</th>
-        <th>genres</th>
+        <th>genres</th></tr>
         </thead>
         <tbody>
         <tr>
@@ -261,8 +262,8 @@ ON movies USING gin (genres);
     <h3>Индекс</h3>
     <table class="bordered classic" style="font-size: 80%">
         <thead>
-        <th>key</th>
-        <th>ids</th>
+        <tr><th>key</th>
+            <th>ids</th></tr>
         </thead>
         <tbody>
         <tr>
@@ -294,9 +295,9 @@ ON movies USING gin (genres);
     <h3>Данные</h3>
     <table class="classic bordered" style="font-size: 90%">
         <thead>
-        <th>id</th>
+        <tr><th>id</th>
         <th>name</th>
-        <th>gender</th>
+        <th>gender</th></tr>
         </thead>
         <tbody>
         <tr>
@@ -329,9 +330,11 @@ ON movies USING gin (genres);
     <h3>Битовые маски</h3>
     <table class="classic bordered" style="font-size: 90%">
         <thead>
+        <tr>
         <th>value</th>
         <th>first-id</th>
         <th>bitmask</th>
+        </tr>
         </thead>
         <tbody>
         <tr>
@@ -474,11 +477,11 @@ WHERE title = 'Alice in Wonderland';
 <section class="slide">
     <h2>Тестовая база</h2>
     <table>
-        <thead>
+        <thead><tr>
         <th>Таблица</th>
         <th style="text-align: right">Кортежей</th>
         <th style="text-align: right">Размер</th>
-        </thead>
+        </tr></thead>
         <tbody>
         <tr>
             <td>genres</td>
@@ -565,7 +568,7 @@ Total query runtime: 01:34 minutes
 select * from movies where title = 'Alice in Wonderland';</code></pre>
             <p>Данный запрос идет по индексу и находит фильмы с названием 'Alice
                 in Wonderland'.</p>
-            <p>В данном случае он просмотрит 8 записей, чтобы найти 8 фильмов.</p></div>
+            <p>В данном случае он просмотрит 8 записей, чтобы найти 8 фильмов.</p>
     <div class="next">
         <h3>Чуть поменяем запрос</h3>
         <pre><code class="sql">select * from movies where title <> 'Alice in Wonderland';</code></pre>
@@ -744,6 +747,148 @@ ROLLBACK;</code></pre>
 </section>
 
 <section class="slide">
+    <h2>EXPLAIN: Начало</h2>
+    <pre style="font-size: 80%"><code class="sql">CREATE TABLE foo (c1 integer, c2 text);
+INSERT INTO foo
+  SELECT i, md5(random()::text)
+  FROM generate_series(1, 1000000) AS i;
+
+EXPLAIN SELECT * FROM foo;
+
+                          QUERY PLAN
+--------------------------------------------------------------
+ Seq Scan on foo  (cost=0.00..18334.00 rows=1000000 width=37)
+(1 строка)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: Статистика</h2>
+    <pre style="font-size: 80%"><code class="sql">INSERT INTO foo
+  SELECT i, md5(random()::text)
+  FROM generate_series(1, 10) AS i;
+
+EXPLAIN SELECT * FROM foo;
+                          QUERY PLAN
+--------------------------------------------------------------
+ Seq Scan on foo  (cost=0.00..18334.00 rows=1000000 width=37)
+(1 строка)
+</code></pre>
+<pre class="next" style="font-size: 80%"><code class="sql">
+ANALYZE foo;
+EXPLAIN SELECT * FROM foo;
+                          QUERY PLAN
+--------------------------------------------------------------
+ Seq Scan on foo  (cost=0.00..18334.10 rows=1000010 width=37)
+(1 строка)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: ANALYZE</h2>
+    <pre style="font-size: 80%"><code class="sql">EXPLAIN ANALYZE SELECT * FROM foo;
+                          QUERY PLAN
+--------------------------------------------------------------
+ Seq Scan on foo  (cost=0.00..18334.10 rows=1000010 width=37)
+            (actual time=0.013..89.291 rows=1000010 loops=1)
+ Planning time: 0.040 ms
+ Execution time: 123.611 ms
+(3 строки)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: WHERE</h2>
+    <pre style="font-size: 80%"><code class="sql">EXPLAIN SELECT * FROM foo WHERE c1 > 500;
+                         QUERY PLAN
+-------------------------------------------------------------
+ Seq Scan on foo  (cost=0.00..20834.12 rows=999514 width=37)
+   Filter: (c1 > 500)
+(2 строки)
+
+CREATE INDEX ON foo(c1);
+
+EXPLAIN SELECT * FROM foo WHERE c1 > 500;
+                         QUERY PLAN
+-------------------------------------------------------------
+ Seq Scan on foo  (cost=0.00..20834.12 rows=999507 width=37)
+   Filter: (c1 > 500)
+(2 строки)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: WHERE</h2>
+    <pre style="font-size: 80%"><code class="sql">EXPLAIN SELECT * FROM foo WHERE c1 < 500;
+                                QUERY PLAN
+--------------------------------------------------------------------------
+ Index Scan using foo_c1_idx on foo  (cost=0.42..25.23 rows=503 width=37)
+   Index Cond: (c1 < 500)
+(2 строки)
+
+EXPLAIN SELECT * FROM foo
+        WHERE c1 < 500 AND c2 LIKE 'abcd%';
+                               QUERY PLAN
+------------------------------------------------------------------------
+ Index Scan using foo_c1_idx on foo  (cost=0.42..26.49 rows=1 width=37)
+   Index Cond: (c1 < 500)
+   Filter: (c2 ~~ 'abcd%'::text)
+(3 строки)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: TEXT</h2>
+    <pre style="font-size: 80%"><code class="sql">EXPLAIN SELECT * FROM foo WHERE c2 LIKE 'abcd%';
+                        QUERY PLAN
+----------------------------------------------------------
+ Seq Scan on foo  (cost=0.00..20834.12 rows=100 width=37)
+   Filter: (c2 ~~ 'abcd%'::text)
+(2 строки)
+
+CREATE INDEX ON foo(c2);
+EXPLAIN SELECT * FROM foo WHERE c2 LIKE 'abcd%';
+                        QUERY PLAN
+----------------------------------------------------------
+ Seq Scan on foo  (cost=0.00..20834.12 rows=100 width=37)
+   Filter: (c2 ~~ 'abcd%'::text)
+(2 строки)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: TEXT</h2>
+    <pre style="font-size: 70%"><code class="sql">CREATE INDEX ON foo(c2 text_pattern_ops);
+
+EXPLAIN SELECT * FROM foo WHERE c2 LIKE 'abcd%';
+                                QUERY PLAN
+---------------------------------------------------------------------------
+ Bitmap Heap Scan on foo  (cost=4.57..51.35 rows=100 width=37)
+   Filter: (c2 ~~ 'abcd%'::text)
+   ->  Bitmap Index Scan on foo_c2_idx1  (cost=0.00..4.54 rows=12 width=0)
+         Index Cond: ((c2 ~>=~ 'abcd'::text) AND (c2 ~<~ 'abce'::text))
+(4 строки)
+
+EXPLAIN SELECT c1 FROM foo WHERE c1 < 500;
+                                  QUERY PLAN
+------------------------------------------------------------------------------
+ Index Only Scan using foo_c1_idx on foo  (cost=0.42..25.23 rows=503 width=4)
+   Index Cond: (c1 < 500)
+(2 строки)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: На что обратить внимание?</h2>
+    <ul>
+        <li>Надо внимательно смотреть на операции с большим cost;</li>
+        <li>Seq Scan часто указывают на отсутсвие необходимых индексов;</li>
+        <li>Большое кол-во записей в "Rows Removed by Filter" может указывать на проблему;</li>
+        <li>Sort для большого кол-ва записей - очень дорогая операция.</li>
+    </ul>
+</section>
+
+<section class="slide">
     <h2>EXPLAIN: Комедии про зомби</h2>
     <pre><code class="sql">select distinct m.id, m.title
 from movies       m
@@ -756,7 +901,6 @@ where g.name = 'Comedy'
 
 Total query runtime: 164 msec
 21 строка получена.</code></pre>
-    </div>
 </section>
 
 <section class="slide">
@@ -811,10 +955,6 @@ CREATE INDEX idx_tags_name ON tags (name);
 </section>
 
 <section class="slide">
-    <h2>EXPLAIN: На что обратить внимание?</h2>
-</section>
-
-<section class="slide">
     <h2>EXPLAIN: Комедии про зомби</h2>
     <pre><code class="sql">select distinct m.id, m.title
 from movies       m
@@ -827,7 +967,6 @@ where g.name = 'Comedy'
 
 Total query runtime: 11 msec
 21 строка получена.</code></pre>
-    </div>
 </section>
 
 <section class="slide">
@@ -862,4 +1001,45 @@ Total query runtime: 11 msec
                      Index Cond: (id = tm.movie_id)
 (21 строка)
     </code></pre>
+</section>
+
+<section class="slide">
+    <h2>Рейтинг комедий про зомби</h2>
+    <pre><code class="sql">select m.id, m.title, avg(r.rating)
+from movies       m
+join movie_genres gm on (gm.movie_id = m.id)
+join genres       g  on (g.id = gm.genre_id)
+join movie_tags   tm on (tm.movie_id = m.id)
+join tags         t  on (t.id = tm.tag_id)
+join ratings      r  on (r.movie_id = m.id)
+where g.name = 'Comedy'
+  and t.name like 'Zombie%'
+group by m.id, m.title
+order by avg(r.rating) desc;</code></pre>
+    <pre><code class="text">
+Total query runtime: 24.9 secs
+60 строк получено.</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Рейтинг комедий про зомби</h2>
+    <pre style="font-size: 80%"><code class="sql">select m.id, m.title, avg(r.rating)
+from (
+  select m.id, m.title
+  from movies       m
+  join movie_genres gm on (gm.movie_id = m.id)
+  join genres       g  on (g.id = gm.genre_id)
+  join movie_tags   tm on (tm.movie_id = m.id)
+  join tags         t  on (t.id = tm.tag_id)
+  where g.name = 'Comedy'
+    and t.name like 'Zombie%'
+  group by m.id
+) m
+join ratings r on (r.movie_id = m.id)
+group by m.id, m.title
+order by avg(r.rating) desc;
+</code></pre>
+    <pre style="font-size: 80%"><code class="text">
+Total query runtime: 862 msec
+60 строк получено.</code></pre>
 </section>
