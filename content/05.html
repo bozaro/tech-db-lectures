@@ -26,137 +26,16 @@ description: |
 </style>
 
 <section class="slide">
-    <h2>Индексы. Профилирование и оптимизация запросов.</h2>
-    <ul class="compact">
-        <li>Индексы:
-            <ul>
-                <li>Назначение индексов;</li>
-                <li>Типы индексов;</li>
-                <li>Частичные индексы;</li>
-                <li>Кластерные и покрывающие индексы.</li>
-            </ul>
-        </li>
+    <h2>Индексы. Профилирование и оптимизация</h2>
+    <ul>
+        <li>Индексы;</li>
         <li>Протоколирование запросов;</li>
         <li>План запросов EXPLAIN;</li>
-        <li>Варианты соединения таблиц:
-            <ul>
-                <li>Merge join;</li>
-                <li>Nested loop join;</li>
-                <li>Hash join.</li>
-            </ul>
-        </li>
-        <li>Временные таблицы.</li>
+        <li>Варианты соединения таблиц;</li>
+        <li>Временные таблицы;</li>
         <li>Партиционирование.</li>
     </ul>
     <footer class="footer">https://habrahabr.ru/post/102785/</footer>
-</section>
-
-<section class="slide">
-    <h2>Тестовая база</h2>
-    <p>Для примеров в данной лекции используется база рейтингов кинофильмов.</p>
-    <ul class="compact">
-        <li>Источник:
-            <nobr><a href="https://movielens.org/">https://movielens.org/</a></nobr>
-        </li>
-        <li>Скрипт для разворачивания:
-            <nobr><a href="https://github.com/bozaro/tech-db-lectures/blob/master/scripts/movielens/load-pgsql.sh">https://github.com/bozaro/tech-db-lectures/.../load-pgsql.sh</a>
-            </nobr>
-        </li>
-    </ul>
-    <p>С сайта movielens используются файлы:</p>
-    <ul class="compact">
-        <li>movies.csv - данные фильмов (id, название, жанры);</li>
-        <li>ratings.csv - рейтинги фильмов (id фильма, id пользователя, оценка, время);</li>
-        <li>tags.csv - тэги фильмов (id фильма, id пользователя, тэг, время);</li>
-        <li>links.csv - идентификаторы фильмов (id фильма, IMDB, TMDB).</li>
-    </ul>
-</section>
-
-<section class="slide">
-    <h2>Тестовая база</h2>
-    <table>
-        <thead>
-        <th>Таблица</th>
-        <th style="text-align: right">Кортежей</th>
-        <th style="text-align: right">Размер</th>
-        </thead>
-        <tbody>
-        <tr>
-            <td>genres</td>
-            <td align="right">19</td>
-            <td align="right">48 kB</td>
-        </tr>
-        <tr>
-            <td>links</td>
-            <td align="right">40 110</td>
-            <td align="right">2 944 kB</td>
-        </tr>
-        <tr>
-            <td>movie_genres</td>
-            <td align="right">74 229</td>
-            <td align="right">4 856 kB</td>
-        </tr>
-        <tr>
-            <td>movie_tags</td>
-            <td align="right">668 953</td>
-            <td align="right">49 152 kB</td>
-        </tr>
-        <tr>
-            <td>movies</td>
-            <td align="right">40 110</td>
-            <td align="right">3 400 kB</td>
-        </tr>
-        <tr>
-            <td>rating</td>
-            <td align="right">24 404 096</td>
-            <td align="right">1 971 200 kB</td>
-        </tr>
-        <tr>
-            <td>genres</td>
-            <td align="right">49 657</td>
-            <td align="right">5 344 kB</td>
-        </tr>
-        </tbody>
-    </table>
-    <p>Обзщий размер: ~1995MB</p>
-    <p>FOREIGN KEY объявлены, но никакие индексы не создавались.</p>
-</section>
-
-<section class="slide">
-    <h2>Рейтинг комедий про зомби</h2>
-    <pre><code class="sql">select m.id, m.title, avg(r.rating)
-from movies       m
-join movie_genres gm on (gm.movie_id = m.id)
-join genres       g  on (g.id = gm.genre_id)
-join movie_tags   tm on (tm.movie_id = m.id)
-join tags         t  on (t.id = tm.tag_id)
-join ratings      r  on (r.movie_id = m.id)
-where g.name = 'Comedy'
-  and t.name like 'Zombie%'
-group by m.id, m.title
-order by avg(r.rating) desc;</code></pre>
-    <div class="next">
-        <pre><code class="text">
-Total query runtime: 01:34 minutes
-60 строк получено.</code></pre>
-    </div>
-    <img class="next" src="zombie-sad.png" height="250px" style="position: absolute; right: 50px; bottom: 50px"/>
-</section>
-
-<section class="slide">
-    <h2>Как выполняется простой запрос?</h2>
-    <h3>Получить все фильмы</h3>
-    <pre><code class="sql">select * from movies;</code></pre>
-    <p>Данный запрос идет по всей таблице с фильмами и возвращает из в качестве результата.</p>
-
-    <div class="next">
-        <h3>Получить все фильмы по имени</h3>
-        <pre><code class="sql">select * from movies where title = 'Alice in Wonderland';</code></pre>
-        <div class="next">
-            <p>Данный запрос идет по всей таблице с фильмами и возвращает из них, только те, у которых название 'Alice
-                in Wonderland'.</p>
-            <p>В данном случае он просмотрит более 40 000 строк, чтобы найти 8 фильмов.</p></div>
-    </div>
 </section>
 
 <section class="slide">
@@ -572,23 +451,192 @@ WHERE title = 'Alice in Wonderland';
 </section>
 
 <section class="slide">
-    <h2>Как выполняется запрос?</h2>
+    <h2>Тестовая база</h2>
+    <p>Для примеров в данной лекции используется база рейтингов кинофильмов.</p>
+    <ul class="compact">
+        <li>Источник:
+            <nobr><a href="https://movielens.org/">https://movielens.org/</a></nobr>
+        </li>
+        <li>Скрипт для разворачивания:
+            <nobr><a href="https://github.com/bozaro/tech-db-lectures/blob/master/scripts/movielens/load-pgsql.sh">https://github.com/bozaro/tech-db-lectures/.../load-pgsql.sh</a>
+            </nobr>
+        </li>
+    </ul>
+    <p>С сайта movielens используются файлы:</p>
+    <ul class="compact">
+        <li>movies.csv - данные фильмов (id, название, жанры);</li>
+        <li>ratings.csv - рейтинги фильмов (id фильма, id пользователя, оценка, время);</li>
+        <li>tags.csv - тэги фильмов (id фильма, id пользователя, тэг, время);</li>
+        <li>links.csv - идентификаторы фильмов (id фильма, IMDB, TMDB).</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Тестовая база</h2>
+    <table>
+        <thead>
+        <th>Таблица</th>
+        <th style="text-align: right">Кортежей</th>
+        <th style="text-align: right">Размер</th>
+        </thead>
+        <tbody>
+        <tr>
+            <td>genres</td>
+            <td align="right">19</td>
+            <td align="right">48 kB</td>
+        </tr>
+        <tr>
+            <td>links</td>
+            <td align="right">40 110</td>
+            <td align="right">2 944 kB</td>
+        </tr>
+        <tr>
+            <td>movie_genres</td>
+            <td align="right">74 229</td>
+            <td align="right">4 856 kB</td>
+        </tr>
+        <tr>
+            <td>movie_tags</td>
+            <td align="right">668 953</td>
+            <td align="right">49 152 kB</td>
+        </tr>
+        <tr>
+            <td>movies</td>
+            <td align="right">40 110</td>
+            <td align="right">3 400 kB</td>
+        </tr>
+        <tr>
+            <td>rating</td>
+            <td align="right">24 404 096</td>
+            <td align="right">1 971 200 kB</td>
+        </tr>
+        <tr>
+            <td>genres</td>
+            <td align="right">49 657</td>
+            <td align="right">5 344 kB</td>
+        </tr>
+        </tbody>
+    </table>
+    <p>Обзщий размер: ~1995MB</p>
+    <p>FOREIGN KEY объявлены, но никакие индексы не создавались.</p>
+</section>
+
+<section class="slide">
+    <h2>Рейтинг комедий про зомби</h2>
+    <pre><code class="sql">select m.id, m.title, avg(r.rating)
+from movies       m
+join movie_genres gm on (gm.movie_id = m.id)
+join genres       g  on (g.id = gm.genre_id)
+join movie_tags   tm on (tm.movie_id = m.id)
+join tags         t  on (t.id = tm.tag_id)
+join ratings      r  on (r.movie_id = m.id)
+where g.name = 'Comedy'
+  and t.name like 'Zombie%'
+group by m.id, m.title
+order by avg(r.rating) desc;</code></pre>
+    <div class="next">
+        <pre><code class="text">
+Total query runtime: 01:34 minutes
+60 строк получено.</code></pre>
+    </div>
+    <img class="next" src="zombie-sad.png" height="250px" style="position: absolute; right: 50px; bottom: 50px"/>
+</section>
+
+<section class="slide">
+    <h2>Как выполняется простой запрос?</h2>
+    <h3>Получить все фильмы</h3>
+    <pre><code class="sql">select * from movies;</code></pre>
+    <p>Данный запрос идет по всей таблице с фильмами и возвращает из в качестве результата.</p>
+
+    <div class="next">
+        <h3>Получить все фильмы по имени</h3>
+        <pre><code class="sql">select * from movies where title = 'Alice in Wonderland';</code></pre>
+        <div class="next">
+            <p>Данный запрос идет по всей таблице с фильмами и возвращает из них, только те, у которых название 'Alice
+                in Wonderland'.</p>
+            <p>В данном случае он просмотрит более 40 000 строк, чтобы найти 8 фильмов.</p></div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Как выполняется простой запрос?</h2>
+    <h3>Получить фильмы по имени</h3>
+    <pre><code class="sql">create index idx_movies_title on movies (title);
+select * from movies where title = 'Alice in Wonderland';</code></pre>
+            <p>Данный запрос идет по индексу и находит фильмы с названием 'Alice
+                in Wonderland'.</p>
+            <p>В данном случае он просмотрит 8 записей, чтобы найти 8 фильмов.</p></div>
+    <div class="next">
+        <h3>Чуть поменяем запрос</h3>
+        <pre><code class="sql">select * from movies where title <> 'Alice in Wonderland';</code></pre>
+        <p class="next">Данный запрос не будет использовать индекс и просмотрит всю таблицу.</p>
+    </div>
 </section>
 
 <section class="slide">
     <h2>Как выполняется запрос?</h2>
+    <h3>Два условия и два индекса</h3>
+    <pre><code class="sql">create index idx_movies_title on movies (title);
+create index idx_movies_year on movies (year);
+select * from movies where title = 'Alice in Wonderland'
+                       and year = 1999;</code></pre>
+    <div class="next">
+        <h3>Возможные стратегии</h3>
+        <ul>
+            <li>Пройти по таблице и отфильтровать title и year;</li>
+            <li>Пройти по индексу idx_movies_title и отфильтровать year;</li>
+            <li>Пройти по индексу idx_movies_year и отфильтровать title;</li>
+            <li>Пройти по индексам idx_movies_title и idx_movies_year и соединить результат через битовый индекс.</li>
+        </ul>
+    </div>
 </section>
 
 <section class="slide">
     <h2>Как выполняется запрос?</h2>
+    <h3>Два условия и два индекса</h3>
+    <pre><code class="sql">create index idx_movies_title on movies (title);
+create index idx_movies_year on movies (year);
+
+select * from movies where title = 'Alice in Wonderland'
+order by year;
+
+select * from movies where title <> 'Alice in Wonderland'
+order by year;</code></pre>
 </section>
 
 <section class="slide">
-    <h2>Как выполняется запрос?</h2>
+    <h2>JOIN-стратегии</h2>
+    <dl>
+        <dt>MERGE JOIN</dt>
+        <dd>Соединение двух отсортированных последовательностей.<br/>
+            Работает быстро и за один проход обоих списков.
+        </dd>
+
+        <dt>HASH JOIN</dt>
+        <dd>Меньшее отношение помещается в хэш-таблицу. Затем для каждой строки из большей таблицы выполняется поиск
+            значений, соответствующих условию соединения.<br/>
+            Соединение только по условию эквивалентности.
+        </dd>
+
+        <dt>NESTED LOOP</dt>
+        <dd>Соединение вложенными циклами.</dd>
+    </dl>
 </section>
 
 <section class="slide">
-    <h2>Как выполняется запрос?</h2>
+    <h2>Как выполняются запросы?</h2>
+    <pre><code class="sql">create index idx_movie_genre_movie_id
+    on movie_genres (movie_id);
+
+-- 1000 rows
+select * from movies m
+join movie_genres g on m.id = g.movie_id
+limit 1000;
+
+-- over 70 000 rows
+select * from movies m
+join movie_genres g on m.id = g.movie_id;
+</code></pre>
 </section>
 
 <section class="slide">
@@ -696,25 +744,6 @@ ROLLBACK;</code></pre>
 </section>
 
 <section class="slide">
-    <h2>JOIN-стратегии</h2>
-    <dl>
-        <dt>MERGE JOIN</dt>
-        <dd>Соединение двух отсортированных последовательностей.<br/>
-            Работает быстро и за один проход обоих списков.
-        </dd>
-
-        <dt>HASH JOIN</dt>
-        <dd>Меньшее отношение помещается в хэш-таблицу. Затем для каждой строки из большей таблицы выполняется поиск
-            значений, соответствующих условию соединения.<br/>
-            Соединение только по условию эквивалентности.
-        </dd>
-
-        <dt>NEASTED LOOP</dt>
-        <dd>Соединение вложенными циклами.</dd>
-    </dl>
-</section>
-
-<section class="slide">
     <h2>EXPLAIN: Комедии про зомби</h2>
     <pre><code class="sql">select distinct m.id, m.title
 from movies       m
@@ -751,7 +780,8 @@ Total query runtime: 164 msec
                            ->  <mark>Seq Scan</mark> on movie_tags tm  <mark>(cost=0.00..10950.53 rows=668953 width=8)</mark>
                            ->  Hash  (cost=933.71..933.71 rows=1 width=4)
                                  ->  Seq Scan on tags t  (cost=0.00..933.71 rows=1 width=4)
-                                       Filter: (name = 'Zombie'::citext)
+                                       <mark>Filter: (name = 'Zombie'::citext)</mark>
+                                       <mark>Rows Removed by Filter: 49655</mark>
                      ->  Hash  (cost=1462.97..1462.97 rows=3907 width=4)
                            ->  Hash Join  (cost=1.25..1462.97 rows=3907 width=4)
                                  Hash Cond: (gm.genre_id = g.id)
