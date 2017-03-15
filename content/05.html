@@ -694,6 +694,48 @@ join movie_genres g on m.id = g.movie_id;
 </section>
 
 <section class="slide">
+    <h2>Статистика запросов</h2>
+    <h3>Конфигурация:</h3>
+    <pre><code># postgresql.conf
+shared_preload_libraries = 'pg_stat_statements'
+
+pg_stat_statements.max = 10000
+pg_stat_statements.track = all
+</code></pre>
+    <h3>Использование:</h3>
+    <pre><code class="sql">CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+SELECT pg_stat_statements_reset();
+...
+SELECT * FROM pg_stat_statements;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Статистика запросов</h2>
+    <pre style="font-size: 65%"><code class="sql">bench=# \x
+bench=# SELECT query, calls, total_time, rows, 100.0 * shared_blks_hit /
+               nullif(shared_blks_hit + shared_blks_read, 0) AS hit_percent
+          FROM pg_stat_statements ORDER BY total_time DESC LIMIT 3;
+-[ RECORD 1 ]---------------------------------------------------------------------
+query       | UPDATE pgbench_branches SET bbalance = bbalance + ? WHERE bid = ?;
+calls       | 3000
+total_time  | 9609.00100000002
+rows        | 2836
+hit_percent | 99.9778970000200936
+-[ RECORD 2 ]---------------------------------------------------------------------
+query       | UPDATE pgbench_tellers SET tbalance = tbalance + ? WHERE tid = ?;
+calls       | 3000
+total_time  | 8015.156
+rows        | 2990
+hit_percent | 99.9731126579631345
+-[ RECORD 3 ]---------------------------------------------------------------------
+query       | copy pgbench_accounts from stdin
+calls       | 1
+total_time  | 310.624
+rows        | 100000
+hit_percent | 0.30395136778115501520</code></pre>
+</section>
+
+<section class="slide">
     <h2>Протоколирование запросов</h2>
     <h3>Конфигурация:</h3>
     <pre><code>log_duration = on
@@ -1210,4 +1252,9 @@ order by avg(r.rating) desc;
     <pre style="font-size: 80%"><code class="text">
 Total query runtime: 82 msec
 60 строк получено.</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Покрывающий индекс</h2>
+    <img style="width: 100%" src="explain-zombie-03.png"/>
 </section>
