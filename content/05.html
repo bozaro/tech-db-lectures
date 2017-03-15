@@ -1,66 +1,89 @@
 ---
 title: Лекция 5
 description: |
-  Тема данной лекции:
+  Индексы. Профилирование и оптимизация запросов.
 
-  - Индексы;
-  - Протоколирование запросов;
-  - Немного про EXPLAIN;
-  - О покрывающих индексах.
-draft: true
+   - Протоколирование запросов;
+   - Индексы:
+     - Назначение индексов;
+     - B-Tree индексы;
+     - Hash индексы;
+     - Bitmap индексы;
+     - Частичные индексы;
+     - Кластерные и покрывающие индексы.
+   - План запросов EXPLAIN;
+   - Варианты соединения таблиц:
+     - Merge join;
+     - Nested loop join;
+     - Hash join.
 ---
 <style>
 .covering_index {
 	font-size: 75%;
 }
-
 </style>
 
 <section class="slide">
-    <h2>Индексирование</h2>
-    <div style="font-size: 80%">
-        <p>Индексы используются для:</p>
-        <ul>
-            <li>Быстрого поиска записей по условию WHERE;</li>
-            <li>Для объединения таблиц с посредством JOIN. Необходимо использовать одинаковые типы сравниваемых полей.bo
-                Если для сравнения необходимо произвести преобразование типов, то индексы использоваться не будут;
-            </li>
-            <li>Для выбора наименьшего количества совпадений. Если есть множественный индекс, то использоваться будет
-                тот индекс, который находит самое маленький число строк;
-            </li>
-            <li>Поиска MAX и MIN значений для ключевых полей;</li>
-            <li>Для сортировки и группировки таблиц (……ORDER BY и GROUP BY);</li>
-            <li>Для извлечения данных не из таблицы с данными, а из индексного файла. Это возможно только в некоторых
-                случаях, например, когда все извлекаемые поля проиндексированы.
-            </li>
-        </ul>
-    </div>
+    <h2>Индексы. Профилирование и оптимизация</h2>
+    <ul>
+        <li>Индексы;</li>
+        <li>Протоколирование запросов;</li>
+        <li>План запросов EXPLAIN;</li>
+        <li>Варианты соединения таблиц.</li>
+    </ul>
+    <footer class="footer">https://habrahabr.ru/post/102785/
+        https://habrahabr.ru/post/203386/
+    </footer>
 </section>
 
 <section class="slide">
-    <h2>Индексирование B-tree</h2>
+    <h2>Индексирование</h2>
+    <ul class="compact">
+        <li>Быстрый поиск записей по условию WHERE;</li>
+        <li>Объединение таблиц с посредством JOIN. Необходимо использовать одинаковые типы сравниваемых полей.
+            Если для сравнения необходимо произвести преобразование типов, то индексы использоваться не будут;
+        </li>
+        <li>Выборка наименьшего количества записей из таблицы. Если есть множественный индекс, то использоваться
+            будет тот индекс, который находит самое маленький число строк;
+        </li>
+        <li>Поиск MAX и MIN значений для ключевых полей;</li>
+        <li>Сортировка и группировка таблиц (…ORDER BY и GROUP BY);</li>
+        <li>Извлечения данных не из таблицы с данными, а из индексного файла. Это возможно только в некоторых
+            случаях, например, когда все извлекаемые поля проиндексированы.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Индексирование btree</h2>
     <div style="text-align: center; height: 100%">
         <img style="height: 70%" src="index-btree.png"/>
     </div>
 </section>
 
 <section class="slide">
-    <h2>Индексирование B-tree (пример)</h2>
+    <h2>Индексирование btree (пример)</h2>
     <img style="position: absolute; bottom: 50px; right: 50px; height: 380px" src="index-btree-2.png"/>
     <pre style="font-size: 80%"><code class="sql">CREATE TABLE people (
-	last_name VARCHAR(50) NOT NULL,
-	first_name VARCHAR(50) NOT NULL,
-	dob DATE NOT NULL,
-	gender ENUM(m, f) NOT NULL,
-	KEY (last_name, first_name, dob)
-);</code></pre>
+	last_name TEXT NOT NULL,
+	first_name TEXT NOT NULL,
+	dob TIMESTAMP NOT NULL,
+	gender INT NOT NULL
+);
+
+
+
+
+CREATE INDEX idx_people_name
+ON people USING btree
+(last_name, first_name, dob);</code></pre>
 </section>
 
 <section class="slide">
-    <h2>Индексирование B-tree (особенности)</h2>
-    <div style="font-size: 75%">
+    <h2>Индексирование btree (особенности)</h2>
+    <div>
         <h3>Можно:</h3>
-        <ul>
+        <ul class="compact">
             <li>Поиск по полному значению;</li>
             <li>Поиск по самому левому префиксу;</li>
             <li>Поиск по префиксу столбца;</li>
@@ -69,7 +92,7 @@ draft: true
             <li>Запросы только по индексу.</li>
         </ul>
         <h3>Нельзя:</h3>
-        <ul>
+        <ul class="compact">
             <li>Поиск без использования левой части ключа;</li>
             <li>Нельзя пропускать столбцы;</li>
             <li>Оптимизация после поиска в диапазоне.</li>
@@ -78,12 +101,13 @@ draft: true
 </section>
 
 <section class="slide">
-    <h2>Индексирование ХЕШ-индексы</h2>
-    <pre><code class="sql">CREATE TABLE testhash (
-	fname VARCHAR(50) NOT NULL,
-	lname VARCHAR(50) NOT NULL,
-	KEY USING HASH (fname)
-) ENGINE=MEMORY;</code></pre>
+    <h2>Индексирование hash-индексы</h2>
+    <pre><code class="sql">CREATE TEMPORARY TABLE testhash (
+	fname TEXT NOT NULL,
+	lname TEXT NOT NULL
+);
+CREATE INDEX idx_testhash_fname
+ON testhash USING hash (fname);</code></pre>
     <table class="classic bordered">
         <thead>
         <tr>
@@ -113,7 +137,7 @@ draft: true
 </section>
 
 <section class="slide">
-    <h2>Индексирование ХЕШ-индексы</h2>
+    <h2>Индексирование hash-индексы</h2>
     <pre><code>
 f('Arjen') = 2323
 f('Baron') = 7437
@@ -149,11 +173,11 @@ f('Vadim') = 2458</code></pre>
 </section>
 
 <section class="slide">
-    <h2>Индексирование B-tree (особенности)</h2>
-    <div style="font-size: 85%">
-        <ul>
-            <li>MySQL не может использовать данные в индексе, чтобы избежать чтения строк.</li>
-            <li>MySQL не может использовать хеш-индексы для сортировки, поскольку строки в нем не хранятся в
+    <h2>Индексирование hash (особенности)</h2>
+    <div style="font-size: 90%">
+        <ul class="compact">
+            <li>Нельзя использовать данные в индексе, чтобы избежать чтения строк.</li>
+            <li>Нельзя использовать для сортировки, поскольку строки в нем не хранятся в
                 отсортированном порядке.
             </li>
             <li>Хеш-индексы не поддерживают поиск по частичному ключу, так как хеш-коды вычисляются для всего
@@ -164,65 +188,547 @@ f('Vadim') = 2458</code></pre>
             <li>Некоторые операции обслуживания индекса могут оказаться медленными, если количество коллизий велико.
             </li>
         </ul>
+        <div class="important">
+            <p>В PostgreSQL hash-индекс не записывается в WAL-лог, т. е. он не транзакционен.</p>
+        </div>
     </div>
 </section>
 
 <section class="slide">
-    <h2>Индексирование. Специфика MySQL</h2>
-    <div>
+    <h2>Индексирование GiST (R-Tree)</h2>
+    <img style="position: absolute; right: 50px; width: 45%" src="index-rtree.png"/>
+    <pre><code class="sql">CREATE TABLE city (
+	id SERIAL PRIMARY KEY,
+	name TEXT NOT NULL,
+	area polygon
+);
+
+CREATE INDEX idx_city_area
+ON city USING gist (area);
+
+</code></pre>
+    <p style="width: 55%">В PostgreSQL GiST позволяет создать для любого собственного типа данных индекс основанный на
+        R-Tree.</p>
+</section>
+
+<section class="slide">
+    <h2>Индексирование GIN (инвертированный)</h2>
+    <pre><code class="sql">CREATE TABLE movies (
+	id SERIAL PRIMARY KEY,
+	title TEXT NOT NULL,
+	genres TEXT[] NOT NULL
+);
+
+CREATE INDEX idx_movies_genres
+ON movies USING gin (genres);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Индексирование GIN (инвертированный)</h2>
+    <h3>Данные</h3>
+    <table class="bordered classic" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>title</th>
+            <th>genres</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>Toy Story</td>
+            <td>{'Animation', 'Children', 'Comedy'}</td>
+        </tr>
+        <tr>
+            <td>589</td>
+            <td>Terminator 2: Judgment Day</td>
+            <td>{'Action', 'Sci-Fi'}</td>
+        </tr>
+        <tr>
+            <td>741</td>
+            <td>Ghost in the Shell</td>
+            <td>{'Animation', 'Sci-Fi'}</td>
+        </tr>
+        <tr>
+            <td>45517</td>
+            <td>Cars</td>
+            <td>{'Animation', 'Children', 'Comedy'}</td>
+        </tr>
+        </tbody>
+    </table>
+    <h3>Индекс</h3>
+    <table class="bordered classic" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>key</th>
+            <th>ids</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Action</td>
+            <td>589</td>
+        </tr>
+        <tr>
+            <td>Animation</td>
+            <td>1, 741, 45517</td>
+        </tr>
+        <tr>
+            <td>Children</td>
+            <td>1, 45517</td>
+        </tr>
+        <tr>
+            <td>Comedy</td>
+            <td>1, 45517</td>
+        </tr>
+        <tr>
+            <td>Sci-Fi</td>
+            <td>589, 741</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Индексирование: битовый индекс</h2>
+    <h3>Данные</h3>
+    <table class="classic bordered" style="font-size: 90%">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>name</th>
+            <th>gender</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>Иван</td>
+            <td>Мужской</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Евгений</td>
+            <td>Мужской</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Александра</td>
+            <td>Женский</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>Петр</td>
+            <td>Мужской</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>Мария</td>
+            <td>Женский</td>
+        </tr>
+        </tbody>
+    </table>
+    <h3>Битовые маски</h3>
+    <table class="classic bordered" style="font-size: 90%">
+        <thead>
+        <tr>
+            <th>value</th>
+            <th>first-id</th>
+            <th>bitmask</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Женский</td>
+            <td>1</td>
+            <td style="font-family: mono">00101</td>
+        </tr>
+        <tr>
+            <td>Мужской</td>
+            <td>1</td>
+            <td style="font-family: mono">11010</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Частичный индекс</h2>
+    <pre style="font-size: 80%"><code class="sql">CREATE TABLE items (
+    id BIGSERIAL PRIMARY KEY,
+    avatar_id INT NULL,
+    mail_id INT NULL,
+    auction_id INT NULL,
+    ...
+    CHECK (
+        CASE WHEN avatar_id IS NULL THEN 1 ELSE 0 END +
+        CASE WHEN mail_id IS NULL THEN 1 ELSE 0 END +
+        CASE WHEN auction_id IS NULL THEN 1 ELSE 0 END = 1
+    )
+);
+CREATE INDEX idx_items_avatar_id  ON items (avatar_id)
+    WHERE avatar_id IS NOT NULL;
+CREATE INDEX idx_items_mail_id    ON items (mail_id)
+    WHERE mail_id IS NOT NULL;
+CREATE INDEX idx_items_auction_id ON items (auction_id)
+    WHERE auction_id IS NOT NULL;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Функциональный индекс</h2>
+    <pre><code class="sql">CREATE TABLE movies (
+	id SERIAL PRIMARY KEY,
+	title TEXT NOT NULL,
+	genres TEXT[] NOT NULL
+);
+
+CREATE INDEX idx_movies_title
+ON movies (LOWER(title));
+
+SELECT * FROM movies
+WHERE title = 'Alice in Wonderland';
+
+SELECT * FROM movies
+WHERE LOWER(title) = LOWER('Alice in Wonderland');
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Кластерный индекс</h2>
+    <pre><code class="sql">CREATE TABLE movies (
+	id SERIAL PRIMARY KEY,
+	title TEXT NOT NULL
+);
+
+CLUSTER movies USING movies_pkey;
+CLUSTER movies;
+CLUSTER;
+</code></pre>
+    <p>Кластерный индекс (или кластерный ключ) сохраняет не только значения колонки в отсортированном виде, а и данные
+        всей строки.</p>
+    <p>Это позволяет минимизировать количество операций чтения с диска при работе с таким индексом. В таблице может быть
+        только один кластерный индекс.</p>
+</section>
+
+<section class="slide">
+    <h2>Покрывающий индекс</h2>
+    <pre style="font-size: 90%"><code class="sql">CREATE TABLE movies (
+	id SERIAL PRIMARY KEY,
+	title TEXT NOT NULL
+);
+
+CREATE INDEX idx_movies_title ON movies (title);
+
+SELECT title FROM movies
+WHERE title = 'Alice in Wonderland';
+</code></pre>
+    <p>Покрывающий индекс содержит все данные, необходимые для выполнения запроса.</p>
+    <p>В PostgreSQL индексы не хранят информацию о видимости записи для MVCC. Из-за этого они могут быть покрывающими
+        только если в таблице нет мертвых кортежей.</p>
+</section>
+
+<section class="slide">
+    <h2>Индексирование. Расплата</h2>
+    <img src="devil.jpg" height="500px" style="position: absolute; right: 20px; bottom: 0px; z-index: -1"/>
+    <ul style="width: 560px">
+        <li>Увеличение числа индексов замедляет операции добавления, обновления, удаления строк таблицы, поскольку при
+            этом приходится обновлять сами индексы.
+        </li>
+        <li>Индексы занимают дополнительный объем памяти, поэтому перед созданием индекса следует убедиться, что
+            планируемый выигрыш в производительности запросов превысит дополнительную затрату ресурсов компьютера на
+            сопровождение индекса.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Индексирование. Создание индекса</h2>
+    <pre style="font-size: 80%"><code class="sql">CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ]
+       [ [ IF NOT EXISTS ] имя ] ON имя_таблицы [ USING метод ]
+    ( { имя_столбца | ( выражение ) }
+      [ COLLATE правило_сортировки ] [ класс_операторов ]
+      [ ASC | DESC ] [ NULLS { FIRST | LAST } ]
+      [, ...]
+    )
+    [ WITH ( параметр_хранения = значение [, ... ] ) ]
+    [ TABLESPACE табл_пространство ]
+    [ WHERE предикат ]
+
+CREATE INDEX test_index ON test_table (col varchar_pattern_ops);
+</code></pre>
+    <p>Класс_операторов:
+    <ul class="compact">
+        <li>text_pattern_ops</li>
+        <li>varchar_pattern_ops</li>
+        <li>bpchar_pattern_ops</li>
+    </ul>
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Индексирование. Подытоживание</h2>
+    <ul class="compact">
+        <li>В большинстве случаев нужен btree-индекс;</li>
+        <li>Для специфических случаев нужны GIN и GiST-индексы;</li>
+        <li>Битовые и hash-индексы PostgreSQL активно используюет в процессе выполнения запросов;</li>
+        <li>Частичные индексы могут заметно сократить объем индексов;</li>
+        <li>В PostgreSQL нужно явно создавать индексы для FOREIGN KEY;</li>
+        <li>Можно получить очень большой выйгрыш при использовании покрывающих индексов;</li>
+        <li>Каждый индекс требует долнительных затрат на своё поддержание (I/O и память).</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Тестовая база</h2>
+    <p>Для примеров в данной лекции используется база рейтингов кинофильмов.</p>
+    <ul class="compact">
+        <li>Источник:
+            <nobr><a href="https://movielens.org/">https://movielens.org/</a></nobr>
+        </li>
+        <li>Скрипт для разворачивания:
+            <nobr><a href="https://github.com/bozaro/tech-db-lectures/blob/master/scripts/movielens/load-pgsql.sh">https://github.com/bozaro/tech-db-lectures/.../load-pgsql.sh</a>
+            </nobr>
+        </li>
+    </ul>
+    <p>С сайта movielens используются файлы:</p>
+    <ul class="compact">
+        <li>movies.csv - данные фильмов (id, название, жанры);</li>
+        <li>ratings.csv - рейтинги фильмов (id фильма, id пользователя, оценка, время);</li>
+        <li>tags.csv - тэги фильмов (id фильма, id пользователя, тэг, время);</li>
+        <li>links.csv - идентификаторы фильмов (id фильма, IMDB, TMDB).</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Тестовая база</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Таблица</th>
+            <th style="text-align: right">Кортежей</th>
+            <th style="text-align: right">Размер</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>genres</td>
+            <td align="right">19</td>
+            <td align="right">48 kB</td>
+        </tr>
+        <tr>
+            <td>links</td>
+            <td align="right">40 110</td>
+            <td align="right">2 944 kB</td>
+        </tr>
+        <tr>
+            <td>movie_genres</td>
+            <td align="right">74 229</td>
+            <td align="right">4 856 kB</td>
+        </tr>
+        <tr>
+            <td>movie_tags</td>
+            <td align="right">668 953</td>
+            <td align="right">49 152 kB</td>
+        </tr>
+        <tr>
+            <td>movies</td>
+            <td align="right">40 110</td>
+            <td align="right">3 400 kB</td>
+        </tr>
+        <tr>
+            <td>rating</td>
+            <td align="right">24 404 096</td>
+            <td align="right">1 971 200 kB</td>
+        </tr>
+        <tr>
+            <td>genres</td>
+            <td align="right">49 657</td>
+            <td align="right">5 344 kB</td>
+        </tr>
+        </tbody>
+    </table>
+    <p>Обзщий размер: ~1995MB</p>
+    <p>FOREIGN KEY объявлены, но никакие индексы не создавались.</p>
+</section>
+
+<section class="slide">
+    <h2>Рейтинг комедий про зомби</h2>
+    <pre><code class="sql">select m.id, m.title, avg(r.rating)
+from movies       m
+join movie_genres gm on (gm.movie_id = m.id)
+join genres       g  on (g.id = gm.genre_id)
+join movie_tags   tm on (tm.movie_id = m.id)
+join tags         t  on (t.id = tm.tag_id)
+join ratings      r  on (r.movie_id = m.id)
+where lower(g.name) = lower('Comedy')
+  and lower(t.name) like lower('Zombie%')
+group by m.id, m.title
+order by avg(r.rating) desc;</code></pre>
+    <div class="next">
+        <pre><code class="text">
+Total query runtime: 7.7 secs
+60 строк получено.</code></pre>
+    </div>
+    <img class="next" src="zombie-sad.png" height="250px" style="position: absolute; right: 50px; bottom: 50px"/>
+</section>
+
+<section class="slide">
+    <h2>Как выполняется простой запрос?</h2>
+    <h3>Получить все фильмы</h3>
+    <pre><code class="sql">select * from movies;</code></pre>
+    <p>Данный запрос идет по всей таблице с фильмами и возвращает из в качестве результата.</p>
+
+    <div class="next">
+        <h3>Получить все фильмы по имени</h3>
+        <pre><code class="sql">select * from movies where title = 'Alice in Wonderland';</code></pre>
+        <div class="next">
+            <p>Данный запрос идет по всей таблице с фильмами и возвращает из них, только те, у которых название 'Alice
+                in Wonderland'.</p>
+            <p>В данном случае он просмотрит более 40 000 строк, чтобы найти 8 фильмов.</p></div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Как выполняется простой запрос?</h2>
+    <h3>Получить фильмы по имени</h3>
+    <pre><code class="sql">create index idx_movies_title on movies (title);
+select * from movies where title = 'Alice in Wonderland';</code></pre>
+    <p>Данный запрос идет по индексу и находит фильмы с названием 'Alice
+        in Wonderland'.</p>
+    <p>В данном случае он просмотрит 8 записей, чтобы найти 8 фильмов.</p>
+    <div class="next">
+        <h3>Чуть поменяем запрос</h3>
+        <pre><code class="sql">select * from movies where title <> 'Alice in Wonderland';</code></pre>
+        <p class="next">Данный запрос не будет использовать индекс и просмотрит всю таблицу.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Как выполняется запрос?</h2>
+    <h3>Два условия и два индекса</h3>
+    <pre><code class="sql">create index idx_movies_title on movies (title);
+create index idx_movies_year on movies (year);
+select * from movies where title = 'Alice in Wonderland'
+                       and year = 1999;</code></pre>
+    <div class="next">
+        <h3>Возможные стратегии</h3>
         <ul>
-            <li>MySQL для регистронезависимого сравнения использует COLLATIONS (например: utf8_general_ci):<br/>
-                <a style="font-size: 85%"
-                   href="http://collation-charts.org/mysql60/mysql604.utf8_general_ci.european.html">http://collation-charts.org/mysql60/mysql604.utf8_general_ci.european.html</a>
-            </li>
-            <li>В MySQL нет разницы между UNIQUE INDEX и UNIQUE CONSTRAINT.</li>
-            <li>MySQL автоматически создаёт индексы для FOREIGN KEY, но некоторые СУБД этого не делают (например:
-                PostgreSQL).
-            </li>
+            <li>Пройти по таблице и отфильтровать title и year;</li>
+            <li>Пройти по индексу idx_movies_title и отфильтровать year;</li>
+            <li>Пройти по индексу idx_movies_year и отфильтровать title;</li>
+            <li>Пройти по индексам idx_movies_title и idx_movies_year и соединить результат через битовый индекс.</li>
         </ul>
     </div>
 </section>
 
 <section class="slide">
+    <h2>Как выполняется запрос?</h2>
+    <h3>Сортировка и индексы</h3>
+    <pre><code class="sql">create index idx_movies_title on movies (title);
+create index idx_movies_year on movies (year);
+
+select * from movies where title = 'Alice in Wonderland'
+order by year;
+
+select * from movies where title <> 'Alice in Wonderland'
+order by year;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Как выполняется запрос?</h2>
+    <h3>Сортировка и индексы</h3>
+    <pre><code class="sql">create index idx_movies_ty on movies (title, year);
+create index idx_movies_yt on movies (year, title);
+
+select * from movies where title = 'Alice in Wonderland'
+order by year;
+
+select * from movies where title <> 'Alice in Wonderland'
+order by year;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>JOIN-стратегии</h2>
+    <dl>
+        <dt>MERGE JOIN</dt>
+        <dd>Соединение двух отсортированных последовательностей.<br/>
+            Работает быстро и за один проход обоих списков.
+        </dd>
+
+        <dt>HASH JOIN</dt>
+        <dd>Меньшее отношение помещается в хэш-таблицу. Затем для каждой строки из большей таблицы выполняется поиск
+            значений, соответствующих условию соединения.<br/>
+            Соединение только по условию эквивалентности.
+        </dd>
+
+        <dt>NESTED LOOP</dt>
+        <dd>Соединение вложенными циклами.</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Как выполняются запросы?</h2>
+    <pre><code class="sql">create index idx_movie_genre_movie_id
+    on movie_genres (movie_id);
+
+-- 1000 rows
+select * from movies m
+join movie_genres g on m.id = g.movie_id
+limit 1000;
+
+-- over 70 000 rows
+select * from movies m
+join movie_genres g on m.id = g.movie_id;
+</code></pre>
+</section>
+
+<section class="slide">
     <h2>Профилирование</h2>
     <ul>
-        <li>К каким данным MySQL обращается чаще всего?</li>
-        <li>Какие типы запросов MySQL выполняет чаще всего?</li>
-        <li>В каких состояниях преимущественно находятся потоки (threads) MySQL?</li>
-        <li>Какие подсистемы MySQL чаще всего использует для выполнения запросов?</li>
+        <li>К каким данным СУБД обращается чаще всего?</li>
+        <li>Какие типы запросов СУБД выполняет чаще всего?</li>
         <li>Какие виды обращения к данным встречаются наиболее часто?</li>
-        <li>Сколько различных видов действий, например просмотра индексов, выполняет MySQL?</li>
     </ul>
 </section>
 
 <section class="slide">
     <h2>Протоколирование запросов</h2>
-    <h3>Общий журнал</h3>
-    <pre><code style="font-size: 80%">general_log_file = &lt;имя_файла&gt;</code></pre>
-    <h3>Журнал медленных запросов</h3>
-    <pre><code style="font-size: 80%">slow_query_log_file = &lt;имя_файла&gt;
-slow_query_log = 1
-long_query_time = 2.5
-log_queries_not_using_indexes = 1
-log_slow_admin_statements = 1
-log_throttle_queries_not_using_indexes = 60
+    <h3>Конфигурация:</h3>
+    <pre><code>log_duration = on
+log_min_duration_statement = 50</code></pre>
+    <h3>Запрос:</h3>
+    <pre class="sql"><code>set log_min_duration_statement = 50;
+select * from movies where title = 'Alice in Wonderland';
 </code></pre>
-    <pre><code class="sql" style="font-size: 80%">
-# Time: 121018 9:47:00
-# User@Host: root[root] @ localhost []
-# Query_time: 0.000652 Lock_time: 0.000109 Rows_sent: 50
-# Rows_examined: 3268
-SELECT ...
+    <h3>Пример:</h3>
+    <pre class="sql"><code style="padding-right: 100px; white-space: pre-wrap; font-size: 90%">2017-03-12 22:34:32 MSK [8960-5] postgres@movielens LOG:  duration: 50.157 ms  statement: select * from movies where title = 'Alice in Wonderland'</code></pre>
+    <pre class="sql"><code style="padding-right: 100px; white-space: pre-wrap; font-size: 90%">2017-03-12 22:35:42 MSK [8960-6] postgres@movielens LOG:  duration: 54.305 ms  statement: select * from movies where title = 'Alice in Wonderland'</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Протоколирование запросов</h2>
+    <img src="pgbadger.png" height="170px" style="position: absolute; right: 50px"/>
+    <h3>Конфигурация:</h3>
+    <pre><code>log_duration = on
+log_lock_waits = on;
+log_min_duration_statement = 50;
+log_filename = 'postgresql-%Y-%m-%d_%H%M%S'
+log_directory = '/var/log/postgresql'
+log_destination = 'csvlog'
+logging_collector = on
 </code></pre>
+    <p>Логирование в CSV создаёт файлы в формате, пригодном для анализа утилитами вида <a
+            href="https://github.com/dalibo/pgbadger">pgbadger</a>:</p>
+    <pre class="bash"><code>sudo apt instal libtext-csv-xs-perl pgbadger
+pgbadger /var/log/*.csv</code></pre>
 </section>
 
 <section class="slide">
     <h2>Протоколирование запросов</h2>
     <ul>
-        <li>Таблица могла быть заблокирована, поэтому запрос был вынужден ждать. Величина Lock_time показывает, как
-            долго запрос ждал освобождения блокировки.
-        </li>
-        <li>Данные или индексы могли к тому моменту еще отсутствовать в кэше. Это обычный случай, когда сервер MySQL
+        <li>Данные или индексы могли к тому моменту еще отсутствовать в кэше. Это обычный случай, когда сервер СУБД
             только запущен или не настроен должным образом.
         </li>
         <li>Мог идти ночной процесс резервного копирования, из-за чего все операции дискового ввода/вывода
@@ -252,821 +758,413 @@ SELECT ...
 </section>
 
 <section class="slide">
-    <h2>Протоколирование запросов</h2>
-    <pre><code class="sql">SHOW STATUS</code></pre>
-    <dl style="font-size: 90%">
-        <dt>Bytes_received и Bytes_sent</dt>
-        <dd>Количество байтов, соответственно полученных и отправленных сервером.</dd>
+    <h2>EXPLAIN</h2>
+    <pre style="font-size: 90%"><code class="sql">EXPLAIN [ ( параметр [, ...] ) ] оператор
+EXPLAIN [ ANALYZE ] [ VERBOSE ] оператор
 
-        <dt>Com_*</dt>
-        <dd>Команды, которые сервер выполняет.</dd>
+Здесь допускается параметр:
 
-        <dt>reated_*</dt>
-        <dd>Временные таблицы и файлы, созданные во время выполнения запроса.</dd>
+    ANALYZE [ boolean ]
+    VERBOSE [ boolean ]
+    COSTS [ boolean ]
+    BUFFERS [ boolean ]
+    TIMING [ boolean ]
+    FORMAT { TEXT | XML | JSON | YAML }
 
-        <dt>Handler_*</dt>
-        <dd>Операции подсистемы хранения.</dd>
-
-        <dt>Select_*</dt>
-        <dd>Различные типы планов выполнения операции соединения.</dd>
-
-        <dt>Sort_*</dt>
-        <dd>Разнообразная информация о сортировке.</dd>
-    </dl>
-</section>
-
-<section class="slide">
-    <h2>Протоколирование запросов</h2>
-    <pre><code class="sql">SET profiling = 1;
-
-SELECT SQL_NO_CACHE "movie"."mID", COUNT(*)
-FROM "movie"
-	INNER JOIN "rating" USING ("mID")
-GROUP BY "movie"."mID"
-ORDER BY COUNT(*) DESC;
-
-SHOW PROFILES\G
-******************** 1. row  *********************
-Query_ID: 1
-Duration: 0.02596900
-Query: SELECT …
-</code></pre>
+BEGIN;
+EXPLAIN ANALYZE ...;
+ROLLBACK;</code></pre>
 </section>
 
 <section class="slide">
     <h2>EXPLAIN</h2>
-    <ul style="font-size: 90%">
-        <li>EXPLAIN ничего не говорит о том, как влияют на запрос триггеры, хранимые и пользовательские (UDF) функции.
+    <ul>
+        <li>EXPLAIN ничего не говорит о том, как влияют на запрос триггеры и пользовательские функции.
         </li>
-        <li>Она не работает с хранимыми процедурами, хотя можно разложить процедуру на отдельные запросы и вызвать
+        <li>Не работает с хранимыми процедурами, хотя можно разложить процедуру на отдельные запросы и вызвать
             EXPLAIN для каждого из них.
         </li>
-        <li>Она ничего не говорит об оптимизациях, которые MySQL производит уже на этапе выполнения запроса.</li>
         <li>Часть отображаемой статистической информации – всего лишь оценка, иногда очень неточная.</li>
-        <li>Она не показывает все, что можно было бы сообщить о плане выполнения запроса.</li>
-        <li>Она не делает различий между некоторыми операциями, называя их одинаково.</li>
+        <li>Для получения фактически затраченного времени, можно выполнить EXPLAIN ANALYZE.</li>
     </ul>
 </section>
 
 <section class="slide">
-    <h2>JOIN-стратегии</h2>
-    <dl>
-        <dt>MERGE JOIN</dt>
-        <dd>Соединение двух отсортированных последовательностей.<br/>
-            Работает быстро и за один проход обоих списков.
-        </dd>
+    <h2>EXPLAIN: Начало</h2>
+    <pre style="font-size: 80%"><code class="sql">CREATE TABLE foo (c1 integer, c2 text);
+INSERT INTO foo
+  SELECT i, md5(random()::text)
+  FROM generate_series(1, 1000000) AS i;
 
-        <dt>HASH JOIN</dt>
-        <dd>Меньшее отношение помещается в хэш-таблицу. Затем для каждой строки из большей таблицы выполняется поиск
-            значений, соответствующих условию соединения.<br/>
-            Соединение только по условию эквивалентности.
-        </dd>
+EXPLAIN SELECT * FROM foo;
 
-        <dt>NEASTED LOOP</dt>
-        <dd>Соединение вложенными циклами.</dd>
-    </dl>
-</section>
-
-<section class="slide">
-    <h2>EXPLAIN (графическое представление)</h2>
-    <div style="text-align: center; height: 100%">
-        <img style="width: 85%" src="explain-bad.png"/>
-        <img style="width: 85%" src="explain-good.png"/>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Столбцы EXPLAIN: id</h2>
-    <div style="font-size: 70%">
-        <pre><code class="sql">EXPLAIN SELECT (SELECT 1 FROM sakila.actor LIMIT 1) FROM sakila.film;</code></pre>
-        <table class="classic bordered">
-            <thead>
-            <tr>
-                <th>Id</th>
-                <th>select_type</th>
-                <th>table</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>1</td>
-                <td>PRIMARY</td>
-                <td>film</td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>SUBQUERY</td>
-                <td>actor</td>
-            </tr>
-            </tbody>
-        </table>
-        <pre><code class="sql">EXPLAIN SELECT film_id
-FROM (SELECT MAX(film_id) as film_id FROM sakila.film) AS der;</code></pre>
-        <table class="classic bordered">
-            <thead>
-            <tr>
-                <th>Id</th>
-                <th>select_type</th>
-                <th>table</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>1</td>
-                <td>PRIMARY</td>
-                <td>&lt;derived2&gt;</td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>DERIVED</td>
-                <td>
-                    <null/>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-        <pre><code class="sql">EXPLAIN SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3;</code></pre>
-        <table class="classic bordered">
-            <thead>
-            <tr>
-                <th>Id</th>
-                <th>select_type</th>
-                <th>table</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>1</td>
-                <td>PRIMARY</td>
-                <td>
-                    <null/>
-                </td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>UNION</td>
-                <td>
-                    <null/>
-                </td>
-            </tr>
-            <tr>
-                <td>3</td>
-                <td>UNION</td>
-                <td>
-                    <null/>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Столбцы EXPLAIN: select_type</h2>
-    <dl style="font-size: 85%">
-        <dt>PRIMARY</dt>
-        <dd>Самый внешний запрос.</dd>
-
-        <dt>SUBQUERY</dt>
-        <dd>Запрос SELECT, который содержится в подзапросе, находящемся во фразе SELECT (иными словами, не во фразе
-            FROM).
-        </dd>
-
-        <dt>DERIVED</dt>
-        <dd>Значение DERIVED означает, что данный запрос SELECT является подзапросом во фразе FROM.</dd>
-
-        <dt>UNION</dt>
-        <dd>Второй и последующий запросы SELECT, входящие в объединение UNION, помечаются признаком UNION.</dd>
-
-        <dt>UNION RESULT</dt>
-        <dd>Запрос SELECT, применяемый для выборки результатов из временной таблицы, созданной в ходе выполнения
-            UNION.
-        </dd>
-</section>
-
-<section class="slide">
-    <h2>Столбцы EXPLAIN: table</h2>
-    <div style="font-size: 80%">
-<pre><code class="sql">EXPLAIN SELECT film.film_id
-FROM sakila.film
-	INNER JOIN sakila.film_actor USING (film_id)
-	INNER JOIN sakila.actor USING (actor_id);
-</code></pre>
-        <table class="classic bordered">
-            <thead>
-            <tr>
-                <th>Id</th>
-                <th>select_type</th>
-                <th>table</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>1</td>
-                <td>SIMPLE</td>
-                <td>actor</td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>SIMPLE</td>
-                <td>film_actor</td>
-            </tr>
-            <tr>
-                <td>3</td>
-                <td>SIMPLE</td>
-                <td>film</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-    <div style="text-align: center">
-        <img style="height: 200px" src="explain-table.png"/>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Столбцы EXPLAIN: table</h2>
-    <pre style="font-size: 90%"><code class="sql">EXPLAIN SELECT
-	actor_id,
-	(SELECT 1 FROM sakila.film_actor
-	          WHERE film_actor.actor_id = der_1.actor_id LIMIT 1)
-FROM (
-	SELECT actor_id
-	FROM sakila.actor LIMIT 5
-) AS der_1
-UNION ALL
-SELECT film_id,
-(SELECT @var1 FROM sakila.rental LIMIT 1)
-FROM (
-	SELECT film_id,
-	(SELECT 1 FROM sakila.store LIMIT 1)
-	FROM sakila.film LIMIT 5
-) AS der_2;
+                          QUERY PLAN
+--------------------------------------------------------------
+ Seq Scan on foo  (cost=0.00..18334.00 rows=1000000 width=37)
+(1 строка)
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>Столбцы EXPLAIN: table</h2>
-    <div style="font-size: 80%">
-        <table class="classic bordered">
-            <thead>
-            <tr>
-                <th>Id</th>
-                <th>select_type</th>
-                <th>table</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>1</td>
-                <td>PRIMARY</td>
-                <td>&lt;derived3&gt;</td>
-            </tr>
-            <tr>
-                <td>3</td>
-                <td>DERIVED</td>
-                <td>actor</td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>DEPENDENT SUBQUERY</td>
-                <td>film_actor</td>
-            </tr>
-            <tr>
-                <td>4</td>
-                <td>UNION</td>
-                <td>&lt;derived6&gt;</td>
-            </tr>
-            <tr>
-                <td>6</td>
-                <td>DERIVED</td>
-                <td>film</td>
-            </tr>
-            <tr>
-                <td>7</td>
-                <td>SUBQUERY</td>
-                <td>store</td>
-            </tr>
-            <tr>
-                <td>5</td>
-                <td>UNCACHEABLE SUBQUERY</td>
-                <td>rental</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</section>
+    <h2>EXPLAIN: Статистика</h2>
+    <pre style="font-size: 80%"><code class="sql">INSERT INTO foo
+  SELECT i, md5(random()::text)
+  FROM generate_series(1, 10) AS i;
 
-<section class="slide">
-    <h2>Столбцы EXPLAIN: table</h2>
-    <div style="text-align: center; height: 100%">
-        <img style="height: 75%" src="explain-visual.png"/>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Столбцы EXPLAIN: type</h2>
-    <dl style="font-size: 65%">
-        <dt>ALL</dt>
-        <dd>Этот подход обычно называют сканированием таблицы.</dd>
-
-        <dt>index</dt>
-        <dd>То же, что сканирование таблицы, только MySQL просматривает ее в порядке, задаваемом индексом, а не в
-            порядке следования строк.
-        </dd>
-
-        <dt>range</dt>
-        <dd>Просмотр диапазона – это ограниченная форма сканирования индекса. Просмотр начинается в определенной точке
-            индекса и возвращает строки в некотором диапазоне значений.
-        </dd>
-
-        <dt>ref</dt>
-        <dd>Это доступ по индексу (иногда он называется поиском по индексу (index lookup)), в результате которого
-            возвращаются строки, соответствующие единственному заданному значению.
-        </dd>
-
-        <dt>eq_ref</dt>
-        <dd>Это поиск по индексу в случае, когда MySQL точно знает, что будет возвращено не более одного значения.</dd>
-
-        <dt>const, system</dt>
-        <dd>Эти типы доступа MySQL применяет, когда в процессе оптимизации какую-то часть запроса можно преобразовать в
-            константу.
-        </dd>
-
-        <dt>NULL</dt>
-        <dd>Этот метод означает, что MySQL сумела разрешить запрос на фазе оптимизации, так что в ходе выполнения вообще
-            не потребуется обращаться к таблице или индексу.
-        </dd>
-    </dl>
-</section>
-
-<section class="slide">
-    <h2>Столбцы EXPLAIN: possible_keys, key</h2>
-    <pre style="font-size: 90%"><code class="sql">EXPLAIN SELECT actor_id, film_id FROM sakila.film_actor\G
-
-************************* 1. row *************************
-id: 1
-select_type: SIMPLE
-table: film_actor
-type: index
-possible_keys: NULL
-key: idx_fk_film_id
-key_len: 2
-ref: NULL
-rows: 5143
-Extra: Using index
+EXPLAIN SELECT * FROM foo;
+                          QUERY PLAN
+--------------------------------------------------------------
+ Seq Scan on foo  (cost=0.00..18334.00 rows=1000000 width=37)
+(1 строка)
+</code></pre>
+    <pre class="next" style="font-size: 80%"><code class="sql">
+ANALYZE foo;
+EXPLAIN SELECT * FROM foo;
+                          QUERY PLAN
+--------------------------------------------------------------
+ Seq Scan on foo  (cost=0.00..18334.10 rows=1000010 width=37)
+(1 строка)
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>Столбцы EXPLAIN: possible_keys, key</h2>
-    <div style="font-size: 80%">
-<pre><code class="sql">EXPLAIN SELECT actor_id, film_id
-FROM sakila.film_actor WHERE actor_id=4; 
-
-...| type | possible_keys | key     | key_len |...
-...| ref  | PRIMARY       | PRIMARY | 2       |...
-</code></pre>
-        <pre class="next"><code class="sql">
-CREATE TABLE t (
-    a char(3) NOT NULL,
-    b int(11) NOT NULL,
-    c char(1) NOT NULL,
-    PRIMARY KEY (a,b,c)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
- 
-EXPLAIN SELECT a FROM t WHERE a = 'sak' AND b = 112;
-</code></pre>
-        <pre class="next"><code class="sql">
-... |type | possible_keys | key     | key_len |...
-... | ref | PRIMARY       | PRIMARY | 13      |...
-</code></pre>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Столбцы EXPLAIN: ref</h2>
-    <div style="font-size: 75%">
-<pre><code class="sql">EXPLAIN SELECT STRAIGHT_JOIN f.film_id
-FROM sakila.film AS f
-    INNER JOIN sakila.film_actor AS fa
-        ON f.film_id=fa.film_id AND fa.actor_id = 1
-    INNER JOIN sakila.actor AS a USING(actor_id);
-
-...| table |...| key                | key_len | ref                    |...
-...| a     |...| PRIMARY            | 2       | const                  |...
-...| f     |...| idx_fk_language_id | 1       | NULL                   |...
-...| fa    |...| PRIMARY            | 4       | const,sakila.f.film_id |...
-</code></pre>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Столбцы EXPLAIN: rows</h2>
-    <pre><code class="sql">EXPLAIN SELECT f.film_id
-FROM sakila.film AS f
-    INNER JOIN sakila.film_actor AS fa USING(film_id)
-    INNER JOIN sakila.actor AS a USING(actor_id);
-
-...| rows |...
-...|  200 |...
-...|   13 |...
-...|    1 |...
+    <h2>EXPLAIN: ANALYZE</h2>
+    <pre style="font-size: 80%"><code class="sql">EXPLAIN ANALYZE SELECT * FROM foo;
+                          QUERY PLAN
+--------------------------------------------------------------
+ Seq Scan on foo  (cost=0.00..18334.10 rows=1000010 width=37)
+            (actual time=0.013..89.291 rows=1000010 loops=1)
+ Planning time: 0.040 ms
+ Execution time: 123.611 ms
+(3 строки)
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>Столбцы EXPLAIN: extra</h2>
-    <dl style="font-size: 80%">
-        <dt>Using index</dt>
-        <dd>Означает, что MySQL воспользуется покрывающим индексом, чтобы избежать доступа к самой таблице.</dd>
+    <h2>EXPLAIN: WHERE</h2>
+    <pre style="font-size: 80%"><code class="sql">EXPLAIN SELECT * FROM foo WHERE c1 > 500;
+                         QUERY PLAN
+-------------------------------------------------------------
+ Seq Scan on foo  (cost=0.00..20834.12 rows=999514 width=37)
+   Filter: (c1 > 500)
+(2 строки)
 
-        <dt>Using where</dt>
-        <dd>Означает, что сервер произведет дополнительную фильтрацию строк, отобранных подсистемой хранения.</dd>
+CREATE INDEX ON foo(c1);
 
-        <dt>Using temporary</dt>
-        <dd>Означает, что MySQL будет применять временную таблицу для сортировки результатов запроса.</dd>
-
-        <dt>Using filesort</dt>
-        <dd>Означает, что MySQL прибегнет к обычной сортировке для упорядочения результатов, а не станет читать строки
-            из таблицы в порядке, задаваемом индексом.
-        </dd>
-
-        <dt>range checked for each record</dt>
-        <dd>Означает, что подходящего индекса не нашлось, поэтому сервер будет заново искать индекс при обработке каждой
-            строки в операции соединения.
-        </dd>
-    </dl>
-</section>
-
-<section class="slide">
-    <h2>Индексирование: изоляция столбца</h2>
-    <pre><code class="sql">SELECT ... FROM sakila.actor
-WHERE actor_id + 1 = 5;
-
-SELECT ...
-WHERE TO_DAYS(CURRENT_DATE) - TO_DAYS(date_col) <= 10;
-</code></pre>
-    <pre class="next"><code class="sql">
-SELECT ...
-WHERE date_col >= DATE_SUB(CURRENT_DATE, INTERVAL 10 DAY);
-</code></pre>
-    <pre class="next"><code class="sql">
-SELECT ...
-WHERE date_col >= DATE_SUB(2008-01-17, INTERVAL 10 DAY);
+EXPLAIN SELECT * FROM foo WHERE c1 > 500;
+                         QUERY PLAN
+-------------------------------------------------------------
+ Seq Scan on foo  (cost=0.00..20834.12 rows=999507 width=37)
+   Filter: (c1 > 500)
+(2 строки)
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>Индексирование: кластерные индексы</h2>
-    <div style="text-align: center; height: 100%">
-        <img style="height: 75%" src="index-cluster.png"/>
-    </div>
+    <h2>EXPLAIN: WHERE</h2>
+    <pre style="font-size: 80%"><code class="sql">EXPLAIN SELECT * FROM foo WHERE c1 < 500;
+                                QUERY PLAN
+--------------------------------------------------------------------------
+ Index Scan using foo_c1_idx on foo  (cost=0.42..25.23 rows=503 width=37)
+   Index Cond: (c1 < 500)
+(2 строки)
+
+EXPLAIN SELECT * FROM foo
+        WHERE c1 < 500 AND c2 LIKE 'abcd%';
+                               QUERY PLAN
+------------------------------------------------------------------------
+ Index Scan using foo_c1_idx on foo  (cost=0.42..26.49 rows=1 width=37)
+   Index Cond: (c1 < 500)
+   Filter: (c2 ~~ 'abcd%'::text)
+(3 строки)
+</code></pre>
 </section>
 
 <section class="slide">
-    <h2>Индексирование: кластерные индексы (+)</h2>
+    <h2>EXPLAIN: TEXT</h2>
+    <pre style="font-size: 80%"><code class="sql">EXPLAIN SELECT * FROM foo WHERE c2 LIKE 'abcd%';
+                        QUERY PLAN
+----------------------------------------------------------
+ Seq Scan on foo  (cost=0.00..20834.12 rows=100 width=37)
+   Filter: (c2 ~~ 'abcd%'::text)
+(2 строки)
+
+CREATE INDEX ON foo(c2);
+EXPLAIN SELECT * FROM foo WHERE c2 LIKE 'abcd%';
+                        QUERY PLAN
+----------------------------------------------------------
+ Seq Scan on foo  (cost=0.00..20834.12 rows=100 width=37)
+   Filter: (c2 ~~ 'abcd%'::text)
+(2 строки)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: TEXT</h2>
+    <pre style="font-size: 70%"><code class="sql">CREATE INDEX ON foo(c2 text_pattern_ops);
+
+EXPLAIN SELECT * FROM foo WHERE c2 LIKE 'abcd%';
+                                QUERY PLAN
+---------------------------------------------------------------------------
+ Bitmap Heap Scan on foo  (cost=4.57..51.35 rows=100 width=37)
+   Filter: (c2 ~~ 'abcd%'::text)
+   ->  Bitmap Index Scan on foo_c2_idx1  (cost=0.00..4.54 rows=12 width=0)
+         Index Cond: ((c2 ~>=~ 'abcd'::text) AND (c2 ~<~ 'abce'::text))
+(4 строки)
+
+EXPLAIN SELECT c1 FROM foo WHERE c1 < 500;
+                                  QUERY PLAN
+------------------------------------------------------------------------------
+ Index Only Scan using foo_c1_idx on foo  (cost=0.42..25.23 rows=503 width=4)
+   Index Cond: (c1 < 500)
+(2 строки)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: TEXT</h2>
+    <pre style="font-size: 70%"><code class="sql">CREATE INDEX ON foo(c2 text_pattern_ops);
+
+EXPLAIN SELECT * FROM foo WHERE c2 LIKE 'abcd%';
+                                QUERY PLAN
+---------------------------------------------------------------------------
+ Bitmap Heap Scan on foo  (cost=4.57..51.35 rows=100 width=37)
+   Filter: (c2 ~~ 'abcd%'::text)
+   ->  Bitmap Index Scan on foo_c2_idx1  (cost=0.00..4.54 rows=12 width=0)
+         Index Cond: ((c2 ~>=~ 'abcd'::text) AND (c2 ~<~ 'abce'::text))
+(4 строки)
+
+EXPLAIN SELECT c1 FROM foo WHERE c1 < 500;
+                                  QUERY PLAN
+------------------------------------------------------------------------------
+ Index Only Scan using foo_c1_idx on foo  (cost=0.42..25.23 rows=503 width=4)
+   Index Cond: (c1 < 500)
+(2 строки)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: ORDER BY</h2>
+    <pre style="font-size: 70%"><code class="sql">DROP INDEX foo_c1_idx;
+
+EXPLAIN SELECT * FROM foo ORDER BY c1;
+                             QUERY PLAN
+--------------------------------------------------------------------
+ Sort  (cost=145338.51..147838.54 rows=1000010 width=37)
+   Sort Key: c1
+   ->  Seq Scan on foo  (cost=0.00..18334.10 rows=1000010 width=37)
+(3 строки)
+
+CREATE INDEX ON foo(c1);
+
+EXPLAIN SELECT * FROM foo ORDER BY c1;
+                             QUERY PLAN
+--------------------------------------------------------------------
+ Sort  (cost=145338.51..147838.54 rows=1000010 width=37)
+   Sort Key: c1
+   ->  Seq Scan on foo  (cost=0.00..18334.10 rows=1000010 width=37)
+(3 строки)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: JOIN</h2>
+    <pre style="font-size: 70%"><code class="sql">CREATE TABLE bar (c1 integer, c2 boolean);
+INSERT INTO bar
+  SELECT i, i%2=1
+  FROM generate_series(1, 500000) AS i;
+ANALYZE bar;
+
+EXPLAIN SELECT * FROM foo JOIN bar ON foo.c1=bar.c1 LIMIT 10000;
+                                 QUERY PLAN
+-----------------------------------------------------------------------------
+ Limit  (cost=15417.00..16310.28 rows=10000 width=42)
+   ->  Hash Join  (cost=15417.00..60081.14 rows=500000 width=42)
+         Hash Cond: (foo.c1 = bar.c1)
+         ->  Seq Scan on foo  (cost=0.00..18334.10 rows=1000010 width=37)
+         ->  Hash  (cost=7213.00..7213.00 rows=500000 width=5)
+               ->  Seq Scan on bar  (cost=0.00..7213.00 rows=500000 width=5)
+(6 строк)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: JOIN</h2>
+    <pre style="font-size: 70%"><code class="sql">CREATE INDEX ON bar(c1);
+
+EXPLAIN SELECT * FROM foo JOIN bar ON foo.c1=bar.c1 LIMIT 10000;
+                                    QUERY PLAN
+----------------------------------------------------------------------------------
+ Limit  (cost=0.42..9654.15 rows=10000 width=42)
+   ->  Nested Loop  (cost=0.42..482686.60 rows=500000 width=42)
+         ->  Seq Scan on foo  (cost=0.00..18334.10 rows=1000010 width=37)
+         ->  Index Scan using bar_c1_idx on bar  (cost=0.42..0.45 rows=1 width=5)
+               Index Cond: (c1 = foo.c1)
+(5 строк)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: На что обратить внимание?</h2>
     <ul>
-        <li>Вы можете хранить связанные данные рядом.</li>
-        <li>Быстрый доступ к данным. Кластерный индекс хранит и индекс, и данные вместе в одной B-Tree структуре,
-            поэтому извлечение строк из кластерного индекса обычно происходит быстрее, чем сопоставимый поиск в
-            некластерном индексе.
-        </li>
-        <li>Использующие покрывающие индексы запросы могут получить значение первичного ключа из листового узла.</li>
+        <li>Надо внимательно смотреть на операции с большим cost;</li>
+        <li>Seq Scan часто указывают на отсутсвие необходимых индексов;</li>
+        <li>Большое кол-во записей в "Rows Removed by Filter" может указывать на проблему;</li>
+        <li>Sort для большого кол-ва записей - очень дорогая операция.</li>
     </ul>
 </section>
 
 <section class="slide">
-    <h2>Индексирование: кластерные индексы (-)</h2>
-    <ul style="font-size: 75%">
-        <li>Если данные помещаются в памяти, то порядок доступа к ним не имеет значения, и тогда кластерные индексы не
-            принесут большой пользы.
-        </li>
-        <li>Если вы загружаете большое количество данных в другом порядке, то по окончании загрузки имеет смысл
-            реорганизовать таблицу с помощью команды OPTIMIZE TABLE.
-        </li>
-        <li>Обновление столбцов кластерного индекса обходится дорого, поскольку InnoDB вынуждена перемещать каждую
-            обновленную строку в новое место.
-        </li>
-        <li>Для таблиц с кластерным индексом вставка новых строк или обновление первичного ключа, требующее перемещения
-            строки, может приводить к расщеплению страницы.
-        </li>
-        <li>Полное сканирование кластерных таблиц может оказаться более медленным, особенно если строки упакованы менее
-            плотно или хранятся непоследовательно из-за расщепления страниц.
-        </li>
-        <li>Вторичные (некластерные) индексы могут оказаться больше, чем вы ожидаете, поскольку в листовых узлах
-            хранятся значения столбцов, составляющих первичный ключ.
-        </li>
-        <li>Для доступа к данным по вторичному индексу требуется просмотр двух индексов вместо одного.</li>
-    </ul>
+    <h2>EXPLAIN: Комедии про зомби</h2>
+    <pre><code class="sql">select distinct m.id, m.title
+from movies       m
+join movie_genres gm on (gm.movie_id = m.id)
+join genres       g  on (g.id = gm.genre_id)
+join movie_tags   tm on (tm.movie_id = m.id)
+join tags         t  on (t.id = tm.tag_id)
+where lower(g.name) = lower('Comedy')
+  and lower(t.name) = lower('Zombie');
+
+Total query runtime: 182 msec
+21 строка получена.</code></pre>
 </section>
 
 <section class="slide">
-    <h2>Размещение данных в MyISAM</h2>
-    <img src="myisam-data.png" style="position: absolute; right: 0"/>
-    <pre><code class="sql">CREATE TABLE layout_test (
-	col1 int NOT NULL,
-	col2 int NOT NULL,
-	PRIMARY KEY(col1),
-	KEY(col2)
-);
+    <h2>EXPLAIN: Графическое представление</h2>
+    <img style="width: 100%" src="explain-bad.png"/>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: Текстовое представление</h2>
+    <pre style="font-size: 50%"><code class="sql">                                             QUERY PLAN
+----------------------------------------------------------------------------------------------------
+ HashAggregate  (cost=16212.83..16216.83 rows=400 width=24)
+   Group Key: m.id, m.title
+   ->  Nested Loop  (cost=2573.10..16210.83 rows=400 width=24)
+         Join Filter: (gm.movie_id = m.id)
+         ->  Hash Join  (cost=2572.81..16081.85 rows=400 width=8)
+               Hash Cond: (tm.movie_id = gm.movie_id)
+               ->  Hash Join  <mark>(cost=1060.95..14553.47 rows=3341 width=4)</mark>
+                     Hash Cond: (tm.tag_id = t.id)
+                     ->  <mark>Seq Scan</mark> on movie_tags tm  <mark>(cost=0.00..10950.53 rows=668953 width=8)</mark>
+                     ->  Hash  (cost=1057.86..1057.86 rows=248 width=4)
+                           ->  Seq Scan on tags t  (cost=0.00..1057.86 rows=248 width=4)
+                                 <mark>Filter: (lower(name) = 'zombie'::text)</mark>
+                                 <mark>Rows Removed by Filter: 49655</mark>
+               ->  Hash  (cost=1463.02..1463.02 rows=3907 width=4)
+                     ->  Hash Join  (cost=1.30..1463.02 rows=3907 width=4)
+                           Hash Cond: (gm.genre_id = g.id)
+                           ->  Seq Scan on movie_genres gm  (cost=0.00..1144.29 rows=74229 width=8)
+                           ->  Hash  (cost=1.28..1.28 rows=1 width=4)
+                                 ->  Seq Scan on genres g  (cost=0.00..1.28 rows=1 width=4)
+                                       Filter: (lower(name) = 'comedy'::text)
+         ->  Index Scan using movies_pkey on movies m  (cost=0.29..0.31 rows=1 width=24)
+               Index Cond: (id = tm.movie_id)
+(21 rows)
+    </code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: Добавляем индексы</h2>
+    <pre style="font-size: 80%"><code class="sql">CREATE INDEX idx_links_movie_id ON links (movie_id);
+CREATE INDEX idx_movie_genres_genre_id ON movie_genres (genre_id);
+CREATE INDEX idx_movie_genres_movie_id ON movie_genres (movie_id);
+CREATE INDEX idx_movie_tags_tag_id ON movie_tags (tag_id);
+CREATE INDEX idx_movie_tags_movie_id ON movie_tags (movie_id);
+CREATE INDEX idx_ratings_movie_id ON ratings (movie_id);
+
+CREATE INDEX idx_movies_title ON movies (LOWER(title) text_pattern_ops);
+CREATE INDEX idx_genres_name ON genres (LOWER(name) text_pattern_ops);
+CREATE INDEX idx_tags_name ON tags (LOWER(name) text_pattern_ops);
+    </code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: Комедии про зомби</h2>
+    <pre><code class="sql">select distinct m.id, m.title
+from movies       m
+join movie_genres gm on (gm.movie_id = m.id)
+join genres       g  on (g.id = gm.genre_id)
+join movie_tags   tm on (tm.movie_id = m.id)
+join tags         t  on (t.id = tm.tag_id)
+where lower(g.name) = lower('Comedy')
+  and lower(t.name) = lower('Zombie');
+
+Total query runtime: 12 msec
+21 строка получена.</code></pre>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: Графическое представление</h2>
+    <img style="width: 100%" src="explain-good.png"/>
+</section>
+
+<section class="slide">
+    <h2>EXPLAIN: Текстовое представление</h2>
+    <pre style="font-size: 45%"><code class="sql">                                                          QUERY PLAN
+-------------------------------------------------------------------------------------------------------------------------------
+ Unique  (cost=271.50..271.51 rows=2 width=24)
+   ->  Sort  (cost=271.50..271.50 rows=2 width=24)
+         Sort Key: m.id, m.title
+         ->  Nested Loop  (cost=5.96..271.49 rows=2 width=24)
+               Join Filter: (gm.movie_id = m.id)
+               ->  Nested Loop  (cost=5.67..270.84 rows=2 width=8)
+                     Join Filter: (gm.genre_id = g.id)
+                     ->  <mark>Seq Scan on genres g  (cost=0.00..1.28 rows=1 width=4)</mark>
+                           Filter: (lower(name) = 'comedy'::text)
+                     ->  Nested Loop  (cost=5.67..269.17 rows=31 width=12)
+                           ->  Nested Loop  (cost=5.37..264.60 rows=13 width=4)
+                                 ->  Index Scan using idx_tags_name on tags t  (cost=0.41..8.43 rows=1 width=4)
+                                       Index Cond: (lower(name) = 'zombie'::text)
+                                 ->  Bitmap Heap Scan on movie_tags tm  (cost=4.96..255.48 rows=69 width=8)
+                                       Recheck Cond: (tag_id = t.id)
+                                       ->  Bitmap Index Scan on idx_movie_tags_tag_id  (cost=0.00..4.94 rows=69 width=0)
+                                             Index Cond: (tag_id = t.id)
+                           ->  Index Scan using idx_movie_genres_movie_id on movie_genres gm  (cost=0.29..0.33 rows=2 width=8)
+                                 Index Cond: (movie_id = tm.movie_id)
+               ->  Index Scan using movies_pkey on movies m  (cost=0.29..0.31 rows=1 width=24)
+                     Index Cond: (id = tm.movie_id)
+(21 rows)
+    </code></pre>
+</section>
+
+<section class="slide">
+    <h2>Рейтинг комедий про зомби</h2>
+    <pre><code class="sql">select m.id, m.title, avg(r.rating)
+from movies       m
+join movie_genres gm on (gm.movie_id = m.id)
+join genres       g  on (g.id = gm.genre_id)
+join movie_tags   tm on (tm.movie_id = m.id)
+join tags         t  on (t.id = tm.tag_id)
+join ratings      r  on (r.movie_id = m.id)
+where lower(g.name) = lower('Comedy')
+  and lower(t.name) like lower('Zombie%')
+group by m.id, m.title
+order by avg(r.rating) desc;</code></pre>
+    <pre><code class="text">
+Total query runtime: 10.9 secs
+60 строк получено.</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Рейтинг комедий про зомби</h2>
+    <pre style="font-size: 80%"><code class="sql">select m.id, m.title, avg(r.rating)
+from (
+  select m.id, m.title
+  from movies       m
+  join movie_genres gm on (gm.movie_id = m.id)
+  join genres       g  on (g.id = gm.genre_id)
+  join movie_tags   tm on (tm.movie_id = m.id)
+  join tags         t  on (t.id = tm.tag_id)
+  where lower(g.name) = lower('Comedy')
+    and lower(t.name) like lower('Zombie%')
+  group by m.id
+) m
+join ratings r on (r.movie_id = m.id)
+group by m.id, m.title
+order by avg(r.rating) desc;
 </code></pre>
-    <img src="myisam-pk.png" class="place bottom center" style="width: 800px"/>
-</section>
-
-<section class="slide">
-    <h2>Размещение данных в MyISAM</h2>
-    <img src="myisam-data.png" style="position: absolute; right: 0"/>
-    <pre><code class="sql">CREATE TABLE layout_test (
-	col1 int NOT NULL,
-	col2 int NOT NULL,
-	PRIMARY KEY(col1),
-	KEY(col2)
-);
-</code></pre>
-    <img src="myisam-index.png" class="place bottom center" style="width: 800px"/>
-</section>
-
-<section class="slide">
-    <h2>Размещение данных в InnoDB</h2>
-    <pre><code class="sql">CREATE TABLE layout_test (
-	col1 int NOT NULL,
-	col2 int NOT NULL,
-	PRIMARY KEY(col1),
-	KEY(col2)
-);
-</code></pre>
-    <img src="innodb-data.png" class="place bottom center" style="width: 600px"/>
-</section>
-
-<section class="slide">
-    <h2>Размещение данных в InnoDB</h2>
-    <pre><code class="sql">CREATE TABLE layout_test (
-	col1 int NOT NULL,
-	col2 int NOT NULL,
-	PRIMARY KEY(col1),
-	KEY(col2)
-);
-</code></pre>
-    <img src="innodb-index.png" class="place bottom center" style="width: 600px"/>
-</section>
-
-<section class="slide">
-    <h2>Размещение данных</h2>
-    <img src="myisam-vs-innodb.png" style="position: absolute; right: 40px; height: 450px"/>
-    <pre><code class="sql">CREATE TABLE layout_test (
-	col1 int NOT NULL,
-	col2 int NOT NULL,
-	PRIMARY KEY(col1),
-	KEY(col2)
-);
-</code></pre>
-</section>
-
-<section class="slide">
-    <h2>INSERT: Сурогатный ключ</h2>
-    <div style="text-align: center; height: 100%">
-        <img style="width: 100%" src="insert-append.png"/>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>INSERT: Натуральный ключ</h2>
-    <div style="text-align: center; height: 100%">
-        <img style="height: 75%" src="insert-random.png"/>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Покрывающие индексы</h2>
-    <div class="covering_index">
-	<pre><code class="sql">EXPLAIN SELECT store_id, film_id FROM sakila.inventory\G
-
-*************************** 1. row ***************************
-           id: 1
-  select_type: SIMPLE
-        table: inventory
-   partitions: NULL
-         type: index
-possible_keys: NULL
-          key: idx_store_id_film_id
-      key_len: 3
-          ref: NULL
-         rows: 4581
-     filtered: 100.00
-        Extra: Using index
-</code></pre>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Покрывающие индексы</h2>
-    <div class="covering_index">
-	<pre><code class="sql">EXPLAIN SELECT actor_id, last_name
-FROM sakila.actor WHERE last_name = 'HOPPER'\G
-
-*************************** 1. row ***************************
-           id: 1
-  select_type: SIMPLE
-        table: actor
-   partitions: NULL
-         type: ref
-possible_keys: idx_actor_last_name
-          key: idx_actor_last_name
-      key_len: 137
-          ref: const
-         rows: 2
-     filtered: 100.00
-        Extra: Using index
-</code></pre>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Покрывающие индексы</h2>
-    <div class="covering_index">
-	<pre><code class="sql">CREATE TABLE rental (
-...
-PRIMARY KEY (rental_id),
-UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
-KEY idx_fk_inventory_id (inventory_id),
-KEY idx_fk_customer_id (customer_id),
-KEY idx_fk_staff_id (staff_id),
-...
-);
-
-EXPLAIN SELECT rental_id FROM sakila.rental
-WHERE rental_date = '2005-05-25'
-ORDER BY inventory_id, customer_id\G
-
-*************************** 1. row ***************************
-         type: ref
-possible_keys: rental_date
-          key: rental_date
-         rows: 1
-        Extra: Using where; Using index
-</code></pre>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Покрывающие индексы</h2>
-    <div class="covering_index">
-	<pre><code class="sql">CREATE TABLE rental (
-...
-PRIMARY KEY (rental_id),
-UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
-KEY idx_fk_inventory_id (inventory_id),
-KEY idx_fk_customer_id (customer_id),
-KEY idx_fk_staff_id (staff_id),
-...
-);
-
-EXPLAIN SELECT rental_id FROM sakila.rental
-WHERE rental_date = '2005-05-25'
-ORDER BY inventory_id DESC\G
-
-*************************** 1. row ***************************
-         type: ref
-possible_keys: rental_date
-          key: rental_date
-         rows: 1
-        Extra: Using where; Using index
-</code></pre>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Покрывающие индексы</h2>
-    <div class="covering_index">
-	<pre><code class="sql">CREATE TABLE rental (
-...
-PRIMARY KEY (rental_id),
-UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
-KEY idx_fk_inventory_id (inventory_id),
-KEY idx_fk_customer_id (customer_id),
-KEY idx_fk_staff_id (staff_id),
-...
-);
-
-EXPLAIN SELECT rental_id FROM sakila.rental
-WHERE rental_date = '2005-05-25'
-ORDER BY inventory_id DESC, customer_id ASC\G
-
-*************************** 1. row ***************************
-         type: ref
-possible_keys: rental_date
-          key: rental_date
-         rows: 1
-        Extra: Using where; Using index; Using filesort
-</code></pre>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Покрывающие индексы</h2>
-    <div class="covering_index">
-	<pre><code class="sql">CREATE TABLE rental (
-...
-PRIMARY KEY (rental_id),
-UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
-KEY idx_fk_inventory_id (inventory_id),
-KEY idx_fk_customer_id (customer_id),
-KEY idx_fk_staff_id (staff_id),
-...
-);
-
-EXPLAIN SELECT rental_id FROM sakila.rental
-WHERE rental_date = '2005-05-25'
-ORDER BY inventory_id, staff_id\G
-
-*************************** 1. row ***************************
-         type: ref
-possible_keys: rental_date
-          key: rental_date
-         rows: 1
-        Extra: Using index condition; Using filesort
-</code></pre>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Покрывающие индексы</h2>
-    <div class="covering_index">
-	<pre><code class="sql">CREATE TABLE rental (
-...
-PRIMARY KEY (rental_id),
-UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
-KEY idx_fk_inventory_id (inventory_id),
-KEY idx_fk_customer_id (customer_id),
-KEY idx_fk_staff_id (staff_id),
-...
-);
-
-EXPLAIN SELECT rental_id FROM sakila.rental
-WHERE rental_date = '2005-05-25'
-ORDER BY rental_date, inventory_id\G
-
-*************************** 1. row ***************************
-         type: ref
-possible_keys: rental_date
-          key: rental_date
-         rows: 1
-        Extra: Using where; Using index
-</code></pre>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Покрывающие индексы</h2>
-    <div class="covering_index">
-	<pre><code class="sql">CREATE TABLE rental (
-...
-PRIMARY KEY (rental_id),
-UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
-KEY idx_fk_inventory_id (inventory_id),
-KEY idx_fk_customer_id (customer_id),
-KEY idx_fk_staff_id (staff_id),
-...
-);
-
-EXPLAIN SELECT rental_id FROM sakila.rental
-WHERE rental_date = '2005-05-25'
-ORDER BY customer_id\G
-
-*************************** 1. row ***************************
-         type: ref
-possible_keys: rental_date
-          key: rental_date
-         rows: 1
-        Extra: Using where; Using index; Using filesort
-</code></pre>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Покрывающие индексы</h2>
-    <div class="covering_index">
-	<pre><code class="sql">CREATE TABLE rental (
-...
-PRIMARY KEY (rental_id),
-UNIQUE KEY rental_date (rental_date,inventory_id,customer_id),
-KEY idx_fk_inventory_id (inventory_id),
-KEY idx_fk_customer_id (customer_id),
-KEY idx_fk_staff_id (staff_id),
-...
-);
-
-EXPLAIN SELECT rental_id FROM sakila.rental
-WHERE rental_date = '2005-05-25' AND inventory_id IN (1, 2)
-ORDER BY customer_id\G
-
-*************************** 1. row ***************************
-         type: range
-possible_keys: rental_date,idx_fk_inventory_id
-          key: rental_date
-         rows: 2
-        Extra: Using where; Using index; Using filesort
-</code></pre>
-    </div>
+    <pre style="font-size: 80%"><code class="text">
+Total query runtime: 486 msec
+60 строк получено.</code></pre>
 </section>
