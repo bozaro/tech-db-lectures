@@ -448,6 +448,30 @@ WHERE title = 'Alice in Wonderland';
 </section>
 
 <section class="slide">
+    <h2>Индексирование. Создание индекса</h2>
+    <pre style="font-size: 80%"><code class="sql">CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ]
+       [ [ IF NOT EXISTS ] имя ] ON имя_таблицы [ USING метод ]
+    ( { имя_столбца | ( выражение ) }
+      [ COLLATE правило_сортировки ] [ класс_операторов ]
+      [ ASC | DESC ] [ NULLS { FIRST | LAST } ]
+      [, ...]
+    )
+    [ WITH ( параметр_хранения = значение [, ... ] ) ]
+    [ TABLESPACE табл_пространство ]
+    [ WHERE предикат ]
+
+CREATE INDEX test_index ON test_table (col varchar_pattern_ops);
+</code></pre>
+    <p>Класс_операторов:
+    <ul class="compact">
+        <li>text_pattern_ops</li>
+        <li>varchar_pattern_ops</li>
+        <li>bpchar_pattern_ops</li>
+    </ul>
+    </p>
+</section>
+
+<section class="slide">
     <h2>Индексирование. Подытоживание</h2>
     <ul class="compact">
         <li>В большинстве случаев нужен btree-индекс;</li>
@@ -542,13 +566,13 @@ join genres       g  on (g.id = gm.genre_id)
 join movie_tags   tm on (tm.movie_id = m.id)
 join tags         t  on (t.id = tm.tag_id)
 join ratings      r  on (r.movie_id = m.id)
-where g.name = 'Comedy'
-  and t.name like 'Zombie%'
+where lower(g.name) = lower('Comedy')
+  and lower(t.name) like lower('Zombie%')
 group by m.id, m.title
 order by avg(r.rating) desc;</code></pre>
     <div class="next">
         <pre><code class="text">
-Total query runtime: 01:34 minutes
+Total query runtime: 7.7 secs
 60 строк получено.</code></pre>
     </div>
     <img class="next" src="zombie-sad.png" height="250px" style="position: absolute; right: 50px; bottom: 50px"/>
@@ -605,9 +629,22 @@ select * from movies where title = 'Alice in Wonderland'
 
 <section class="slide">
     <h2>Как выполняется запрос?</h2>
-    <h3>Два условия и два индекса</h3>
+    <h3>Сортировка и индексы</h3>
     <pre><code class="sql">create index idx_movies_title on movies (title);
 create index idx_movies_year on movies (year);
+
+select * from movies where title = 'Alice in Wonderland'
+order by year;
+
+select * from movies where title <> 'Alice in Wonderland'
+order by year;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Как выполняется запрос?</h2>
+    <h3>Сортировка и индексы</h3>
+    <pre><code class="sql">create index idx_movies_ty on movies (title, year);
+create index idx_movies_yt on movies (year, title);
 
 select * from movies where title = 'Alice in Wonderland'
 order by year;
@@ -989,10 +1026,10 @@ join movie_genres gm on (gm.movie_id = m.id)
 join genres       g  on (g.id = gm.genre_id)
 join movie_tags   tm on (tm.movie_id = m.id)
 join tags         t  on (t.id = tm.tag_id)
-where g.name = 'Comedy'
-  and t.name = 'Zombie';
+where lower(g.name) = lower('Comedy')
+  and lower(t.name) = lower('Zombie');
 
-Total query runtime: 164 msec
+Total query runtime: 182 msec
 21 строка получена.</code></pre>
 </section>
 
@@ -1003,32 +1040,31 @@ Total query runtime: 164 msec
 
 <section class="slide">
     <h2>EXPLAIN: Текстовое представление</h2>
-    <pre style="font-size: 50%"><code class="sql">                                                QUERY PLAN
-----------------------------------------------------------------------------------------------------------
- Unique  (cost=15905.49..15905.50 rows=2 width=24)
-   ->  Sort  (cost=15905.49..15905.49 rows=2 width=24)
-         Sort Key: m.id, m.title
-         ->  Nested Loop  (cost=2445.82..15905.48 rows=2 width=24)
-               Join Filter: (gm.movie_id = m.id)
-               ->  Hash Join  (cost=2445.53..15904.83 rows=2 width=8)
-                     Hash Cond: (tm.movie_id = gm.movie_id)
-                     ->  Hash Join  <mark>(cost=933.73..14392.96 rows=13 width=4)</mark>
-                           Hash Cond: (tm.tag_id = t.id)
-                           ->  <mark>Seq Scan</mark> on movie_tags tm  <mark>(cost=0.00..10950.53 rows=668953 width=8)</mark>
-                           ->  Hash  (cost=933.71..933.71 rows=1 width=4)
-                                 ->  Seq Scan on tags t  (cost=0.00..933.71 rows=1 width=4)
-                                       <mark>Filter: (name = 'Zombie'::citext)</mark>
-                                       <mark>Rows Removed by Filter: 49655</mark>
-                     ->  Hash  (cost=1462.97..1462.97 rows=3907 width=4)
-                           ->  Hash Join  (cost=1.25..1462.97 rows=3907 width=4)
-                                 Hash Cond: (gm.genre_id = g.id)
-                                 ->  Seq Scan on movie_genres gm  (cost=0.00..1144.29 rows=74229 width=8)
-                                 ->  Hash  (cost=1.24..1.24 rows=1 width=4)
-                                       ->  Seq Scan on genres g  (cost=0.00..1.24 rows=1 width=4)
-                                             Filter: (name = 'Comedy'::citext)
-               ->  Index Scan using movies_pkey on movies m  (cost=0.29..0.31 rows=1 width=24)
-                     Index Cond: (id = tm.movie_id)
-(22 строки)
+    <pre style="font-size: 50%"><code class="sql">                                             QUERY PLAN
+----------------------------------------------------------------------------------------------------
+ HashAggregate  (cost=16212.83..16216.83 rows=400 width=24)
+   Group Key: m.id, m.title
+   ->  Nested Loop  (cost=2573.10..16210.83 rows=400 width=24)
+         Join Filter: (gm.movie_id = m.id)
+         ->  Hash Join  (cost=2572.81..16081.85 rows=400 width=8)
+               Hash Cond: (tm.movie_id = gm.movie_id)
+               ->  Hash Join  <mark>(cost=1060.95..14553.47 rows=3341 width=4)</mark>
+                     Hash Cond: (tm.tag_id = t.id)
+                     ->  <mark>Seq Scan</mark> on movie_tags tm  <mark>(cost=0.00..10950.53 rows=668953 width=8)</mark>
+                     ->  Hash  (cost=1057.86..1057.86 rows=248 width=4)
+                           ->  Seq Scan on tags t  (cost=0.00..1057.86 rows=248 width=4)
+                                 <mark>Filter: (lower(name) = 'zombie'::text)</mark>
+                                 <mark>Rows Removed by Filter: 49655</mark>
+               ->  Hash  (cost=1463.02..1463.02 rows=3907 width=4)
+                     ->  Hash Join  (cost=1.30..1463.02 rows=3907 width=4)
+                           Hash Cond: (gm.genre_id = g.id)
+                           ->  Seq Scan on movie_genres gm  (cost=0.00..1144.29 rows=74229 width=8)
+                           ->  Hash  (cost=1.28..1.28 rows=1 width=4)
+                                 ->  Seq Scan on genres g  (cost=0.00..1.28 rows=1 width=4)
+                                       Filter: (lower(name) = 'comedy'::text)
+         ->  Index Scan using movies_pkey on movies m  (cost=0.29..0.31 rows=1 width=24)
+               Index Cond: (id = tm.movie_id)
+(21 rows)
     </code></pre>
 </section>
 
@@ -1041,9 +1077,9 @@ CREATE INDEX idx_movie_tags_tag_id ON movie_tags (tag_id);
 CREATE INDEX idx_movie_tags_movie_id ON movie_tags (movie_id);
 CREATE INDEX idx_ratings_movie_id ON ratings (movie_id);
 
-CREATE INDEX idx_movies_title ON movies (title);
-CREATE INDEX idx_genres_name ON genres (name);
-CREATE INDEX idx_tags_name ON tags (name);
+CREATE INDEX idx_movies_title ON movies (LOWER(title) text_pattern_ops);
+CREATE INDEX idx_genres_name ON genres (LOWER(name) text_pattern_ops);
+CREATE INDEX idx_tags_name ON tags (LOWER(name) text_pattern_ops);
     </code></pre>
 </section>
 
@@ -1055,10 +1091,10 @@ join movie_genres gm on (gm.movie_id = m.id)
 join genres       g  on (g.id = gm.genre_id)
 join movie_tags   tm on (tm.movie_id = m.id)
 join tags         t  on (t.id = tm.tag_id)
-where g.name = 'Comedy'
-  and t.name = 'Zombie';
+where lower(g.name) = lower('Comedy')
+  and lower(t.name) = lower('Zombie');
 
-Total query runtime: 11 msec
+Total query runtime: 12 msec
 21 строка получена.</code></pre>
 </section>
 
@@ -1071,28 +1107,28 @@ Total query runtime: 11 msec
     <h2>EXPLAIN: Текстовое представление</h2>
     <pre style="font-size: 45%"><code class="sql">                                                          QUERY PLAN
 -------------------------------------------------------------------------------------------------------------------------------
- Unique  (cost=264.52..264.54 rows=2 width=24)
-   ->  Sort  (cost=264.52..264.53 rows=2 width=24)
+ Unique  (cost=271.50..271.51 rows=2 width=24)
+   ->  Sort  (cost=271.50..271.50 rows=2 width=24)
          Sort Key: m.id, m.title
-         ->  Nested Loop  (cost=5.94..264.51 rows=2 width=24)
+         ->  Nested Loop  (cost=5.96..271.49 rows=2 width=24)
                Join Filter: (gm.movie_id = m.id)
-               ->  Nested Loop  (cost=5.65..263.87 rows=2 width=8)
+               ->  Nested Loop  (cost=5.67..270.84 rows=2 width=8)
                      Join Filter: (gm.genre_id = g.id)
-                     ->  <mark>Seq Scan on genres g  (cost=0.00..1.24 rows=1 width=4)</mark>
-                           Filter: (name = 'Comedy'::citext)
-                     ->  Nested Loop  (cost=5.65..262.24 rows=31 width=12)
-                           ->  Nested Loop  (cost=5.36..257.68 rows=13 width=4)
+                     ->  <mark>Seq Scan on genres g  (cost=0.00..1.28 rows=1 width=4)</mark>
+                           Filter: (lower(name) = 'comedy'::text)
+                     ->  Nested Loop  (cost=5.67..269.17 rows=31 width=12)
+                           ->  Nested Loop  (cost=5.37..264.60 rows=13 width=4)
                                  ->  Index Scan using idx_tags_name on tags t  (cost=0.41..8.43 rows=1 width=4)
-                                       Index Cond: (name = 'Zombie'::citext)
-                                 ->  Bitmap Heap Scan on movie_tags tm  (cost=4.94..248.58 rows=67 width=8)
+                                       Index Cond: (lower(name) = 'zombie'::text)
+                                 ->  Bitmap Heap Scan on movie_tags tm  (cost=4.96..255.48 rows=69 width=8)
                                        Recheck Cond: (tag_id = t.id)
-                                       ->  Bitmap Index Scan on idx_movie_tags_tag_id  (cost=0.00..4.93 rows=67 width=0)
+                                       ->  Bitmap Index Scan on idx_movie_tags_tag_id  (cost=0.00..4.94 rows=69 width=0)
                                              Index Cond: (tag_id = t.id)
                            ->  Index Scan using idx_movie_genres_movie_id on movie_genres gm  (cost=0.29..0.33 rows=2 width=8)
                                  Index Cond: (movie_id = tm.movie_id)
                ->  Index Scan using movies_pkey on movies m  (cost=0.29..0.31 rows=1 width=24)
                      Index Cond: (id = tm.movie_id)
-(21 строка)
+(21 rows)
     </code></pre>
 </section>
 
@@ -1105,12 +1141,12 @@ join genres       g  on (g.id = gm.genre_id)
 join movie_tags   tm on (tm.movie_id = m.id)
 join tags         t  on (t.id = tm.tag_id)
 join ratings      r  on (r.movie_id = m.id)
-where g.name = 'Comedy'
-  and t.name like 'Zombie%'
+where lower(g.name) = lower('Comedy')
+  and lower(t.name) like lower('Zombie%')
 group by m.id, m.title
 order by avg(r.rating) desc;</code></pre>
     <pre><code class="text">
-Total query runtime: 24.9 secs
+Total query runtime: 10.9 secs
 60 строк получено.</code></pre>
 </section>
 
@@ -1124,8 +1160,8 @@ from (
   join genres       g  on (g.id = gm.genre_id)
   join movie_tags   tm on (tm.movie_id = m.id)
   join tags         t  on (t.id = tm.tag_id)
-  where g.name = 'Comedy'
-    and t.name like 'Zombie%'
+  where lower(g.name) = lower('Comedy')
+    and lower(t.name) like lower('Zombie%')
   group by m.id
 ) m
 join ratings r on (r.movie_id = m.id)
@@ -1133,6 +1169,6 @@ group by m.id, m.title
 order by avg(r.rating) desc;
 </code></pre>
     <pre style="font-size: 80%"><code class="text">
-Total query runtime: 862 msec
+Total query runtime: 486 msec
 60 строк получено.</code></pre>
 </section>

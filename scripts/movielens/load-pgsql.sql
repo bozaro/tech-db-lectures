@@ -1,9 +1,7 @@
-CREATE EXTENSION IF NOT EXISTS citext;
-
 -- Create base schema
 create table movies (
   id serial primary key,
-  title citext not null,
+  title text not null,
   year int,
   genres varchar(1024)
 );
@@ -50,17 +48,17 @@ create table links (
 -- Normalize data
 create table tags (
   id serial primary key,
-  name citext not null
+  name text not null
 );
 
-create unique index uniq_tags_name on tags (CAST(name AS text));
+create unique index uniq_tags_name on tags (name);
 
 create table genres (
   id serial primary key,
-  name citext not null
+  name text not null
 );
 
-create unique index uniq_genre_name on genres (CAST(name AS text));
+create unique index uniq_genre_name on genres (name);
 
 create table movie_genres (
   id serial primary key,
