@@ -1076,6 +1076,8 @@ CREATE INDEX idx_ratings_movie_id ON ratings (movie_id);
 CREATE INDEX idx_movies_title ON movies (LOWER(title) text_pattern_ops);
 CREATE INDEX idx_genres_name ON genres (LOWER(name) text_pattern_ops);
 CREATE INDEX idx_tags_name ON tags (LOWER(name) text_pattern_ops);
+
+ANALYZE;
     </code></pre>
 </section>
 
@@ -1148,6 +1150,11 @@ Total query runtime: 10.9 secs
 
 <section class="slide">
     <h2>Рейтинг комедий про зомби</h2>
+    <img style="width: 100%" src="explain-zombie-01.png"/>
+</section>
+
+<section class="slide">
+    <h2>Рейтинг комедий про зомби</h2>
     <pre style="font-size: 80%"><code class="sql">select m.id, m.title, avg(r.rating)
 from (
   select m.id, m.title
@@ -1166,5 +1173,41 @@ order by avg(r.rating) desc;
 </code></pre>
     <pre style="font-size: 80%"><code class="text">
 Total query runtime: 486 msec
+60 строк получено.</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Рейтинг комедий про зомби</h2>
+    <img style="width: 100%" src="explain-zombie-02.png"/>
+</section>
+
+<section class="slide">
+    <h2>Покрывающий индекс</h2>
+    <pre style="font-size: 80%"><code class="sql">CREATE INDEX idx_ratings_movie_id_rating ON ratings (movie_id, rating);
+
+VACUUM;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Покрывающий индекс</h2>
+    <pre style="font-size: 80%"><code class="sql">select m.id, m.title, avg(r.rating)
+from (
+  select m.id, m.title
+  from movies       m
+  join movie_genres gm on (gm.movie_id = m.id)
+  join genres       g  on (g.id = gm.genre_id)
+  join movie_tags   tm on (tm.movie_id = m.id)
+  join tags         t  on (t.id = tm.tag_id)
+  where lower(g.name) = lower('Comedy')
+    and lower(t.name) like lower('Zombie%')
+  group by m.id
+) m
+join ratings r on (r.movie_id = m.id)
+group by m.id, m.title
+order by avg(r.rating) desc;
+</code></pre>
+    <pre style="font-size: 80%"><code class="text">
+Total query runtime: 82 msec
 60 строк получено.</code></pre>
 </section>
