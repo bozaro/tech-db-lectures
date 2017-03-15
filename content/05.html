@@ -964,28 +964,6 @@ EXPLAIN SELECT c1 FROM foo WHERE c1 < 500;
 </section>
 
 <section class="slide">
-    <h2>EXPLAIN: TEXT</h2>
-    <pre style="font-size: 70%"><code class="sql">CREATE INDEX ON foo(c2 text_pattern_ops);
-
-EXPLAIN SELECT * FROM foo WHERE c2 LIKE 'abcd%';
-                                QUERY PLAN
----------------------------------------------------------------------------
- Bitmap Heap Scan on foo  (cost=4.57..51.35 rows=100 width=37)
-   Filter: (c2 ~~ 'abcd%'::text)
-   ->  Bitmap Index Scan on foo_c2_idx1  (cost=0.00..4.54 rows=12 width=0)
-         Index Cond: ((c2 ~>=~ 'abcd'::text) AND (c2 ~<~ 'abce'::text))
-(4 строки)
-
-EXPLAIN SELECT c1 FROM foo WHERE c1 < 500;
-                                  QUERY PLAN
-------------------------------------------------------------------------------
- Index Only Scan using foo_c1_idx on foo  (cost=0.42..25.23 rows=503 width=4)
-   Index Cond: (c1 < 500)
-(2 строки)
-</code></pre>
-</section>
-
-<section class="slide">
     <h2>EXPLAIN: ORDER BY</h2>
     <pre style="font-size: 70%"><code class="sql">DROP INDEX foo_c1_idx;
 
@@ -1000,12 +978,10 @@ EXPLAIN SELECT * FROM foo ORDER BY c1;
 CREATE INDEX ON foo(c1);
 
 EXPLAIN SELECT * FROM foo ORDER BY c1;
-                             QUERY PLAN
---------------------------------------------------------------------
- Sort  (cost=145338.51..147838.54 rows=1000010 width=37)
-   Sort Key: c1
-   ->  Seq Scan on foo  (cost=0.00..18334.10 rows=1000010 width=37)
-(3 строки)
+                                   QUERY PLAN
+---------------------------------------------------------------------------------
+ Index Scan using foo_c1_idx on foo  (cost=0.42..34317.58 rows=1000010 width=37)
+(1 строка)
 </code></pre>
 </section>
 
