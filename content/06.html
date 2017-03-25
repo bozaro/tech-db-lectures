@@ -170,9 +170,10 @@ order by avg(r.rating) desc;</code></pre>
         <li>С покрывающим индексом: 82 msec (hit=108407)</li>
     </ul>
     <p>Удалось ускорить в 93.90 раз! Победа?</p>
-    <div style="next">
-        <img src="not-good-enought.png" style="position: absolute; bottom: 50px; right: 50px; width: 30%; z-index: -1">
-        <p>Что-то не похоже :(</p>
+    <div class="next" style="padding-right: 290px">
+        <img src="not-good-enought.png"
+             style="position: absolute; bottom: 50px; right: 50px; width: 300px; z-index: -1">
+        <p>Заменим 'Zombie%' на 'Comedy%' и снова более 10 секунд :(</p>
     </div>
 </section>
 
@@ -202,7 +203,7 @@ from (
   join movie_tags   tm on (tm.movie_id = m.id)
   join tags         t  on (t.id = tm.tag_id)
   where lower(g.name) = lower('Comedy')
-    and lower(t.name) like lower('Zombie%')
+    and lower(t.name) like lower('<strike>Zombie</strike>Comedy%')
   group by m.id
 ) m
 join ratings r on (r.movie_id = m.id)
@@ -310,7 +311,7 @@ COMMIT;
     <pre><code class="sql">BEGIN;
   INSERT INTO spent_daily
   SELECT :day, level, SUM(spent_daily) FROM players
-  GROUP BY level;
+  GROUP BY level FOR UPDATE;
 
   UPDATE players SET spent_daily = 0;
 END;
@@ -379,44 +380,39 @@ WHERE res_id = 70477;</code></pre>
     <p>Более красивое решение:</p>
     <pre style="font-size: 80%"><code class="sql">CREATE TEMPORARY TABLE tmp_items (
   res_id INT,
-  level SMALLINT,
-  meta VARBINARY(64)
-) ENGINE = MEMORY;
+  level  SMALLINT,
+  meta   BYTEA
+);
 INSERT INTO items VALUES
   (1, 1001, 40477),
   (1, 1201, 40478),
   …
   (80, 7641, 70477);
-UPDATE items I JOIN tmp_items t ON (i.res_id = t.res_id)
+UPDATE items i
 SET
-  i.res_id = 73534,
-  i.level = t.level,
-  i.meta = t.meta;</code></pre>
+  res_id = 73534,
+  level = t.level,
+  meta = t.meta
+FROM tmp_items t
+WHERE i.res_id = t.res_id;
+</code></pre>
 </section>
 
 <section class="slide">
     <h2>Массовая вставка данных</h2>
-    <p>Загрузка данных через LOAD DATA гораздо быстрее:</p>
-    <pre><code class="sql">load data local infile 'tags.csv'
-into table movie_tags
-fields
-  terminated by ','
-  enclosed by '"'
-  escaped by ''
-lines
-  terminated by '\r\n'
-ignore 1 lines
-(user_id, movie_id, tag, @created)
-set created = from_unixtime(@created);</code></pre>
-</section>
-
-<section class="slide">
-    <h2>Домашнее задание №3</h2>
-    <p>К следующему рубежному контролю надо будет сделать задание №3.</p>
-    <p>К рубежному контролю будут допущены только те, кто сделал ДЗ №3.</p>
-    <div style="width: 100%; height: 60%; display: table">
-        <div style="vertical-align: bottom; display: table-cell; text-align: right;">
-            <img src="homework-required.png" style="width: 60%">
-        </div>
-    </div>
+    <p>Загрузка данных через COPY гораздо быстрее:</p>
+    <pre><code class="sql">COPY movie_tags (
+  user_id,
+  movie_id,
+  tag,
+  created)
+FROM 'ml-latest/tags.csv'
+WITH (
+  DELIMITER ',',
+  FORMAT CSV,
+  HEADER true,
+  ESCAPE '"',
+  ENCODING 'UTF-8'
+);
+</code></pre>
 </section>
