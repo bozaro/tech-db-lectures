@@ -24,7 +24,6 @@ description: |
     <ul class="compact">
         <li>Нормализация и денормализация данных;</li>
         <li>Оптимизация запросов конкретных типов;</li>
-        <li>Временные таблицы;</li>
         <li>Выбор оптимальных типов данных;</li>
         <li>Разница между актуальными и историческими данными;</li>
         <li>Оптимизация на уровне приложения;</li>
@@ -302,7 +301,8 @@ order by 3 desc
     <pre><code class="sql">SELECT reltuples::bigint AS estimate
 FROM pg_class
 WHERE oid = 'films'::regclass;</code></pre>
-    <footer class="footer"><a href="https://wiki.postgresql.org/wiki/Count_estimate">https://wiki.postgresql.org/wiki/Count_estimate</a></footer>
+    <footer class="footer"><a href="https://wiki.postgresql.org/wiki/Count_estimate">https://wiki.postgresql.org/wiki/Count_estimate</a>
+    </footer>
 </section>
 
 <section class="slide">
@@ -312,7 +312,8 @@ WHERE oid = 'films'::regclass;</code></pre>
   SELECT * FROM tags WHERE name LIKE 'Zombie%'
 );
 </code></pre>
-    <p>Если нужно ориентировочное количество записей в результате выполнения запроса, то можно получить их из плана выполнения:</p>
+    <p>Если нужно ориентировочное количество записей в результате выполнения запроса, то можно получить их из плана
+        выполнения:</p>
     <pre><code class="sql">EXPLAIN SELECT * FROM tags WHERE name LIKE 'Comedy%';</code></pre>
 </section>
 
@@ -338,15 +339,34 @@ SELECT count_estimate('SELECT * FROM tags WHERE name LIKE ''Comedy%''');
 </code></pre>
 </section>
 
+<section class="slide">
+    <h2>Настоящее vs Прошлое</h2>
+    <dl>
+        <dt>OLTP (Online Transaction Processing)</dt>
+        <dd>Способ организации БД, при котором система работает с небольшими по размерам транзакциями, но идущими
+            большим потоком, и при этом клиенту требуется от системы минимальное время отклика.
+        </dd>
+        <dt>OLAP (Online Aanalytical Processing)</dt>
+        <dd>Технология обработки данных, заключающаяся в подготовке суммарной (агрегированной) информации на основе
+            больших массивов данных, структурированных по многомерному принципу.
+        </dd>
+    </dl>
+</section>
 
+<section class="slide">
+    <figure style="font-size: 150%; margin-top: 100px">
+        <blockquote>
+            <p>xxx: биг дата - это кладбище данных</p>
+            <p>xxx: раз в столетие туда приходит спиритист чтобы спросить какого-то мертвеца о чем-то - и снова
+                тишина..</p>
+        </blockquote>
+        <figcaption><a href="http://bash.im/quote/440477">© bash.im</a></figcaption>
+    </figure>
+</section>
 
-
-
-
-
-
-
-
+<section class="slide">
+    <dl></dl>
+</section>
 
 
 <section class="slide">
