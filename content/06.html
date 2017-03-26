@@ -22,10 +22,9 @@ description: |
 <section class="slide">
     <h2>Оптимизация работы с БД</h2>
     <ul class="compact">
-        <li>Оптимизация запросов конкретных типов;</li>
-        <li>Особенности использования подзапросов;</li>
-        <li>Временные таблицы;</li>
         <li>Нормализация и денормализация данных;</li>
+        <li>Оптимизация запросов конкретных типов;</li>
+        <li>Временные таблицы;</li>
         <li>Выбор оптимальных типов данных;</li>
         <li>Разница между актуальными и историческими данными;</li>
         <li>Оптимизация на уровне приложения;</li>
@@ -278,6 +277,77 @@ group by m.id
 order by 3 desc
 </code></pre>
 </section>
+
+<section class="slide">
+    <h2>Оптимизация DELETE</h2>
+    <h3>Очистка таблицы</h3>
+    <pre><code class="sql">DELETE FROM films;
+</code></pre>
+    <p>Для удаления всех записей из таблицы/таблиц есть отдельная команда</p>
+    <pre><code class="sql">TRUNCATE TABLE films CASCADE;
+</code></pre>
+    <p>Особенности:</p>
+    <ul>
+        <li>TRUNCATE много быстрее, чем DELETE;</li>
+        <li>TRUNCATE нарушает изоляцию транзакций.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Оптимизация COUNT(*)</h2>
+    <h3>Получение кол-ва записей в таблице</h3>
+    <pre><code class="sql">SELECT COUNT(*) FROM films;
+</code></pre>
+    <p>Если нужно ориентировочное количество записей в таблице, то можно выполнить запрос вида:</p>
+    <pre><code class="sql">SELECT reltuples::bigint AS estimate
+FROM pg_class
+WHERE oid = 'films'::regclass;</code></pre>
+    <footer class="footer"><a href="https://wiki.postgresql.org/wiki/Count_estimate">https://wiki.postgresql.org/wiki/Count_estimate</a></footer>
+</section>
+
+<section class="slide">
+    <h2>Оптимизация COUNT(*)</h2>
+    <h3>Получение кол-ва записей после выполения запроса</h3>
+    <pre><code class="sql">SELECT COUNT(*) FROM (
+  SELECT * FROM tags WHERE name LIKE 'Zombie%'
+);
+</code></pre>
+    <p>Если нужно ориентировочное количество записей в результате выполнения запроса, то можно получить их из плана выполнения:</p>
+    <pre><code class="sql">EXPLAIN SELECT * FROM tags WHERE name LIKE 'Comedy%';</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Оптимизация COUNT(*)</h2>
+    <h3>Получение кол-ва записей после выполения запроса</h3>
+    <pre style="font-size: 75%"><code class="sql">CREATE FUNCTION count_estimate(query text) RETURNS INTEGER AS
+$func$
+DECLARE
+    rec   record;
+    ROWS  INTEGER;
+BEGIN
+    FOR rec IN EXECUTE 'EXPLAIN ' || query LOOP
+        ROWS := SUBSTRING(rec."QUERY PLAN" FROM ' rows=([[:digit:]]+)');
+        EXIT WHEN ROWS IS NOT NULL;
+    END LOOP;
+
+    RETURN ROWS;
+END
+$func$ LANGUAGE plpgsql;
+
+SELECT count_estimate('SELECT * FROM tags WHERE name LIKE ''Comedy%''');
+</code></pre>
+</section>
+
+
+
+
+
+
+
+
+
+
+
 
 <section class="slide">
     <h2>Уменьшение времени блокировок</h2>
