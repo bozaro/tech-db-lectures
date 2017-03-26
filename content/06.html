@@ -354,6 +354,24 @@ SELECT count_estimate('SELECT * FROM tags WHERE name LIKE ''Comedy%''');
 </section>
 
 <section class="slide">
+    <h2>Актуальные данные: OLTP</h2>
+    <ul>
+        <li>Относительно стабильный размер базы данных;</li>
+        <li>Сильно нормализованные модели данных;</li>
+        <li>При возникновении ошибки транзакция должна целиком откатиться и вернуть систему к состоянию, которое было до начала транзакции;</li>
+        <li>Обработка данных в реальном времени.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Исторические данные</h2>
+    <ul>
+        <li>Постоянно увеличивающийся размер базы данных;</li>
+        <li>Версионирование всех изменяемых данных.</li>
+    </ul>
+</section>
+
+<section class="slide">
     <figure style="font-size: 150%; margin-top: 100px">
         <blockquote>
             <p>xxx: биг дата - это кладбище данных</p>
@@ -363,11 +381,6 @@ SELECT count_estimate('SELECT * FROM tags WHERE name LIKE ''Comedy%''');
         <figcaption><a href="http://bash.im/quote/440477">© bash.im</a></figcaption>
     </figure>
 </section>
-
-<section class="slide">
-    <dl></dl>
-</section>
-
 
 <section class="slide">
     <h2>Уменьшение времени блокировок</h2>
