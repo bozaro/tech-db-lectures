@@ -17,7 +17,7 @@ description: |
      - TRUNCATE;
      - Массовое добавление данных при помощи COPY;
    - Полезные особенности ALTER TABLE;
-   - Партиционирование.
+   - Секционирование.
 ---
 <section class="slide">
     <h2>Оптимизация работы с БД</h2>
@@ -30,8 +30,12 @@ description: |
         <li>Кэширование;</li>
         <li>Примеры эффективного массового изменения данных;</li>
         <li>Полезные особенности ALTER TABLE;</li>
-        <li>Партиционирование.</li>
+        <li>Секционирование.</li>
     </ul>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Нормализация и денормализация данных</h2>
 </section>
 
 <section class="slide">
@@ -278,6 +282,10 @@ order by 3 desc
 </section>
 
 <section class="slide">
+    <h2 class="shout">Оптимизация запросов конкретных типов</h2>
+</section>
+
+<section class="slide">
     <h2>Оптимизация DELETE</h2>
     <h3>Очистка таблицы</h3>
     <pre><code class="sql">DELETE FROM films;
@@ -340,6 +348,10 @@ SELECT count_estimate('SELECT * FROM tags WHERE name LIKE ''Comedy%''');
 </section>
 
 <section class="slide">
+    <h2 class="shout">Исторические и актуальные данные</h2>
+</section>
+
+<section class="slide">
     <h2>Настоящее vs Прошлое</h2>
     <dl>
         <dt>OLTP (Online Transaction Processing)</dt>
@@ -354,20 +366,32 @@ SELECT count_estimate('SELECT * FROM tags WHERE name LIKE ''Comedy%''');
 </section>
 
 <section class="slide">
-    <h2>Актуальные данные: OLTP</h2>
+    <h2>Актуальные данные</h2>
+    <h3>Особенности:</h3>
     <ul>
         <li>Относительно стабильный размер базы данных;</li>
         <li>Сильно нормализованные модели данных;</li>
-        <li>При возникновении ошибки транзакция должна целиком откатиться и вернуть систему к состоянию, которое было до начала транзакции;</li>
+        <li>При возникновении ошибки транзакция должна целиком откатиться и вернуть систему к состоянию, которое было до
+            начала транзакции;
+        </li>
+        <li>Данные активно изменяются;</li>
         <li>Обработка данных в реальном времени.</li>
     </ul>
 </section>
 
 <section class="slide">
     <h2>Исторические данные</h2>
+    <h3>Особенности:</h3>
+    <ul>
+        <li>Записи только добавляются в базу данных;</li>
+        <li>Версионирование всех изменяемых данных;</li>
+        <li>Важно сохранить не только "что изменялось", но и "почему изменялось".</li>
+    </ul>
+    <h3>Проблемы:</h3>
     <ul>
         <li>Постоянно увеличивающийся размер базы данных;</li>
-        <li>Версионирование всех изменяемых данных.</li>
+        <li>Поддержка эволюции схемы данных;</li>
+        <li>Согласованность с актуальными данными.</li>
     </ul>
 </section>
 
@@ -380,6 +404,17 @@ SELECT count_estimate('SELECT * FROM tags WHERE name LIKE ''Comedy%''');
         </blockquote>
         <figcaption><a href="http://bash.im/quote/440477">© bash.im</a></figcaption>
     </figure>
+</section>
+
+<section class="slide">
+    <h2>Секционирование</h2>
+    <dl>
+        <dt>Секционирование (англ. partitioning)</dt>
+        <dd>Разделение хранимых объектов баз данных (таких как таблиц, индексов, материализованных представлений) на
+            отдельные части с раздельными параметрами физического хранения.
+        </dd>
+    </dl>
+    <img src="partitioning.png" style="height: 350px; position: absolute; bottom: 50px; right: 50px; z-index: -1"/>
 </section>
 
 <section class="slide">
