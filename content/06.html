@@ -425,7 +425,7 @@ ORDER BY title LIMIT 100;</code></pre>
             отдельные части с раздельными параметрами физического хранения.
         </dd>
     </dl>
-    <img src="partitioning.png" style="height: 350px; position: absolute; bottom: 50px; right: 50px; z-index: -1"/>
+    <img src="partitioning.png" style="height: 300px; position: absolute; bottom: 50px; right: 50px; z-index: -1"/>
 </section>
 
 <section class="slide">
@@ -699,5 +699,23 @@ UPDATE player SET money = 100500, ver = 13
 WHERE id = 42 AND ver = 12;
 COMMIT;
 </code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Ограничение времени ожидания</h2>
+    <h3>Долгий запрос:</h3>
+    <pre><code>UPDATE players SET spent_daily = 0;
+</code></pre>
+    <h3>Ждущий запрос:</h3>
+    <pre><code>BEGIN;
+UPDATE player SET money = 100500 WHERE id = 42;
+COMMIT;</code></pre>
+    <div class="next">
+        <h3>Срочный запрос:</h3>
+        <pre><code>BEGIN;
+SET LOCAL lock_timeout = '100ms';
+UPDATE player SET money = 100500 WHERE id = 42;
+COMMIT;</code></pre>
     </div>
 </section>
