@@ -24,13 +24,11 @@ description: |
     <ul class="compact">
         <li>Нормализация и денормализация данных;</li>
         <li>Оптимизация запросов конкретных типов;</li>
-        <li>Выбор оптимальных типов данных;</li>
         <li>Разница между актуальными и историческими данными;</li>
+        <li>Секционирование.</li>
         <li>Оптимизация на уровне приложения;</li>
-        <li>Кэширование;</li>
         <li>Примеры эффективного массового изменения данных;</li>
         <li>Полезные особенности ALTER TABLE;</li>
-        <li>Секционирование.</li>
     </ul>
 </section>
 
@@ -87,7 +85,7 @@ description: |
         </tbody>
     </table>
     <p>Обзщий размер: ~1995MB</p>
-    <li>Запрос для примера: вывести все комедии про зомби по рейтингу.</li>
+    <p>Запрос для примера: вывести все комедии про зомби по рейтингу.</p>
 </section>
 
 <section class="slide">
@@ -348,6 +346,19 @@ SELECT count_estimate('SELECT * FROM tags WHERE name LIKE ''Comedy%''');
 </section>
 
 <section class="slide">
+    <h2>Оптимизация SELECT ... LIMIT ... OFFSET</h2>
+    <h3>Вывод N-ой страницы</h3>
+    <pre><code>SELECT * FROM movies
+ORDER BY title LIMIT 100 OFFSET 2000;</code></pre>
+    <div class="next">
+        <h3>Вывод следующей страницы</h3>
+        <pre><code>SELECT * FROM movies
+WHERE title > 'Angry Video Game Nerd: The Movie'
+ORDER BY title LIMIT 100;</code></pre>
+    </div>
+</section>
+
+<section class="slide">
     <h2 class="shout">Исторические и актуальные данные</h2>
 </section>
 
@@ -504,7 +515,8 @@ CREATE TABLE test_1 PARTITION OF test FOR VALUES FROM (100) TO (199);
 CREATE TABLE test_2 PARTITION OF test FOR VALUES FROM (200) TO (299);
 </code></pre>
     <footer class="footer"><a
-            href="https://www.keithf4.com/postgresql-10-built-in-partitioning/">https://www.keithf4.com/postgresql-10-built-in-partitioning/</a></footer>
+            href="https://www.keithf4.com/postgresql-10-built-in-partitioning/">https://www.keithf4.com/postgresql-10-built-in-partitioning/</a>
+    </footer>
 </section>
 
 <section class="slide">
@@ -521,11 +533,16 @@ CREATE TABLE test_2 PARTITION OF test FOR VALUES FROM (200) TO (299);
 </section>
 
 <section class="slide">
+    <h2 class="shout">Оптимизация на уровне приложения</h2>
+</section>
+
+<section class="slide">
     <h2>Уменьшение времени блокировок</h2>
     <p>Уменьшение времени блокировок за счет избавления от крупных запросов вида «обновить всё».</p>
     <ul>
         <li>Разбиение запроса на более мелкие;</li>
-        <li>Модификация схемы данных для избавления от крупных запросов.</li>
+        <li>Модификация схемы данных для избавления от крупных запросов;</li>
+        <li>Оптимистичные блокировки.</li>
     </ul>
 </section>
 
@@ -533,14 +550,18 @@ CREATE TABLE test_2 PARTITION OF test FOR VALUES FROM (200) TO (299);
     <h2>Разбиение запроса на более мелкие</h2>
     <p>До:</p>
     <pre><code class="sql">DELETE FROM work_logs
-WHERE created_at > ADDDATE(DATE(NOW()), INTERVAL -90 DAY);
+WHERE created_at > NOW() - interval '90 days';
 </code></pre>
     <div class="next">
         <p>После (выполнять в цикле):</p>
         <pre><code class="sql">BEGIN;
 DELETE FROM work_logs
-WHERE created_at > ADDDATE(DATE(NOW()), INTERVAL -90 DAY)
-LIMIT 10000;
+WHERE id IN (
+  SELECT id
+  DELETE FROM work_logs
+  WHERE created_at > NOW() - interval '90 days'
+  LIMIT 10000
+);
 COMMIT;
 </code></pre>
     </div>
@@ -656,4 +677,27 @@ WITH (
   ENCODING 'UTF-8'
 );
 </code></pre>
+</section>
+
+<section class="slide">
+    <h2>Блокировки</h2>
+    <h3>Пессимистичная блокировка</h3>
+    <pre style="font-size: 85%"><code class="sql">BEGIN;
+SELECT * FROM player WHERE id = 42 FOR UPDATE;
+...
+UPDATE player SET money = 100500 WHERE id = 42;
+COMMIT;
+</code></pre>
+    <div class="next">
+        <h3>Оптимистичная блокировка</h3>
+        <pre style="font-size: 85%"><code class="sql">BEGIN;
+SELECT * FROM player WHERE id = 42;
+COMMIT;
+...
+BEGIN;
+UPDATE player SET money = 100500, ver = 13
+WHERE id = 42 AND ver = 12;
+COMMIT;
+</code></pre>
+    </div>
 </section>
