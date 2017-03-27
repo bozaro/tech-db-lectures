@@ -346,7 +346,7 @@ SELECT count_estimate('SELECT * FROM tags WHERE name LIKE ''Comedy%''');
 </section>
 
 <section class="slide">
-    <h2>Оптимизация SELECT ... LIMIT ... OFFSET</h2>
+    <h2>Оптимизация LIMIT со смещением</h2>
     <h3>Вывод N-ой страницы</h3>
     <pre><code>SELECT * FROM movies
 ORDER BY title LIMIT 100 OFFSET 2000;</code></pre>
@@ -356,6 +356,24 @@ ORDER BY title LIMIT 100 OFFSET 2000;</code></pre>
 WHERE title > 'Angry Video Game Nerd: The Movie'
 ORDER BY title LIMIT 100;</code></pre>
     </div>
+</section>
+
+<section class="slide">
+    <h2>Оптимизация LIMIT со смещением</h2>
+    <pre><code class="sql">SELECT *
+FROM movies
+ORDER BY title
+LIMIT 10 OFFSET 100;</code></pre>
+    <pre class="next"><code class="sql">
+SELECT m.*
+FROM movies m
+JOIN (
+  SELECT id
+  FROM movies m
+  ORDER BY title
+  LIMIT 10 OFFSET 100
+) l ON (m.id = l.id)
+ORDER BY title;</code></pre>
 </section>
 
 <section class="slide">
