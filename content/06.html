@@ -418,6 +418,82 @@ SELECT count_estimate('SELECT * FROM tags WHERE name LIKE ''Comedy%''');
 </section>
 
 <section class="slide">
+    <h2>Секционирование: наследование</h2>
+    <div style="font-size: 80%">
+    <pre><code class="sql">CREATE TABLE test (
+  id         SERIAL PRIMARY KEY,
+  title      TEXT,
+  created_on TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_test_created_on ON test (created_on);
+
+CREATE TABLE test_1
+  (CHECK ( id >= 100 AND id < 200 ))
+  INHERITS (test);</code></pre>
+        <pre class="next"><code class="sql">
+CREATE TABLE test_2 ( LIKE test INCLUDING ALL );
+ALTER TABLE test_2
+  INHERIT test,
+  ADD CONSTRAINT partition_check CHECK (id >= 200 and id < 300);</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Секционирование: наследование</h2>
+    <h3>Плюсы:</h3>
+    <ul>
+        <li>Оно работает из коробки.</li>
+    </ul>
+    <h3>Минусы:</h3>
+    <ul>
+        <li>Строго говоря, это костыль;</li>
+        <li>При вставке данных нужно явно добавлять данные в соответвующую партицию;</li>
+        <li>Нужно аккуратно следить за индексами и ограничениями;</li>
+        <li>Не работают FOREIGN KEY.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Секционирование: pg_pathman</h2>
+    <pre><code class="sql" style="font-size: 70%">
+CREATE EXTENSION pg_pathman;
+
+CREATE TABLE journal (
+    id      SERIAL,
+    dt      TIMESTAMP NOT NULL,
+    level   INTEGER,
+    msg     TEXT);
+
+CREATE INDEX ON journal(dt);
+
+INSERT INTO journal (dt, level, msg)
+SELECT g, random() * 6, md5(g::text)
+FROM generate_series('2015-01-01'::date, '2015-12-31'::date, '1 minute') as g;
+
+SELECT create_range_partitions('journal', 'dt',
+       '2015-01-01'::date, '1 day'::interval);
+</code></pre>
+    <footer class="footer"><a
+            href="https://github.com/postgrespro/pg_pathman">https://github.com/postgrespro/pg_pathman</a></footer>
+</section>
+
+<section class="slide">
+    <h2>Секционирование: pg_pathman</h2>
+    <h3>Плюсы:</h3>
+    <ul>
+        <li>Более удобная работа с секциями;</li>
+        <li>Автоматическое создание секций при INSERT-ах;</li>
+        <li>HASH и RANGE секционирование.</li>
+    </ul>
+    <h3>Минусы:</h3>
+    <ul>
+        <li>Это расширение не входит в комплект PostgreSQL;</li>
+        <li>Не работают FOREIGN KEY.</li>
+    </ul>
+</section>
+
+<section class="slide">
     <h2>Уменьшение времени блокировок</h2>
     <p>Уменьшение времени блокировок за счет избавления от крупных запросов вида «обновить всё».</p>
     <ul>
