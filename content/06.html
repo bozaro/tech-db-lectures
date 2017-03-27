@@ -456,8 +456,7 @@ ALTER TABLE test_2
 
 <section class="slide">
     <h2>Секционирование: pg_pathman</h2>
-    <pre><code class="sql" style="font-size: 70%">
-CREATE EXTENSION pg_pathman;
+    <pre><code class="sql" style="font-size: 70%">CREATE EXTENSION pg_pathman;
 
 CREATE TABLE journal (
     id      SERIAL,
@@ -491,6 +490,34 @@ SELECT create_range_partitions('journal', 'dt',
         <li>Это расширение не входит в комплект PostgreSQL;</li>
         <li>Не работают FOREIGN KEY.</li>
     </ul>
+</section>
+
+<section class="slide">
+    <h2>Секционирование: PostgreSQL 10</h2>
+    <pre><code class="sql" style="font-size: 70%">CREATE TABLE test (
+  id         SERIAL PRIMARY KEY,
+  title      TEXT,
+  created_on TIMESTAMPTZ NOT NULL DEFAULT NOW()
+) PARTITION BY RANGE (id);
+
+CREATE TABLE test_1 PARTITION OF test FOR VALUES FROM (100) TO (199);
+CREATE TABLE test_2 PARTITION OF test FOR VALUES FROM (200) TO (299);
+</code></pre>
+    <footer class="footer"><a
+            href="https://www.keithf4.com/postgresql-10-built-in-partitioning/">https://www.keithf4.com/postgresql-10-built-in-partitioning/</a></footer>
+</section>
+
+<section class="slide">
+    <h2>Секционирование: PostgreSQL 10</h2>
+    <h3>Плюсы:</h3>
+    <ul>
+        <li>Поддержка из коробки.</li>
+    </ul>
+    <h3>Минусы:</h3>
+    <ul>
+        <li>Фича еще не готова :(</li>
+    </ul>
+    <img src="untested.jpg" style="position: absolute; bottom: 0px; right: 50px"/>
 </section>
 
 <section class="slide">
