@@ -1,282 +1,615 @@
 ---
 title: Лекция 6
 description: |
-  Тема данной лекции:
-  
-   - Обзор вариантов оптимизации работы с БД;
-   - Нормализация/денормализвция;
-   - Уменьшение блокировок;
-   - Массовое добавление/изменение данных.
-draft: true
+  Оптимизация запросов. Оптимизация структуры данных.
+
+   - Оптимизация запросов конкретных типов;
+   - Нормализация и денормализация данных;
+   - Разница между актуальными и историческими данными;
+   - Секционирование;
+   - Оптимизация на уровне приложения;
+   - Примеры эффективного массового изменения данных:
+     - Объединение однотипных UPDATE-ов;
+     - Разделение крупных транзакций на более мелкие;
+     - TRUNCATE;
+     - Массовое добавление данных при помощи COPY;
+     - Полезные особенности ALTER TABLE.
 ---
 <section class="slide">
-<h2>Оптимизация работы с БД</h2>
-<ul>
-	<li>Построение/удаление индексов;</li>
-	<li>Модификация запросов;</li>
-	<li>Нормализация/денормализация данных;</li>
-	<li>Уменьшение времени блокировок (более короткие транзакции);</li>
-	<li>Группировка UPDATE-запросов;</li>
-	<li>Специальные средства для вставки данных.</li>
-</ul>
+    <h2>Оптимизация работы с БД</h2>
+    <ul class="compact">
+        <li>Нормализация и денормализация данных;</li>
+        <li>Оптимизация запросов конкретных типов;</li>
+        <li>Разница между актуальными и историческими данными;</li>
+        <li>Секционирование.</li>
+        <li>Оптимизация на уровне приложения;</li>
+        <li>Примеры эффективного массового изменения данных.</li>
+    </ul>
 </section>
 
 <section class="slide">
-<h2>Построение/удаление индексов</h2>
-<h3>База для примера</h3>
-<ul style="font-size: 75%">
-	<li>База с сайта: <a href="https://movielens.org/">https://movielens.org/</a></li>
-	<li>Объем в .csv-файлах: 613.3Mb:
-		<ul style="font-size: 80%">
-			<li>links.csv: 0.7Mb</li>
-			<li>movies.csv: 1.6Mb</li>
-			<li>ratings.csv: 591Mb</li>
-			<li>tags.csv: 20Mb</li>
-		</ul>
-	</li>
-	<li>Размер базы данных: 858.2Mb:
-		<ul style="font-size: 80%">
-			<li>genres: 19 rows, 0.016Mb</li>
-			<li>links: 34 560 rows, 1.5Mb</li>
-			<li>movie_genres: 65 736 rows, 2.5Mb</li>
-			<li>movie_tags: 585 984 rows, 24.5Mb</li>
-			<li>movies: 34 333 rows, 2.5Mb</li>
-			<li>rating: 20 150 654 rows, 822.0Mb</li>
-			<li>tags: 36 229 rows, 3.5Mb</li>
-		</ul>
-	</li>
-	<li>Запрос для примера: вывести все комедии про зомби по рейтингу.</li>
-</ul>
+    <h2 class="shout">Нормализация и денормализация данных</h2>
 </section>
 
 <section class="slide">
-<h2>Построение/удаление индексов</h2>
-<h3>Начальный вариант:</h3>
-<pre style="font-size: 90%"><code class="sql"># Query_time: 186.225664  Lock_time: 0.000000
-# Rows_sent: 15  Rows_examined: 23 536 988
-select m.id, m.title, avg(r.rating)
-from movies m
+    <h2>Тестовая база</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Таблица</th>
+            <th style="text-align: right">Кортежей</th>
+            <th style="text-align: right">Размер</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>genres</td>
+            <td align="right">19</td>
+            <td align="right">48 kB</td>
+        </tr>
+        <tr>
+            <td>links</td>
+            <td align="right">40 110</td>
+            <td align="right">2 944 kB</td>
+        </tr>
+        <tr>
+            <td>movie_genres</td>
+            <td align="right">74 229</td>
+            <td align="right">4 856 kB</td>
+        </tr>
+        <tr>
+            <td>movie_tags</td>
+            <td align="right">668 953</td>
+            <td align="right">49 152 kB</td>
+        </tr>
+        <tr>
+            <td>movies</td>
+            <td align="right">40 110</td>
+            <td align="right">3 400 kB</td>
+        </tr>
+        <tr>
+            <td>rating</td>
+            <td align="right">24 404 096</td>
+            <td align="right">1 971 200 kB</td>
+        </tr>
+        <tr>
+            <td>genres</td>
+            <td align="right">49 657</td>
+            <td align="right">5 344 kB</td>
+        </tr>
+        </tbody>
+    </table>
+    <p>Обзщий размер: ~1995MB</p>
+    <p>Запрос для примера: вывести все комедии про зомби по рейтингу.</p>
+</section>
+
+<section class="slide">
+    <h2>Рейтинг комедий про зомби</h2>
+    <h3>Начальный вариант (7.7 secs):</h3>
+    <pre><code class="sql">select m.id, m.title, avg(r.rating)
+from movies       m
 join movie_genres gm on (gm.movie_id = m.id)
-join genres  g on (g.id = gm.genre_id)
-join movie_tags tm on (tm.movie_id = m.id)
-join tags t on (t.id = tm.tag_id)
-join ratings r on (r.movie_id = m.id)
-where g.name = 'Comedy'
-  and t.name = 'Zombie'
+join genres       g  on (g.id = gm.genre_id)
+join movie_tags   tm on (tm.movie_id = m.id)
+join tags         t  on (t.id = tm.tag_id)
+join ratings      r  on (r.movie_id = m.id)
+where lower(g.name) = lower('Comedy')
+  and lower(t.name) like lower('Zombie%')
 group by m.id, m.title
-order by avg(r.rating) desc
-</code></pre>
+order by avg(r.rating) desc;</code></pre>
 </section>
 
 <section class="slide">
-<h2>Построение/удаление индексов</h2>
-<h3>После создания индексов для Foreign Key:</h3>
-<pre style="font-size: 90%"><code class="sql"># Query_time: 194.333533  Lock_time: 0.000000
-# Rows_sent: 15  Rows_examined: 633 731
-select m.id, m.title, avg(r.rating)
-from movies m
+    <h2>Рейтинг комедий про зомби</h2>
+    <h3>Построили типовые индексы (10.9 secs):</h3>
+    <pre><code class="sql">select m.id, m.title, avg(r.rating)
+from movies       m
 join movie_genres gm on (gm.movie_id = m.id)
-join genres  g on (g.id = gm.genre_id)
-join movie_tags tm on (tm.movie_id = m.id)
-join tags t on (t.id = tm.tag_id)
-join ratings r on (r.movie_id = m.id)
-where g.name = 'Comedy'
-  and t.name = 'Zombie'
+join genres       g  on (g.id = gm.genre_id)
+join movie_tags   tm on (tm.movie_id = m.id)
+join tags         t  on (t.id = tm.tag_id)
+join ratings      r  on (r.movie_id = m.id)
+where lower(g.name) = lower('Comedy')
+  and lower(t.name) like lower('Zombie%')
 group by m.id, m.title
-order by avg(r.rating) desc
-</code></pre>
+order by avg(r.rating) desc;</code></pre>
 </section>
 
 <section class="slide">
-<h2>Построение/удаление индексов</h2>
-<h3>После создания покрывающего индекса по ratings:</h3>
-<pre style="font-size: 90%"><code class="sql"># Query_time: 1.264987  Lock_time: 0.000000
-# Rows_sent: 15  Rows_examined: 634 202
-select m.id, m.title, avg(r.rating)
-from movies m
-join movie_genres gm on (gm.movie_id = m.id)
-join genres  g on (g.id = gm.genre_id)
-join movie_tags tm on (tm.movie_id = m.id)
-join tags t on (t.id = tm.tag_id)
-join ratings r on (r.movie_id = m.id)
-where g.name = 'Comedy'
-  and t.name = 'Zombie'
-group by m.id, m.title
-order by avg(r.rating) desc
-</code></pre>
-</section>
-
-<section class="slide">
-<h2>Построение/удаление индексов</h2>
-<h3>Итого:</h3>
-<ul>
-	<li>Без индексов: 186.22 sec, 23 536 988 rows</li>
-	<li>С индексами FOREIGN KEY: 194.33 sec, 633 731 rows</li>
-	<li>С покрывающим индексом: 1.26 sec, 634 202 rows</li>
-</ul>
-<p>Удалось ускорить в 147.79 раз! Победа?</p>
-<div style="next">
-	<img src="not-good-enought.png" style="float: right; width: 35%">
-	<p>Что-то не похоже :(</p>
-</div>
-</section>
-
-<section class="slide">
-<h2>Оптимизируйте доступ к данным:</h2>
-<ul>
-	<li>Не извлекает ли приложение больше данных, чем нужно;</li>
-	<li>Не анализирует ли сервер MySQL больше строк, чем это необходимо;</li>
-</ul>
-Типичные ошибки:
-<ul>
-	<li>Выборка ненужных строк;</li>
-	<li>Выборка всех столбцов из соединения нескольких таблиц;</li>
-	<li>Выборка всех столбцов.</li>
-</ul>
-</section>
-
-<section class="slide">
-<h2>Модификация запросов</h2>
-<h3>Что с этим запросом не так?</h3>
-<pre style="font-size: 90%"><code class="sql"># Query_time: 1.264987  Lock_time: 0.000000
-# Rows_sent: 15  Rows_examined: 634 202
-select m.id, m.title, avg(r.rating)
-from movies m
-join movie_genres gm on (gm.movie_id = m.id)
-join genres  g on (g.id = gm.genre_id)
-join movie_tags tm on (tm.movie_id = m.id)
-join tags t on (t.id = tm.tag_id)
-join ratings r on (r.movie_id = m.id)
-where g.name = 'Comedy'
-  and t.name = 'Zombie'
-group by m.id, m.title
-order by avg(r.rating) desc
-</code></pre>
-</section>
-
-<section class="slide">
-<h2>Модификация запросов</h2>
-<h3>Переосмысление запроса:</h3>
-<pre style="font-size: 70%"><code class="sql"># Query_time: 14.323418  Rows_examined: 23 618 206 (без индексов)
-# Query_time: 25.683016  Rows_examined: 81 575 (с индексами)
-# Query_time:  0.178307  Rows_examined: 82 046 (с покрывающим индексом)
-
-select m.id, m.title, m.cnt, avg(r.rating)
+    <h2>Рейтинг комедий про зомби</h2>
+    <h3>Немного переписали запрос (486 msec):</h3>
+    <pre style="font-size: 80%"><code class="sql">select m.id, m.title, avg(r.rating)
 from (
-  select m.id, m.title, count(*) as cnt
-  from movies m
+  select m.id, m.title
+  from movies       m
   join movie_genres gm on (gm.movie_id = m.id)
-  join genres g on (g.id = gm.genre_id)
-  join movie_tags tm on (tm.movie_id = m.id)
-  join tags t on (t.id = tm.tag_id)
-  where g.name = 'Comedy‘
-    and t.name = 'Zombie‘
-  group by m.id, m.title
+  join genres       g  on (g.id = gm.genre_id)
+  join movie_tags   tm on (tm.movie_id = m.id)
+  join tags         t  on (t.id = tm.tag_id)
+  where lower(g.name) = lower('Comedy')
+    and lower(t.name) like lower('Zombie%')
+  group by m.id
 ) m
 join ratings r on (r.movie_id = m.id)
-group by m.id, m.title, m.cnt
-order by avg(r.rating) desc
+group by m.id, m.title
+order by avg(r.rating) desc;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Рейтинг комедий про зомби</h2>
+    <h3>Покрывающий индекс по рейтингам (82 msec):</h3>
+    <pre style="font-size: 80%"><code class="sql">select m.id, m.title, avg(r.rating)
+from (
+  select m.id, m.title
+  from movies       m
+  join movie_genres gm on (gm.movie_id = m.id)
+  join genres       g  on (g.id = gm.genre_id)
+  join movie_tags   tm on (tm.movie_id = m.id)
+  join tags         t  on (t.id = tm.tag_id)
+  where lower(g.name) = lower('Comedy')
+    and lower(t.name) like lower('Zombie%')
+  group by m.id
+) m
+join ratings r on (r.movie_id = m.id)
+group by m.id, m.title
+order by avg(r.rating) desc;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>SUBQUERIES vs JOIN</h2>
+    <h3>Коррелирующий подзапрос</h3>
+    <pre style="font-size: 75%"><code class="sql">SELECT E.*
+FROM Employee E WHERE EXISTS (
+  SELECT *
+  FROM Department D WHERE D.DepartmentID = E.DepartmentID
+);
+</code></pre>
+    <h3>Не коррелирующий подзапрос</h3>
+    <pre style="font-size: 75%"><code class="sql">SELECT E.*
+FROM Employee E WHERE E.DepartmentID IN (
+  SELECT DepartmentID
+  FROM Department D
+);
+</code></pre>
+    <h3>JOIN</h3>
+    <pre style="font-size: 75%"><code class="sql">SELECT E.*
+FROM Employee E
+JOIN Department D ON (E.DepartmentID = D.DepartmentID);
 </code></pre>
 </section>
 
 <section class="slide">
-<h2>Нормализация</h2>
-<ul>
-	<li>Нормализованные таблицы обычно обновляются быстрее, чем ненормализованные.</li>
-	<li>Когда данные хорошо нормализованы, они либо редко дублируются, либо не дублируются совсем. Так что изменять приходится меньше данных.</li>
-	<li>Нормализованные таблицы обычно меньше по размеру, поэтому лучше помещаются в памяти и их производительность выше.</li>
-	<li>Из-за отсутствия избыточных данных реже возникает необходимость в запросах с фразами DISTINCT или GROUP  BY для извлечения списков значений.</li>
-</ul>
+    <h2>Рейтинг комедий про зомби</h2>
+    <h3>Итого:</h3>
+    <ul>
+        <li>Без индексов: 7.7 sec (hit=17495, read=183234, written=46254)</li>
+        <li>С базовыми индексами: 10.9 sec (hit=3801568, read=579841, written=1)</li>
+        <li>Поправленный запрос: 486 msec (hit=118402, read=110620)</li>
+        <li>С покрывающим индексом: 82 msec (hit=108407)</li>
+    </ul>
+    <p>Удалось ускорить в 93.90 раз! Победа?</p>
+    <div class="next" style="padding-right: 290px">
+        <img src="not-good-enought.png"
+             style="position: absolute; bottom: 50px; right: 50px; width: 300px; z-index: -1">
+        <p>Заменим 'Zombie%' на 'Comedy%' и снова более 10 секунд :(</p>
+    </div>
 </section>
 
 <section class="slide">
-<h2>Денормализация</h2>
-<dl style="font-size: 75%">
-	<dt>Денормализация</dt>
-	<dd>Намеренное приведение структуры базы данных в состояние, не соответствующее критериям нормализации, обычно проводимое с целью ускорения операций чтения из базы за счет добавления избыточных данных.</dd>
-</dl>
-<ul>
-	<li>Обновление данных триггерах.</li>
-	<li>Обновление данных по расписанию.</li>
-	<li>Инкрементальное обновление данных.</li>
-</ul>
+    <h2>Оптимизируйте доступ к данным:</h2>
+    <ul>
+        <li>Не извлекает ли приложение больше данных, чем нужно;</li>
+        <li>Не анализирует ли сервер больше строк, чем это необходимо;</li>
+    </ul>
+    Типичные ошибки:
+    <ul>
+        <li>Выборка ненужных строк;</li>
+        <li>Выборка всех столбцов из соединения нескольких таблиц;</li>
+        <li>Выборка всех столбцов.</li>
+    </ul>
 </section>
 
 <section class="slide">
-<h2>Нормализация/денормализация</h2>
-<pre style="font-size: 85%"><code class="sql">alter table movies
-  add column rating_sum float8 default 0 not null,
+    <h2>Модификация запросов</h2>
+    <h3>Что с этим запросом не так?</h3>
+    <pre style="font-size: 80%"><code class="sql">select m.id, m.title, avg(r.rating)
+from (
+  select m.id, m.title
+  from movies       m
+  join movie_genres gm on (gm.movie_id = m.id)
+  join genres       g  on (g.id = gm.genre_id)
+  join movie_tags   tm on (tm.movie_id = m.id)
+  join tags         t  on (t.id = tm.tag_id)
+  where lower(g.name) = lower('Comedy')
+    and lower(t.name) like lower('<strike>Zombie</strike>Comedy%')
+  group by m.id
+) m
+join ratings r on (r.movie_id = m.id)
+group by m.id, m.title
+order by avg(r.rating) desc;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Нормализация</h2>
+    <ul>
+        <li>Нормализованные таблицы обычно обновляются быстрее, чем ненормализованные.</li>
+        <li>Когда данные хорошо нормализованы, они либо редко дублируются, либо не дублируются совсем. Так что изменять
+            приходится меньше данных.
+        </li>
+        <li>Нормализованные таблицы обычно меньше по размеру, поэтому лучше помещаются в памяти и их производительность
+            выше.
+        </li>
+        <li>Из-за отсутствия избыточных данных реже возникает необходимость в запросах с фразами DISTINCT или GROUP BY
+            для извлечения списков значений.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Денормализация</h2>
+    <dl>
+        <dt>Денормализация</dt>
+        <dd>Намеренное приведение структуры базы данных в состояние, не соответствующее критериям нормализации, обычно
+            проводимое с целью ускорения операций чтения из базы за счет добавления избыточных данных.
+        </dd>
+    </dl>
+    <ul>
+        <li>Обновление данных триггерах.</li>
+        <li>Обновление данных по расписанию.</li>
+        <li>Инкрементальное обновление данных.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Нормализация/денормализация</h2>
+    <pre style="font-size: 85%"><code class="sql">alter table movies
+  add column rating_sum float default 0 not null,
   add column rating_cnt int default 0 not null;
 
-update movies m join (
+update movies m
+set
+  rating_cnt = r.rating_cnt,
+  rating_sum = r.rating_sum
+from (
   select movie_id, count(*) as rating_cnt, sum(rating) as rating_sum
   from ratings
   group by movie_id
-) r on (m.id = r.movie_id)
-Set
-  m.rating_cnt = r.rating_cnt,
-  m.rating_sum = r.rating_sum;
+) r where (m.id = r.movie_id);
 
-create trigger after insert ...;
-create trigger after update ...;
-create trigger after delete ...;
+create trigger ...;
 </code></pre>
 </section>
 
 <section class="slide">
-<h2>Нормализация/денормализация</h2>
-<h3>После денормализации:</h3>
-<pre style="font-size: 85%"><code class="sql"># Query_time: 0.015626  Lock_time: 0.000000
-# Rows_sent: 15  Rows_examined: 813
-select m.id, m.title, case
-  when m.rating_cnt > 0
-  then m.rating_sum / m.rating_cnt
-  else null
-end
-from movies m
+    <h2>Нормализация/денормализация</h2>
+    <h3>После денормализации:</h3>
+    <pre style="font-size: 85%"><code class="sql">select m.id, m.title, m.rating_sum / m.rating_cnt
+from movies       m
 join movie_genres gm on (gm.movie_id = m.id)
-join genres g on (g.id = gm.genre_id)
-join movie_tags tm on (tm.movie_id = m.id)
-join tags t on (t.id = tm.tag_id)
-where g.name = 'Comedy'
-  and t.name = 'Zombie'
-group by m.id, m.title
+join genres       g  on (g.id = gm.genre_id)
+join movie_tags   tm on (tm.movie_id = m.id)
+join tags         t  on (t.id = tm.tag_id)
+where lower(g.name) = lower('Comedy')
+and lower(t.name) like lower('Zombie%')
+and m.rating_cnt > 0
+group by m.id
+order by 3 desc
 </code></pre>
 </section>
 
 <section class="slide">
-<h2>Уменьшение времени блокировок</h2>
-<p>Уменьшение времени блокировок за счет избавления от крупных запросов вида «обновить всё».</p>
-<ul>
-	<li>Разбиение запроса на более мелкие;</li>
-	<li>Модификация схемы данных для избавления от крупных запросов.</li>
-</ul>
+    <h2 class="shout">Оптимизация запросов конкретных типов</h2>
 </section>
 
 <section class="slide">
-<h2>Разбиение запроса на более мелкие</h2>
-<p>До:</p>
-<pre><code class="sql">DELETE FROM work_logs
-WHERE created_at > ADDDATE(DATE(NOW()), INTERVAL -90 DAY);
+    <h2>Оптимизация DELETE</h2>
+    <h3>Очистка таблицы</h3>
+    <pre><code class="sql">DELETE FROM films;
 </code></pre>
-<div class="next">
-	<p>После (выполнять в цикле):</p>
-	<pre><code class="sql">BEGIN;
+    <p>Для удаления всех записей из таблицы/таблиц есть отдельная команда</p>
+    <pre><code class="sql">TRUNCATE TABLE films CASCADE;
+</code></pre>
+    <p>Особенности:</p>
+    <ul>
+        <li>TRUNCATE много быстрее, чем DELETE;</li>
+        <li>TRUNCATE нарушает изоляцию транзакций.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Оптимизация COUNT(*)</h2>
+    <h3>Получение кол-ва записей в таблице</h3>
+    <pre><code class="sql">SELECT COUNT(*) FROM films;
+</code></pre>
+    <p>Если нужно ориентировочное количество записей в таблице, то можно выполнить запрос вида:</p>
+    <pre><code class="sql">SELECT reltuples::bigint AS estimate
+FROM pg_class
+WHERE oid = 'films'::regclass;</code></pre>
+    <footer class="footer"><a href="https://wiki.postgresql.org/wiki/Count_estimate">https://wiki.postgresql.org/wiki/Count_estimate</a>
+    </footer>
+</section>
+
+<section class="slide">
+    <h2>Оптимизация COUNT(*)</h2>
+    <h3>Получение кол-ва записей после выполения запроса</h3>
+    <pre><code class="sql">SELECT COUNT(*) FROM (
+  SELECT * FROM tags WHERE name LIKE 'Zombie%'
+);
+</code></pre>
+    <p>Если нужно ориентировочное количество записей в результате выполнения запроса, то можно получить их из плана
+        выполнения:</p>
+    <pre><code class="sql">EXPLAIN SELECT * FROM tags WHERE name LIKE 'Comedy%';</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Оптимизация COUNT(*)</h2>
+    <h3>Получение кол-ва записей после выполения запроса</h3>
+    <pre style="font-size: 75%"><code class="sql">CREATE FUNCTION count_estimate(query text) RETURNS INTEGER AS
+$func$
+DECLARE
+    rec   record;
+    ROWS  INTEGER;
+BEGIN
+    FOR rec IN EXECUTE 'EXPLAIN ' || query LOOP
+        ROWS := SUBSTRING(rec."QUERY PLAN" FROM ' rows=([[:digit:]]+)');
+        EXIT WHEN ROWS IS NOT NULL;
+    END LOOP;
+
+    RETURN ROWS;
+END
+$func$ LANGUAGE plpgsql;
+
+SELECT count_estimate('SELECT * FROM tags WHERE name LIKE ''Comedy%''');
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Оптимизация LIMIT со смещением</h2>
+    <h3>Вывод N-ой страницы</h3>
+    <pre><code>SELECT * FROM movies
+ORDER BY title LIMIT 100 OFFSET 2000;</code></pre>
+    <div class="next">
+        <h3>Вывод следующей страницы</h3>
+        <pre><code>SELECT * FROM movies
+WHERE title > 'Angry Video Game Nerd: The Movie'
+ORDER BY title LIMIT 100;</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Оптимизация LIMIT со смещением</h2>
+    <pre><code class="sql">SELECT *
+FROM movies
+ORDER BY title
+LIMIT 10 OFFSET 100;</code></pre>
+    <pre class="next"><code class="sql">
+SELECT m.*
+FROM movies m
+JOIN (
+  SELECT id
+  FROM movies m
+  ORDER BY title
+  LIMIT 10 OFFSET 100
+) l ON (m.id = l.id)
+ORDER BY title;</code></pre>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Исторические и актуальные данные</h2>
+</section>
+
+<section class="slide">
+    <h2>Настоящее vs Прошлое</h2>
+    <dl>
+        <dt>OLTP (Online Transaction Processing)</dt>
+        <dd>Способ организации БД, при котором система работает с небольшими по размерам транзакциями, но идущими
+            большим потоком, и при этом клиенту требуется от системы минимальное время отклика.
+        </dd>
+        <dt>OLAP (Online Aanalytical Processing)</dt>
+        <dd>Технология обработки данных, заключающаяся в подготовке суммарной (агрегированной) информации на основе
+            больших массивов данных, структурированных по многомерному принципу.
+        </dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Актуальные данные</h2>
+    <h3>Особенности:</h3>
+    <ul>
+        <li>Относительно стабильный размер базы данных;</li>
+        <li>Сильно нормализованные модели данных;</li>
+        <li>При возникновении ошибки транзакция должна целиком откатиться и вернуть систему к состоянию, которое было до
+            начала транзакции;
+        </li>
+        <li>Данные активно изменяются;</li>
+        <li>Обработка данных в реальном времени.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Исторические данные</h2>
+    <h3>Особенности:</h3>
+    <ul>
+        <li>Записи только добавляются в базу данных;</li>
+        <li>Версионирование всех изменяемых данных;</li>
+        <li>Важно сохранить не только "что изменялось", но и "почему изменялось".</li>
+    </ul>
+    <h3>Проблемы:</h3>
+    <ul>
+        <li>Постоянно увеличивающийся размер базы данных;</li>
+        <li>Поддержка эволюции схемы данных;</li>
+        <li>Согласованность с актуальными данными.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <figure style="font-size: 150%; margin-top: 100px">
+        <blockquote>
+            <p>xxx: биг дата - это кладбище данных</p>
+            <p>xxx: раз в столетие туда приходит спиритист чтобы спросить какого-то мертвеца о чем-то - и снова
+                тишина..</p>
+        </blockquote>
+        <figcaption><a href="http://bash.im/quote/440477">© bash.im</a></figcaption>
+    </figure>
+</section>
+
+<section class="slide">
+    <h2>Секционирование</h2>
+    <dl>
+        <dt>Секционирование (англ. partitioning)</dt>
+        <dd>Разделение хранимых объектов баз данных (таких как таблиц, индексов, материализованных представлений) на
+            отдельные части с раздельными параметрами физического хранения.
+        </dd>
+    </dl>
+    <img src="partitioning.png" style="height: 300px; position: absolute; bottom: 50px; right: 50px; z-index: -1"/>
+</section>
+
+<section class="slide">
+    <h2>Секционирование: наследование</h2>
+    <div style="font-size: 80%">
+    <pre><code class="sql">CREATE TABLE test (
+  id         SERIAL PRIMARY KEY,
+  title      TEXT,
+  created_on TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_test_created_on ON test (created_on);
+
+CREATE TABLE test_1
+  (CHECK ( id >= 100 AND id < 200 ))
+  INHERITS (test);</code></pre>
+        <pre class="next"><code class="sql">
+CREATE TABLE test_2 ( LIKE test INCLUDING ALL );
+ALTER TABLE test_2
+  INHERIT test,
+  ADD CONSTRAINT partition_check CHECK (id >= 200 and id < 300);</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Секционирование: наследование</h2>
+    <h3>Плюсы:</h3>
+    <ul>
+        <li>Оно работает из коробки.</li>
+    </ul>
+    <h3>Минусы:</h3>
+    <ul>
+        <li>Строго говоря, это костыль;</li>
+        <li>При вставке данных нужно явно добавлять данные в соответвующую партицию;</li>
+        <li>Нужно аккуратно следить за индексами и ограничениями;</li>
+        <li>Не работают FOREIGN KEY.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Секционирование: pg_pathman</h2>
+    <pre><code class="sql" style="font-size: 70%">CREATE EXTENSION pg_pathman;
+
+CREATE TABLE journal (
+    id      SERIAL,
+    dt      TIMESTAMP NOT NULL,
+    level   INTEGER,
+    msg     TEXT);
+
+CREATE INDEX ON journal(dt);
+
+INSERT INTO journal (dt, level, msg)
+SELECT g, random() * 6, md5(g::text)
+FROM generate_series('2015-01-01'::date, '2015-12-31'::date, '1 minute') as g;
+
+SELECT create_range_partitions('journal', 'dt',
+       '2015-01-01'::date, '1 day'::interval);
+</code></pre>
+    <footer class="footer"><a
+            href="https://github.com/postgrespro/pg_pathman">https://github.com/postgrespro/pg_pathman</a></footer>
+</section>
+
+<section class="slide">
+    <h2>Секционирование: pg_pathman</h2>
+    <h3>Плюсы:</h3>
+    <ul>
+        <li>Более удобная работа с секциями;</li>
+        <li>Автоматическое создание секций при INSERT-ах;</li>
+        <li>HASH и RANGE секционирование.</li>
+    </ul>
+    <h3>Минусы:</h3>
+    <ul>
+        <li>Это расширение не входит в комплект PostgreSQL;</li>
+        <li>Не работают FOREIGN KEY.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Секционирование: PostgreSQL 10</h2>
+    <pre><code class="sql" style="font-size: 70%">CREATE TABLE test (
+  id         SERIAL PRIMARY KEY,
+  title      TEXT,
+  created_on TIMESTAMPTZ NOT NULL DEFAULT NOW()
+) PARTITION BY RANGE (id);
+
+CREATE TABLE test_1 PARTITION OF test FOR VALUES FROM (100) TO (199);
+CREATE TABLE test_2 PARTITION OF test FOR VALUES FROM (200) TO (299);
+</code></pre>
+    <footer class="footer"><a
+            href="https://www.keithf4.com/postgresql-10-built-in-partitioning/">https://www.keithf4.com/postgresql-10-built-in-partitioning/</a>
+    </footer>
+</section>
+
+<section class="slide">
+    <h2>Секционирование: PostgreSQL 10</h2>
+    <h3>Плюсы:</h3>
+    <ul>
+        <li>Поддержка из коробки.</li>
+    </ul>
+    <h3>Минусы:</h3>
+    <ul>
+        <li>Фича еще не готова :(</li>
+    </ul>
+    <img src="untested.jpg" style="position: absolute; bottom: 0px; right: 50px"/>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Оптимизация на уровне приложения</h2>
+</section>
+
+<section class="slide">
+    <h2>Уменьшение времени блокировок</h2>
+    <p>Уменьшение времени блокировок за счет избавления от крупных запросов вида «обновить всё».</p>
+    <ul>
+        <li>Разбиение запроса на более мелкие;</li>
+        <li>Модификация схемы данных для избавления от крупных запросов;</li>
+        <li>Оптимистичные блокировки.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Разбиение запроса на более мелкие</h2>
+    <p>До:</p>
+    <pre><code class="sql">DELETE FROM work_logs
+WHERE created_at > NOW() - interval '90 days';
+</code></pre>
+    <div class="next">
+        <p>После (выполнять в цикле):</p>
+        <pre><code class="sql">BEGIN;
 DELETE FROM work_logs
-WHERE created_at > ADDDATE(DATE(NOW()), INTERVAL -90 DAY)
-LIMIT 10000;
+WHERE id IN (
+  SELECT id
+  DELETE FROM work_logs
+  WHERE created_at > NOW() - interval '90 days'
+  LIMIT 10000
+);
 COMMIT;
 </code></pre>
-</div>
+    </div>
 </section>
 
 <section class="slide">
-<h2>Модификация схемы</h2>
-<p>До:</p>
-<pre><code class="sql">BEGIN;
+    <h2>Модификация схемы</h2>
+    <p>До:</p>
+    <pre><code class="sql">BEGIN;
   INSERT INTO spent_daily
   SELECT :day, level, SUM(spent_daily) FROM players
-  GROUP BY level;
+  GROUP BY level FOR UPDATE;
 
   UPDATE players SET spent_daily = 0;
 END;
@@ -286,13 +619,13 @@ UPDATE players SET
   money = money - :delta
 WHERE id = :id;
 </code></pre>
-</div>
+    </div>
 </section>
 
 <section class="slide">
-<h2>Модификация схемы</h2>
-<p>После:</p>
-<pre style="font-size: 65%"><code class="sql">BEGIN;
+    <h2>Модификация схемы</h2>
+    <p>После:</p>
+    <pre style="font-size: 65%"><code class="sql">BEGIN;
   INSERT INTO spent_daily
   SELECT :day, level, SUM(CASE
     WHEN spent_day = :day THEN spent_prev
@@ -313,23 +646,23 @@ UPDATE players SET
   money = money - :delta
 WHERE id = :id;
 </code></pre>
-</div>
+    </div>
 </section>
 
 <section class="slide">
-<h2>Группировка UPDATE</h2>
-<img src="long-item-name.png" style="float: right">
-<p>Массовая замена сгенерированных ресурсов на один с мета-данными.</p>
-<ul>
-	<li>Кол-во ресурсов: ~30K записей.</li>
-	<li>Размер таблицы: ~10М записей.</li>
-</ul>
+    <h2>Группировка UPDATE</h2>
+    <img src="long-item-name.png" style="float: right">
+    <p>Массовая замена сгенерированных ресурсов на один с мета-данными.</p>
+    <ul>
+        <li>Кол-во ресурсов: ~30K записей.</li>
+        <li>Размер таблицы: ~10М записей.</li>
+    </ul>
 </section>
 
 <section class="slide">
-<h2>Группировка UPDATE</h2>
-<p>Решение «в лоб»:</p>
-<pre><code class="sql">UPDATE items SET res_id = 73534, level = 1, meta = 1001
+    <h2>Группировка UPDATE</h2>
+    <p>Решение «в лоб»:</p>
+    <pre><code class="sql">UPDATE items SET res_id = 73534, level = 1, meta = 1001
 WHERE res_id = 40477;
 UPDATE items SET res_id = 73534, level = 1, meta = 1201
 WHERE res_id = 40478;
@@ -341,48 +674,115 @@ WHERE res_id = 70477;</code></pre>
 </section>
 
 <section class="slide">
-<h2>Группировка UPDATE</h2>
-<p>Более красивое решение:</p>
-<pre style="font-size: 80%"><code class="sql">CREATE TEMPORARY TABLE tmp_items (
+    <h2>Группировка UPDATE</h2>
+    <p>Более красивое решение:</p>
+    <pre style="font-size: 80%"><code class="sql">CREATE TEMPORARY TABLE tmp_items (
   res_id INT,
-  level SMALLINT,
-  meta VARBINARY(64)
-) ENGINE = MEMORY;
+  level  SMALLINT,
+  meta   BYTEA
+);
 INSERT INTO items VALUES
   (1, 1001, 40477),
   (1, 1201, 40478),
   …
   (80, 7641, 70477);
-UPDATE items I JOIN tmp_items t ON (i.res_id = t.res_id)
+UPDATE items i
 SET
-  i.res_id = 73534,
-  i.level = t.level,
-  i.meta = t.meta;</code></pre>
+  res_id = 73534,
+  level = t.level,
+  meta = t.meta
+FROM tmp_items t
+WHERE i.res_id = t.res_id;
+</code></pre>
 </section>
 
 <section class="slide">
-<h2>Массовая вставка данных</h2>
-<p>Загрузка данных через LOAD DATA гораздо быстрее:</p>
-<pre><code class="sql">load data local infile 'tags.csv'
-into table movie_tags
-fields
-  terminated by ','
-  enclosed by '"'
-  escaped by ''
-lines
-  terminated by '\r\n'
-ignore 1 lines
-(user_id, movie_id, tag, @created)
-set created = from_unixtime(@created);</code></pre>
+    <h2>Массовая вставка данных</h2>
+    <p>Загрузка данных через COPY гораздо быстрее:</p>
+    <pre><code class="sql">COPY movie_tags (
+  user_id,
+  movie_id,
+  tag,
+  created)
+FROM 'ml-latest/tags.csv'
+WITH (
+  DELIMITER ',',
+  FORMAT CSV,
+  HEADER true,
+  ESCAPE '"',
+  ENCODING 'UTF-8'
+);
+</code></pre>
 </section>
 
 <section class="slide">
-<h2>Домашнее задание №3</h2>
-<p>К следующему рубежному контролю надо будет сделать задание №3.</p>
-<p>К рубежному контролю будут допущены только те, кто сделал ДЗ №3.</p>
-<div style="width: 100%; height: 60%; display: table">
-<div style="vertical-align: bottom; display: table-cell; text-align: right;">
-<img src="homework-required.png" style="width: 60%">
-</div>
-</div>
+    <h2>Блокировки</h2>
+    <h3>Пессимистичная блокировка</h3>
+    <pre style="font-size: 85%"><code class="sql">BEGIN;
+SELECT * FROM player WHERE id = 42 FOR UPDATE;
+...
+UPDATE player SET money = 100500 WHERE id = 42;
+COMMIT;
+</code></pre>
+    <div class="next">
+        <h3>Оптимистичная блокировка</h3>
+        <pre style="font-size: 85%"><code class="sql">BEGIN;
+SELECT * FROM player WHERE id = 42;
+COMMIT;
+...
+BEGIN;
+UPDATE player SET money = 100500, ver = 13
+WHERE id = 42 AND ver = 12;
+COMMIT;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Ограничение времени ожидания</h2>
+    <h3>Долгий запрос:</h3>
+    <pre><code>UPDATE players SET spent_daily = 0;
+</code></pre>
+    <h3>Ждущий запрос:</h3>
+    <pre><code>BEGIN;
+UPDATE player SET money = 100500 WHERE id = 42;
+COMMIT;</code></pre>
+    <div class="next">
+        <h3>Срочный запрос:</h3>
+        <pre><code>BEGIN;
+SET LOCAL lock_timeout = '100ms';
+UPDATE player SET money = 100500 WHERE id = 42;
+COMMIT;</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>CREATE INDEX</h2>
+    <h3>Блокирующее создание индекса:</h3>
+    <pre><code>CREATE INDEX sales_quantity_index
+  ON sales_table (quantity);</code></pre>
+    <div class="next">
+        <h3>Неблокирующее создание индекса:</h3>
+        <pre><code>CREATE INDEX CONCURRENTLY sales_quantity_index
+  ON sales_table (quantity);</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>ALTER TABLE</h2>
+    <h3>Классический вариант:</h3>
+    <pre style="font-size: 90%"><code>ALTER TABLE ratings ADD COLUMN created_new TIMESTAMPTZ NULL;
+UPDATE ratings SET
+  created_new = 'epoch'::TIMESTEMPTZ
+              + created * INTERVAL '1 second';
+ALTER TABLE ratings DROP COLUMN created;
+ALTER TABLE ratings RENAME COLUMN created_new TO created;
+ALTER TABLE ratings ALTER COLUMN created SET NOT NULL;
+    </code></pre>
+    <div class="next">
+        <h3>Сокращенный вариант:</h3>
+        <pre style="font-size: 90%"><code>ALTER TABLE ratings
+  ALTER COLUMN created SET DATA TYPE TIMESTAMPTZ
+  USING 'epoch'::TIMESTEMPTZ + created * INTERVAL '1 second';</code></pre>
+    </div>
 </section>
