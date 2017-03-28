@@ -4,20 +4,16 @@ description: |
   Оптимизация запросов. Оптимизация структуры данных.
 
    - Оптимизация запросов конкретных типов;
-   - Особенности использования подзапросов;
-   - Временные таблицы;
    - Нормализация и денормализация данных;
-   - Выбор оптимальных типов данных;
    - Разница между актуальными и историческими данными;
+   - Секционирование;
    - Оптимизация на уровне приложения;
-   - Кэширование;
    - Примеры эффективного массового изменения данных:
      - Объединение однотипных UPDATE-ов;
      - Разделение крупных транзакций на более мелкие;
      - TRUNCATE;
      - Массовое добавление данных при помощи COPY;
-   - Полезные особенности ALTER TABLE;
-   - Секционирование.
+     - Полезные особенности ALTER TABLE.
 ---
 <section class="slide">
     <h2>Оптимизация работы с БД</h2>
@@ -27,8 +23,7 @@ description: |
         <li>Разница между актуальными и историческими данными;</li>
         <li>Секционирование.</li>
         <li>Оптимизация на уровне приложения;</li>
-        <li>Примеры эффективного массового изменения данных;</li>
-        <li>Полезные особенности ALTER TABLE;</li>
+        <li>Примеры эффективного массового изменения данных.</li>
     </ul>
 </section>
 
@@ -158,6 +153,29 @@ from (
 join ratings r on (r.movie_id = m.id)
 group by m.id, m.title
 order by avg(r.rating) desc;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>SUBQUERIES vs JOIN</h2>
+    <h3>Коррелирующий подзапрос</h3>
+    <pre style="font-size: 75%"><code class="sql">SELECT E.*
+FROM Employee E WHERE EXISTS (
+  SELECT *
+  FROM Department D WHERE D.DepartmentID = E.DepartmentID
+);
+</code></pre>
+    <h3>Не коррелирующий подзапрос</h3>
+    <pre style="font-size: 75%"><code class="sql">SELECT E.*
+FROM Employee E WHERE E.DepartmentID IN (
+  SELECT DepartmentID
+  FROM Department D
+);
+</code></pre>
+    <h3>JOIN</h3>
+    <pre style="font-size: 75%"><code class="sql">SELECT E.*
+FROM Employee E
+JOIN Department D ON (E.DepartmentID = D.DepartmentID);
+</code></pre>
 </section>
 
 <section class="slide">
@@ -735,5 +753,36 @@ COMMIT;</code></pre>
 SET LOCAL lock_timeout = '100ms';
 UPDATE player SET money = 100500 WHERE id = 42;
 COMMIT;</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>CREATE INDEX</h2>
+    <h3>Блокирующее создание индекса:</h3>
+    <pre><code>CREATE INDEX sales_quantity_index
+  ON sales_table (quantity);</code></pre>
+    <div class="next">
+        <h3>Неблокирующее создание индекса:</h3>
+        <pre><code>CREATE INDEX CONCURRENTLY sales_quantity_index
+  ON sales_table (quantity);</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>ALTER TABLE</h2>
+    <h3>Классический вариант:</h3>
+    <pre style="font-size: 90%"><code>ALTER TABLE ratings ADD COLUMN created_new TIMESTAMPTZ NULL;
+UPDATE ratings SET
+  created_new = 'epoch'::TIMESTEMPTZ
+              + created * INTERVAL '1 second';
+ALTER TABLE ratings DROP COLUMN created;
+ALTER TABLE ratings RENAME COLUMN created_new TO created;
+ALTER TABLE ratings ALTER COLUMN created SET NOT NULL;
+    </code></pre>
+    <div class="next">
+        <h3>Сокращенный вариант:</h3>
+        <pre style="font-size: 90%"><code>ALTER TABLE ratings
+  ALTER COLUMN created SET DATA TYPE TIMESTAMPTZ
+  USING 'epoch'::TIMESTEMPTZ + created * INTERVAL '1 second';</code></pre>
     </div>
 </section>
