@@ -698,6 +698,53 @@ WHERE i.res_id = t.res_id;
 
 <section class="slide">
     <h2>Массовая вставка данных</h2>
+    <p>Решение «в лоб»:</p>
+    <pre style="font-size: 85%"><code class="java">String sql = "INSERT INTO foo (name, description) VALUES (?, ?)";
+try (PreparedStatement ps = db.prepareStatement(sql)) {
+    for (int i = 0; i < 100; ++i) {
+        ps.setString(1, "name-" + i);
+        ps.setString(2, "description-" + i);
+        ps.execute();
+    }
+}
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Массовая вставка данных</h2>
+    <p>Более производительное решение:</p>
+    <pre style="font-size: 85%"><code class="java">String sql = "INSERT INTO foo (name, description) VALUES (?, ?)";
+try (PreparedStatement ps = db.prepareStatement(sql)) {
+
+    for (int i = 0; i < 100; ++i) {
+        ps.setString(1, "name-" + i);
+        ps.setString(2, "description-" + i);
+        ps.addBatch();
+    }
+    ps.executeBatch();
+}
+</code></pre>
+    <img class="next" src="slowpoke.svg" style="position: absolute; right: 50px; bottom: 50px; width: 300px"/>
+</section>
+
+<section class="slide">
+    <h2>Массовая вставка данных</h2>
+    <p>Решение без покемонов:</p>
+    <pre style="font-size: 85%"><code class="java">String sql = "INSERT INTO foo (name, description) VALUES (?, ?)";
+try (PreparedStatement ps = db.prepareStatement(sql,
+        Statement.NO_GENERATED_KEYS)) {
+    for (int i = 0; i < 100; ++i) {
+        ps.setString(1, "name-" + i);
+        ps.setString(2, "description-" + i);
+        ps.addBatch();
+    }
+    ps.executeBatch();
+}
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Массовая вставка данных</h2>
     <p>Загрузка данных через COPY гораздо быстрее:</p>
     <pre><code class="sql">COPY movie_tags (
   user_id,
