@@ -282,7 +282,7 @@ create trigger ...;
 
 <section class="slide">
     <h2>Нормализация/денормализация</h2>
-    <h3>После денормализации:</h3>
+    <h3>После денормализации (12 msec):</h3>
     <pre style="font-size: 85%"><code class="sql">select m.id, m.title, m.rating_sum / m.rating_cnt
 from movies       m
 join movie_genres gm on (gm.movie_id = m.id)
