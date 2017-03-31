@@ -2,112 +2,57 @@
 title: РК-3 (теория)
 useMath: false
 ---
-<section class="ticket">
-<ol>
-	<li>
-		<p>Чем полезны покрывающие индексы?</p>
-	</li>
-	<li>
-		<p>Какие индексы и почему будут созданы в результате запросов?</p>
-		<pre><code class="sql">CREATE TABLE foo (
-	id INT AUTO_INCREMENT PRIMARY KEY,
-	bar_id INT,
-	baz_id INT,
-	code VARCHAR(16) UNIQUE KEY,
-	name VARCHAR(64)
-);
-CREATE INDEX idx_foo_bar ON foo (bar_id, name);
-CREATE INDEX idx_foo_baz ON foo (name, baz_id);
-ALTER TABLE foo ADD FOREIGN KEY (baz_id) REFERENCES baz (id);
-ALTER TABLE foo ADD FOREIGN KEY (bar_id) REFERENCES bar (id);
-</code></pre>
-	</li>
-</ol>
-</section>
+Что такое ACID?
 
-<section class="ticket">
-<ol>
-	<li>
-		<p>Что такое кластерный индекс?</p>
-	</li>
-	<li>
-		<p>Какие индексы и почему будут созданы в результате запросов?</p>
-		<pre><code class="sql">CREATE TABLE foo (
-	id INT AUTO_INCREMENT PRIMARY KEY,
-	bar_id INT,
-	baz_id INT,
-	code VARCHAR(16) UNIQUE KEY,
-	name VARCHAR(64)
-);
-CREATE UNIQUE INDEX idx_code ON foo (code);
-CREATE INDEX idx_foo_baz ON foo (name, baz_id);
-ALTER TABLE foo ADD FOREIGN KEY (baz_id) REFERENCES baz (id);
-</code></pre>
-	</li>
-</ol>
-</section>
+Уровни изолированности транзакций.
 
-<section class="ticket">
-<ol>
-	<li>
-		<p>Чем отличаются корелирующие и не коррелирующие подзапросы?</p>
-	</li>
-	<li>
-		<p>В чем отличие BTREE и HASH индекса? Какова их применимость?</p>
-	</li>
-</ol>
-</section>
+Что такое "Потерянное обновление (Lost Update)"?
 
-<section class="ticket">
-<ol>
-	<li>
-		<p>Что лучше, JOIN или подзапрос? Почему?</p>
-	</li>
-	<li>
-		<p>Какие индексы необходимо построить?</p>
-		<pre><code class="sql">SELECT * FROM foo WHERE a = 5 AND (b = 5 OR c = 6);</code></pre>
-	</li>
-</ol>
-</section>
+Что такое "Грязное чтение (Dirty Read)"?
 
-<section class="ticket">
-<ol>
-	<li>
-		<p>Что такое slow_query_log?</p>
-	</li>
-	<li>
-		<p>Почему нельзя просто построить по одному индексу на каждый столбец?</p>
-	</li>
-</ol>
-</section>
+Что такое "Неповторяющееся чтение (Non-Repeatable Read)"?
 
-<section class="ticket">
-<ol>
-	<li>
-		<p>Что такое filesort?</p>
-	</li>
-	<li>
-		<p>Какой индекс необходимо построить?</p>
-		<pre><code class="sql">SELECT * FROM foo WHERE a = 5 AND b = 6 ORDER BY c;
-SELECT * FROM foo WHERE a > 5 AND b = 6;
-</code></pre>
-	</li>
-</section>
+Что такое "Чтение фантомов (Phantom Reads)"?
 
-<section class="ticket">
-<ol>
-	<li>
-		<p>Почему использование индекса может замедлить выполнение запроса?</p>
-	</li>
-	<li>
-		<p>Чем в MySQL отличаются выражения?</p>
-		<ul>
-			<li>field1 = 1 OR field1 = 42 OR field1 = 1337</li>
-			<li>field1 IN (1, 42, 1337)</li>
-		</ul>
-	</li>
-</ol>
-</section>
+Что такое "Аномалии сериализации"?
+
+Что такое MVCC? Для чего нужно и как работает?
+
+Зачем нужны хранимые процедуры и какие особенности их использования?
+
+Зачем нужны триггера и какие особенности их использования?
+
+Что такое журнал транзакций? Для чего он нужен и как работает?
+
+Зачем нужны индексы?
+
+Что такое частичные индексы?
+
+Что такое кластерные индексы?
+
+Что такое покрывающие индексы?
+
+В чем разница между B-Tree/Hash/Bitmap индексами?
+
+В чем разница между Merge join/Nested loop join/Hash join?
+
+План выполнения запросов. EXPLAIN.
+
+Нормализация и денормализация данных.
+
+Что такое секционирование и для чего оно нужно?
+
+Что такое COLLATION?
+
+Чем отличаются корелирующие и не коррелирующие подзапросы?
+
+Что лучше, JOIN или подзапрос? Почему?
+
+Почему использование индекса может замедлить выполнение запроса?
+
+Что такое селективность индекса?
+
+Какие есть варианты протоколирования запросов?
 
 <section class="ticket">
 <ol>
