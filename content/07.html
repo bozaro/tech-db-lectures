@@ -191,6 +191,22 @@ description: |
 </section>
 
 <section class="slide">
+    <h2>Архитектура MySQL</h2>
+    <ul>
+        <li>Репликация провоцирует больше записи на диск;</li>
+        <li>Двухфазная фиксации транзакции (между журналом транзакций и журналом репликации);</li>
+        <li>Репликация хрупкая, так как некоторые запросы гарантировано ведут к порче данных.</li>
+    </ul>
+    <div class="next">
+        <h3>Проблемный запрос:</h3>
+        <pre><code class="sql">ALTER TABLE foo
+  ADD id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  ADD PRIMARY KEY (id);
+    </code></pre>
+    </div>
+</section>
+
+<section class="slide">
     <h2>Настройка репликации</h2>
     <ul>
         <li>Завести учетные записи репликации на каждом сервере.</li>
