@@ -172,6 +172,25 @@ description: |
 </section>
 
 <section class="slide">
+    <h2>А как обстоят дела у <span style="text-decoration: line-through">соседей</span> MySQL?</h2>
+    <p>В MySQL используется только логическая репликация.</p>
+    <img src="neighbor.svg" style="position: absolute; bottom: 50px; right: 50px; height: 400px"/>
+</section>
+
+<section class="slide">
+    <h2>Архитектура MySQL</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="arhitecture.jpg"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Архитектура MySQL</h2>
+    <p>В MySQL хранилище и лог транзакций существуют за пределами "движка" СУБД.</p>
+    <p>Как следствие, в MySQL вместо журнала транзакций для репликации используется отдельный журнал.</p>
+</section>
+
+<section class="slide">
     <h2>Настройка репликации</h2>
     <ul>
         <li>Завести учетные записи репликации на каждом сервере.</li>
