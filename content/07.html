@@ -328,11 +328,15 @@ description: |
 <section class="slide">
     <h2>Словоформы</h2>
     <p>
-        <b>Запрос:</b> мама мила<br/>
-        <b>Текст:</b> Мама мыла Милу
+        <b>Запрос:</b> мыла раму<br/>
+        <b>Текст:</b> Мама мыла раму
     </p>
     <p class="next">
-        <b>Запрос:</b> есть булки<br/>
+        <b>Запрос:</b> мыть раму<br/>
+        <b>Текст:</b> Мама мыла раму
+    </p>
+    <p class="next">
+        <b>Запрос:</b> мягкая булка<br/>
         <b>Текст:</b> Съешь ещё этих мягких французских булок и выпей чаю
     </p>
 </section>
@@ -400,114 +404,128 @@ description: |
 </section>
 
 <section class="slide">
-    <h2>Настройка репликации</h2>
-    <h3>Завести учетные записи репликации на каждом сервере.</h3>
-    <pre><code class="sql">GRANT
-	REPLICATION SLAVE,
-	REPLICATION CLIENT
-ON *.* TO repl@’192.168.0.%’
-IDENTIFIED BY ‘p4ssword’;</code></pre>
+    <h2>Словари для Русского языка</h2>
+    <p>В PostgreSQL по-умолчанию нет словарей для Русского языка, но можно воспользоваться словарями из пакета myspell-ru:</p>
+    <pre><code class="bash"># Устанавливаем словари
+sudo apt install myspell-ru
+cd /usr/share/postgresql/9.5/tsearch_data
+DICT=/usr/share/hunspell/ru_RU
+# Копируем словари с преобразованием в UTF-8
+sudo iconv -f koi8-r -t utf-8 -o russian.affix $DICT.aff
+sudo iconv -f koi8-r -t utf-8 -o russian.dict  $DICT.dic
+    </code></pre>
 </section>
 
 <section class="slide">
-    <h2>Настройка репликации</h2>
-    <h3>Сконфигурировать главный и подчиненный сервера.</h3>
-    <ul>
-        <li>Сконфигурировать главный сервер.
-            <pre><code>log_bin = mysql-bin
-server_id = 10
+    <h2>Подключаем словари</h2>
+    <pre><code class="sql">CREATE TEXT SEARCH DICTIONARY russian_ispell (
+    TEMPLATE = ispell,
+    DictFile = russian,
+    AffFile = russian,
+    StopWords = russian
+);
+
+</code>
+<code class="sql">CREATE TEXT SEARCH CONFIGURATION ru (COPY=russian);
+
+</code>
+<code class="sql">ALTER TEXT SEARCH CONFIGURATION ru
+    ALTER MAPPING FOR hword, hword_part, word
+    WITH russian_ispell, russian_stem;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Проверяем словари</h2>
+    <pre><code class="sql">SELECT to_tsvector('russian', 'мама мыла раму');
+       to_tsvector
+-------------------------
+ 'мам':1 'мыл':2 'рам':3
+(1 строка)
+
+</code>
+<code class="sql">SELECT to_tsvector('ru', 'мама мыла раму');
+             to_tsvector
+-------------------------------------
+ 'мама':1 'мыло':2 'мыть':2 'рама':3
+(1 строка)
+
 </code></pre>
-            <pre><code class="sql" style="font-size: 80%">SHOW MASTER STATUS;
-| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB |
-| mysql-bin.000001 |       98 |              |                  |
-</code></pre>
-        </li>
-        <li>Сконфигурировать подчиненный сервер.
-            <pre><code>log_bin = mysql-bin
-server_id = 2
-relay_log = mysql-relay-bin
-log_slave_updates = 1
-read_only = 1
-</code></pre>
-        </li>
-    </ul>
 </section>
 
 <section class="slide">
-    <h2>Настройка репликации</h2>
-    <h3>Сказать подчиненному серверу, чтобы он соединился с главным и начал реплицировать данные с него.</h3>
-    <pre><code class="sql">CHANGE MASTER TO
-	MASTER_HOST = 'server1',
-	MASTER_USER = 'repl',
-	MASTER_PASSWORD = 'p4ssword',
-	MASTER_LOG_FILE = 'mysql-bin.000001',
-	MASTER_LOG_POS = 0;
+    <h2>Проверяем словари</h2>
+    <pre><code class="sql">SELECT to_tsvector('Съешь ещё этих мягких французских');
+                  to_tsvector
+------------------------------------------------
+ 'ещё':2 'мягк':4 'съеш':1 'французск':5 'эт':3
+(1 строка)
 
-SHOW SLAVE STATUS;
+</code>
+<code class="sql">SET default_text_search_config = 'ru';
 
-START SLAVE;
+</code>
+<code class="sql">SELECT to_tsvector('Съешь ещё этих мягких французских');
+                      to_tsvector
+-------------------------------------------------------
+ 'ещё':2 'мягкий':4 'съешь':1 'французский':5 'этих':3
+(1 строка)
 </code></pre>
 </section>
 
 <section class="slide">
-    <h2>Синхронизация репликации</h2>
-    <ul>
-        <li>Мгновенный снимок данных главного сервера в некоторый момент времени.</li>
-        <li>Текущий файл журнала главного сервера и смещение от начала этого файла в точности на тот момент времени,
-            когда был сделан мгновенный снимок. Вместе они называются координатами репликации, так как однозначно
-            идентифицируют позицию в двоичном журнале. Найти координаты репликации вам поможет команда SHOW MASTER
-            STATUS.
-        </li>
-        <li>Файлы двоичных журналов главного сервера с момента мгновенного снимка до текущего момента.</li>
-    </ul>
+    <h2>Собственно поиск</h2>
+    <pre style="font-size: 75%"><code class="sql">SELECT plainto_tsquery('мягкая булка') @@ to_tsvector(
+    'Съешь ещё этих мягких французских булок и выпей чаю');
+?column?
+----------
+t
+(1 строка)
+
+</code>
+<code class="sql">SELECT ts_headline('мама мыла милу', to_tsquery('мама'));
+      ts_headline
+-----------------------
+ <b>&lt;b&gt;мама&lt;/b&gt;</b> мыла милу
+(1 строка)
+
+</code>
+<code class="sql">SELECT ts_rank(to_tsvector(
+    'Съешь ещё этих мягких французских булок и выпей чаю'
+    ), to_tsquery('мягкая & булка'));
+  ts_rank
+-----------
+ 0.0985009
+(1 строка)
+</code></pre>
 </section>
 
 <section class="slide">
-    <h2>Синхронизация репликации</h2>
-    <dl style="font-size: 70%">
-        <dt>Холодная копия</dt>
-        <dd>Остановить сервер, который впоследствии станет главным, и скопировать файлы с него на подчиненный сервер.
-            Недостаток такого решения очевиден: в течение всего времени копирования главный сервер должен быть
-            остановлен.
-        </dd>
+    <h2>Веса</h2>
+    <pre style="font-size: 85%"><code class="sql">SELECT
+   setweight(to_tsvector('мама'), 'A') ||
+   setweight(to_tsvector('мыла'), 'B') ||
+   setweight(to_tsvector('раму'), 'D') @@ to_tsquery('мама:AB');
+?column?
+----------
+t
+(1 строка)
 
-        <dt>Горячая копия</dt>
-        <dd>Если все таблицы имеют тип MyISAM, то можно воспользоваться командой mysqlhotcopy, которая копирует файлы с
-            работающего сервера.
-        </dd>
-
-        <dt>Использование mysqldump</dt>
-        <dd>Если все таблицы имеют тип InnoDB, то можно воспользоваться такой командой:
-            <pre><code class="bash">mysqldump --single-transaction --all-databases --master-data=1 \
---host=server1 | mysql --host=server2</code></pre>
-        </dd>
-
-        <dt>С помощью мгновенного снимка LVM или резервной копии</dt>
-        <dd>Если известны координаты в нужном двоичном журнале, можно воспользоваться мгновенным снимком LVM или
-            резервной копией.
-        </dd>
-
-        <dt>На основе другого подчиненного сервера</dt>
-        <dd>Серьезный недостаток клонирования другого подчиненного сервера состоит в том, что подчиненный сервер может
-            быть рассинхронизирован с главным.
-        </dd>
-    </dl>
+</code>
+<code class="sql">SELECT
+   setweight(to_tsvector('мама'), 'A') ||
+   setweight(to_tsvector('мыла'), 'B') ||
+   setweight(to_tsvector('раму'), 'D') @@ to_tsquery('мама:BC');
+?column?
+----------
+f
+(1 строка)
+</code></pre>
 </section>
 
 <section class="slide">
-    <h2>Правила репликации</h2>
-    <ul>
-        <li>У каждого подчиненного сервера MySQL может быть только один главный.</li>
-        <li>У каждого подчиненного сервера должен быть уникальный идентификатор.</li>
-        <li>Один главный сервер может иметь много подчиненных (иными словами, у подчиненного сервера может быть много
-            «братьев»).
-        </li>
-        <li>Подчиненный сервер может распространять полученные от главного изменения далее, то есть выступать в роли
-            главного сервера для своих подчиненных; для этого следует включить режим log_slave_updates.
-        </li>
-    </ul>
+    <h2 class="shout">Географические данные</h2>
 </section>
 
 <section class="slide">
-    <h2>Немного про кластеры</h2>
+    <h2 class="shout">Хранение слабоструктурированных данных</h2>
 </section>
