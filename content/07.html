@@ -291,8 +291,12 @@ description: |
 
 <section class="slide">
     <h2 class="shout">Полнотекстовый поиск</h2>
-    <footer class="footer"><a
-            href="http://citforum.ru/database/postgres/fts/">http://citforum.ru/database/postgres/fts/</a></footer>
+    <footer class="footer">
+        <ul>
+            <li><a href="http://citforum.ru/database/postgres/fts/">http://citforum.ru/database/postgres/fts/</a></li>
+            <li><a href="https://postgrespro.ru/docs/postgrespro/9.5/textsearch-intro">https://postgrespro.ru/docs/postgrespro/9.5/textsearch-intro</a></li>
+        </ul>
+    </footer>
 </section>
 
 <section class="slide">
@@ -308,10 +312,28 @@ description: |
 </section>
 
 <section class="slide">
+    <h2>Предворительная обработка</h2>
+    <dl>
+        <dt>Разбор документов на фрагменты.</dt>
+        <dd style="font-size: 90%">При этом полезно выделить различные классы фрагментов, например, числа, слова, словосочетания, почтовые адреса и т. д., которые будут обрабатываться по-разному. Классы фрагментов могут зависеть от приложения, но часто подходит предопределённый набор классов.</dd>
+
+        <dt>Преобразование фрагментов в лексемы.</dt>
+        <dd style="font-size: 90%">Лексема — это нормализованный фрагмент, в котором разные словоформы приведены к одной.</dd>
+
+        <dt>Хранение документов в форме, подготовленной для поиска.</dt>
+        <dd style="font-size: 90%">Каждый документ может быть представлен в виде сортированного массива нормализованных лексем. Помимо лексем часто желательно хранить информацию об их положении для ранжирования по близости.</dd>
+    </dl>
+</section>
+
+<section class="slide">
     <h2>Словоформы</h2>
     <p>
         <b>Запрос:</b> мама мила<br/>
         <b>Текст:</b> Мама мыла Милу
+    </p>
+    <p class="next">
+        <b>Запрос:</b> есть булки<br/>
+        <b>Текст:</b> Съешь ещё этих мягких французских булок и выпей чаю
     </p>
 </section>
 
@@ -363,6 +385,18 @@ description: |
         </tbody>
     </table>
     <footer class="footer">Проспрягал по образу "ковать"</footer>
+</section>
+
+<section class="slide">
+    <h2>Словари в PostgreSQL</h2>
+    <p>Создавая словари, можно:</p>
+    <ul>
+        <li>определять стоп-слова, которые не будут индексироваться;</li>
+        <li>сопоставлять синонимы с одним словом, используя Ispell;</li>
+        <li>сопоставлять словосочетания с одним словом, используя тезаурус;</li>
+        <li>сопоставлять различные склонения слова с канонической формой, используя словарь Ispell;</li>
+        <li>сопоставлять различные склонения слова с канонической формой, используя стеммер Snowball.</li>
+    </ul>
 </section>
 
 <section class="slide">
