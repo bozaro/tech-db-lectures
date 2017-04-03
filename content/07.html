@@ -294,7 +294,8 @@ description: |
     <footer class="footer">
         <ul>
             <li><a href="http://citforum.ru/database/postgres/fts/">http://citforum.ru/database/postgres/fts/</a></li>
-            <li><a href="https://postgrespro.ru/docs/postgrespro/9.5/textsearch-intro">https://postgrespro.ru/docs/postgrespro/9.5/textsearch-intro</a></li>
+            <li><a href="https://postgrespro.ru/docs/postgrespro/9.5/textsearch-intro">https://postgrespro.ru/docs/postgrespro/9.5/textsearch-intro</a>
+            </li>
         </ul>
     </footer>
 </section>
@@ -315,13 +316,20 @@ description: |
     <h2>Предворительная обработка</h2>
     <dl>
         <dt>Разбор документов на фрагменты.</dt>
-        <dd style="font-size: 90%">При этом полезно выделить различные классы фрагментов, например, числа, слова, словосочетания, почтовые адреса и т. д., которые будут обрабатываться по-разному. Классы фрагментов могут зависеть от приложения, но часто подходит предопределённый набор классов.</dd>
+        <dd style="font-size: 90%">При этом полезно выделить различные классы фрагментов, например, числа, слова,
+            словосочетания, почтовые адреса и т. д., которые будут обрабатываться по-разному. Классы фрагментов могут
+            зависеть от приложения, но часто подходит предопределённый набор классов.
+        </dd>
 
         <dt>Преобразование фрагментов в лексемы.</dt>
-        <dd style="font-size: 90%">Лексема — это нормализованный фрагмент, в котором разные словоформы приведены к одной.</dd>
+        <dd style="font-size: 90%">Лексема — это нормализованный фрагмент, в котором разные словоформы приведены к
+            одной.
+        </dd>
 
         <dt>Хранение документов в форме, подготовленной для поиска.</dt>
-        <dd style="font-size: 90%">Каждый документ может быть представлен в виде сортированного массива нормализованных лексем. Помимо лексем часто желательно хранить информацию об их положении для ранжирования по близости.</dd>
+        <dd style="font-size: 90%">Каждый документ может быть представлен в виде сортированного массива нормализованных
+            лексем. Помимо лексем часто желательно хранить информацию об их положении для ранжирования по близости.
+        </dd>
     </dl>
 </section>
 
@@ -405,7 +413,8 @@ description: |
 
 <section class="slide">
     <h2>Словари для Русского языка</h2>
-    <p>В PostgreSQL по-умолчанию нет словарей для Русского языка, но можно воспользоваться словарями из пакета myspell-ru:</p>
+    <p>В PostgreSQL по-умолчанию нет словарей для Русского языка, но можно воспользоваться словарями из пакета
+        myspell-ru:</p>
     <pre><code class="bash"># Устанавливаем словари
 sudo apt install myspell-ru
 cd /usr/share/postgresql/9.5/tsearch_data
@@ -524,6 +533,63 @@ f
 
 <section class="slide">
     <h2 class="shout">Географические данные</h2>
+</section>
+
+<section class="slide">
+    <h2>PostGIS</h2>
+    <h3>Установка PostGIS</h3>
+    <pre><code class="bash">apt install postgis postgresql-9.5-postgis-scripts
+service postgresql restart
+</code></pre>
+    <h3>Настойка базы данных</h3>
+    <pre><code class="sql">CREATE EXTENSION postgis;
+CREATE EXTENSION postgis_topology;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>PostGIS: Пример запроса</h2>
+    <h3>Расстояние между двумя точками</h3>
+    <pre style="font-size: 85%"><code class="sql">SELECT ST_Distance(
+  ST_GeomFromText('POINT(37.6726 55.7448)'),  -- Moscow
+  ST_GeomFromText('POINT(30.3715 59.9401)')); -- St Petersburg
+<div class="next">   st_distance
+------------------
+ 8.42060587487623
+(1 строка)</div></code></pre>
+    <div class="next">
+        <h3>Расстояние между двумя точками</h3>
+        <pre style="font-size: 85%"><code class="sql">SELECT ST_Distance(
+  ST_GeogFromText('SRID=4326;POINT(37.6726 55.7448)'),
+  ST_GeogFromText('SRID=4326;POINT(30.3715 59.9401)'));
+   st_distance
+-----------------
+ 636751.38845948
+(1 строка)
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>PostGIS: Сфероиды</h2>
+    <h3>Что значит "SRID=4326"?</h3>
+    <pre style="font-size: 85%"><code class="sql">SELECT ST_Distance(
+  ST_GeogFromText('SRID=4326;POINT(37.6726 55.7448)'),
+  ST_GeogFromText('SRID=4326;POINT(30.3715 59.9401)'));
+   st_distance
+-----------------
+ 636751.38845948
+(1 строка)
+
+</code></pre>
+    <div class="next">
+        <h3>Сфероиды</h3>
+        <ul class="compact">
+            <li>WGS-84 (SRID=4326): GPS</li>
+            <li>ПЗ-90 (SRID=4740): ГЛОНАСС</li>
+        </ul>
+        <pre><code class="sql">SELECT * FROM spatial_ref_sys;</code></pre>
+    </div>
 </section>
 
 <section class="slide">
