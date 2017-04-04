@@ -651,3 +651,74 @@ Bitmap Heap Scan on airports  (cost=4.30..16.96 rows=1 width=101)
 <section class="slide">
     <h2 class="shout">Хранение слабоструктурированных данных</h2>
 </section>
+
+<section class="slide">
+    <h2>JOSN: Пример запроса</h2>
+    <pre style="font-size: 70%"><code class="sql">CREATE TABLE movies_json (
+  id SERIAL PRIMARY KEY,
+  data JSONB
+);
+
+INSERT INTO movies_json (id, data)
+SELECT m.id, json_build_object(
+  'title', title,
+  'year', year,
+  'genres', (
+    SELECT array_to_json(array_agg(name))
+    FROM movie_genres mg JOIN genres g ON (mg.genre_id = g.id)
+    WHERE mg.movie_id = m.id
+  ),
+  'tags', (
+    SELECT array_to_json(COALESCE(array_agg(distinct name), array[]::text[]))
+    FROM movie_tags mt JOIN tags t ON (mt.tag_id = t.id)
+    WHERE mt.movie_id = m.id
+  )
+)
+FROM movies m;
+</div></code></pre>
+</section>
+
+<section class="slide">
+    <h2>JOSN: Пример запроса</h2>
+    <pre><code class="sql">SELECT data FROM movies_json
+WHERE data->>'title' = 'Zombieland';
+</code></pre>
+    <pre style="font-size: 70%"><code class="json">{
+  "tags": [
+    "Abigail Breslin",
+    "atlanta",
+    "awkward romance",
+    "banjo",
+    "Bill Murray",
+    "teen",
+    "Woody Harrelson",
+    "zombies"
+  ],
+  "year": 2009,
+  "title": "Zombieland",
+  "genres": [
+    "Horror",
+    "Action",
+    "Comedy"
+  ]
+}
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>JOSN: Пример запроса</h2>
+    <pre><code class="sql">CREATE INDEX idx_movies_json ON movies_json
+  USING GIN (data jsonb_path_ops);
+
+SELECT data ->> 'title'
+FROM movies_json
+WHERE data @> 'genres' ?& array['Comedy']
+  AND EXISTS (
+    SELECT value
+    FROM jsonb_array_elements_text(
+      coalesce(movies_json.data -> 'tags', '[]'::jsonb
+    )
+  )
+WHERE value LIKE 'zombie%');
+</code></pre>
+</section>
