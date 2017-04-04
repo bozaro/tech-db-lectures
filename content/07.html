@@ -615,6 +615,20 @@ CREATE EXTENSION postgis_topology;
 
 <section class="slide">
     <h2>PostGIS: Пример запроса</h2>
+    <pre style="font-size: 80%"><code class="sql">EXPLAIN SELECT * FROM bookings.airports WHERE ST_DWithin(
+    Geography(ST_SetSRID(ST_POINT(longitude, latitude), 4326)),
+    ST_GeogFromText('SRID=4326;POINT(37.6726 55.7448)'),
+    100 * 1000);
+<div class="next" style="font-size: 80%">
+Seq Scan on airports  (cost=0.00..46.90 rows=1 width=101)
+  Filter: ((geography(st_setsrid(…)) && '0101…4B40'::geography)
+      AND ('0101…4B40'::geography && _st_expand(geography(st_setsrid(…)), 100000))
+      AND _st_dwithin(geography(st_setsrid(…)), '0101…4B40'::geography, 100000, true))
+</div></code></pre>
+</section>
+
+<section class="slide">
+    <h2>PostGIS: Пример запроса</h2>
     <pre style="font-size: 80%"><code class="sql">CREATE INDEX idx_airports ON bookings.airports USING GIST
     (Geography(ST_SetSRID(ST_POINT(longitude, latitude), 4326)));
 
@@ -622,7 +636,7 @@ EXPLAIN SELECT * FROM bookings.airports WHERE ST_DWithin(
     Geography(ST_SetSRID(ST_POINT(longitude, latitude), 4326)),
     ST_GeogFromText('SRID=4326;POINT(37.6726 55.7448)'),
     100 * 1000);
-<div style="font-size: 80%">
+<div class="next" style="font-size: 80%">
 Bitmap Heap Scan on airports  (cost=4.30..16.96 rows=1 width=101)
   Recheck Cond: (geography(…) && '0101…4B40'::geography)
   Filter: (('0101…4B40'::geography && _st_expand(geography(…)), 100000))
@@ -630,7 +644,7 @@ Bitmap Heap Scan on airports  (cost=4.30..16.96 rows=1 width=101)
   ->  Bitmap Index Scan on idx_airports  (cost=0.00..4.29 rows=21 width=0)
         Index Cond: (geography(st_setsrid(…)) && '0101…4B40'::geography)
 </div></code></pre>
-    <p>Поиграться можно с базой: <a href="https://edu.postgrespro.ru/bookings.pdf">https://edu.postgrespro.ru/bookings.pdf</a>
+    <p class="next">Поиграться можно с базой: <a href="https://edu.postgrespro.ru/bookings.pdf">https://edu.postgrespro.ru/bookings.pdf</a>
     </p>
 </section>
 
