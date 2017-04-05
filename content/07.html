@@ -653,9 +653,31 @@ Bitmap Heap Scan on airports  (cost=4.30..16.96 rows=1 width=101)
 </section>
 
 <section class="slide">
+    <h2>Хранение слабоструктурированных данных</h2>
+    <h3>Зачем?</h3>
+    <ul>
+        <li>Хранение сложных данных, содержимое которых не важно для сервера (например: настройки клиента);</li>
+        <li>Хранение данных, которые не имеет смысла нормализовать (например: CAD-схема);</li>
+        <li>Избавление от схемы данных для более быстрой миграции между версиями.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Хранение слабоструктурированных данных</h2>
+    <h3>Как хранить такие данные?</h3>
+    <ul>
+        <li>Двоичный формат (например: Protobuf);</li>
+        <li>Текстовый формат;</li>
+        <li>XML;</li>
+        <li>JSON;</li>
+        <li>JSONB.</li>
+    </ul>
+</section>
+
+<section class="slide">
     <h2>JOSN: Пример запроса</h2>
     <pre style="font-size: 70%"><code class="sql">CREATE TABLE movies_json (
-  id SERIAL PRIMARY KEY,
+  id INT PRIMARY KEY,
   data JSONB
 );
 
@@ -690,7 +712,6 @@ WHERE data->>'title' = 'Zombieland';
     "awkward romance",
     "banjo",
     "Bill Murray",
-    "teen",
     "Woody Harrelson",
     "zombies"
   ],
@@ -706,19 +727,59 @@ WHERE data->>'title' = 'Zombieland';
 </section>
 
 <section class="slide">
-    <h2>JOSN: Пример запроса</h2>
-    <pre><code class="sql">CREATE INDEX idx_movies_json ON movies_json
-  USING GIN (data jsonb_path_ops);
+    <h2>JOSN: Операции</h2>
+    <dl>
+        <dt>A @&gt;B, B &lt;@ A</dt>
+        <dd>A является подмножеством B</dd>
+    </dl>
+    <dl>
+        <dt>A ?| array [B, C]</dt>
+        <dd>Проверяет, есть ли в A ключи/значения B или C</dd>
+    </dl>
+    <dl>
+        <dt>A ?& array [B, C]</dt>
+        <dd>Проверяет, есть ли в A ключи/значения B и C</dd>
+    </dl>
+    <dl>
+        <dt>A -> B, A ->> B</dt>
+        <dd>Получение из A элемента по ключу B</dd>
+    </dl>
+    <dl>
+        <dt>A #> '{B, C}', A #>> '{B, C}'</dt>
+        <dd>Получает из A элемент по пути A -> B -> C</dd>
+    </dl>
+</section>
 
-SELECT data ->> 'title'
+<section class="slide">
+    <h2>JOSN: Пример запроса</h2>
+    <pre><code class="sql">SELECT data->>'title', data->>'year', data->'genres'
 FROM movies_json
-WHERE data @> 'genres' ?& array['Comedy']
+WHERE data @> '{"title": "Zombieland"}';
+
+</code><code class="next sql">CREATE INDEX idx_movies_json ON movies_json
+USING GIN (data jsonb_path_ops);</code></pre>
+    <h3>VS</h3>
+    <pre><code class="sql">SELECT data->>'title', data->>'year', data->'genres'
+FROM movies_json
+WHERE data ->> 'title' = 'Zombieland';
+
+</code><code class="next sql">CREATE INDEX idx_movies_json_title ON movies_json
+((data ->> 'title') text_pattern_ops);</code></pre>
+</section>
+
+<section class="slide">
+    <h2>JOSN: Пример запроса</h2>
+    <pre><code class="sql">SELECT data ->> 'title'
+FROM movies_json
+WHERE data @> '{"genres": ["Comedy"], "tags": ["zombie"]}';
+
+</code><code class="sql next">SELECT data ->> 'title'
+FROM movies_json j
+WHERE data @> '{"genres": ["Comedy"]}'
   AND EXISTS (
     SELECT value
-    FROM jsonb_array_elements_text(
-      coalesce(movies_json.data -> 'tags', '[]'::jsonb
-    )
-  )
-WHERE value LIKE 'zombie%');
+    FROM jsonb_array_elements_text(j.data -> 'tags')
+    WHERE value LIKE 'zombie%'
+  );
 </code></pre>
 </section>
