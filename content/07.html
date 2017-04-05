@@ -1,545 +1,785 @@
 ---
 title: Лекция 7
 description: |
-  Тема данной лекции:
+  Репликация. Полнотекстовый поиск. JSON.
 
-   - Особенности работы оптимизатора MySQL;
-   - Индексы;
-   - Секционирование.
-draft: true
+   - Репликация:
+     - Физическая и логическая репликации;
+     - Синхронная и асинхронная репликация;
+     - Балансировка и отказоустойчивость;
+     - Проблемы репликации.
+   - Полнотекстовый поиск;
+   - Географические данные;
+   - Хранение слабоструктурированных данных (JSON).
 ---
 <section class="slide">
-<h2>Оптимизируйте доступ к данным:</h2>
-<ul>
-	<li>Не извлекает ли приложение больше данных, чем нужно;</li>
-	<li>Не анализирует ли сервер MySQL больше строк, чем это необходимо;</li>
-</ul>
-Типичные ошибки:
-<ul>
-	<li>Выборка ненужных строк;</li>
-	<li>Выборка всех столбцов из соединения нескольких таблиц;</li>
-	<li>Выборка всех столбцов.</li>
-</ul>
+    <h2>Репликация. Полнотекстовый поиск. JSON.</h2>
+    <ul>
+        <li>Репликация:
+            <ul>
+                <li>Физическая и логическая репликации;</li>
+                <li>Синхронная и асинхронная репликация;</li>
+                <li>Балансировка и отказоустойчивость;</li>
+                <li>Проблемы репликации.</li>
+            </ul>
+        </li>
+        <li>Полнотекстовый поиск;</li>
+        <li>Географические данные;</li>
+        <li>Хранение слабоструктурированных данных (JSON).</li>
+    </ul>
 </section>
 
 <section class="slide">
-<h2>Декомпозиция соединения</h2>
-<pre style="font-size: 90%"><code class="sql">SELECT *
-FROM tag
-    JOIN tag_post ON tag_post.tag_id=tag.id
-    JOIN post ON tag_post.post_id=post.id
-WHERE tag.tag=mysql;
-
-SELECT * FROM tag WHERE tag = "mysql";
-SELECT * FROM tag_post WHERE tag_id = 1234;
-SELECT * FROM post WHERE post.id IN (123,456,567,9098,8904);
-</code></pre>
+    <h2 class="shout">Репликация</h2>
 </section>
 
 <section class="slide">
-<h2>Декомпозиция соединения</h2>
-Соединение в приложении может оказаться эффективнее в следующих случаях:
-<ul>
-	<li>Организован кэш и вы повторно используете ранее запрошенные данные;</li>
-	<li>Часто используются таблицы типа MyISAM;</li>
-	<li>Данные распределены по нескольким серверам;</li>
-	<li>Вместо соединения с большой таблицей используется список IN();</li>
-	<li>В соединении несколько раз встречается одна и та же таблица.</li>
-</ul>
+    <h2>Репликация</h2>
+    <h3>Распространение данных</h3>
+    <p>Репликация позволяет создать копию базы данных у географически удаленном пункте, например в другом центре
+        обработки данных.</p>
+    <h3>Балансировка нагрузки</h3>
+    <p>С помощью репликации можно распределить запросы на чтение между несколькими серверами. В приложениях с
+        интенсивным чтением эта тактика работает очень хорошо.</p>
+    <p>Реализовать несложное балансирование нагрузки можно, внеся совсем немного изменений в код.</p>
 </section>
 
 <section class="slide">
-<h2>Выполнение запросов</h2>
-<div style="text-align: center; height: 100%">
-	<img style="height: 70%" src="executing.png" />
-</div>
+    <h2>Репликация</h2>
+    <h3>Резервное копирование</h3>
+    <p>Репликация ― это ценное подспорье для резервного копирования. Однако подчиненный сервер все же не может
+        использоваться в качестве резервной копии и не является заменой настоящему резервному копированию.</p>
+    <h3>Аварийное переключение на резервный сервер (failover)</h3>
+    <p>Репликация позволяет исправить ситуацию, при которой сервер является единственной точкой отказа приложения.
+        Хорошая система аварийного переключения при отказе, имеющая в составе реплицированные подчиненные серверы,
+        способна существенно сократить время простоя.</p>
 </section>
 
 <section class="slide">
-<h2>Состояние запроса</h2>
-<dl style="font-size: 75%">
-	<dt>Sleep</dt>
-	<dd>Поток ожидает поступления нового запроса от клиента.</dd>
-
-	<dt>Query</dt>
-	<dd>Поток либо занят выполнением запроса, либо отправляет клиенту результаты.</dd>
-
-	<dt>Locked</dt>
-	<dd>Поток ожидает предоставления табличной блокировки на уровне сервера.</dd>
-
-	<dt>Analyzing и Statistics</dt>
-	<dd>Поток проверяет статистику, собранную подсистемой хранения, и оптимизирует запрос.</dd>
-
-	<dt>Copying to tmp table [on disk]</dt>
-	<dd>Поток обрабатывает запрос и копирует результаты во временную таблицу.</dd>
-
-	<dt>Sorting result</dt>
-	<dd>Поток занят сортировкой результирующего набора.</dd>
-
-	<dt>Sending data</dt>
-	<dd>Пересылает данные между различными стадиями обработки запроса или генерирует результирующий набор или возвращает результаты клиенту.</dd>
-</dl>
+    <h2>Репликация</h2>
+    <h3>Тестирование новых версий</h3>
+    <p>Очень часто на подчиненный сервер устанавливают новую версию СУБД и перед тем как ставить ее на промышленные
+        серверы, проверяют, что все запросы работают нормально.</p>
+    <h3>Передача изменений в приложение</h3>
+    <p>Все изменения данных могут передаваться для анализа в стороннее приложение непосредственно после фиксации в
+        базе.</p>
 </section>
 
 <section class="slide">
-<h2>Оптимизатор запросов</h2>
-<pre style="font-size: 75%"><code class="sql">SELECT SQL_NO_CACHE COUNT(*) FROM sakila.film_actor;
+    <h2>Варианты взаимодействия</h2>
+    <dl>
+        <dt>Мастер-слейв</dt>
+        <dd>Подчиненный сервер повторяет состояние главного и не может изменять данные самостоятельно.</dd>
 
-mysql> SHOW STATUS LIKE last_query_cost;
-</code></pre>
-
-<table>
-	<thead>
-		<th>Variable_name</th>
-		<th>Value</th>
-	</thead>
-	<tbody>
-		<tr>
-			<td>Last_query_cost</td>
-			<td>1040.599000</td>
-		</tr>
-	</tbody>
-</table>
+        <dt>Мастер-мастер</dt>
+        <dd>Оба сервера равнозначны и могут обрабатываь запросы как на чтение, так и на изменение данных.</dd>
+    </dl>
 </section>
 
 <section class="slide">
-<h2>Оптимизатор запросов</h2>
-<ul style="font-size: 80%">
-	<li>Некорректная статистика.</li>
-	<li>Принятая метрика стоимости не всегда эквивалентна истинной стоимости выполнения запроса.</li>
-	<li>Представление MySQL о том, что такое «оптимально», может расходиться с вашим представлением.</li>
-	<li>MySQL не берет в расчет другие одновременно выполняющиеся запросы.</li>
-	<li>MySQL не всегда выполняет оптимизацию по стоимости. Иногда он просто следует правилам.</li>
-	<li>Оптимизатор не учитывает стоимость операций, которые ему неподконтрольны, например выполнение хранимых или определенных пользователем функций.</li>
-	<li>Не всегда оптимизатор способен рассмотреть все возможные планы выполнения, поэтому оптимальный план он может просто не увидеть.</li>
-</ul>
+    <h2>Варианты реализации</h2>
+    <dl>
+        <dt>Физическая</dt>
+        <dd>Передаётся информация о физическом изменении страниц базы данных.</dd>
+
+        <dt>Логическая</dt>
+        <dd>Передаётся информация об измененни записей базы данных.</dd>
+
+        <dt>Передача запросов</dt>
+        <dd>Передаётся информация о выполненных запросах.</dd>
+    </dl>
 </section>
 
 <section class="slide">
-<h2>Оптимизатор запросов</h2>
-<h3>Изменение порядка соединения</h3>
-<p style="font-size: 80%">Таблицы не обязательно соединять именно в том порядке, который указан в запросе.</p>
-<h3>Применение алгебраических правил эквивалентности</h3>
-<p style="font-size: 80%">MySQL применяет алгебраические преобразования для упрощения выражений и приведения их к каноническому виду. Она умеет так-же вычислять константные выражения, исключая заведомо невыполнимые и всегда выполняющиеся условия.</p>
-<pre style="font-size: 75%"><code class="sql">(5 = 5 AND a > 5) -> a > 5
-(a < b AND b = c) AND a = 5 -> b > 5 AND b = c AND a = 5</code></pre>
-<h3>Оптимизации COUNT(), MIN() и MAX()</h3>
-<p style="font-size: 80%">Наличие индексов и сведений о возможности хранения NULL-значений в столбцах часто позволяет вообще не вычислять эти выражения. Если применена такая оптимизация, то в плане, выведенном командой EXPLAIN, будет присутствовать фраза «Select tables optimized away» (некоторые таблицы исключены при оптимизации).</p>
+    <h2>Гарантии репликации</h2>
+    <dl>
+        <dt>Синхронная</dt>
+        <dd>Мастер-сервер не подтверждает транзакцию до того, как реплика не подтвердит получение данных.</dd>
+
+        <dt>Асинхронная</dt>
+        <dd>Мастер-сервер не ждёт подтвержения получения данных от реплики.</dd>
+
+        <dt>Семисинхронная (MySQL)</dt>
+        <dd>Мастер-сервер не подтверждает транзакцию до того, как "живые" реплики не подтвердят получение данных.</dd>
+    </dl>
 </section>
 
 <section class="slide">
-<h2>Оптимизатор запросов</h2>
-<h3>Вычисление и свертка константных выражений</h3>
-<p style="font-size: 80%">Если MySQL обнаруживает, что выражение можно свернуть в константу, то делает это на стадии оптимизации.</p>
-<pre style="font-size: 75%"><code class="sql">EXPLAIN SELECT film.film_id, film_actor.actor_id
-FROM sakila.film INNER JOIN sakila.film_actor USING (film_id)
-WHERE film.film_id = 1;
-| id | select_type | table      | type  | key            | ref   | rows |
-| 1  | SIMPLE      | film       | const | PRIMARY        | const | 1    |
-| 1  | SIMPLE      | film_actor | ref   | idx_fk_film_id | const | 10   |</code></pre>
-<h3>Покрывающие индексы</h3>
-<p style="font-size: 80%">Если индекс содержит все необходимые запросу столбцы, то MySQL может воспользоваться им, вообще не читая данные таблицы.</p>
-<h3>Оптимизация подзапросов</h3>
-<p style="font-size: 80%">MySQL умеет преобразовывать некоторые виды подзапросов в более эффективные эквивалентные формы, сводя их к поиску по индексу.</p>
+    <h2>Физическая репликация</h2>
+    <h3>Общий принцип:</h3>
+    <ul>
+        <li>Главный сервер записывает изменения данных в журнал транзакций;</li>
+        <li>Подчиненный сервер копирует события журнала транзакций;</li>
+        <li>Подчиненный сервер воспроизводит изменения из журнала транзакций.</li>
+    </ul>
 </section>
 
 <section class="slide">
-<h2>Оптимизатор запросов</h2>
-<h3>Раннее завершение</h3>
-<p>MySQL может прекратить обработку запроса (или какой-то шаг обработки), как только поймет, что этот запрос или шаг полностью выполнен.</p>
-<pre style="font-size: 80%"><code class="sql">EXPLAIN SELECT film.film_id FROM sakila.film WHERE film_id = -1;
-| id |...| Extra                                               |
-| 1  |...| Impossible WHERE noticed after reading const tables |</code></pre>
-<h3>Сравнение по списку IN()</h3>
-<p>Во многих СУБД оператор IN() – не более чем синоним нескольких условий OR, поскольку логически они эквивалентны. Но не в MySQL, здесь перечисленные в списке IN()значения сортируются, и для работы с ним применяется быстрый двоичный поиск.</p>
+    <h2>Физическая репликация</h2>
+    <h3>Плюсы:</h3>
+    <ul class="compact">
+        <li>Простота и надёжность;</li>
+        <li>Подчиненный сервер в точности соответвует мастер-серверу;</li>
+        <li>Практически отсутствуют накладные расходы.</li>
+    </ul>
 </section>
 
 <section class="slide">
-<h2>Оптимизатор запросов</h2>
-<h3>Распространение равенства</h3>
-<p>MySQL распознает ситуации, когда в некотором запросе два столбца должны быть равны, – например, в условии JOIN, и распространяет условие WHERE на эквивалентные.</p>
-<pre style="font-size: 80%"><code class="sql">SELECT film.film_id
-FROM sakila.film
-INNER JOIN sakila.film_actor USING(film_id)
-WHERE film.film_id > 500;
- 
-...
-WHERE film.film_id > 500 AND film_actor.film_id > 500</code></pre>
+    <h2>Физическая репликация</h2>
+    <h3>Минусы:</h3>
+    <ul class="compact">
+        <li>Если данные на мастере были испорченны из-за сбоев RAM, то у на подчинённом сервере так же будут испорченные
+            данные;
+        </li>
+        <li>На реплике не может быть локальных изменений схемы данных;</li>
+        <li>Обновление индексов и VACUUM так же попадают в журнал транзакций, это порождает избыточное сетевое общение;
+        </li>
+        <li>Реплика может временно отставать, если на подчинённом сервере выполняется запрос на длительное чтение
+            данных;
+        </li>
+        <li>На подчинённом сервере должна быть та же версия PostgreSQL, что и на мастере;</li>
+        <li>Не возможна мастер-мастер репликация.</li>
+    </ul>
 </section>
 
 <section class="slide">
-<h2>Соединения (JOIN) в MySQL</h2>
-<pre style="font-size: 90%"><code class="sql">SELECT tbl1.col1, tbl2.col2
-FROM tbl1 INNER JOIN tbl2 USING(col3)
-WHERE tbl1.col1 IN(5,6);
-outer_iter = ITERATOR OVER tbl1 WHERE col1 IN(5,6)
-outer_row = outer_iter.next
-WHILE outer_row
-	inner_iter = ITERATOR OVER tbl2 WHERE col3 = outer_row.col3
-	inner_row = inner_iter.next
-	WHILE inner_row
-		OUTPUT [ outer_row.col1, inner_row.col2 ]
-		inner_row = inner_iter.next
-	END
-	outer_row = outer_iter.next
-END</code></pre>
+    <h2>Логическая репликация (Slony-I)</h2>
+    <p>Slony использует триггеры PostgreSQL для привязки к событиям INSERT/DELETE/UPDATE и хранимые процедуры для
+        выполнения действий.</p>
 </section>
 
 <section class="slide">
-<h2>Соединения (JOIN) в MySQL</h2>
-<div style="text-align: center; height: 100%">
-	<img style="height: 70%" src="join.png" />
-</div>
+    <h2>Логическая репликация (Logical Decoding)</h2>
+    <h3>Общий принцип:</h3>
+    <ul>
+        <li>Мастер сервер записывает изменения данных в журнал транзакций;</li>
+        <li>На базе журнала транзакций мастер сервер восстанавливает информация об изменении записей;</li>
+        <li>Данные об изменении записей передаются на подчиненный сервер.</li>
+    </ul>
+    <h3>Реализации:</h3>
+    <ul>
+        <li>pglogical</li>
+        <li>Postgres-BDR</li>
+    </ul>
 </section>
 
 <section class="slide">
-<h2>План выполнения</h2>
-<div style="text-align: center; height: 100%">
-	<img style="width: 50%" src="execution-plan-1.png" />
-	<img style="width: 40%" src="execution-plan-2.png" />
-</div>
+    <h2>Логическая репликация</h2>
+    <h3>Плюсы:</h3>
+    <ul class="compact">
+        <li>Более компактный обмен данными;</li>
+        <li>Если данные на мастере были испорченны из-за сбоев RAM, то репликация остановится;</li>
+        <li>Репликация не может отставать из-за VACUUM;</li>
+        <li>На мастере и подчинённом сервере могут быть разные версии PostgreSQL;</li>
+        <li>На мастере и подчинённом сервере можно использовать разную схему данных;</li>
+        <li>Потенциально возможна мастер-мастер репликация.</li>
+    </ul>
 </section>
 
 <section class="slide">
-<h2>Оптимизатор сортировки</h2>
-<h3>Двухпроходный (старый)</h3>
-<p>Читает указатели на строки и столбцы, упомянутые во фразе ORDER BY, сортирует их, затем проходит по отсортированному списку и снова читает исходные строки, чтобы вывести результат.</p>
-<h3>Однопроходный (новый)</h3>
-<p>Читает все необходимые запросу столбцы, сортирует строки по столбцам, упомянутым во фразе ORDER BY, проходит по отсортированному списку и выводит заданные столбцы. Следовательно, в буфер сортировки поместится меньше строк и надо будет выполнить больше циклов слияния.</p>
+    <h2>Логическая репликация</h2>
+    <h3>Минусы:</h3>
+    <ul class="compact">
+        <li>Более высокая нагрузка на подчинённый сервер;</li>
+        <li>Надо крайне аккуратно работать со схемой данных;</li>
+        <li>Нет хорошего решения проблемы репликации DDL-запросов.</li>
+    </ul>
 </section>
 
 <section class="slide">
-<h2>Не коррелированные подзапросы</h2>
-<pre style="font-size: 90%"><code class="sql">SELECT * FROM sakila.film
-WHERE film_id IN (
-  SELECT film_id FROM sakila.film_actor WHERE actor_id = 1
+    <h2>А как обстоят дела у <span style="text-decoration: line-through">соседей</span> MySQL?</h2>
+    <p>В MySQL используется только логическая репликация.</p>
+    <img src="neighbor.svg" style="position: absolute; bottom: 50px; right: 50px; height: 400px"/>
+</section>
+
+<section class="slide">
+    <h2>Архитектура MySQL</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="arhitecture.jpg"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Архитектура MySQL</h2>
+    <p>В MySQL различные хранилища объектов реализованы в виде подключаемых модулей.</p>
+    <p>Это порождает конфликт интересов:</p>
+    <ul>
+        <li>Подключаемые хранилищая требуют четкого и простого API для взаимодействия с ядром MySQL. Это требует, чтобы
+            ядро знало о хранилище <b>как можно меньше</b>;
+        </li>
+        <li>Для эффективного выполнения запросов нужно знать о хранении данных <b>как можно больше</b>.</li>
+    </ul>
+    <p>Данная особенность архитектуры MySQL проходит красной нитью через весь функционал.</p>
+</section>
+
+<section class="slide">
+    <h2>Архитектура MySQL</h2>
+    <p>В MySQL хранилище и лог транзакций существуют за пределами "движка" СУБД.</p>
+    <p>Как следствие, в MySQL вместо журнала транзакций для репликации используется отдельный журнал.</p>
+</section>
+
+<section class="slide">
+    <h2>Репликация в MySQL</h2>
+    <h3>Режимы репликации:</h3>
+    <dl>
+        <dt>STATEMENT</dt>
+        <dd><p>Сохраняются непосредственно запросы, которые информаци об изменениях записей.</p></dd>
+
+        <dt>ROW</dt>
+        <dd>
+            <p>Сохраняется информаци об изменениях записей.</p>
+            <p>В случае DDL-выражений сохраняются сами запросы.</p>
+        </dd>
+
+        <dt>MIXED</dt>
+        <dd><p>Промежуточный формат, который старается использовать statement, когда возможно, а когда нет — row.</p>
+        </dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Репликация в MySQL</h2>
+    <ul>
+        <li>Репликация провоцирует больше записи на диск;</li>
+        <li>Реплика воспроизводит транзакции по очереди;</li>
+        <li>Двухфазная фиксации транзакции (между журналом транзакций и журналом репликации);</li>
+        <li>Репликация хрупкая, так как некоторые запросы гарантировано ведут к порче данных.</li>
+    </ul>
+    <div class="next">
+        <h3>Пример проблемного запроса:</h3>
+        <pre><code class="sql">ALTER TABLE foo
+  ADD id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  ADD PRIMARY KEY (id);
+    </code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Пару слов про кластеры</h2>
+    <dl>
+        <dt>Общая память</dt>
+        <dd style="font-size: 80%">
+            <p>Кластер представляется как одна система (Single-System Image, SSI), то есть эквивалент операционной
+                системы для кластера в целом.</p>
+            <p>В результате нет необходимости в модификации существующих приложений — все это осуществляется
+                автоматически, прозрачно для приложений пообно SMP.</p>
+        </dd>
+        <dt>Общие диски</dt>
+        <dd style="font-size: 80%">
+            <p>Узлы кластера используют единую файловую систему.</p>
+            <p>Операционная система берет на себя как координацию работы с файловой системой и ряд сервисных
+                функций.</p>
+            <p>Приложение должно явно поддерживать работу в кластере.</p>
+        </dd>
+        <dt>Ничего общего</dt>
+        <dd style="font-size: 80%">
+            <p>Функции кластера целиком реализуются внутри приложения.</p>
+        </dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Postgres-XL</h2>
+    <p>Postgres-XL позволяет объединить несколько кластеров PostgreSQL таким образом, чтоб они работали как один инстанс
+        БД.</p>
+    <p>Для клиента, который подключается в базе, нет никакой разницы, работает он с единственным инстансом PostgreSQL
+        или с кластером Postgres-XL. Postgres-XL предлагает 2 режима распределения таблиц по кластеру: репликация и
+        шардинг.</p>
+    <p>При репликации все узлы содержат одинаковую копию таблицы, а при шардинге данные равномерно распределяются среди
+        членов кластера.</p>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Полнотекстовый поиск</h2>
+    <footer class="footer">
+        <ul>
+            <li><a href="http://citforum.ru/database/postgres/fts/">http://citforum.ru/database/postgres/fts/</a></li>
+            <li><a href="https://postgrespro.ru/docs/postgrespro/9.5/textsearch-intro">https://postgrespro.ru/docs/postgrespro/9.5/textsearch-intro</a>
+            </li>
+        </ul>
+    </footer>
+</section>
+
+<section class="slide">
+    <h2>В чем проблема?</h2>
+    <ul>
+        <li>Результат поиска нельзя оценивать бинарно: часть текстов больше, а часть меньше удовлетворяют поисковому
+            запросу;
+        </li>
+        <li>Нужно учитывать словоформы: падежи, склонения, спряжения и т.п.;</li>
+        <li>Документы могут быть не нескольких языках;</li>
+        <li>Понотекстовый поиск должен работать быстро.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Предворительная обработка</h2>
+    <dl>
+        <dt>Разбор документов на фрагменты.</dt>
+        <dd style="font-size: 90%">При этом полезно выделить различные классы фрагментов, например, числа, слова,
+            словосочетания, почтовые адреса и т. д., которые будут обрабатываться по-разному. Классы фрагментов могут
+            зависеть от приложения, но часто подходит предопределённый набор классов.
+        </dd>
+
+        <dt>Преобразование фрагментов в лексемы.</dt>
+        <dd style="font-size: 90%">Лексема — это нормализованный фрагмент, в котором разные словоформы приведены к
+            одной.
+        </dd>
+
+        <dt>Хранение документов в форме, подготовленной для поиска.</dt>
+        <dd style="font-size: 90%">Каждый документ может быть представлен в виде сортированного массива нормализованных
+            лексем. Помимо лексем часто желательно хранить информацию об их положении для ранжирования по близости.
+        </dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Словоформы</h2>
+    <p>
+        <b>Запрос:</b> мыла раму<br/>
+        <b>Текст:</b> Мама мыла раму
+    </p>
+    <p class="next">
+        <b>Запрос:</b> мыть раму<br/>
+        <b>Текст:</b> Мама мыла раму
+    </p>
+    <p class="next">
+        <b>Запрос:</b> мягкая булка<br/>
+        <b>Текст:</b> Съешь ещё этих мягких французских булок и выпей чаю
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Словоформы</h2>
+    <h3>Кровать</h3>
+    <p class="next">
+        <i>Глагол, несовершенный вид, переходный, тип спряжения по классификации А. Зализняка — 2b.</i>
+    </p>
+    <table class="next">
+        <thead>
+        <tr>
+            <th>Число</th>
+            <th>Лицо</th>
+            <th>Глагол</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>ед.</td>
+            <td>1-е я (что делаю)</td>
+            <td>Крую</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>2-е ты (что делаешь)</td>
+            <td>Круёшь</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>3-е он, она (что делает)</td>
+            <td>Круёт</td>
+        </tr>
+        <tr>
+            <td>мн.</td>
+            <td>1-е мы (что делаем)</td>
+            <td>Круём</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>2-е вы (что делаете)</td>
+            <td>Круёте</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>3-е они (что делают)</td>
+            <td>Круют</td>
+        </tr>
+        </tbody>
+    </table>
+    <footer class="footer">Проспрягал по образу "ковать"</footer>
+</section>
+
+<section class="slide">
+    <h2>Словари в PostgreSQL</h2>
+    <p>Создавая словари, можно:</p>
+    <ul>
+        <li>определять стоп-слова, которые не будут индексироваться;</li>
+        <li>сопоставлять синонимы с одним словом, используя Ispell;</li>
+        <li>сопоставлять словосочетания с одним словом, используя тезаурус;</li>
+        <li>сопоставлять различные склонения слова с канонической формой, используя словарь Ispell;</li>
+        <li>сопоставлять различные склонения слова с канонической формой, используя стеммер Snowball.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Словари для Русского языка</h2>
+    <p>В PostgreSQL по-умолчанию нет словарей для Русского языка, но можно воспользоваться словарями из пакета
+        myspell-ru:</p>
+    <pre><code class="bash"># Устанавливаем словари
+sudo apt install myspell-ru
+cd /usr/share/postgresql/9.5/tsearch_data
+DICT=/usr/share/hunspell/ru_RU
+# Копируем словари с преобразованием в UTF-8
+sudo iconv -f koi8-r -t utf-8 -o russian.affix $DICT.aff
+sudo iconv -f koi8-r -t utf-8 -o russian.dict  $DICT.dic
+    </code></pre>
+</section>
+
+<section class="slide">
+    <h2>Подключаем словари</h2>
+    <pre><code class="sql">CREATE TEXT SEARCH DICTIONARY russian_ispell (
+    TEMPLATE = ispell,
+    DictFile = russian,
+    AffFile = russian,
+    StopWords = russian
 );
-</code></pre>
-<pre class="next" style="font-size: 90%"><code class="sql">
-SELECT GROUP_CONCAT(film_id)
-FROM sakila.film_actor 
-WHERE actor_id = 1;
--- Result: 1,23,25,106,140,166,277,361,438,499,506,509,605,635
- 
-SELECT * FROM sakila.film
-WHERE film_id
-IN (1,23,25,106,140,166,277,361,438,499,506,509,605,635);
+
+</code>
+<code class="sql">CREATE TEXT SEARCH CONFIGURATION ru (COPY=russian);
+
+</code>
+<code class="sql">ALTER TEXT SEARCH CONFIGURATION ru
+    ALTER MAPPING FOR hword, hword_part, word
+    WITH russian_ispell, russian_stem;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Проверяем словари</h2>
+    <pre><code class="sql">SELECT to_tsvector('russian', 'мама мыла раму');
+       to_tsvector
+-------------------------
+ 'мам':1 'мыл':2 'рам':3
+(1 строка)
+
+</code>
+<code class="sql">SELECT to_tsvector('ru', 'мама мыла раму');
+             to_tsvector
+-------------------------------------
+ 'мама':1 'мыло':2 'мыть':2 'рама':3
+(1 строка)
+
 </code></pre>
 </section>
 
 <section class="slide">
-<h2>Коррелированные подзапросы</h2>
-<pre style="font-size: 90%"><code class="sql">SELECT * FROM sakila.film
-WHERE film_id IN (
-  SELECT film_id FROM sakila.film_actor WHERE actor_id = 1
+    <h2>Проверяем словари</h2>
+    <pre><code class="sql">SELECT to_tsvector('Съешь ещё этих мягких французских');
+                  to_tsvector
+------------------------------------------------
+ 'ещё':2 'мягк':4 'съеш':1 'французск':5 'эт':3
+(1 строка)
+
+</code>
+<code class="sql">SET default_text_search_config = 'ru';
+
+</code>
+<code class="sql">SELECT to_tsvector('Съешь ещё этих мягких французских');
+                      to_tsvector
+-------------------------------------------------------
+ 'ещё':2 'мягкий':4 'съешь':1 'французский':5 'этих':3
+(1 строка)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Собственно поиск</h2>
+    <pre style="font-size: 75%"><code class="sql">SELECT plainto_tsquery('мягкая булка') @@ to_tsvector(
+    'Съешь ещё этих мягких французских булок и выпей чаю');
+?column?
+----------
+t
+(1 строка)
+
+</code>
+<code class="sql">SELECT ts_headline('мама мыла милу', to_tsquery('мама'));
+      ts_headline
+-----------------------
+ <b>&lt;b&gt;мама&lt;/b&gt;</b> мыла милу
+(1 строка)
+
+</code>
+<code class="sql">SELECT ts_rank(to_tsvector(
+    'Съешь ещё этих мягких французских булок и выпей чаю'
+    ), to_tsquery('мягкая & булка'));
+  ts_rank
+-----------
+ 0.0985009
+(1 строка)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Веса</h2>
+    <pre style="font-size: 85%"><code class="sql">SELECT
+   '(to_tsvector('мама'), 'A') ||
+   setweight(to_tsvector('мыла'), 'B') ||
+   setweight(to_tsvector('раму'), 'D') @@ to_tsquery('мама:AB');
+?column?
+----------
+t
+(1 строка)
+
+</code>
+<code class="sql">SELECT
+   setweight(to_tsvector('мама'), 'A') ||
+   setweight(to_tsvector('мыла'), 'B') ||
+   setweight(to_tsvector('раму'), 'D') @@ to_tsquery('мама:BC');
+?column?
+----------
+f
+(1 строка)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Всё вместе</h2>
+    <pre style="font-size: 85%"><code class="sql">CREATE TABLE documents (
+  id    SERIAL PRIMARY KEY,
+  title TEXT,
+  body  TEXT,
+  fts   TSVECTOR
 );
 
-SELECT * FROM sakila.film
-WHERE EXISTS (
-  SELECT * FROM sakila.film_actor
-  WHERE actor_id = 1 AND film_actor.film_id = film.film_id
+</code><code class="sql">CREATE INDEX documents_fts USING GIN ON documents (fts);
+
+</code><code class="sql">INSERT INTO documents (title, body) VALUES
+('Хокку', E'Голос модема!\nКак он напоминает\nПенье цикады.');
+
+</code><code class="sql">UPDATE documents
+SET fts = setweight(to_tsvector(title), 'A')
+       || setweight(to_tsvector(body), 'B');
+
+</code><code class="sql">SELECT * FROM documents WHERE fts @@ to_tsquery('модем');
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Географические данные</h2>
+</section>
+
+<section class="slide">
+    <h2>PostGIS</h2>
+    <h3>Установка PostGIS</h3>
+    <pre><code class="bash">apt install postgis postgresql-9.5-postgis-scripts
+service postgresql restart
+</code></pre>
+    <h3>Настойка базы данных</h3>
+    <pre><code class="sql">CREATE EXTENSION postgis;
+CREATE EXTENSION postgis_topology;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>PostGIS: Пример запроса</h2>
+    <h3>Расстояние между двумя точками</h3>
+    <pre style="font-size: 85%"><code class="sql">SELECT ST_Distance(
+  ST_GeomFromText('POINT(37.6726 55.7448)'),  -- Moscow
+  ST_GeomFromText('POINT(30.3715 59.9401)')); -- St Petersburg
+<div class="next">   st_distance
+------------------
+ 8.42060587487623
+(1 строка)</div></code></pre>
+    <div class="next">
+        <h3>Расстояние между двумя точками</h3>
+        <pre style="font-size: 85%"><code class="sql">SELECT ST_Distance(
+  ST_GeogFromText('SRID=4326;POINT(37.6726 55.7448)'),
+  ST_GeogFromText('SRID=4326;POINT(30.3715 59.9401)'));
+   st_distance
+-----------------
+ 636751.38845948
+(1 строка)
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>PostGIS: Сфероиды</h2>
+    <h3>Что значит "SRID=4326"?</h3>
+    <pre style="font-size: 85%"><code class="sql">SELECT ST_Distance(
+  ST_GeogFromText('SRID=4326;POINT(37.6726 55.7448)'),
+  ST_GeogFromText('SRID=4326;POINT(30.3715 59.9401)'));
+   st_distance
+-----------------
+ 636751.38845948
+(1 строка)
+</code></pre>
+    <div class="next">
+        <h3>Сфероиды</h3>
+        <ul class="compact">
+            <li>WGS-84 (SRID=4326): GPS</li>
+            <li>ПЗ-90 (SRID=4740): ГЛОНАСС</li>
+        </ul>
+        <pre><code class="sql">SELECT * FROM spatial_ref_sys;</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>PostGIS: Пример запроса</h2>
+    <pre style="font-size: 80%"><code class="sql">EXPLAIN SELECT * FROM bookings.airports WHERE ST_DWithin(
+    Geography(ST_SetSRID(ST_POINT(longitude, latitude), 4326)),
+    ST_GeogFromText('SRID=4326;POINT(37.6726 55.7448)'),
+    100 * 1000);
+<div class="next" style="font-size: 80%">
+Seq Scan on airports  (cost=0.00..46.90 rows=1 width=101)
+  Filter: ((geography(st_setsrid(…)) && '0101…4B40'::geography)
+      AND ('0101…4B40'::geography && _st_expand(geography(st_setsrid(…)), 100000))
+      AND _st_dwithin(geography(st_setsrid(…)), '0101…4B40'::geography, 100000, true))
+</div></code></pre>
+</section>
+
+<section class="slide">
+    <h2>PostGIS: Пример запроса</h2>
+    <pre style="font-size: 80%"><code class="sql">CREATE INDEX idx_airports ON bookings.airports USING GIST
+    (Geography(ST_SetSRID(ST_POINT(longitude, latitude), 4326)));
+
+EXPLAIN SELECT * FROM bookings.airports WHERE ST_DWithin(
+    Geography(ST_SetSRID(ST_POINT(longitude, latitude), 4326)),
+    ST_GeogFromText('SRID=4326;POINT(37.6726 55.7448)'),
+    100 * 1000);
+<div class="next" style="font-size: 80%">
+Bitmap Heap Scan on airports  (cost=4.30..16.96 rows=1 width=101)
+  Recheck Cond: (geography(…) && '0101…4B40'::geography)
+  Filter: (('0101…4B40'::geography && _st_expand(geography(…)), 100000))
+      AND _st_dwithin(geography(st_setsrid(…), '0101…4B40'::geography, 100000, true))
+  ->  Bitmap Index Scan on idx_airports  (cost=0.00..4.29 rows=21 width=0)
+        Index Cond: (geography(st_setsrid(…)) && '0101…4B40'::geography)
+</div></code></pre>
+    <p class="next">Поиграться можно с базой: <a href="https://edu.postgrespro.ru/bookings.pdf">https://edu.postgrespro.ru/bookings.pdf</a>
+    </p>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Хранение слабоструктурированных данных</h2>
+</section>
+
+<section class="slide">
+    <h2>Хранение слабоструктурированных данных</h2>
+    <h3>Зачем?</h3>
+    <ul>
+        <li>Хранение сложных данных, содержимое которых не важно для сервера (например: настройки клиента);</li>
+        <li>Хранение данных, которые не имеет смысла нормализовать (например: CAD-схема);</li>
+        <li>Избавление от схемы данных для более быстрой миграции между версиями.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Хранение слабоструктурированных данных</h2>
+    <h3>Как хранить такие данные?</h3>
+    <ul>
+        <li>Двоичный формат (например: Protobuf);</li>
+        <li>Текстовый формат;</li>
+        <li>XML;</li>
+        <li>JSON;</li>
+        <li>JSONB.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>JOSN: Пример запроса</h2>
+    <pre style="font-size: 70%"><code class="sql">CREATE TABLE movies_json (
+  id INT PRIMARY KEY,
+  data JSONB
 );
+
+INSERT INTO movies_json (id, data)
+SELECT m.id, json_build_object(
+  'title', title,
+  'year', year,
+  'genres', (
+    SELECT array_to_json(array_agg(name))
+    FROM movie_genres mg JOIN genres g ON (mg.genre_id = g.id)
+    WHERE mg.movie_id = m.id
+  ),
+  'tags', (
+    SELECT array_to_json(COALESCE(array_agg(distinct name), array[]::text[]))
+    FROM movie_tags mt JOIN tags t ON (mt.tag_id = t.id)
+    WHERE mt.movie_id = m.id
+  )
+)
+FROM movies m;
+</div></code></pre>
+</section>
+
+<section class="slide">
+    <h2>JOSN: Пример запроса</h2>
+    <pre><code class="sql">SELECT data FROM movies_json
+WHERE data->>'title' = 'Zombieland';
+</code></pre>
+    <pre style="font-size: 70%"><code class="json">{
+  "tags": [
+    "Abigail Breslin",
+    "atlanta",
+    "awkward romance",
+    "banjo",
+    "Bill Murray",
+    "Woody Harrelson",
+    "zombies"
+  ],
+  "year": 2009,
+  "title": "Zombieland",
+  "genres": [
+    "Horror",
+    "Action",
+    "Comedy"
+  ]
+}
 </code></pre>
 </section>
 
 <section class="slide">
-<h2>Слияние индексов</h2>
-<pre><code class="sql">SELECT film_id, actor_id FROM sakila.film_actor 
-WHERE actor_id = 1 OR film_id = 1;
+    <h2>JOSN: Операции</h2>
+    <dl>
+        <dt>A @&gt;B, B &lt;@ A</dt>
+        <dd>A является подмножеством B</dd>
+    </dl>
+    <dl>
+        <dt>A ?| array [B, C]</dt>
+        <dd>Проверяет, есть ли в A ключи/значения B или C</dd>
+    </dl>
+    <dl>
+        <dt>A ?& array [B, C]</dt>
+        <dd>Проверяет, есть ли в A ключи/значения B и C</dd>
+    </dl>
+    <dl>
+        <dt>A -> B, A ->> B</dt>
+        <dd>Получение из A элемента по ключу B</dd>
+    </dl>
+    <dl>
+        <dt>A #> '{B, C}', A #>> '{B, C}'</dt>
+        <dd>Получает из A элемент по пути A -> B -> C</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>JOSN: Пример запроса</h2>
+    <pre><code class="sql">SELECT data->>'title', data->>'year', data->'genres'
+FROM movies_json
+WHERE data @> '{"title": "Zombieland"}';
+
+</code><code class="next sql">CREATE INDEX idx_movies_json ON movies_json
+USING GIN (data jsonb_path_ops);</code></pre>
+    <h3>VS</h3>
+    <pre><code class="sql">SELECT data->>'title', data->>'year', data->'genres'
+FROM movies_json
+WHERE data ->> 'title' = 'Zombieland';
+
+</code><code class="next sql">CREATE INDEX idx_movies_json_title ON movies_json
+((data ->> 'title') text_pattern_ops);</code></pre>
+</section>
+
+<section class="slide">
+    <h2>JOSN: Пример запроса</h2>
+    <pre><code class="sql">SELECT data ->> 'title'
+FROM movies_json
+WHERE data @> '{"genres": ["Comedy"], "tags": ["zombie"]}';
+
+</code><code class="sql next">SELECT data ->> 'title'
+FROM movies_json j
+WHERE data @> '{"genres": ["Comedy"]}'
+  AND EXISTS (
+    SELECT value
+    FROM jsonb_array_elements_text(j.data -> 'tags')
+    WHERE value LIKE 'zombie%'
+  );
 </code></pre>
-<pre class="next"><code class="sql">
-SELECT film_id, actor_id FROM sakila.film_actor 
-WHERE actor_id = 1
-UNION ALL
-SELECT film_id, actor_id FROM sakila.film_actor 
-WHERE film_id = 1 AND actor_id &lt;&gt; 1;
-</code></pre>
-</section>
-
-<section class="slide">
-<h2>Непоследовательный просмотр индексов</h2>
-<pre style="font-size: 75%"><code class="sql">SELECT ... FROM tbl WHERE a BETWEEN 1 AND 4 AND b BETWEEN 2 AND 3;</code></pre>
-<div style="text-align: center; height: 100%">
-	<img style="height: 60%" src="index-jump-1.png" />
-</div>
-</section>
-
-<section class="slide">
-<h2>Непоследовательный просмотр индексов</h2>
-<pre style="font-size: 75%"><code class="sql">SELECT ... FROM tbl WHERE a IN (1, 2, 3, 4) AND b BETWEEN 2 AND 3;</code></pre>
-<div style="text-align: center; height: 100%">
-	<img style="height: 60%" src="index-jump-2.png" />
-</div>
-</section>
-
-<section class="slide">
-<h2>Непоследовательный просмотр индексов</h2>
-<pre style="font-size: 90%"><code class="sql">EXPLAIN SELECT actor_id, MAX(film_id)
-FROM sakila.film_actor
-GROUP BY actor_id\G
-********************* 1. row **************************
-id: 1
-select_type: SIMPLE
-table: film_actor
-type: range
-possible_keys: NULL
-key: PRIMARY
-key_len: 2
-Ограничения оптимизатора MySQL 241
-ref: NULL
-rows: 396
-Extra: Using index for group-by</code></pre>
-</section>
-
-<section class="slide">
-<h2>Непоследовательный просмотр индексов</h2>
-<pre><code class="sql">SELECT MIN(actor_id) FROM sakila.actor 
-WHERE first_name = 'PENELOPE';</code></pre>
-<pre class="next"><code class="sql">
-SELECT actor_id FROM sakila.actor USE INDEX(PRIMARY)
-WHERE first_name = 'PENELOPE' LIMIT 1;</code></pre>
-</section>
-
-<section class="slide">
-<h2>SELECT &amp; UPDATE</h2>
-<pre style="font-size: 80%"><code class="sql">UPDATE tbl AS outer_tbl
-SET cnt = (
-    SELECT COUNT(*) FROM tbl AS inner_tbl
-    WHERE inner_tbl.type = outer_tbl.type
-);</code></pre>
-<pre style="font-size: 80%" class="next"><code>
-ERROR 1093 (HY000): You can’t specify target table
-‘outer_tbl’ for update in FROM clause</code></pre>
-<pre style="font-size: 80%" class="next"><code>
-UPDATE tbl
-INNER JOIN (
-    SELECT type, COUNT(*) AS cnt
-    FROM tbl
-    GROUP BY type
-) AS der USING (type)
-SET tbl.cnt = der.cnt;</code></pre>
-</section>
-
-<section class="slide">
-<h2>Что делает COUNT()</h2>
-<p><b>COUNT()</b> ― это особая функция, которая решает две очень разные задачи: подсчитывает значения и строки.</p>
-</p>Значение ― это выражение, отличное от NULL.</p>
-<p><b>COUNT(*)</b> просто подсчитывает количество строк в результирующем наборе.</p>
-<p>Если вы хотите знать, сколько строк в результирующем наборе, всегда употребляйте COUNT(*).</p>
-<h3>МИФЫ:</h3>
-<p>Для таблиц типа MyISAM запросы, содержащие функцию COUNT(), выполняются очень быстро.</p>
-</section>
-
-<section class="slide">
-<h2>Оптимизация COUNT()</h2>
-<pre style="font-size: 75%"><code class="sql">SELECT COUNT(*) FROM world.City WHERE ID > 5;</code></pre>
-<pre style="font-size: 75%" class="next"><code class="sql">
-SELECT (SELECT COUNT(*) FROM world.City) - COUNT(*)
-FROM world.City WHERE ID <= 5;</code></pre>
-<pre style="font-size: 75%" class="next"><code class="sql">
-SELECT COUNT(color = 'blue' OR color= 'red' OR NULL) FROM items;</code></pre>
-<pre style="font-size: 75%" class="next"><code class="sql">
-SELECT COUNT(*) FROM items WHERE color = 'blue' OR color = 'red';</code></pre>
-<pre style="font-size: 75%" class="next"><code class="sql">
-SELECT COUNT(*) FROM items
-WHERE color IN ('blue', 'red');</code></pre>
-</section>
-
-<section class="slide">
-<h2>Оптимизация запросов с JOIN</h2>
-<ul>
-	<li>Стройте индексы по столбцам, используемым во фразах ON или USING.</li>
-	<li>При добавлении индексов учитывайте порядок соединения. В общем случае следует индексировать только вторую таблицу в порядке соединения, если, конечно, индекс не нужен для каких-то других целей.</li>
-	<li>Старайтесь, чтобы в выражениях GROUP BY и ORDER BY встречались столбцы только из одной таблицы, тогда у MySQL появится возможность воспользоваться для этой операции индексом.</li>
-	<li>Будьте внимательны при переходе на новую версию MySQL, поскольку в разные моменты изменялись синтаксис соединения, приоритеты операторов и другие аспекты поведения.</li>
-</ul>
-</section>
-
-<section class="slide">
-<h2>Оптимизация GROUP BY и DISTINCT</h2>
-<pre style="font-size: 80%"><code class="sql">SELECT actor.first_name, actor.last_name, COUNT(*)
-FROM sakila.film_actor
-    INNER JOIN sakila.actor USING (actor_id)
-GROUP BY actor.first_name, actor.last_name;</code></pre>
-<pre style="font-size: 80%" class="next"><code class="sql">
-SELECT actor.first_name, actor.last_name, COUNT(*)
-FROM sakila.film_actor
-    INNER JOIN sakila.actor USING (actor_id)
-GROUP BY film_actor.actor_id;</code></pre>
-<pre style="font-size: 80%" class="next"><code class="sql">
-SELECT MIN(actor.first_name), MAX(actor.last_name), COUNT(*)
-FROM sakila.film_actor
-    INNER JOIN sakila.actor USING (actor_id)
-GROUP BY film_actor.actor_id;
-</code></pre>
-</section>
-
-<section class="slide">
-<h2>Оптимизация GROUP BY и DISTINCT</h2>
-<pre style="font-size: 80%"><code class="sql">SELECT actor.first_name, actor.last_name, COUNT(*)
-FROM sakila.film_actor
-    INNER JOIN sakila.actor USING (actor_id)
-GROUP BY actor.first_name, actor.last_name;</code></pre>
-<pre style="font-size: 80%" class="next"><code class="sql">
-SELECT actor.first_name, actor.last_name, c.cnt
-FROM sakila.actor
-INNER JOIN (
-    SELECT actor_id, COUNT(*) AS cnt
-    FROM sakila.film_actor
-    GROUP BY actor_id
-) AS c USING (actor_id);</code></pre>
-</section>
-
-<section class="slide">
-<h2>Оптимизация LIMIT со смещением</h2>
-<pre style="font-size: 80%"><code class="sql">SELECT film_id, description 
-FROM sakila.film 
-ORDER BY title 
-LIMIT 50, 5;</code></pre>
-<pre style="font-size: 80%" class="next"><code class="sql">
-SELECT film.film_id, film.description
-FROM sakila.film
-INNER JOIN (
-    SELECT film_id FROM sakila.film
-    ORDER BY title LIMIT 50, 5
-) AS lim USING(film_id);</code></pre>
-<pre style="font-size: 80%" class="next"><code class="sql">
-SELECT film_id, description FROM sakila.film
-WHERE position BETWEEN 50 AND 54 ORDER BY position;
-</code></pre>
-</section>
-
-<section class="slide">
-<h2>SQL_CALC_FOUND_ROWS</h2>
-<pre><code class="sql">SELECT SQL_CALC_FOUND_ROWS film_id, description 
-FROM sakila.film 
-ORDER BY title 
-LIMIT 50, 5;
-
-SELECT FOUND_ROWS ();</code></pre>
-</section>
-
-<section class="slide">
-<h2>Кэш запросов</h2>
-<ul>
-	<li>Перед началом обработки запроса на чтение нужно проверить, есть ли он в кэше.</li>
-	<li>Если запрос допускает кэширование, но еще не помещен в кэш, то нужно потратить некоторое время на запись в кэш сгенерированных результатов.</li>
-	<li>Наконец, при обработке любого запроса на запись необходимо сделать недействительными все записи в кэше, в которых встречается измененная таблица.</li>
-</ul>
-</section>
-
-<section class="slide">
-<h2>Кэш запросов</h2>
-<div style="text-align: center; height: 100%">
-	<img style="height: 70%" src="query-cache-1.png" />
-</div>
-</section>
-
-<section class="slide">
-<h2>Кэш запросов</h2>
-<div style="text-align: center; height: 100%">
-	<img style="height: 70%" src="query-cache-2.png" />
-</div>
-</section>
-
-<section class="slide white">
-<h2>Объединенные таблицы и секционирование</h2>
-Позволяют:
-<ul>
-	<li>Отделить статические данные от изменяющихся;</li>
-	<li>Воспользоваться физической близостью взаимосвязанных данных для оптимизации запросов;</li>
-	<li>Проектировать таблицы так, чтобы запрос обращался к возможно меньшему объему данных;</li>
-	<li>Упростить обслуживание очень больших наборов данных<br/>
-(в этом вопросе объединенные таблицы обладают некоторыми преимуществами по сравнению с секционированными)</li>
-</ul>
-</section>
-
-<section class="slide">
-<h2>Объединенные таблицы</h2>
-<pre><code class="sql">CREATE TABLE t1(a INT NOT NULL PRIMARY KEY) ENGINE=MyISAM;
-CREATE TABLE t2(a INT NOT NULL PRIMARY KEY) ENGINE=MyISAM;
-INSERT INTO t1(a) VALUES(1),(2);
-INSERT INTO t2(a) VALUES(1),(2);
-CREATE TABLE mrg(a INT NOT NULL PRIMARY KEY)
-ENGINE=MERGE UNION=(t1, t2) INSERT_METHOD=LAST;
-SELECT a FROM mrg;
-| a |
-| 1 |
-| 1 |
-| 2 |
-| 2 |</code></pre>
-</section>
-
-<section class="slide white">
-<h2>Объединенные таблицы</h2>
-<ul style="font-size: 80%">
-	<li>Для объединенной таблицы необходимо больше открытых файловых дескрипторов, чем для обычной таблицы, содержащей те же данные.</li>
-	<li>Команда CREATE, которая создает объединенную таблицу, не проверяет, совместимы ли ее составляющие. Если определения объединяемых таблиц слегка различаются, то MySQL может создать объединенную таблицу, которой впоследствии не сумеет воспользоваться.</li>
-	<li>Запросы, обращенные к объединенной таблице, переадресуются к каждой из составляющих таблиц. В результате поиск единственной строки может оказаться медленнее по сравнению с поиском в одной таблице.</li>
-	<li>Сканирование выполняется для объединенной таблицы так же быстро, как для обычной.</li>
-	<li>Поиск по уникальному и первичному ключу прекращается, как только искомая строка найдена.</li>
-	<li>Составляющие таблицы читаются в порядке, указанном в команде CREATE TABLE.</li>
-</ul>
-</section>
-
-<section class="slide">
-<h2>Секционирование</h2>
-<pre><code class="sql">CREATE TABLE orders_range (
-    customer_surname VARCHAR(30),
-    store_id INT,
-    salesperson_id INT,
-    order_date DATE,
-    note VARCHAR(500)
-) ENGINE = InnoDB
-PARTITION BY RANGE (YEAR (order_date)) (
-    PARTITION p_old VALUES LESS THAN(2008),
-    PARTITION p_2008 VALUES LESS THAN(2009),
-    PARTITION p_2009 VALUES LESS THAN(MAXVALUE)
-);</code></pre>
-</section>
-
-<section class="slide">
-<h2>Секционирование</h2>
-<h3>RANGE</h3>
-<p>По диапазону значений</p>
-<pre><code class="sql">PARTITION BY RANGE (store_id) (
-    PARTITION p0 VALUES LESS THAN (10),
-    PARTITION p1 VALUES LESS THAN (20),
-    PARTITION p3 VALUES LESS THAN (30)
-);</code></pre>
-</section>
-
-<section class="slide">
-<h2>Секционирование</h2>
-<h3>LIST</h3>
-<p>По точному списку значений</p>
-<pre><code class="sql">PARTITION BY LIST(store_id) (
-    PARTITION pNorth VALUES IN (3,5,6,9,17),
-    PARTITION pEast VALUES IN (1,2,10,11,19,20)
-);</code></pre>
-</section>
-
-<section class="slide">
-<h2>Секционирование</h2>
-<h3>HASH</h3>
-<p>По хэшу от какой-либо функции</p>
-<pre><code class="sql">PARTITION BY HASH(YEAR(hired))
-PARTITIONS 10;</code></pre>
-
-<h3>KEY</h3>
-<p>Почти то же самое что и HASH, но по ключу</p>
-<pre><code class="sql">PARTITION BY KEY(s1)
-PARTITIONS 10;</code></pre>
-</section>
-
-<section class="slide">
-<h2>Секционирование</h2>
-<ul style="font-size: 90%">
-	<li>Все секции должны управляться одной и той же подсистемой хранения. Например, нельзя сжать только часть секций, хотя для составляющих объединенной таблицы это допустимо.</li>
-	<li>Любой уникальный индекс над секционированной таблицей должен содержать столбцы, на которые ссылается функция секционирования. </li>
-	<li>Хотя сервер MySQL может обойтись без доступа к каждой секции при обработке запроса к секционированной таблице, он тем менее ставит блокировки на все секции.</li>
-	<li>Существует ряд ограничений на функции и выражения, которые можно использовать в механизме секционирования.</li>
-	<li>Некоторые подсистемы хранения вообще не поддерживают секционирование.</li>
-	<li>Внешние ключи не работают.</li>
-</ul>
 </section>
