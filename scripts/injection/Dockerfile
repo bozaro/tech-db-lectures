@@ -37,20 +37,23 @@ RUN echo "listen_addresses='*'" >> /etc/postgresql/$PGVER/main/postgresql.conf
 # Expose the PostgreSQL port
 EXPOSE 5432
 
-# Add VOLUMEs to allow backup of config, logs and databases
-VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
-
 # Create sample database
 ADD scheme.sql /tmp/scheme.sql
 RUN /etc/init.d/postgresql start &&\
     psql docker < /tmp/scheme.sql &&\
     /etc/init.d/postgresql stop
 
+# Add VOLUMEs to allow backup of config, logs and databases
+VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
+
 # Back to the root user
 USER root
 
 # Объявлем порт сервера
 EXPOSE 80
+
+# Php configuration
+ADD 99-injection.ini /etc/php/7.0/apache2/conf.d/
 
 # Create sample page
 ADD news.php /var/www/html/

