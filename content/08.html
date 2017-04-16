@@ -248,29 +248,15 @@ useMath: true
 <section class="slide">
     <h2>Конфигурирование</h2>
     <ul>
-        <li>/etc/my.cnf</li>
-        <li>/etc/mysql/my.cnf</li>
+        <li>pg_hba.conf</li>
+        <li>pg_ident.conf</li>
+        <li>postgresql.conf</li>
     </ul>
-    <pre style="font-size: 80%"><code class="bash">
-$ which mysqld
-/usr/sbin/mysqld
-$ /usr/sbin/mysqld --verbose --help | grep -A 1 ‘Default options’
-Default options are read from the following files in the given order:
-/etc/mysql/my.cnf ~/.my.cnf /usr/etc/my.cnf
-</code></pre>
-</section>
-
-<section class="slide">
-    <h2>Конфигурирование</h2>
-    <p>В Debian/Ubuntu крайне не рекомендуется править файл <code>/etc/mysql/my.cnf</code>,
-        так как он распространяется вместе с пакетом MySQL.</p>
-    <p>В конце файла есть строки:</p>
-    <pre><code class="text">!includedir /etc/mysql/conf.d/
-!includedir /etc/mysql/mysql.conf.d/
-</code></pre>
-    <p>Специфические настройки следует держать в файлах вида: <code>/etc/mysql/conf.d/custom.cnf</code>
-        (суфикс файла должен быть <code>.cnf</code>).</p>
-    <p>Это сильно упрощает администрирование MySQL.</p>
+    <p>Рекомендуется добавить в конец файла <code>postgresql.conf</code> строки вида:</p>
+    <pre><code># include files ending in '.conf' from
+include_dir = 'conf.d'</code></pre>
+    <p>Специфические настройки при этом хранить в директории <code>conf.d</code>.</p>
+    <p>Это сильно упрощает переход между версиями.</p>
 </section>
 
 <section class="slide">
