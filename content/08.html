@@ -820,6 +820,19 @@ START SLAVE;
 </section>
 
 <section class="slide">
+    <h2>Ограничение кол-ва подключений</h2>
+    <h3>Лимит на общее кол-во подключений</h3>
+    <pre><code>max_connections = 100</code></pre>
+    <div class="next">
+    <h3>Лимит на кол-во подключений с одного IP</h3>
+    <pre><code class="bash">iptables -A INPUT -p tcp --syn --dport 5432 \
+    -m connlimit --connlimit-above 15 \
+    -j REJECT --reject-with tcp-reset
+    </code></pre>
+    </div>
+</section>
+
+<section class="slide">
     <h2>SQL-injection: Строковой параметр</h2>
     <ul>
         <li>http://xxx/news.php?id=1
