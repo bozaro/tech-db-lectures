@@ -249,7 +249,8 @@ include_dir = 'conf.d'</code></pre>
     <dl>
         <dt>synchronous_commit = on</dt>
         <dd>
-            <p>Определяет, будет ли сервер при фиксировании транзакции ждать, пока записи из WAL сохранятся на диске.</p>
+            <p>Определяет, будет ли сервер при фиксировании транзакции ждать, пока записи из WAL сохранятся на
+                диске.</p>
             <p>Допустимые значения: on, remote_apply, remote_write, local и off.</p>
             <p>Этот параметр можно изменить в любое время:</p>
             <pre><code class="sql">SET LOCAL synchronous_commit = ON</code></pre>
@@ -260,6 +261,19 @@ include_dir = 'conf.d'</code></pre>
             <p>Определяет, как часто процесс записи WAL будет сбрасывать WAL на диск.</p>
         </dd>
     </dl>
+</section>
+
+<section class="slide">
+    <h2>Контрольные суммы</h2>
+    <pre><code class="bash">/usr/lib/postgresql/9.5/bin/initdb \
+    --data-checksums main</code></pre>
+    <p>Указывает на необходимость проверки системой ввода/вывода контрольных сумм страниц для обнаружения повреждённых
+        данных, так как по умолчанию проверка не производится.</p>
+    <p>Включение проверки может в значительной мере оказать влияние на производительность.</p>
+    <p>Устанавливается на этапе развёртывания кластера, и далее не может быть изменена.</p>
+    <footer>
+        <a href="https://www.postgresql.org/message-id/5717332F.3020709%40postgrespro.ru">https://www.postgresql.org/message-id/5717332F.3020709%40postgrespro.ru</a>
+    </footer>
 </section>
 
 <section class="slide">
