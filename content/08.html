@@ -232,6 +232,10 @@ pg_restore -d movielens -Fd dumpdir</code></pre>
 </section>
 
 <section class="slide">
+    <h2 class="shout">Конфигурирование</h2>
+</section>
+
+<section class="slide">
     <h2>Конфигурирование</h2>
     <ul>
         <li>pg_hba.conf</li>
@@ -298,15 +302,81 @@ include_dir = 'conf.d'</code></pre>
 <section class="slide">
     <h2>Настройка использования памяти</h2>
     <ul>
-        <li>Определить абсолютный верхний предел объема памяти, которую MySQL может использовать.</li>
-        <li>Определить, сколько памяти MySQL будет использовать на каждое соединение, например для буферов сортировки и
-            временных таблиц.
+        <li>Определить абсолютный верхний предел объема памяти, которую PostgreSQL может использовать.</li>
+        <li>Определить, сколько памяти PostgreSQL будет использовать на каждое соединение, например для буферов
+            сортировки и временных таблиц.
         </li>
         <li>Определить, сколько памяти нужно операционной системе для нормальной работы. Сюда следует включить и память
             для других программ, работающих на той же машине, например периодически выполняемых заданий.
         </li>
-        <li>Если это имеет смысл, отдайте всю оставшуюся память под кэши MySQL, например, под пул буферов InnoDB.</li>
+        <li>Если сервер залез в swap - то всё пропало.</li>
     </ul>
+</section>
+
+<section class="slide">
+    <h2>Настройка использования памяти</h2>
+    <dl>
+        <dt>shared_buffers (integer)</dt>
+        <dd>Задаёт объём памяти, который будет использовать сервер баз данных для буферов в разделяемой памяти (~25-40% RAM).</dd>
+
+        <dt>effective_cache_size (integer)</dt>
+        <dd>Определяет представление планировщика об эффективном размере дискового кеша, доступном для одного запроса.</dd>
+
+        <dt>work_mem (integer)</dt>
+        <dd>Задаёт объём памяти, который будет использоваться для внутренних операций сортировки и хеш-таблиц.</dd>
+
+        <dt>maintenance_work_mem (integer)</dt>
+        <dd>Задаёт максимальный объём памяти для операций обслуживания БД, в частности VACUUM, CREATE INDEX и ALTER TABLE ADD FOREIGN KEY.</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Табличные пространства</h2>
+    <pre><code class="sql">CREATE TABLESPACE fastspace
+    LOCATION '/ssd1/postgresql/data';
+
+CREATE TABLE cinemas (
+        id serial,
+        name text,
+        location text
+) TABLESPACE fastspace;
+
+CREATE INDEX code_idx ON films (code)
+        TABLESPACE indexspace;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Мониторинг: инструменты Unix</h2>
+    <pre style="font-size: 50%"><code class="bash">$ ps auxww | grep ^postgres
+postgres  15551  0.0  0.1  57536  7132 pts/0  S   18:02  0:00 postgres -i
+postgres  15554  0.0  0.0  57536  1184 ?      Ss  18:02  0:00 postgres: writer process
+postgres  15555  0.0  0.0  57536   916 ?      Ss  18:02  0:00 postgres: checkpointer process
+postgres  15556  0.0  0.0  57536   916 ?      Ss  18:02  0:00 postgres: wal writer process
+postgres  15557  0.0  0.0  58504  2244 ?      Ss  18:02  0:00 postgres: autovacuum launcher process
+postgres  15558  0.0  0.0  17512  1068 ?      Ss  18:02  0:00 postgres: stats collector process
+postgres  15582  0.0  0.0  58772  3080 ?      Ss  18:04  0:00 postgres: joe runbug 127.0.0.1 idle
+postgres  15606  0.0  0.0  58772  3052 ?      Ss  18:07  0:00 postgres: tgl regression [local] SELECT waiting
+postgres  15610  0.0  0.0  58772  3056 ?      Ss  18:07  0:00 postgres: tgl regression [local] idle in transaction</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Мониторинг: системная инфомация</h2>
+    <dl>
+        <dt>pg_stat_activity</dt>
+        <dd>Информацией по текущей активности процесса.</dd>
+
+        <dt>pg_stat_all_tables</dt>
+        <dd>Статистика по обращениям к таблицам.</dd>
+
+        <dt>pg_stat_all_indexes</dt>
+        <dd>Статистика по обращениям к индексам.</dd>
+
+        <dt>pg_statio_all_tables</dt>
+        <dd>Статистика по операциям ввода/вывода.</dd>
+
+        <dt>pg_locks</dt>
+        <dd>Блокировки.</dd>
+    </dl>
 </section>
 
 <section class="slide">
