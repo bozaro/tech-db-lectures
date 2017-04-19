@@ -285,21 +285,6 @@ include_dir = 'conf.d'</code></pre>
 </section>
 
 <section class="slide">
-    <h2>Сетевые подключения</h2>
-    <h3>Внешний интерфейс</h3>
-    <pre><code>listen_addresses = '*'</code></pre>
-    <h3>Лимит на общее кол-во подключений</h3>
-    <pre><code>max_connections = 100</code></pre>
-    <div class="next">
-        <h3>Лимит на кол-во подключений с одного IP</h3>
-        <pre><code class="bash">iptables -A INPUT -p tcp --syn --dport 5432 \
-    -m connlimit --connlimit-above 15 \
-    -j REJECT --reject-with tcp-reset
-    </code></pre>
-    </div>
-</section>
-
-<section class="slide">
     <h2>Настройка использования памяти</h2>
     <ul>
         <li>Определить абсолютный верхний предел объема памяти, которую PostgreSQL может использовать.</li>
@@ -328,6 +313,21 @@ include_dir = 'conf.d'</code></pre>
         <dt>maintenance_work_mem (integer)</dt>
         <dd>Задаёт максимальный объём памяти для операций обслуживания БД, в частности VACUUM, CREATE INDEX и ALTER TABLE ADD FOREIGN KEY.</dd>
     </dl>
+</section>
+
+<section class="slide">
+    <h2>Сетевые подключения</h2>
+    <h3>Внешний интерфейс</h3>
+    <pre><code>listen_addresses = '*'</code></pre>
+    <h3>Лимит на общее кол-во подключений</h3>
+    <pre><code>max_connections = 100</code></pre>
+    <div class="next">
+        <h3>Лимит на кол-во подключений с одного IP</h3>
+        <pre><code class="bash">iptables -A INPUT -p tcp --syn --dport 5432 \
+    -m connlimit --connlimit-above 15 \
+    -j REJECT --reject-with tcp-reset
+    </code></pre>
+    </div>
 </section>
 
 <section class="slide">
