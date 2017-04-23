@@ -236,6 +236,15 @@ stmt.setFetchSize(Integer.MIN_VALUE);</code></pre>
 </section>
 
 <section class="slide">
+    <h2>Особенности планировщика запросов</h2>
+    <ul>
+        <li>Планировщик очень мало знает о том, как лежат данные;</li>
+        <li>Соединение только через Neasted Loop;</li>
+        <li>Триггеры игнорируют каскадное изменение данных.</li>
+    </ul>
+</section>
+
+<section class="slide">
     <h2>Гарантированно плохие запросы</h2>
     <pre><code class="sql">SELECT title, description FROM foo
 UNION ALL
@@ -249,6 +258,21 @@ SELECT * FROM (
 ) f
 WHERE f.title LIKE 'Zombie%';
 </code></pre>
+</section>
+
+<section class="slide">
+    <h2>SELECT ... IN ...</h2>
+    <pre><code class="sql">SELECT * FROM sakila.film
+WHERE film_id
+IN (1,23,25,106,277);
+
+SELECT * FROM sakila.film
+WHERE film_id = 1
+   OR film_id = 23
+   OR film_id = 25
+   OR film_id = 106
+   OR film_id = 277;
+    </code></pre>
 </section>
 
 <section class="slide">
@@ -312,8 +336,265 @@ WHERE id = 42;</code></pre>
 
 <section class="slide">
     <h2>lower_case_table_names</h2>
-    <p>В MySQL есть изумительный параметр <code>lower_case_table_names</code>, который приводит имена всех таблиц в
-        нижний регистр и по-умолчанию включён под Windows.</p>
+    <p>В MySQL есть параметр <code>lower_case_table_names</code>, который приводит имена всех таблиц в нижний регистр и
+        по-умолчанию включён под Windows.</p>
     <p>В результате, если взять базу, у которой имена таблиц не в нижнем регистре, и развернуть её под Windows, то
         перенести эту базу обратно под Linux уже не получится.</p>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Что хорошо?</h2>
+</section>
+
+<section class="slide">
+    <h2>Секционирование</h2>
+    <pre><code class="sql">CREATE TABLE orders_range (
+    customer_surname VARCHAR(30),
+    store_id INT,
+    salesperson_id INT,
+    order_date DATE,
+    note VARCHAR(500)
+) ENGINE = InnoDB
+PARTITION BY RANGE (YEAR (order_date)) (
+    PARTITION p_old VALUES LESS THAN(2008),
+    PARTITION p_2008 VALUES LESS THAN(2009),
+    PARTITION p_2009 VALUES LESS THAN(MAXVALUE)
+);</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Секционирование</h2>
+    <h3>RANGE</h3>
+    <p>По диапазону значений</p>
+    <pre><code class="sql">PARTITION BY RANGE (store_id) (
+    PARTITION p0 VALUES LESS THAN (10),
+    PARTITION p1 VALUES LESS THAN (20),
+    PARTITION p3 VALUES LESS THAN (30)
+);</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Секционирование</h2>
+    <h3>LIST</h3>
+    <p>По точному списку значений</p>
+    <pre><code class="sql">PARTITION BY LIST(store_id) (
+    PARTITION pNorth VALUES IN (3,5,6,9,17),
+    PARTITION pEast VALUES IN (1,2,10,11,19,20)
+);</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Секционирование</h2>
+    <h3>HASH</h3>
+    <p>По хэшу от какой-либо функции</p>
+    <pre><code class="sql">PARTITION BY HASH(YEAR(hired))
+PARTITIONS 10;</code></pre>
+
+    <h3>KEY</h3>
+    <p>Почти то же самое что и HASH, но по ключу</p>
+    <pre><code class="sql">PARTITION BY KEY(s1)
+PARTITIONS 10;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Секционирование</h2>
+    <ul style="font-size: 90%" class="compact">
+        <li>Все секции должны управляться одной и той же подсистемой хранения. Например, нельзя сжать только часть
+            секций, хотя для составляющих объединенной таблицы это допустимо.
+        </li>
+        <li>Любой уникальный индекс над секционированной таблицей должен содержать столбцы, на которые ссылается функция
+            секционирования.
+        </li>
+        <li>Хотя сервер MySQL может обойтись без доступа к каждой секции при обработке запроса к секционированной
+            таблице, он тем менее ставит блокировки на все секции.
+        </li>
+        <li>Существует ряд ограничений на функции и выражения, которые можно использовать в механизме секционирования.
+        </li>
+        <li>Некоторые подсистемы хранения вообще не поддерживают секционирование.</li>
+        <li>Внешние ключи не работают.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>COLLATIONS</h2>
+    <p>MySQL для регистронезависимого сравнения использует COLLATIONS (например: utf8_general_ci):<br/>
+        <a style="font-size: 90%" href="http://collation-charts.org/mysql60/mysql604.utf8_general_ci.european.html">http://collation-charts.org/mysql60/mysql604.utf8_general_ci.european.html</a>
+    </p>
+    <h3>Проблемы PostgreSQL:</h3>
+    <ul>
+        <li>Нет регистронезависимого сравнения;</li>
+        <li>Разная сортировка на разных ОС;</li>
+        <li>Обновление libc может поломать индексы.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>libslave</h2>
+    <p>Библиотека на C++, которая может быть использована в вашем приложении для получения обновлений из MySQL. Libslave
+        не связана на уровне кодов с MySQL-сервером; она собирается и линкуется только с клиентом — libmysqlclient.</p>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Базовые параметры</h2>
+</section>
+
+<section class="slide">
+    <h2>Кэш MyISAM</h2>
+    <dl>
+        <dt>key_buffer_size</dt>
+        <dd>25 – 50 % от общего объема памяти, зарезервированного для MyISAM кэшей.</dd>
+    </dl>
+    <p>
+    <pre style="font-size: 80%"><code class="bash">key_buffer_1.key_buffer_size = 1G
+key_buffer_2.key_buffer_size = 1G</code></pre>
+    </p>
+    <p>
+    <pre style="font-size: 80%"><code class="bash">CACHE INDEX t1, t2 IN key_buffer_1;
+LOAD INDEX INTO CACHE t1, t2;</code></pre>
+    </p>
+    <p>Эту SQL-команду можно поместить в файл, выполняемый MySQL на этапе запуска. Имя файла задается с помощью
+        параметра init_file.</p>
+    <p>В нем может быть несколько SQL-команд, каждая в отдельной строке.</p>
+</section>
+
+<section class="slide white">
+    <h2>Размер блока ключей key_cache_block_size</h2>
+    <ul>
+        <li>MyISAM запрашивает блок ключей размером 1 Кбайт с диска.</li>
+        <li>ОС считывает страницу данных размером 4 Кбайт с диска, кэширует ее, а затем передает MyISAM затребованный 1
+            Кбайт.
+        </li>
+        <li>ОС отбрасывает закэшированные данные, замещая их какими-то другими.</li>
+        <li>MyISAM модифицирует блок ключей размером 1 Кбайт и просит операционную систему записать его обратно на
+            диск.
+        </li>
+        <li>ОС считывает ту же самую страницу размером 4 Кбайт с диска в свой кэш, модифицирует в ней тот килобайт,
+            который изменил MyISAM, и записывает все 4 Кбайт обратно на диск.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Кэш InnoDB</h2>
+    <dl>
+        <dt>innodb_buffer_pool_size</dt>
+        <dd>В отличие от кэша ключей MyISAM, в пуле буферов InnoDB кэшируются не только индексы, там также хранятся сами
+            данные, буфер вставок, блокировки и другие внутренние структуры. В InnoDB пулбуферов используется также для
+            реализации отложенных операций записи и позволяет объединить несколько таких процедур, чтобы затем выполнить
+            их последовательно.<br/>
+            Рекомендуется выставить до 80% физической памяти.
+        </dd>
+
+        <dt>innodb_max_dirty_pages_pct</dt>
+        <dd>Говорит InnoDB о допустимом количестве «грязных» (модифицированных) страниц в пуле буферов.</dd>
+</section>
+
+<section class="slide">
+    <h2>Кэш InnoDB</h2>
+    <p>В MySQL есть возможность сохранить состояние кэша, чтобы избежать проблемы с прогревом базы.</p>
+    <pre><code class="sql">SET GLOBAL innodb_buffer_pool_dump_at_shutdown = ON;
+SET GLOBAL innodb_buffer_pool_dump_now = ON;
+SET GLOBAL innodb_buffer_pool_load_now = ON;
+
+SHOW STATUS LIKE 'Innodb_buffer_pool_dump_status';
+SHOW STATUS LIKE 'Innodb_buffer_pool_load_status';
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Ввод / вывод в MyISAM</h2>
+    <h3>delay_key_write</h3>
+    <p>Определяет, когда будут сбрасываться данные на диск.</p>
+    <dl>
+        <dt>OFF</dt>
+        <dd>MyISAM сбрасывает измененные блоки из буфера ключей после каждой записи, если только таблица не блокирована
+            командой LOCK TABLES.
+        </dd>
+
+        <dt>ON</dt>
+        <dd>Включен режим отложенной записи ключей, но только для таблиц, созданных с параметром DELAY_KEY_WRITE.</dd>
+
+        <dt>ALL</dt>
+        <dd>Для всех таблиц типа MyISAM используется отложенная запись ключей.</dd>
+    </dl>
+    <pre><code class="sql">ALTER TABLE sometable DELAY_KEY_WRITE = 1;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Ввод / вывод в MyISAM</h2>
+    <ul>
+        <li>Если сервер аварийно завершает работу, а блоки не были сброшены на диск, то индекс будет испорчен.</li>
+        <li>Если было отложено много операций записи, то MySQL потратит больше времени на закрытие таблицы, поскольку
+            вынуждена ждать завершения записи буферов на диск.
+        </li>
+        <li>По тем же причинам команда FLUSH TABLES может занимать много времени.</li>
+        <li>Не сброшенные «грязные» блоки в буфере ключей могут не оставить места для новых блоков, считываемых с диска.
+            В таком случае выполнение запроса будет приостановлено на время, пока MyISAM не освободит достаточно места в
+            буфере ключей.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Ввод / вывод в InnoDB</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="innodb-io.png"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Ввод / вывод в InnoDB</h2>
+    <dl>
+        <dt>innodb_log_file_size</dt>
+        <dd>Общий максимальный размер файла логов транзакций.</dd>
+
+        <dt>innodb_log_files_in_group</dt>
+        <dd>Количество файлов в группе.</dd>
+
+        <dt>innodb_log_buffer_size</dt>
+        <dd>Размер буфера лога транзакций.</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Ввод / вывод в InnoDB</h2>
+    <pre><code class="sql" style="font-size: 75%">mysql> pager grep sequence
+PAGER SET TO 'grep sequence'
+
+mysql> SHOW engine innodb STATUS\G SELECT sleep(60); SHOW engine innodb STATUS\G
+Log sequence number 84 3836410803
+ 1 row IN SET (0.06 sec)
+ 1 row IN SET (1 min 0.00 sec)
+Log sequence number 84 3838334638
+ 1 row IN SET (0.05 sec)
+
+mysql> SELECT (3838334638 - 3836410803) / 1024 / 1024 AS MB_per_min;
+
++------------+
+| MB_per_min |
++------------+
+| 1.83471203 |
++------------+
+</code></pre>
+    <p>Размер лога выбираем примерно на 10-60 минут работы сервера.</p>
+</section>
+
+<section class="slide">
+    <h2>Ввод / вывод в InnoDB</h2>
+    <h3>innodb_flush_log_at_trx_commit</h3>
+    <dl>
+        <dt>0</dt>
+        <dd>Писать буфер в файл журнала и сбрасывать журнал на устройство постоянного хранения (диск) раз в секунду, но
+            ничего не делать в момент фиксации транзакции.
+        </dd>
+
+        <dt>1</dt>
+        <dd>Писать буфер в файл журнала и сбрасывать его на устройство постоянного хранения при каждой фиксации
+            транзакции.
+        </dd>
+
+        <dt>2</dt>
+        <dd>Писать буфер в файл журнала при каждой фиксации, но не сбрасывать его на устройство постоянного хранения.
+        </dd>
+    </dl>
 </section>
