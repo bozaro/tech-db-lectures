@@ -37,3 +37,77 @@ description: |
         <li>Базовые параметры при конфигурировании MySQL.</li>
     </ul>
 </section>
+
+<section class="slide">
+    <h2 class="shout">Архитектура MySQL</h2>
+</section>
+
+<section class="slide">
+    <h2>Архитектура MySQL</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="arhitecture.jpg"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Архитектура MySQL</h2>
+    <p>В MySQL различные хранилища объектов реализованы в виде подключаемых модулей.</p>
+    <p>Это порождает конфликт интересов:</p>
+    <ul>
+        <li>Подключаемые хранилищая требуют четкого и простого API для взаимодействия с ядром MySQL. Это требует, чтобы
+            ядро знало о хранилище <b>как можно меньше</b>;
+        </li>
+        <li>Для эффективного выполнения запросов нужно знать о хранении данных <b>как можно больше</b>.</li>
+    </ul>
+    <p>Данная особенность архитектуры MySQL проходит красной нитью через весь функционал.</p>
+</section>
+
+<section class="slide">
+    <h2>Подсистемы хранения: MyISAM</h2>
+    <ul>
+        <li>Блокировка и конкуренция</li>
+        <li>Автоматическое исправление</li>
+        <li>Ручное исправление<br/>
+            <code class="sql">CHECK TABLE mytable</code> и <code class="sql">REPAIR TABLE mytable</code></li>
+        <li>Индексы кэшируются отдельно</li>
+        <li>Полнотекстовый индекс</li>
+        <li>Отложенная запись ключей<br/>
+            <code class="sql">DELAY_KEY_WRITE</code></li>
+    </ul>
+    <img style="position: absolute; right: 20px; bottom: 20px; width: 210px" src="myisam.png"/>
+</section>
+
+<section class="slide">
+    <h2>Подсистемы хранения: InnoDB</h2>
+    <ul>
+        <li>Транзакции</li>
+        <li>Блокировки на уровне строк</li>
+        <li>Кластерные индексы</li>
+        <li>Внешние ключи</li>
+        <li>Возможны Deadlocks</li>
+    </ul>
+    <img style="position: absolute; right: 20px; bottom: 20px; width: 210px" src="innodb.png"/>
+</section>
+
+<section class="slide">
+    <h2>Подсистемы хранения: Memory</h2>
+    <ul>
+        <li>Данные хранятся в памяти и теряются при перезапуске</li>
+        <li>Поддерживают индексы типа HASH</li>
+        <li>Не поддерживают TEXT, BLOB, VARCHAR => CHAR</li>
+        <li>Используется для<br/>промежуточных таблиц</li>
+    </ul>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="memory.jpg"/>
+</section>
+
+<section class="slide">
+    <h2>Подсистемы хранения: критерии выбора</h2>
+    <ul>
+        <li>Транзакции</li>
+        <li>Конкурентный доступ</li>
+        <li>Резервное копирование</li>
+        <li>Восстановление после сбоя</li>
+        <li>Специальные возможности</li>
+    </ul>
+    <img style="position: absolute; right: 20px; bottom: 20px; width: 50%" src="engine.png"/>
+</section>
