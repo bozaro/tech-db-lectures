@@ -111,3 +111,209 @@ description: |
     </ul>
     <img style="position: absolute; right: 20px; bottom: 20px; width: 50%" src="engine.png"/>
 </section>
+
+<section class="slide">
+    <h2>Подсистемы хранения: надежность</h2>
+    <div style="text-align: center; height: 100%">
+        <img src="compare.png" style="height: 70%"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Подсистемы хранения: практические примеры</h2>
+    <ul>
+        <li>Протоколирование
+            <ul>
+                <li>MyISAM, Archive</li>
+                <li>Отчеты?: репликация, Merge</li>
+            </ul>
+        </li>
+        <li>Чтение, или в основном чтение
+            <ul>
+                <li>MyISAM</li>
+            </ul>
+        </li>
+        <li>Обработка заказов
+            <ul>
+                <li>InnoDB</li>
+            </ul>
+        </li>
+        <li>Распространение на дисках
+            <ul>
+                <li>MyISAM, Compressed MyISAM</li>
+            </ul>
+        </li>
+    </ul>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="choose.jpg"/>
+</section>
+
+<section class="slide">
+    <h2>Не транзакционный DDL</h2>
+    <p>Метаданные дублиются как в ядре MySQL, так и в его хранилише. Возникает проблема с транзакционным обновленим
+        метаданных.</p>
+    <p>Из-за этого DDL-запросы в MySQL не транзакционны.</p>
+    <p>То есть, любой DDL-запрос автоматически подтвержает старую транзакцию и начинает новую. Этот факт может сильно
+        усложнять написание скриптов миграции.</p>
+</section>
+
+<section class="slide">
+    <h2>Дорогой ALTER TABLE</h2>
+    <p>По той же причине, в MySQL почти любой ALTER TABLE влечет за собой полное пересоздание таблицы (по крайней мере в
+        InnoDB). В том числе это касается таких операций как удалние CONSTRAINT-ов, удаление стоблцов и создание
+        NULL-столбцов.</p>
+    <p>В большинстве СУБД подобные операции требуют только изменения метаданных и выполняются мгновенно.</p>
+</section>
+
+<section class="slide">
+    <h2>Особенности выборки данных</h2>
+    <p>By default, ResultSets are completely retrieved and stored in memory. In most cases this is the most efficient
+        way to operate and, due to the design of the MySQL network protocol, is easier to implement. If you are working
+        with ResultSets that have a large number of rows or large values and cannot allocate heap space in your JVM for
+        the memory required, you can tell the driver to stream the results back one row at a time.</p>
+    <p>To enable this functionality, create a Statement instance in the following manner:</p>
+    <pre><code class="java">stmt = conn.createStatement(
+    java.sql.ResultSet.TYPE_FORWARD_ONLY,
+    java.sql.ResultSet.CONCUR_READ_ONLY);
+stmt.setFetchSize(Integer.MIN_VALUE);</code></pre>
+    <footer class="footer"><a
+            href="https://dev.mysql.com/doc/connector-j/5.1/en/connector-j-reference-implementation-notes.html">https://dev.mysql.com/doc/connector-j/5.1/en/connector-j-reference-implementation-notes.html</a>
+    </footer>
+</section>
+
+<section class="slide">
+    <h2>Архитектура MySQL</h2>
+    <p>В MySQL хранилище и лог транзакций существуют за пределами "движка" СУБД.</p>
+    <p>Как следствие, в MySQL вместо журнала транзакций для репликации используется отдельный журнал.</p>
+</section>
+
+<section class="slide">
+    <h2>Репликация в MySQL</h2>
+    <h3>Режимы репликации:</h3>
+    <dl>
+        <dt>STATEMENT</dt>
+        <dd><p>Сохраняются непосредственно запросы, которые информаци об изменениях записей.</p></dd>
+
+        <dt>ROW</dt>
+        <dd>
+            <p>Сохраняется информаци об изменениях записей.</p>
+            <p>В случае DDL-выражений сохраняются сами запросы.</p>
+        </dd>
+
+        <dt>MIXED</dt>
+        <dd><p>Промежуточный формат, который старается использовать statement, когда возможно, а когда нет — row.</p>
+        </dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Репликация в MySQL</h2>
+    <ul>
+        <li>Репликация провоцирует больше записи на диск;</li>
+        <li>Реплика воспроизводит транзакции по очереди;</li>
+        <li>Двухфазная фиксации транзакции (между журналом транзакций и журналом репликации);</li>
+        <li>Репликация хрупкая, так как некоторые запросы гарантировано ведут к порче данных.</li>
+    </ul>
+    <div class="next">
+        <h3>Пример проблемного запроса:</h3>
+        <pre><code class="sql">ALTER TABLE foo
+  ADD id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  ADD PRIMARY KEY (id);
+    </code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Особенности планировщика запросов</h2>
+</section>
+
+<section class="slide">
+    <h2>Особенности планировщика запросов</h2>
+    <ul>
+        <li>Планировщик очень мало знает о том, как лежат данные;</li>
+        <li>Соединение только через Neasted Loop;</li>
+        <li>Триггеры игнорируют каскадное изменение данных.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Гарантированно плохие запросы</h2>
+    <pre><code class="sql">SELECT title, description FROM foo
+UNION ALL
+SELECT title, description FROM bar
+ORDER BY title;
+
+SELECT * FROM (
+    SELECT title, description
+    FROM foo
+    ORDER BY title
+) f
+WHERE f.title LIKE 'Zombie%';
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>DELETE</h2>
+    <h3>Стандартный синтаксис</h3>
+    <pre><code class="sql">DELETE FROM t1
+WHERE
+    t1.id IN (SELECT t2.id FROM t2);
+</code></pre>
+    <h3>Специфичиный синтаксис</h3>
+    <pre><code class="sql">DELETE t1
+FROM
+    t1 JOIN t2 ON (t1.id = t2.id);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Что еще плохо?</h2>
+</section>
+
+<section class="slide">
+    <h2>AUTO_INCREMENT</h2>
+    <p>Нет возможность получить значение AUTO_INCREMENT до вставки записи.</p>
+</section>
+
+<section class="slide">
+    <h2>TIMESTAMP vs DATETIME</h2>
+    <h3>TIMESTAMP:</h3>
+    <ul class="compact" style="font-size: 80%">
+        <li>Внутри хранит кол-во секунд с момента EPOC;</li>
+        <li>На клиенте учитывает временную зону;</li>
+        <li>Имеет крайне забавное значение, которое не понятно как обрабатывать: 0000-00-00 00:00:00;</li>
+        <li>Диапазон значений: от '1970-01-01 00:00:01' UTC до '2038-01-19 03:14:07' UTC;</li>
+        <li>Внезапно, по-умолчанию поле этого типа изменяет своё значение при каждом обновлении записи на текущее
+            время.
+        </li>
+    </ul>
+    <h3>DATETIME:</h3>
+    <ul class="compact" style="font-size: 80%">
+        <li>Внутри хранит дату и время;</li>
+        <li>Временная зона не влияет на значение поля;</li>
+        <li>Диапазон значений: от 0000-01-01 00:00:00 до 9999-12-31 23:59:59.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>UPDATE</h2>
+    <p>В MySQL операция UPDATE не соответвует стандарту SQL92.</p>
+    <blockquote>
+        13.9 &lt;update statement: positioned&gt;<br/>
+        6) The &lt;value expression&gt;s are effectively evaluated before updating the object row. If a &lt;value
+        expression&gt; contains a reference to a column of T, then the reference is to the value of that column in the
+        object row before any value of the object row is updated.
+    </blockquote>
+    <h3>Иллюстрируется запросом:</h3>
+    <pre><code class="sql">UPDATE foo SET
+    a = b,
+    b = a
+WHERE id = 42;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>lower_case_table_names</h2>
+    <p>В MySQL есть изумительный параметр <code>lower_case_table_names</code>, который приводит имена всех таблиц в
+        нижний регистр и по-умолчанию включён под Windows.</p>
+    <p>В результате, если взять базу, у которой имена таблиц не в нижнем регистре, и развернуть её под Windows, то
+        перенести эту базу обратно под Linux уже не получится.</p>
+</section>
