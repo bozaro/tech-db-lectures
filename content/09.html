@@ -236,15 +236,6 @@ stmt.setFetchSize(Integer.MIN_VALUE);</code></pre>
 </section>
 
 <section class="slide">
-    <h2>Особенности планировщика запросов</h2>
-    <ul>
-        <li>Планировщик очень мало знает о том, как лежат данные;</li>
-        <li>Соединение только через Neasted Loop;</li>
-        <li>Триггеры игнорируют каскадное изменение данных.</li>
-    </ul>
-</section>
-
-<section class="slide">
     <h2>Гарантированно плохие запросы</h2>
     <pre><code class="sql">SELECT title, description FROM foo
 UNION ALL
