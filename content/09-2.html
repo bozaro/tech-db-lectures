@@ -1,0 +1,112 @@
+---
+title: Лекция 9 (окончание)
+description: |
+  Рисунки на доске после окончания основных слайдов.
+---
+<section class="slide">
+    <h2>Сравнение с MySQL</h2>
+    <pre><code class="sql">CREATE TABLE k (
+  A INT NULL,
+  B NUMERIC (4, 2)
+);
+
+INSERT INTO k VALUES (NULL, 1234.5678);
+<div class="next">Query OK, 1 row affected, 1 warning (0,00 sec)</div>
+</code>
+<code class="sql next">SELECT * FROM k;
++------+-------+
+| A    | B     |
++------+-------+
+| NULL | 99.99 |
++------+-------+
+1 rows in set (0,00 sec)</code></pre>
+</section>
+
+<section class="slide">
+    <h2>WARNING vs ERROR</h2>
+    <h3>sql_mode = 'STRICT_TRANS_TABLES'</h3>
+    <p>Данная опция включена по-умолчанию с MySQL 5.7.5.</p>
+    <p>Первый General Availability релиз с данным изменением 5.7.9 вышел 21 октября 2015 года.</p>
+</section>
+
+<section class="slide">
+    <h2>WARNING vs ERROR</h2>
+    <pre><code class="sql">ALTER TABLE k
+  MODIFY COLUMN A INT NOT NULL;
+<div class="next">Query OK, 1 row affected, 1 warning (0,00 sec)</div>
+</code>
+<code class="sql next">SELECT * FROM k;
++---+-------+
+| A | B     |
++---+-------+
+| 0 | 99.99 |
++---+-------+
+1 rows in set (0,00 sec)</code></pre>
+</section>
+
+<section class="slide">
+    <h2>TIMESTAMP</h2>
+    <pre><code class="sql">CREATE TABLE k (
+  A INT NULL,
+  B NUMERIC (4, 2),
+  C TIMESTAMP
+);
+
+</code>
+<code class="sql">INSERT INTO k (A, B) VALUES (42, 22.7);
+
+</code>
+<code class="sql">SELECT * FROM k;
+<div class="next">+----+-------+---------------------+
+| A  | B     |                     |
++----+-------+---------------------+
+| 42 | 22.70 | 2017-04-27 20:27:17 |
++----+-------+---------------------+
+1 rows in set (0,00 sec)</div></code></pre>
+</section>
+
+<section class="slide">
+    <h2>TIMESTAMP</h2>
+    <pre style="font-size: 90%"><code class="sql">SELECT * FROM k;
++----+-------+---------------------+
+| A  | B     |                     |
++----+-------+---------------------+
+| 42 | 22.70 | 2017-04-27 20:27:17 |
++----+-------+---------------------+
+1 rows in set (0,00 sec)
+
+</code>
+<code class="sql">UPDATE k SET B = B + 1;
+
+</code>
+<code class="sql">SELECT * FROM k;
+<div class="next">+----+-------+---------------------+
+| A  | B     |                     |
++----+-------+---------------------+
+| 42 | 23.70 | 2017-04-27 20:27:47 |
++----+-------+---------------------+
+1 rows in set (0,00 sec)</div></code>
+</pre>
+</section>
+
+<section class="slide">
+    <h2>TIMESTAMP</h2>
+    <pre><code class="sql">CREATE TABLE k (
+  A INT NULL,
+  B NUMERIC (4, 2),
+  C TIMESTAMP,
+  D TIMESTAMP
+);
+<div class="next"></div>Error Code: 1067. Invalid default value for 'D'</code></pre>
+</section>
+
+<section class="slide">
+    <h2>GROUP BY</h2>
+    <pre><code class="sql">SELECT A, B, SUM(C)
+FROM K
+GROUP BY A;</code></pre>
+    <div class="next">
+        <h3>sql_mode = 'ONLY_FULL_GROUP_BY'</h3>
+        <p>Данная опция так же включена по-умолчанию с MySQL 5.7.5.</p>
+    </div>
+</section>
