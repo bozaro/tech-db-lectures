@@ -4,8 +4,9 @@ title: "СУБД"
 theme: "tech-template"
 
 relativeURLs: true
-disableRSS: true
-disable404: true
+disableKinds:
+- 404
+- RSS
 metadataFormat: "yaml"
 
 blackfriday:
