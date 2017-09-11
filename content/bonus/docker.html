@@ -190,6 +190,15 @@ xargs --no-run-if-empty docker rmi</code></pre>
 </section>
 
 <section class="slide">
+    <h2>Работа с томами</h2>
+    <h3>Список томов:</h3>
+    <pre><code class="bash">docker volume ls</code></pre>
+    <h3>Удалить все не используемые тома:</h3>
+    <pre><code class="bash">docker volume ls -q -f dangling=true |
+xargs --no-run-if-empty docker volume rm</code></pre>
+</section>
+
+<section class="slide">
     <h2>Работа с контейнером</h2>
     <h3>Запуск:</h3>
     <pre><code class="bash">docker run
