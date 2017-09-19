@@ -144,8 +144,7 @@ description: |
 
 <section class="slide">
     <h2>LOWER(name)</h2>
-    <pre style="font-size: 90%"><code class="sql">
-CREATE TABLE person (
+    <pre style="font-size: 90%"><code class="sql">CREATE TABLE person (
     id SERIAL PRIMARY KEY,
     name TEXT COLLATE "ru_RU.utf8",
     ...
@@ -1539,28 +1538,121 @@ JOIN Department D ON (E.DepartmentID = D.DepartmentID);
 
 <section class="slide">
     <h2>FAKE TABLE</h2>
-    <div style="font-size: 80%">
-    <pre><code class="sql">SELECT 1 AS n UNION ALL
-SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5;
+    <table class="classic bordered" style="width: 150px; position: absolute; right: 50px">
+        <thead>
+        <tr>
+            <th>n</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>2</td>
+        </tr>
+        <tr>
+            <td>3</td>
+        </tr>
+        <tr>
+            <td>4</td>
+        </tr>
+        <tr>
+            <td>5</td>
+        </tr>
+        </tbody>
+    </table>
+    <pre><code class="sql">SELECT 1 AS n
+UNION ALL
+SELECT 2
+UNION ALL
+SELECT 3
+UNION ALL
+SELECT 4
+UNION ALL
+SELECT 5;
 </code></pre>
-        <pre><code class="sql next">
-WITH RECURSIVE series(n) AS (
+
+</section>
+<section class="slide">
+    <h2>FAKE TABLE</h2>
+    <table class="classic bordered" style="width: 150px; position: absolute; right: 50px">
+        <thead>
+        <tr>
+            <th>n</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>2</td>
+        </tr>
+        <tr>
+            <td>3</td>
+        </tr>
+        <tr>
+            <td>4</td>
+        </tr>
+        <tr>
+            <td>5</td>
+        </tr>
+        </tbody>
+    </table>
+    <pre><code class="sql">WITH RECURSIVE series(n) AS (
   SELECT 1
   UNION ALL
   SELECT n + 1 FROM series WHERE n < 5
 )
 SELECT * FROM series ORDER BY n;
 </code></pre>
-        <pre><code class="sql next">
+    <pre><code class="sql next">
 SELECT n FROM unnest(ARRAY[
     1, 2, 3, 4, 5
 ]) n ORDER BY n;
 </code></pre>
-        <pre><code class="sql next">
+    <pre><code class="sql next">
 SELECT n
 FROM generate_series(1, 5) n;
 </code></pre>
-    </div>
+</section>
+
+<section class="slide">
+    <h2>FAKE TABLE</h2>
+    <table class="classic bordered" style="width: 250px; position: absolute; right: 50px">
+        <thead>
+        <tr>
+            <th>a</th>
+            <th>b</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>foo</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>bar</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>baz</td>
+        </tr>
+        </tbody>
+    </table>
+    <pre><code class="sql next">SELECT * FROM unnest(ARRAY[
+    1, 2, 3
+], ARRAY[
+    'foo', 'bar', 'baz'
+]) n (a, b) ORDER BY a;
+</code></pre>
+    <pre><code class="sql next">
+SELECT * FROM (
+  VALUES (1, 'foo'), (2, 'bar'), (3, 'baz')
+) n (a, b)
+</code></pre>
 </section>
 
 <section class="slide">
@@ -1881,7 +1973,6 @@ FROM (
     SELECT M.mID, M.year, AVG(R.stars) as stars
     FROM movie M
     JOIN rating R USING (mID)
-    GROUP BY M.mID, M.year
 ) AS R
 </code></pre>
 </section>
@@ -1891,7 +1982,7 @@ FROM (
     <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после
         1980 года.</p>
     <pre style="font-size: 80%; position: absolute"><code class="sql">
-SELECT R.s_after - R.s_before AS result
+SELECT AVG(R.s_after) - AVG(R.s_before) AS result
 FROM (
     SELECT
         AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) AS s_after,
@@ -1945,7 +2036,6 @@ VIEW name [ ( column_name [, ...] ) ]
 
 <section class="slide">
     <h2>Особенности VIEW</h2>
-    <div style="font-size: 90%">
     <pre><code class="sql">CREATE VIEW v AS
     SELECT a.id, b.id FROM a, b;
 -- ERROR: column "id" specified more than once
@@ -1956,15 +2046,7 @@ CREATE VIEW v (a_id, b_id) AS
     SELECT a.id, b.id FROM a,b;
 CREATE VIEW v AS
     SELECT a.id a_id, b.id b_id FROM a,b;
-
-CREATE VIEW v AS
-    SELECT GROUP_CONCAT(
-        DISTINCT column_name
-        ORDER BY column_name separator '+'
-    )
-    FROM table_name;
 </code></pre>
-    </div>
 </section>
 
 <section class="slide">
