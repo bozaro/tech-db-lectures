@@ -64,7 +64,7 @@ tspan {
              class="text" style="height: 100%; width: 100%; display: table; text-align: center">
             <div style="vertical-align: middle; display: table-cell">
                 LEFT JOIN F.Id2 = O.Id AND H.Grade &lt;&gt; O.Grade<br/>
-                WHERE O.Id IS NULL
+                Все с O.Id IS NULL
             </div>
         </div>
     </foreignObject>

@@ -1900,15 +1900,14 @@ CREATE TABLE friend (
 FROM highschooler AS H
 JOIN friend AS F ON (H.Id = F.Id1)
 LEFT JOIN highschooler AS O ON (F.Id2 = O.Id AND H.Grade &lt;&gt; O.Grade)
-WHERE O.Id IS NULL
 </code></pre>
     <pre class="next" style="font-size: 80%"><code class="sql">
 SELECT H.name, H.grade
 <span style="display: none">FROM highschooler AS H</span>
 <span style="display: none">JOIN friend AS F ON (H.Id = F.Id1)</span>
 <span style="display: none">LEFT JOIN highschooler AS O ON (F.Id2 = O.Id AND H.Grade &lt;&gt; O.Grade)</span>
-<span style="display: none">WHERE O.Id IS NULL</span>
 GROUP BY H.grade, H.name, H.id
+HAVING COUNT(O.Id) = 0
 ORDER BY H.grade, H.name
     </code></pre>
 </section>
