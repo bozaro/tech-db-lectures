@@ -1505,6 +1505,57 @@ VALUES (300, 1)</code></pre>
 </section>
 
 <section class="slide">
+    <h2>Уровни изолированности транзакций</h2>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <th>Уровень изоляции</th>
+        <th>Потерянное обновление</th>
+        <th>«Грязное» чтение</th>
+        <th>Неповторяющееся чтение</th>
+        <th>Фантомное чтение</th>
+        <th>Аномалии сериализации</th>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Read&nbsp;uncommited</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-y">допускается</td>
+            <td class="tx-r">возможно</td>
+            <td class="tx-r">возможно</td>
+            <td class="tx-r">возможно</td>
+        </tr>
+        <tr>
+            <td>Read&nbsp;commited</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-r">возможно</td>
+            <td class="tx-r">возможно</td>
+            <td class="tx-r">возможно</td>
+        </tr>
+        <tr>
+            <td>Repeatable&nbsp;read</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-y">допускается</td>
+            <td class="tx-r">возможно</td>
+        </tr>
+        <tr>
+            <td>Serializable</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="important next">
+        <p>Более выской уровень изоляции транзакций уменьшает количество аномалий за счет увеличения количества блокировок и вероятности отката транзакции.</p>
+    </div>
+</section>
+
+<section class="slide">
     <h2>Хранимые процедуры</h2>
     <pre style="font-size: 65%"><code class="sql">CREATE [ OR REPLACE ] FUNCTION
     name ( [ [ argmode ] [ argname ] argtype [ { DEFAULT | = } default_expr ] [, ...] ] )
