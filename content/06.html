@@ -1,6 +1,5 @@
 ---
 title: Лекция 6
-draft: true
 description: |
   Оптимизация запросов. Оптимизация структуры данных.
 
@@ -550,9 +549,12 @@ SELECT create_range_partitions('journal', 'dt',
 
 CREATE TABLE test_1 PARTITION OF test FOR VALUES FROM (100) TO (199);
 CREATE TABLE test_2 PARTITION OF test FOR VALUES FROM (200) TO (299);
+
+CREATE INDEX ON test_1 (id);
+CREATE INDEX ON test_2 (id);
 </code></pre>
     <footer class="footer"><a
-            href="https://www.keithf4.com/postgresql-10-built-in-partitioning/">https://www.keithf4.com/postgresql-10-built-in-partitioning/</a>
+            href="https://www.postgresql.org/docs/10/static/ddl-partitioning.html">https://www.postgresql.org/docs/10/static/ddl-partitioning.html</a>
     </footer>
 </section>
 
@@ -564,9 +566,9 @@ CREATE TABLE test_2 PARTITION OF test FOR VALUES FROM (200) TO (299);
     </ul>
     <h3>Минусы:</h3>
     <ul>
-        <li>Фича еще не готова :(</li>
+        <li>Не работают FOREIGN KEY;</li>
+        <li>Не работает на старых версиях PostgreSQL.</li>
     </ul>
-    <img src="untested.jpg" style="position: absolute; bottom: 0px; right: 50px"/>
 </section>
 
 <section class="slide">
@@ -702,11 +704,13 @@ WHERE i.res_id = t.res_id;
     <p>Решение «в лоб»:</p>
     <pre style="font-size: 85%"><code class="java">String sql = "INSERT INTO foo (name, description) VALUES (?, ?)";
 try (PreparedStatement ps = db.prepareStatement(sql)) {
+
     for (int i = 0; i < 100; ++i) {
         ps.setString(1, "name-" + i);
         ps.setString(2, "description-" + i);
         ps.execute();
     }
+
 }
 </code></pre>
 </section>
