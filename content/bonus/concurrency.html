@@ -1,0 +1,195 @@
+---
+title: Параллелизм
+description: |
+  Немного про параллелизм.
+
+   - Какая проблема решается?
+   - Правила игры.
+   - Пессимистичные блокировки.
+   - Оптимистичные блокировки.
+   - Lock-free.
+---
+<section class="slide">
+    <h2>Параллелизм</h2>
+    <ul>
+        <li>Какая проблема решается?</li>
+        <li>Правила игры.</li>
+        <li>Пессимистичные блокировки.</li>
+        <li>Оптимистичные блокировки.</li>
+        <li>Lock-free.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <img src="cpu.png" style="float: right; width: 450px">
+    <figure>
+        <blockquote>The Free Lunch Is Over: A Fundamental Turn Toward Concurrency in Software</blockquote>
+        <figcaption>© By Herb Sutter, March 2005</figcaption>
+    </figure>
+    <footer>
+        <ul>
+            <li><a href="http://www.gotw.ca/publications/concurrency-ddj.htm">http://www.gotw.ca/publications/concurrency-ddj.htm</a></li>
+            <li><a href="https://habrahabr.ru/post/145432/">https://habrahabr.ru/post/145432/</a></li>
+        </ul>
+    </footer>
+</section>
+
+<section class="slide">
+    <h2>Какая проблема решается?</h2>
+    <h3>Нет разделяемого состояния - нет проблем</h3>
+    <pre><code>1: SELECT * FROM account WHERE id = 42;
+1: ...
+1: UPDATE account SET money = 1234 WHERE id = 42;
+</code></pre>
+    <div class="next">
+    <h3>Процессы влияют друг на друга</h3>
+    <pre><code>1: SELECT * FROM account WHERE id = 42;
+2: SELECT * FROM account WHERE id = 42;
+1: ...
+2: ...
+1: UPDATE account SET money = 1234 WHERE id = 42;
+2: UPDATE account SET money = 2345 WHERE id = 42;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Проблема не специфична для СУБД</h2>
+        <h3>Java</h3>
+        <pre><code>class Foo {
+    private Helper helper = null;
+
+    public Helper getHelper() {
+        if (helper == null)
+            helper = new Helper();
+        return helper;
+    }
+}
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Правила игры</h2>
+    <h3>Java Memory Model (JSR 133)</h3>
+    <p>Модель памяти Java стала первой попыткой разработать исчерпывающую модель межпоточного взаимодействия для крупного языка программирования.</p>
+    <h3>ACID</h3>
+    <p>Требования к транзакционной системе, обеспечивающие наиболее надёжную и <b>предсказуемую</b> её работу.</p>
+</section>
+
+<section class="slide">
+    <h2>Пессимистичные блокировки</h2>
+    <h3>SQL</h3>
+    <pre><code>SELECT * FROM account WHERE id = 42 FOR UPDATE;
+...
+UPDATE account SET money = 1234 WHERE id = 42;
+</code></pre>
+    <div class="next">
+    <h3>Java</h3>
+    <pre><code>class Foo {
+    private Helper helper = null;
+
+    public synchronized Helper getHelper() {
+        if (helper == null)
+            helper = new Helper();
+        return helper;
+    }
+}
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Пессимистичные блокировки</h2>
+    <p>Когды вы оперируете lock’ами могут случиться четыре типа проблем:</p>
+    <ul>
+        <li>вы возьмете слишком мало локов (поломанные данные);</li>
+        <li>вы возьмете слишком много локов (deadlock, starvation);</li>
+        <li>вы возьмете не те локи (поломанные данные);</li>
+        <li>вы возьмете те локи, но не в том порядке (deadlock).</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Пессимистичные блокировки</h2>
+    <h3>DEADLOCK</h3>
+    <table class="classic bordered">
+        <tr>
+            <td>LOCK A</td>
+            <td>LOCK B</td>
+        </tr>
+        <tr>
+            <td>...</td>
+            <td>...</td>
+        </tr>
+        <tr>
+            <td>LOCK B</td>
+            <td>LOCK A</td>
+        </tr>
+        <tr>
+            <td>...</td>
+            <td>...</td>
+        </tr>
+        <tr>
+            <td>UNLOCK B</td>
+            <td>UNLOCK A</td>
+        </tr>
+        <tr>
+            <td>UNLOCK B</td>
+            <td>UNLOCK A</td>
+        </tr>
+    </table>
+    <div class="important next">
+        Для того, чтобы избежать взаимоблокировок, нужно брать блокировки в одном и том же порядке.
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Оптимистичные блокировки</h2>
+    <h3>SQL</h3>
+    <pre><code style="font-size: 90%">SELECT * FROM account WHERE id = 42 FOR UPDATE;
+...
+UPDATE account SET
+  version = 8,
+  money = 1234
+WHERE id = 42
+  AND version = 7;
+</code></pre>
+    <div class="next">
+    <h3>PostgreSQL</h3>
+    <pre><code style="font-size: 90%">SELECT xmin, * FROM account WHERE id = 42 FOR UPDATE;
+...
+UPDATE account SET
+  money = 1234
+WHERE id = 42
+  AND xmin = 1528942;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Оптимистичные VS Пессимистичные</h2>
+    <ul>
+        <li>Пессимистичные блокировки проще;</li>
+        <li>Пессимистичные блокировки подвержены DEADLOCK-ам;</li>
+        <li>Если операции редко затрагивают одни и те же данные, то оптимистичные блокировки быстрее.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Lock-free очередь</h2>
+    <pre><code>void stack_push(stack* s, node* n)
+{
+  node* head;
+  do
+  {
+    head = s->head;
+    n->next = head;
+  }
+  while (!atomic_compare_exchange(s->head, head, n));
+}</code></pre>
+    <div class="next">
+        <p>Making reliable distributed systems in the presence of sodware errors</p>
+        <p>© Joe Armstrong</p>
+    <p><a href="http://erlang.org/download/armstrong_thesis_2003.pdf">http://erlang.org/download/armstrong_thesis_2003.pdf</a></p>
+    </div>
+</section>
