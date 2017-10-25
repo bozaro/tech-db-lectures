@@ -146,7 +146,7 @@ UPDATE account SET money = 1234 WHERE id = 42;
 <section class="slide">
     <h2>Оптимистичные блокировки</h2>
     <h3>SQL</h3>
-    <pre><code style="font-size: 90%">SELECT * FROM account WHERE id = 42 FOR UPDATE;
+    <pre><code style="font-size: 90%">SELECT * FROM account WHERE id = 42;
 ...
 UPDATE account SET
   version = 8,
@@ -156,7 +156,7 @@ WHERE id = 42
 </code></pre>
     <div class="next">
     <h3>PostgreSQL</h3>
-    <pre><code style="font-size: 90%">SELECT xmin, * FROM account WHERE id = 42 FOR UPDATE;
+    <pre><code style="font-size: 90%">SELECT xmin, * FROM account WHERE id = 42;
 ...
 UPDATE account SET
   money = 1234
