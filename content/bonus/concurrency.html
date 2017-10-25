@@ -176,20 +176,27 @@ WHERE id = 42
 </section>
 
 <section class="slide">
-    <h2>Lock-free очередь</h2>
-    <pre><code>void stack_push(stack* s, node* n)
-{
+    <h2>Lock-free очередь (сильно упрощенно)</h2>
+    <pre><code class="c" style="font-size: 90%">void stack_push(stack* s, node* n) {
   node* head;
-  do
-  {
+  do {
     head = s->head;
     n->next = head;
-  }
-  while (!atomic_compare_exchange(s->head, head, n));
-}</code></pre>
-    <div class="next">
+  } while (!atomic_compare_exchange(s->head, head, n));
+}
+
+node *stack_pop(stack* s) {
+  node* head, next;
+  do {
+    head = s->head;
+    next = head->next;
+  } while (!atomic_compare_exchange(s->head, head, next));
+  return head;
+}
+</code></pre>
+    <!--div class="next">
         <p>A Pragmatic Implementation of Non-blocking Linked-Lists</p>
         <p>© Timothy L. Harris, 2001</p>
         <p><a href="2001-disc.pdf">https://timharris.uk/papers/2001-disc.pdf</a></p>
-    </div>
+    </div-->
 </section>
