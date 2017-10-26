@@ -14,7 +14,7 @@ blackfriday:
 
 params:
   author: "Навроцкий Артем"
-  agent: navrotskiy@corp.mail.ru
+  email: bozaro@yandex.ru
   description: "Лекции для Технопарка по курсу СУБД"
   highlightTheme: "idea"
   useMath: false
