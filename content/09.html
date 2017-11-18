@@ -1,6 +1,5 @@
 ---
 title: Лекция 9
-draft: true
 description: |
   Сравнение с MySQL.
 
@@ -11,9 +10,9 @@ description: |
     - Особенности репликации и лога запросов.
   - Особенности планировщика запросов;
   - Функционал, отсутствующий в PostgreSQL:
-    - Партиционирование;
-    - COLLATION;
-    - libslave.
+    - Memory-таблицы;
+    - Кластерные индексы;
+    - COLLATION.
   - Базовые параметры при конфигурировании MySQL.
 ---
 <section class="slide">
@@ -30,10 +29,9 @@ description: |
         <li>Особенности планировщика запросов;</li>
         <li>Функционал, отсутствующий в PostgreSQL:
             <ul>
-                <li>Партиционирование;</li>
                 <li>Memory-таблицы;</li>
-                <li>COLLATION;</li>
-                <li>libslave.</li>
+                <li>Кластерные индексы;</li>
+                <li>COLLATION.</li>
             </ul>
         </li>
         <li>Базовые параметры при конфигурировании MySQL.</li>
@@ -127,7 +125,6 @@ description: |
         <li>Протоколирование
             <ul>
                 <li>MyISAM, Archive</li>
-                <li>Отчеты?: репликация, Merge</li>
             </ul>
         </li>
         <li>Чтение, или в основном чтение
@@ -153,6 +150,7 @@ description: |
     <h2>Подсистемы хранения: за бортом</h2>
     <ul>
         <li>Оптимизатор;</li>
+        <li>Репликация;</li>
         <li>Схема базы;</li>
         <li>Триггеры;</li>
         <li>SEQUENCE;</li>
@@ -175,6 +173,7 @@ description: |
         InnoDB). В том числе это касается таких операций как удалние CONSTRAINT-ов, удаление стоблцов и создание
         NULL-столбцов.</p>
     <p>В большинстве СУБД подобные операции требуют только изменения метаданных и выполняются мгновенно.</p>
+    <p>С MySQ 5.7.4 появился флаг <code>ALGORITHM=INPLACE</code> для модификации таблицы без копирования её содержимого.</p>
 </section>
 
 <section class="slide">
@@ -300,18 +299,19 @@ FROM
 <section class="slide">
     <h2>WARNING vs ERROR</h2>
     <pre><code class="sql">CREATE TABLE data (
-  id   INTEGER NOT NULL,
-  data NUMERIC(4, 2)
+  id  INT NOT NULL,
+  foo INT NULL,
+  bar NUMERIC(4, 2)
 );
-INSERT INTO data VALUES (1, 1234.5678);
+INSERT INTO data VALUES (1, NULL, 1234.5678);
 <div class="next">Query OK, 1 row affected, 1 warning (0,00 sec)</div>
 </code>
 <code class="sql next">SELECT * FROM data;
-+----+-------+
-| id | data  |
-+----+-------+
-|  1 | 99.99 |
-+----+-------+
++----+------+-------+
+| id | foo  | bar   |
++----+------+-------+
+|  1 | NULL | 99.99 |
++----+------+-------+
 1 rows in set (0,00 sec)</code></pre>
 </section>
 
@@ -320,6 +320,21 @@ INSERT INTO data VALUES (1, 1234.5678);
     <h3>sql_mode = 'STRICT_TRANS_TABLES'</h3>
     <p>Данная опция включена по-умолчанию с MySQL 5.7.5.</p>
     <p>Первый General Availability релиз с данным изменением 5.7.9 вышел 21 октября 2015 года.</p>
+</section>
+
+<section class="slide">
+    <h2>WARNING vs ERROR</h2>
+    <pre><code class="sql">ALTER TABLE data
+  MODIFY COLUMN foo INT NOT NULL;
+<div class="next">Query OK, 1 row affected, 1 warning (0,00 sec)</div>
+</code>
+<code class="sql next">SELECT * FROM data;
++----+-----+-------+
+| id | foo | bar   |
++----+-----+-------+
+|  1 |   0 | 99.99 |
++----+-----+-------+
+1 rows in set (0,00 sec)</code></pre>
 </section>
 
 <section class="slide">
@@ -348,6 +363,84 @@ INSERT INTO data VALUES (1, 1234.5678);
         <li>Временная зона не влияет на значение поля;</li>
         <li>Диапазон значений: от 0000-01-01 00:00:00 до 9999-12-31 23:59:59.</li>
     </ul>
+</section>
+
+<section class="slide">
+    <h2>TIMESTAMP</h2>
+    <pre><code class="sql">CREATE TABLE k (
+  A INT NULL,
+  B NUMERIC (4, 2),
+  C TIMESTAMP
+);
+
+</code>
+<code class="sql">INSERT INTO k (A, B) VALUES (42, 22.7);
+
+</code>
+<code class="sql">SELECT * FROM k;
+<div class="next">+----+-------+---------------------+
+| A  | B     |                     |
++----+-------+---------------------+
+| 42 | 22.70 | 2017-04-27 20:27:17 |
++----+-------+---------------------+
+1 rows in set (0,00 sec)</div></code></pre>
+</section>
+
+<section class="slide">
+    <h2>TIMESTAMP</h2>
+    <pre style="font-size: 90%"><code class="sql">SELECT * FROM k;
++----+-------+---------------------+
+| A  | B     |                     |
++----+-------+---------------------+
+| 42 | 22.70 | 2017-04-27 20:27:17 |
++----+-------+---------------------+
+1 rows in set (0,00 sec)
+
+</code>
+<code class="sql">UPDATE k SET B = B + 1;
+
+</code>
+<code class="sql">SELECT * FROM k;
+<div class="next">+----+-------+---------------------+
+| A  | B     |                     |
++----+-------+---------------------+
+| 42 | 23.70 | 2017-04-27 20:27:47 |
++----+-------+---------------------+
+1 rows in set (0,00 sec)</div></code>
+</pre>
+</section>
+
+<section class="slide">
+    <h2>TIMESTAMP</h2>
+    <pre><code class="sql">CREATE TABLE k (
+  A INT NULL,
+  B NUMERIC (4, 2),
+  C TIMESTAMP,
+  D TIMESTAMP
+);
+<div class="next"></div>Error Code: 1067. Invalid default value for 'D'</code></pre>
+</section>
+
+<section class="slide">
+    <h2>TIMESTAMP</h2>
+    <pre><code class="sql">CREATE TABLE k (
+  A INT NULL,
+  B NUMERIC (4, 2),
+  C TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  D TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+<div></div>0 rows updated (0,00 sec)</code></pre>
+</section>
+
+<section class="slide">
+    <h2>GROUP BY</h2>
+    <pre><code class="sql">SELECT A, B, SUM(C)
+FROM K
+GROUP BY A;</code></pre>
+    <div class="next">
+        <h3>sql_mode = 'ONLY_FULL_GROUP_BY'</h3>
+        <p>Данная опция так же включена по-умолчанию с MySQL 5.7.5.</p>
+    </div>
 </section>
 
 <section class="slide">
@@ -455,8 +548,12 @@ PARTITIONS 10;</code></pre>
     <h3>Проблемы PostgreSQL:</h3>
     <ul>
         <li>Нет регистронезависимого сравнения;</li>
-        <li>Разная сортировка на разных ОС;</li>
-        <li>Обновление libc может поломать индексы.</li>
+        <li>Проблемы с не-iconv COLLCATION:</li>
+            <ul>
+                <li>Разная сортировка на разных ОС;</li>
+                <li>Обновление libc может поломать индексы.</li>
+            </ul>
+        </li>
     </ul>
 </section>
 
