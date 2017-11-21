@@ -355,11 +355,11 @@ SELECT title, description FROM bar
 ORDER BY title;
 
 SELECT * FROM (
-    SELECT title, description
-    FROM foo
-    ORDER BY title
+    SELECT title, MIN(description) as desc
+    FROM film
+    GROUP BY title
 ) f
-WHERE f.title LIKE 'Zombie%';
+WHERE f.title LIKE 'al%';
 </code></pre>
 </section>
 
