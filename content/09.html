@@ -16,6 +16,105 @@ description: |
   - Базовые параметры при конфигурировании MySQL.
 ---
 <section class="slide">
+    <h2>Рейтинг СУБД</h2>
+    <table style="font-size: 90%" class="striped">
+        <thead>
+        <tr>
+            <th>№</th>
+            <th>СУБД</th>
+            <th>Тип</th>
+            <th>Nov 2017</th>
+            <th>Oct 2017</th>
+            <th>Nov 2016</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>Oracle</td>
+            <td>Relational DBMS</td>
+            <td align="right">1360.05</td>
+            <td align="right" style="color: green">+11.25</td>
+            <td align="right" style="color: red">-52.96</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>MySQL</td>
+            <td>Relational DBMS</td>
+            <td align="right">1322.03</td>
+            <td align="right" style="color: green">+23.20</td>
+            <td align="right" style="color: red">-51.53</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Microsoft SQL Server</td>
+            <td>Relational DBMS</td>
+            <td align="right">1215.08</td>
+            <td align="right" style="color: green">+4.76</td>
+            <td align="right" style="color: green">+1.27</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>PostgreSQL</td>
+            <td>Relational DBMS</td>
+            <td align="right">379.92</td>
+            <td align="right" style="color: green">+6.64</td>
+            <td align="right" style="color: green">+54.10</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>MongoDB</td>
+            <td>Document store</td>
+            <td align="right">330.47</td>
+            <td align="right" style="color: green">+1.07</td>
+            <td align="right" style="color: green">+5.00</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>DB2</td>
+            <td>Relational DBMS</td>
+            <td align="right">194.06</td>
+            <td align="right" style="color: red">-0.53</td>
+            <td align="right" style="color: green">+12.61</td>
+        </tr>
+        <tr>
+            <td>7</td>
+            <td>Microsoft Access</td>
+            <td>Relational DBMS</td>
+            <td align="right">133.31</td>
+            <td align="right" style="color: green">+3.86</td>
+            <td align="right" style="color: green">+7.34</td>
+        </tr>
+        <tr>
+            <td>8</td>
+            <td>Cassandra</td>
+            <td>Wide column store</td>
+            <td align="right">124.21</td>
+            <td align="right" style="color: red">-0.58</td>
+            <td align="right" style="color: red">-9.76</td>
+        </tr>
+        <tr>
+            <td>9</td>
+            <td>Redis</td>
+            <td>Key-value store</td>
+            <td align="right">121.18</td>
+            <td align="right" style="color: red">-0.87</td>
+            <td align="right" style="color: green">+5.64</td>
+        </tr>
+        <tr>
+            <td>10</td>
+            <td>Elasticsearch</td>
+            <td>Search engine</td>
+            <td align="right">119.41</td>
+            <td align="right" style="color: red">-0.82</td>
+            <td align="right" style="color: green">+16.84</td>
+        </tr>
+        </tbody>
+    </table>
+    <p><a href="https://db-engines.com/en/ranking">https://db-engines.com/en/ranking</a></p>
+</section>
+
+<section class="slide">
     <h2>Сравнение с MySQL</h2>
     <ul>
         <li>Архитектура MySQL:
@@ -173,7 +272,8 @@ description: |
         InnoDB). В том числе это касается таких операций как удалние CONSTRAINT-ов, удаление стоблцов и создание
         NULL-столбцов.</p>
     <p>В большинстве СУБД подобные операции требуют только изменения метаданных и выполняются мгновенно.</p>
-    <p>С MySQ 5.7.4 появился флаг <code>ALGORITHM=INPLACE</code> для модификации таблицы без копирования её содержимого.</p>
+    <p>С MySQ 5.7.4 появился флаг <code>ALGORITHM=INPLACE</code> для модификации таблицы без копирования её содержимого.
+    </p>
 </section>
 
 <section class="slide">
@@ -549,10 +649,10 @@ PARTITIONS 10;</code></pre>
     <ul>
         <li>Нет регистронезависимого сравнения;</li>
         <li>Проблемы с не-iconv COLLCATION:</li>
-            <ul>
-                <li>Разная сортировка на разных ОС;</li>
-                <li>Обновление libc может поломать индексы.</li>
-            </ul>
+        <ul>
+            <li>Разная сортировка на разных ОС;</li>
+            <li>Обновление libc может поломать индексы.</li>
+        </ul>
         </li>
     </ul>
 </section>
