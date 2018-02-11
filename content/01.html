@@ -76,6 +76,25 @@ useMath: true
 </section>
 
 <section class="slide">
+    <h2>На чем писать проект?</h2>
+    <p>На "отлично" в прошлом семетсре были сданы проекты на:</p>
+    <table>
+        <thead>
+        <th>Язык программирования</th>
+        <th style="text-align: right">Кол-во</th>
+        </thead>
+        <tbody>
+        <tr><td>Java</td><td align="right">9</td></tr>
+        <tr><td>Go</td><td align="right">5</td></tr>
+        <tr><td>Node.js</td><td align="right">1</td></tr>
+        <tr><td>Kotlin</td><td align="right">1</td></tr>
+        <tr><td>Rust</td><td align="right">1</td></tr>
+        </tbody>
+    </table>
+    <p>"Эталонная" работа реализована на Go и Rust.</p>
+</section>
+
+<section class="slide">
     <h2>О плагиате</h2>
     <ul>
         <li>К сожалению, практика показывает, что студенты друг у друга списывают.</li>
@@ -101,10 +120,16 @@ useMath: true
         </thead>
         <tbody>
         <tr>
+            <td>Веста 2018</td>
+            <td>&nbsp;</td>
+            <td>44</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
             <td>Осень 2017</td>
-            <td>&nbsp;</td>
+            <td>11</td>
             <td>55</td>
-            <td>&nbsp;</td>
+            <td><span style="visibility: hidden">~</span>20%</td>
         </tr>
         <tr>
             <td>Весна 2017</td>
@@ -127,7 +152,7 @@ useMath: true
     <ul>
         <li><img src="yahoo.png" style="float: right"/>Реляционная база данных Yahoo > 2 петабайт<sup>1</sup></li>
         <li><img src="osm.png" style="float: right"/>Архив с базой данных OpenStreetMap занимает порядка
-            55Гб<sup>2</sup></li>
+            64Гб<sup>2</sup></li>
         <li>Практически ни одно приложение не обходится без БД</li>
         <li>Отсутствие готовых решений</li>
         <li>Установочные .msi файлы для Windows - это БД</li>
@@ -148,19 +173,6 @@ useMath: true
         </blockquote>
         <figcaption>Народная мудрость</figcaption>
     </figure>
-</section>
-
-<section class="slide">
-    <h2>Задача курса</h2>
-    <img src="challenge.png" style="position: absolute; bottom: 50px; right: 50px"/>
-    <ul>
-        <li>Проектирование реляционных баз данных.</li>
-        <li>Язык запросов SQL.</li>
-        <li>Оптимизация запросов и схем данных.</li>
-        <li>High-Load и Big Data.</li>
-        <li>Администрирование и настройка серверов БД.</li>
-        <li>noSQL и его использование в WEB.</li>
-    </ul>
 </section>
 
 <section class="slide">
@@ -345,6 +357,17 @@ useMath: true
 </section>
 
 <section class="slide">
+    <h2>High-Load и Big Data</h2>
+    <img src="highload.jpg" style="position: absolute; bottom: 0px; right: 50px"/>
+    <ul>
+        <li>Обзор проблем и подходов к их решению</li>
+        <li>Репликация</li>
+        <li>Шардирование</li>
+        <li>Особенности архитектуры</li>
+    </ul>
+</section>
+
+<section class="slide">
     <h2>Кратенькая история</h2>
     <ul class="compact" style="font-size: 85%">
         <li>3600 до н.э. - глиняные таблички у древних шумеров;</li>
@@ -362,6 +385,7 @@ useMath: true
         <li>2005 г. - появление Hadoop;</li>
         <li>2009 г. - появление MongoDB.</li>
     </ul>
+    <img src="floppy.jpg" style="position: absolute; width: 220px; bottom: 50px; right: 50px; z-index: -1"/>
 </section>
 
 <section class="slide">
@@ -421,7 +445,7 @@ useMath: true
     <h2>Определение БД</h2>
     <dl>
         <dt>База данных (БД)</dt>
-        <dd>Зто взаимосвязанная информация (данные) об объектах, которая организованна специальным образом и хранится на
+        <dd>Это взаимосвязанная информация (данные) об объектах, которая организованна специальным образом и хранится на
             каком-либо носителе.
         </dd>
     </dl>
