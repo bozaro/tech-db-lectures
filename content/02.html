@@ -1,6 +1,5 @@
 ---
 title: Лекция 2
-draft: true
 description: |
   Проектирование баз данных. Модификация и выборка данных (начало).
 
@@ -132,7 +131,21 @@ description: |
         <dt>Физическое проектирование</dt>
         <dd>Создание схемы базы данных для конкретной СУБД.</dd>
     </dl>
-    <img src="scheme-04.jpg" style="float: right"/>
+    <div style="position: absolute; margin-left: 35%; margin-right: 50px; text-align: right">
+		<img src="logo-firebird.png" height="80" style="padding: 10pt"/>
+		<img src="logo-mysql.png" height="80" style="padding: 10pt"/>
+		<img src="logo-pgsql.png" height="80" style="padding: 10pt"/>
+		<img src="logo-sqlite.png" height="80" style="padding: 10pt"/>
+		<img src="logo-mssql.png" height="80" style="padding: 10pt"/>
+		<img src="logo-hadoop.png" height="80" style="padding: 10pt"/>
+		<img src="logo-redis.png" height="80" style="padding: 10pt"/>
+		<img src="logo-tarantool.png" height="80" style="padding: 10pt"/>
+		<img src="logo-neo4j.svg" height="80" style="padding: 10pt" />
+		<img src="logo-orientdb.png" height="80" style="padding: 10pt" />
+		<img src="logo-cache.png" height="80" style="padding: 10pt" />
+		<br/>
+		<img src="logo-oracle.png" width="200" style="padding: 10pt" />
+	</div>
     <br/>
     <ul>
         <li>группирование данных</li>
@@ -1584,10 +1597,6 @@ FROM persons;
         </thead>
         <tbody>
         <tr>
-            <td>array_agg(expression)
-            <td>Сформировать массив значений</td>
-        </tr>
-        <tr>
             <td>avg(expression)</td>
             <td>Среднее арифмитическое</td>
         </tr>
@@ -1611,6 +1620,20 @@ FROM persons;
             <td>count(expression)</td>
             <td>Кол-во не NULL-значений</td>
         </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Агрегаторы</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Функция</th>
+            <th>Описание</th>
+        </tr>
+        </thead>
+        <tbody>
         <tr>
             <td>bit_and(expression)</td>
             <td>Битовое "И"</td>
@@ -1627,6 +1650,14 @@ FROM persons;
             <td>bool_or(expression)</td>
             <td>Логическое "ИЛИ"</td>
         </tr>
+        <tr>
+            <td>stddev(expression)</td>
+            <td>Стандартное отклонение</td>
+        </tr>
+        <tr>
+            <td>variance(expression)</td>
+            <td>Дисперсия (квадрат отклонения)</td>
+        </tr>
         </tbody>
     </table>
 </section>
@@ -1641,6 +1672,10 @@ FROM persons;
         </tr>
         </thead>
         <tbody>
+        <tr>
+            <td>array_agg(expression)
+            <td>Сформировать массив значений</td>
+        </tr>
         <tr>
             <td>json_agg(expression)</td>
             <td>Сформировать JSON-массив</td>
