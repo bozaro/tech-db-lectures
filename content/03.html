@@ -1,6 +1,5 @@
 ---
 title: Лекция 3
-draft: true
 description: |
   Выборка данных (продолжение).
 
@@ -28,6 +27,10 @@ description: |
         </li>
         <li>VIEW.</li>
     </ul>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Регистронезависимый поиск</h2>
 </section>
 
 <section class="slide">
@@ -141,6 +144,7 @@ description: |
         <li>Разное поведение COLLATION-ов под Linux/Windows/MacOS;</li>
         <li>Нет регистронезависимого сравнения.</li>
     </ul>
+    <p class="next">С PostgreSQL 10 появилась поддержка COLLATION на базе библиотеки ICU.</p>
 </section>
 
 <section class="slide">
@@ -177,6 +181,10 @@ CREATE UNIQUE INDEX uniq_name ON person (name);
 SELECT * FROM person WHERE name = 'Jack Sparrow';
 
 </code></pre>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Выборка данных</h2>
 </section>
 
 <section class="slide">
