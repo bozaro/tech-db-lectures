@@ -2022,7 +2022,7 @@ UPDATE accounts SET
   contact_first_name = (
     SELECT first_name FROM salesmen WHERE salesmen.id = accounts.sales_id
   ),
-  contact_last_name) = (
+  contact_last_name = (
     SELECT last_name  FROM salesmen WHERE salesmen.id = accounts.sales_id
   );
 </code></pre>
