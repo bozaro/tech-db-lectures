@@ -1438,8 +1438,8 @@ ORDER BY F.EmployeeID, S.EmployeeID;</span>
         <tr>
             <th>EmployeeID</th>
             <th>LastName</th>
-            <th>Country</th>
             <th>DepartmentID</th>
+            <th>Country</th>
         </tr>
         </thead>
         <tbody>
@@ -1923,8 +1923,7 @@ SELECT H.name, H.grade
 <span style="display: none">FROM highschooler AS H</span>
 <span style="display: none">JOIN friend AS F ON (H.Id = F.Id1)</span>
 <span style="display: none">LEFT JOIN highschooler AS O ON (F.Id2 = O.Id AND H.Grade &lt;&gt; O.Grade)</span>
-GROUP BY H.grade, H.name, H.id
-HAVING COUNT(O.Id) = 0
+WHERE O.Id IS NULL
 ORDER BY H.grade, H.name
     </code></pre>
 </section>
@@ -1989,6 +1988,7 @@ FROM (
     SELECT M.mID, M.year, AVG(R.stars) as stars
     FROM movie M
     JOIN rating R USING (mID)
+    GROUP BY M.mID
 ) AS R
 </code></pre>
 </section>
