@@ -1,6 +1,5 @@
 ---
 title: Лекция 4
-draft: true
 description: |
   Транзакции, триггеры и хранимые процедуры.
 
@@ -1152,6 +1151,31 @@ COMMIT;</code></pre>
 </section>
 
 <section class="slide">
+	<h2>Проблемы MVCC</h2>
+	<ul>
+		<li>MVCC работает идеально, когда мы пишем номер окончания отранзакции, но мы его заранее не знаем;</li>
+		<li>Надо как-то избавляться от "мертвых" кортежей.</li>
+	</ul>
+</section>
+
+<section class="slide">
+	<h2>Варианты реализации MVCC</h2>
+	<h3>Heap (PostgreSQL)</h3>
+	<ul class="compact" style="font-size: 90%">
+		<li>Все кортежи лежат в общей "куче".</li>
+		<li>Мертвые кортежи удаляются в фоне отдельным сборщиком мусора (AUTOVACUUM).</li>
+		<li>Фискация и откат транзакции имеют одинаковую стоимость.</li>
+	</ul>
+	<h3>Rollback segment (MySQL, Oracle)</h3>
+	<ul class="compact" style="font-size: 90%">
+		<li>В страницах таблицы лежат только актуальные данные.</li>
+		<li>Старые версии хранятся в журнале отката.</li>
+		<li>Не требуется сборщик мусора и более эффективное использование дискового пространства.</li>
+		<li>Долгий откат транзакции.</li>
+	</ul>
+</section>
+
+<section class="slide">
     <h2>Блокировки</h2>
     <div style="display: table; width: 100%; font-size: 60%">
         <div style="display: table-cell; width: 50%; padding: 10px">
@@ -1554,6 +1578,62 @@ VALUES (300, 1)</code></pre>
     <div class="important next">
         <p>Более выской уровень изоляции транзакций уменьшает количество аномалий за счет увеличения количества блокировок и вероятности отката транзакции.</p>
     </div>
+</section>
+
+<section class="slide">
+	<h2>READ COMMITED</h2>
+	<h3>Вариант A</h3>
+    <pre><code class="sql" style="font-size: 75%">SELECT id, money FROM account WHERE name = 'Romeo';
+SELECT id, money FROM account WHERE name = 'Giulietta';
+UPDATE account SET money = 500 WHERE id = 13 AND money = 600;
+UPDATE account SET money = 200 WHERE id = 42 AND money = 100;
+COMMIT;
+</code></pre>
+	<h3>Вариант B</h3>
+    <pre><code class="sql" style="font-size: 75%">SELECT id, money FROM account WHERE name = 'Romeo';
+COMMIT;
+---
+SELECT id, money FROM account WHERE name = 'Giulietta';
+COMMIT;
+---
+UPDATE account SET money = 500 WHERE id = 13 AND money = 600;
+UPDATE account SET money = 200 WHERE id = 42 AND money = 100;
+COMMIT;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Хранимые процедуры</h2>
+    <pre><code class="sql" style="font-size: 75%">CREATE TABLE test1 (a int);
+
+CREATE PROCEDURE transaction_test1()
+AS $$
+BEGIN
+	FOR i IN 0..9 LOOP
+		INSERT INTO test1 (a) VALUES (i);
+		IF i % 2 = 0 THEN
+			RAISE NOTICE 'i=%, txid=% will be committed', i, txid_current();
+			COMMIT;
+		ELSE
+			RAISE NOTICE 'i=%, txid=% will be rolledback', i, txid_current();
+			ROLLBACK;
+		END IF;
+	END LOOP;
+END
+$$
+LANGUAGE PLPGSQL;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Хранимые процедуры</h2>
+    <p>В PostgreSQL хранимые процедуры обещают с версии PostgreSQL 11.</p>
+    <p>Но пока можно довольствоваться функциями.</p>
+    <h3 class="next">Чем отличаются хранимые процедуры от функций?</h3>
+    <ul class="next">
+    	<li>Фукнции можно использовать в запросах</li>
+    	<li>Хранимые процедуры могут начинать транзакции</li>
+    </ul>
+    <footer class="footer">https://blog.2ndquadrant.com/postgresql-11-server-side-procedures-part-2/</footer>
 </section>
 
 <section class="slide">
