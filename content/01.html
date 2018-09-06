@@ -33,8 +33,8 @@ useMath: true
 <section class="slide">
     <h2>Правила игры</h2>
     <ul>
-        <li>9 лекций по реляционным СУБД (Навроцкий);</li>
-        <li>2 лекции по NoSQL (Ступников);</li>
+        <li>9 лекций по реляционным СУБД;</li>
+        <li>2 лекции по NoSQL;</li>
         <li>5 контрольных;</li>
         <li>1 семестровый проект.</li>
     </ul>
@@ -77,21 +77,21 @@ useMath: true
 
 <section class="slide">
     <h2>На чем писать проект?</h2>
-    <p>На "отлично" в прошлом семетсре были сданы проекты на:</p>
+    <p>На "отлично" в прошлых семетсрах были сданы проекты на:</p>
     <table>
         <thead>
         <th>Язык программирования</th>
         <th style="text-align: right">Кол-во</th>
         </thead>
         <tbody>
-        <tr><td>Java</td><td align="right">9</td></tr>
-        <tr><td>Go</td><td align="right">5</td></tr>
-        <tr><td>Node.js</td><td align="right">1</td></tr>
-        <tr><td>Kotlin</td><td align="right">1</td></tr>
-        <tr><td>Rust</td><td align="right">1</td></tr>
+        <tr><td>Java</td><td align="right">17</td></tr>
+        <tr><td>Go</td><td align="right">7</td></tr>
+        <tr><td>Node.js</td><td align="right">2</td></tr>
+        <tr><td>Kotlin</td><td align="right">2</td></tr>
+        <tr><td>Rust</td><td align="right">2</td></tr>
         </tbody>
     </table>
-    <p>"Эталонная" работа реализована на Go и Rust.</p>
+    <p class="next">"Эталонная" работа реализована на Go и Rust.</p>
 </section>
 
 <section class="slide">
@@ -103,7 +103,7 @@ useMath: true
         <li class="next">Весной 2017 года, если работа не прошла проверку на антиплагиат, то у него не засчитывался
             результат нагрузочного тестирования (30 баллов).
         </li>
-        <li class="next">Осенью 2017 года, если работа не прошла проверку на антиплагиат, то результат будет засчитан,
+        <li class="next">С осени 2017 года, если работа не прошла проверку на антиплагиат, то результат будет засчитан,
             если он на 20% превышет результат других студентов, использующих аналогичную работу.
         </li>
     </ul>
@@ -122,7 +122,7 @@ useMath: true
         <tr>
             <td>Осень 2018</td>
             <td>&nbsp;</td>
-            <td>&nbsp;</td>
+            <td>42</td>
             <td>&nbsp;</td>
         </tr>
         <tr>
@@ -158,7 +158,7 @@ useMath: true
     <ul>
         <li><img src="yahoo.png" style="float: right"/>Реляционная база данных Yahoo > 2 петабайт<sup>1</sup></li>
         <li><img src="osm.png" style="float: right"/>Архив с базой данных OpenStreetMap занимает порядка
-            64Гб<sup>2</sup></li>
+            69Гб<sup>2</sup></li>
         <li>Практически ни одно приложение не обходится без БД</li>
         <li>Отсутствие готовых решений</li>
         <li>Установочные .msi файлы для Windows - это БД</li>
@@ -1847,8 +1847,7 @@ CREATE TABLE region (
   FOREIGN KEY (country_id) REFERENCES country (id)
 );
 
-CREATE TABLE city
-(
+CREATE TABLE city (
   id bigserial NOT NULL PRIMARY KEY,
   region_id bigint NOT NULL,
   name varchar(128) NOT NULL,
