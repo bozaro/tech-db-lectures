@@ -185,6 +185,7 @@ f0c74fcd39ff        5 minutes ago       /bin/sh -c #(nop)  MAINTAINER Artem V. N
     <h3>Удалить образ из локального хранилища:</h3>
     <pre><code class="bash">docker rmi alpine:3.4</code></pre>
     <h3>Удалить не используемые образы:</h3>
+    <pre><code class="bash">docker images prune</code></pre>
     <pre><code class="bash">docker images -q -f dangling=true |
 xargs --no-run-if-empty docker rmi</code></pre>
 </section>
@@ -194,6 +195,7 @@ xargs --no-run-if-empty docker rmi</code></pre>
     <h3>Список томов:</h3>
     <pre><code class="bash">docker volume ls</code></pre>
     <h3>Удалить все не используемые тома:</h3>
+    <pre><code class="bash">docker volume prune</code></pre>
     <pre><code class="bash">docker volume ls -q -f dangling=true |
 xargs --no-run-if-empty docker volume rm</code></pre>
 </section>
@@ -227,12 +229,15 @@ xargs --no-run-if-empty docker volume rm</code></pre>
 <section class="slide">
     <h2>Работа с контейнером</h2>
     <h3>Удалить все остановленные контейнеры:</h3>
+    <pre><code class="bash">docker container prune</code></pre>
     <pre><code class="bash">docker ps -q -f status=exited |
 xargs --no-run-if-empty docker rm</code></pre>
     <h3>Запустить термианл внутри контейнера:</h3>
     <pre><code class="bash">docker exec -it web bash</code></pre>
     <h3>Посмотреть вывод контейнера:</h3>
     <pre><code class="bash">docker logs --tail 100 web</code></pre>
+    <h3>Удалить все неиспользуемое в данный момент:</h3>
+    <pre><code class="bash">docker system prune</code></pre>
 </section>
 
 <section class="slide">
