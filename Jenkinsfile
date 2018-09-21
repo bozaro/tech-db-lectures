@@ -63,7 +63,7 @@ git push -qf https://\${GITHUB_LOGIN}:\${GITHUB_TOKEN}@github.com/bozaro/tech-db
 
         stage ('Publish (branch)') {
             when {
-                expression { BRANCH_NAME != "" }
+                expression { BRANCH_NAME ==~ /(master|20\d\d-[12])/ }
             }
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'deploy_bozaro_ru', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_LOGIN')]) {
