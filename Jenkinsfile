@@ -1,49 +1,82 @@
-/*
-sudo apt install ghp-import
-*/
-node  ('linux') {
-  stage ('Checkout') {
-    checkout([
-      $class: 'GitSCM',
-      branches: scm.branches,
-      doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-      extensions: scm.extensions + [
-        [$class: 'CleanCheckout'],
-        [$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: true],
-      ],
-      userRemoteConfigs: scm.userRemoteConfigs
-    ])
-  }
-  stage ('Build') {
-    sh """#!/bin/bash -ex
-./hugo.sh
+pipeline {
+    agent {
+        dockerfile {
+            dir '.jenkins'
+            filename 'Dockerfile.build'
+        }
+    }
 
+    environment {
+        HOME = "$WORKSPACE"
+    }
+
+    stages {
+        stage('Cleanup') {
+            steps {
+                sh "git clean -fdx"
+            }
+        }
+
+        stage('Prepare repository') {
+            steps {
+                sh """
+git lfs pull
+git submodule update --init --recursive
+"""
+            }
+        }
+
+        stage ('Build') {
+            steps {
+                sh "./hugo.sh"
+            }
+        }
+
+        stage ('Generate gh-pages') {
+            steps {
+                sh """
 # Generage gh-pages
 git branch -fD gh-pages || true
 git branch -rd origin/gh-pages || true
 ghp-import -n public
-
-# archive
-pushd public
+"""
+                dir ("public") {
+                    sh """
 zip ../gh-pages.zip -r -q .
-popd
 """
-    archive "*.zip"
-  }
-  if (env.BRANCH_NAME != '') {
-    stage ('Publish (branch)') {
-      sshagent(credentials: ['0d1e35cd-a719-4ab9-afed-fb5d9c8ff9af']) {
-        sh 'rsync -e "ssh -o StrictHostKeyChecking=no" -rlvzc --delete-after public/ deploy@bozaro.ru:tech-db-lectures/' + env.BRANCH_NAME + '/'
-      }
-    }
-  }
-  if (env.BRANCH_NAME == 'master') {
-    stage ('Publish (master)') {
-      withCredentials([usernamePassword(credentialsId: '88e000b8-d989-4f94-b919-1cc1352a5f96', passwordVariable: 'TOKEN', usernameVariable: 'LOGIN')]) {
-        sh """
-git push -qf https://\${TOKEN}@github.com/bozaro/tech-db-lectures.git gh-pages
+                }
+            }
+        }
+
+        stage ('Publish (master)') {
+            when {
+                branch 'master'
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'github_bozaro_user', passwordVariable: 'GITHUB_TOKEN', usernameVariable: 'GITHUB_LOGIN')]) {
+                    sh """
+git push -qf https://\${GITHUB_LOGIN}:\${GITHUB_TOKEN}@github.com/bozaro/tech-db-lectures.git gh-pages
 """
-      }
+                }
+            }
+        }
+
+        stage ('Publish (branch)') {
+            when {
+                expression { BRANCH_NAME ==~ /(master|20\d\d-[12])/ }
+            }
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'deploy_bozaro_ru', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_LOGIN')]) {
+                    sh """
+rsync -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l $SSH_LOGIN -i $SSH_KEY" -rlvzc --delete-after public/ deploy@bozaro.ru:tech-db-lectures/$BRANCH_NAME
+"""
+                }
+            }
+        }
     }
-  }
+    post {
+        always {
+            archiveArtifacts artifacts: "*.zip", fingerprint: false
+        }
+    }
 }
