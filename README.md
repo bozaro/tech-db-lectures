@@ -1,6 +1,6 @@
 # О репозитории
 
-[![Build Status](https://builder.bozaro.ru/job/tech-db-lectures/job/master/badge/icon)](https://builder.bozaro.ru/job/tech-db-lectures/job/master/)
+[![Build Status](https://builder.bozaro.ru/buildStatus/icon?job=tech-db-lectures/master)](https://builder.bozaro.ru/job/tech-db-lectures/job/master/)
 
 Данный репозиторий содержит лекции для [Технопарка](https://park.mail.ru/pages/index/) по курсу СУБД.
 
