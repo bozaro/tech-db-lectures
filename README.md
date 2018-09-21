@@ -9,7 +9,8 @@
 ## Архив лекций
 
  * [master](https://tech-db-lectures.bozaro.ru/master/) - последний слайды из master-ветки;
- * [2016-2](https://tech-db-lectures.bozaro.ru/2017-2/) - осень 2017 года.
+ * [2018-1](https://tech-db-lectures.bozaro.ru/2018-1/) - весна 2018 года;
+ * [2017-2](https://tech-db-lectures.bozaro.ru/2017-2/) - осень 2017 года;
  * [2017-1](https://tech-db-lectures.bozaro.ru/2017-1/) - весна 2017 года;
  * [2016-2](https://tech-db-lectures.bozaro.ru/2016-2/) - осень 2016 года.
 
