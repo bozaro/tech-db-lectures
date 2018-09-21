@@ -1,6 +1,6 @@
 # О репозитории
 
-[![Build Status](https://travis-ci.org/bozaro/tech-db-lectures.svg?branch=master)](https://travis-ci.org/bozaro/tech-db-lectures)
+[![Build Status](https://builder.bozaro.ru/buildStatus/icon?job=tech-db-lectures/master)](https://builder.bozaro.ru/job/tech-db-lectures/job/master/)
 
 Данный репозиторий содержит лекции для [Технопарка](https://park.mail.ru/pages/index/) по курсу СУБД.
 
