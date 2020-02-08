@@ -66,10 +66,8 @@ git push -qf https://\${GITHUB_LOGIN}:\${GITHUB_TOKEN}@github.com/bozaro/tech-db
                 expression { BRANCH_NAME != "" }
             }
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'deploy_bozaro_ru', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_LOGIN')]) {
-                    sh """
-rsync -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l $SSH_LOGIN -i $SSH_KEY" -rlvzc --delete-after public/ deploy@bozaro.ru:tech-db-lectures/$BRANCH_NAME
-"""
+                sshagent(credentials: ['web-deploy']) {
+                    sh 'rsync -e "ssh -o StrictHostKeyChecking=no" -rlvzc --no-owner --no-group --delete-after public/ deploy@ivy.bozaro.ru:tech-db-lectures/$BRANCH_NAME/'
                 }
             }
         }
