@@ -133,8 +133,8 @@ description: |
 
 <section class="slide">
     <h2>Dockerfile</h2>
-    <pre><code class="text">FROM ubuntu:16.04
-MAINTAINER Artem V. Navrotskiy
+    <pre><code class="text">FROM ubuntu:18.04
+LABEL maintainer="Artem V. Navrotskiy"
 RUN apt-get -y update
 RUN apt-get install -y openjdk-8-jdk-headless
 ENV WORK /opt/tech-db-hello
@@ -168,7 +168,7 @@ c86551883943        5 minutes ago       /bin/sh -c #(nop) ADD dir:f6c361eff4dcd1
 92a00899fc26        5 minutes ago       /bin/sh -c #(nop)  ENV WORK=/opt/tech-db-hell   0 B                 
 329813b55a21        5 minutes ago       /bin/sh -c apt-get install -y openjdk-8-jdk-h   186.1 MB            
 7c973a535a50        5 minutes ago       /bin/sh -c apt-get -y update                    39.76 MB            
-f0c74fcd39ff        5 minutes ago       /bin/sh -c #(nop)  MAINTAINER Artem V. Navrot   0 B                 
+f0c74fcd39ff        5 minutes ago       /bin/sh -c #(nop)  LABEL maintainer="Artem V.   0 B
 104bec311bcd        9 weeks ago         /bin/sh -c #(nop)  CMD ["/bin/bash"]            0 B                 
 &lt;missing>           9 weeks ago         /bin/sh -c mkdir -p /run/systemd &amp;&amp; echo 'doc   7 B                 
 &lt;missing>           9 weeks ago         /bin/sh -c sed -i 's/^#\s*\(deb.*universe\)$/   1.895 kB            
@@ -181,13 +181,12 @@ f0c74fcd39ff        5 minutes ago       /bin/sh -c #(nop)  MAINTAINER Artem V. N
 <section class="slide">
     <h2>Работа с образами</h2>
     <h3>Список образов:</h3>
-    <pre><code class="bash">docker images</code></pre>
+    <pre><code class="bash">docker image ls</code></pre>
     <h3>Удалить образ из локального хранилища:</h3>
-    <pre><code class="bash">docker rmi alpine:3.4</code></pre>
+    <pre><code class="bash">docker image rm alpine:3.4</code></pre>
     <h3>Удалить не используемые образы:</h3>
-    <pre><code class="bash">docker images prune</code></pre>
-    <pre><code class="bash">docker images -q -f dangling=true |
-xargs --no-run-if-empty docker rmi</code></pre>
+    <pre><code class="bash">docker image prune</code></pre>
+    <pre><code class="bash">docker image prune --all --filter until=4h</code></pre>
 </section>
 
 <section class="slide">
@@ -196,8 +195,16 @@ xargs --no-run-if-empty docker rmi</code></pre>
     <pre><code class="bash">docker volume ls</code></pre>
     <h3>Удалить все не используемые тома:</h3>
     <pre><code class="bash">docker volume prune</code></pre>
-    <pre><code class="bash">docker volume ls -q -f dangling=true |
-xargs --no-run-if-empty docker volume rm</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Чистка одной командой</h2>
+    <h3>Где место, Лебовски?</h3>
+    <pre><code class="bash">docker system df</code></pre>
+    <h3>Удалить кэш сборки</h3>
+    <pre><code class="bash">docker builder prune</code></pre>
+    <h3>Удалить всё, что не используется</h3>
+    <pre><code class="bash">docker system prune</code></pre>
 </section>
 
 <section class="slide">
@@ -230,14 +237,12 @@ xargs --no-run-if-empty docker volume rm</code></pre>
     <h2>Работа с контейнером</h2>
     <h3>Удалить все остановленные контейнеры:</h3>
     <pre><code class="bash">docker container prune</code></pre>
-    <pre><code class="bash">docker ps -q -f status=exited |
-xargs --no-run-if-empty docker rm</code></pre>
-    <h3>Запустить термианл внутри контейнера:</h3>
+    <h3>Запустить временный контейнер:</h3>
+    <pre><code class="bash">docker run --rm -it ubuntu</code></pre>
+    <h3>Запустить терминал внутри контейнера:</h3>
     <pre><code class="bash">docker exec -it web bash</code></pre>
     <h3>Посмотреть вывод контейнера:</h3>
     <pre><code class="bash">docker logs --tail 100 web</code></pre>
-    <h3>Удалить все неиспользуемое в данный момент:</h3>
-    <pre><code class="bash">docker system prune</code></pre>
 </section>
 
 <section class="slide">
