@@ -1626,8 +1626,8 @@ LANGUAGE PLPGSQL;</code></pre>
 
 <section class="slide">
     <h2>Хранимые процедуры</h2>
-    <p>В PostgreSQL хранимые процедуры обещают с версии PostgreSQL 11.</p>
-    <p>Но пока можно довольствоваться функциями.</p>
+    <p>В PostgreSQL хранимые процедуры доступны с версии PostgreSQL 11.</p>
+    <p>В более старых версиях PostgreSQL можно довольствоваться только функциями.</p>
     <h3 class="next">Чем отличаются хранимые процедуры от функций?</h3>
     <ul class="next">
     	<li>Фукнции можно использовать в запросах</li>
@@ -1638,26 +1638,17 @@ LANGUAGE PLPGSQL;</code></pre>
 
 <section class="slide">
     <h2>Хранимые процедуры</h2>
-    <pre style="font-size: 65%"><code class="sql">CREATE [ OR REPLACE ] FUNCTION
+    <pre style="font-size: 65%"><code class="sql">CREATE [ OR REPLACE ] PROCEDURE
     name ( [ [ argmode ] [ argname ] argtype [ { DEFAULT | = } default_expr ] [, ...] ] )
-    [ RETURNS rettype
-      | RETURNS TABLE ( column_name column_type [, ...] ) ]
   { LANGUAGE lang_name
     | TRANSFORM { FOR TYPE type_name } [, ... ]
-    | WINDOW
-    | IMMUTABLE | STABLE | VOLATILE | [ NOT ] LEAKPROOF
-    | CALLED ON NULL INPUT | RETURNS NULL ON NULL INPUT | STRICT
     | [ EXTERNAL ] SECURITY INVOKER | [ EXTERNAL ] SECURITY DEFINER
-    | PARALLEL { UNSAFE | RESTRICTED | SAFE }
-    | COST execution_cost
-    | ROWS result_rows
     | SET configuration_parameter { TO value | = value | FROM CURRENT }
     | AS 'definition'
     | AS 'obj_file', 'link_symbol'
   } ...
-    [ WITH ( attribute [, ...] ) ]
 </code></pre>
-    <footer class="footer">https://www.postgresql.org/docs/9.6/static/sql-createfunction.html</footer>
+    <footer class="footer">https://www.postgresql.org/docs/11/sql-createprocedure.html</footer>
 </section>
 
 <section class="slide">
