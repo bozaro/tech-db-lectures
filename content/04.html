@@ -1638,8 +1638,9 @@ LANGUAGE PLPGSQL;</code></pre>
 
 <section class="slide">
     <h2>Хранимые процедуры</h2>
-    <pre style="font-size: 65%"><code class="sql">CREATE [ OR REPLACE ] PROCEDURE
-    name ( [ [ argmode ] [ argname ] argtype [ { DEFAULT | = } default_expr ] [, ...] ] )
+    <pre style="font-size: 75%"><code class="sql">CREATE [ OR REPLACE ] PROCEDURE
+    name ( [ [ argmode ] [ argname ]
+    argtype [ { DEFAULT | = } default_expr ] [, ...] ] )
   { LANGUAGE lang_name
     | TRANSFORM { FOR TYPE type_name } [, ... ]
     | [ EXTERNAL ] SECURITY INVOKER | [ EXTERNAL ] SECURITY DEFINER
