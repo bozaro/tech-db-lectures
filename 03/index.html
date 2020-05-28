@@ -1,0 +1,2259 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<title>СУБД. Лекция 3</title>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="generator" content="Hugo 0.27" />
+	
+	<link rel="icon" href="../common/lecture.png" />
+	
+	<link rel="stylesheet" href="../shower/themes/ribbon/styles/screen-16x10.css">
+	<link rel="stylesheet" href="../css/style.css">
+	<link rel="stylesheet" href="../highlight.js/styles/idea.min.css">
+</head>
+<body class="shower list no-math">
+	<header class="caption">
+		<h1>СУБД. Лекция 3</h1>
+	</header>
+	
+<section class="slide white" style="padding: 0" id="cover">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        СУБД
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Навроцкий Артем
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="177" y="465" width="240" height="134">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: left">
+                    <div style="vertical-align: top; display: table-cell">
+                        Лекция 3
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<section class="slide">
+    <h2>Выборка данных (продолжение)</h2>
+    <ul>
+        <li>COLLATION и регистронезависимый поиск;</li>
+        <li>Выборка данных:
+            <ul>
+                <li>Подзапросы;</li>
+                <li>Оконные функции;</li>
+                <li>UNION;</li>
+                <li>Еще раз про JOIN-ы;</li>
+                <li>Рекурсивные запросы.</li>
+            </ul>
+        </li>
+        <li>VIEW.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Регистронезависимый поиск</h2>
+</section>
+
+<section class="slide">
+    <h2>Регистронезависимый поиск</h2>
+    <ul>
+        <li>COLLATION</li>
+        <li>LOWER(name)</li>
+        <li>CITEXT</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>COLLATION</h2>
+    <p>Простая сортировка обычно даёт не тот результат, который ожидается пользователем.</p>
+    <table class="classic bordered" style="font-size: 90%">
+        <thead>
+        <tr>
+            <th width="33%">ucs_basic (C)</th>
+            <th width="34%">en_US.utf8 (ISO-14651)</th>
+            <th width="33%">ru_RU.utf8</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>_ель</td>
+            <td>ґвалт</td>
+            <td>джаз</td>
+        </tr>
+        <tr>
+            <td>Есенин</td>
+            <td>джаз</td>
+            <td>ґвалт</td>
+        </tr>
+        <tr>
+            <td>джаз</td>
+            <td>ель</td>
+            <td>ель</td>
+        </tr>
+        <tr>
+            <td>ель</td>
+            <td>_ель</td>
+            <td>_ель</td>
+        </tr>
+        <tr>
+            <td>жаркое</td>
+            <td>Есенин</td>
+            <td>Есенин</td>
+        </tr>
+        <tr>
+            <td>ёжик</td>
+            <td>ёжик</td>
+            <td>ёжик</td>
+        </tr>
+        <tr>
+            <td>ґвалт</td>
+            <td>жаркое</td>
+            <td>жаркое</td>
+        </tr>
+        </tbody>
+    </table>
+    <a href="http://collation-charts.org/mysql60/mysql604.utf8_general_ci.european.html">http://collation-charts.org/mysql60/mysql604.utf8_general_ci.european.html</a>
+</section>
+
+<section class="slide">
+    <h2>COLLATION</h2>
+    <p>В разных языках разные преобразования в верхний/нижний регистр</p>
+    <pre style="font-size: 90%"><code class="sql">SELECT
+    LOWER('WINDOWS' COLLATE "en_US.utf8"),
+    UPPER('linux' COLLATE "en_US.utf8")
+</code></pre>
+    <table class="classic bordered">
+        <thead>
+        <tr>
+            <th width="50%">lower</th>
+            <th width="50%">upper</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>windows</td>
+            <td>LINUX</td>
+        </tr>
+        </tbody>
+    </table>
+    <pre style="font-size: 90%" class="next"><code class="sql">SELECT
+    LOWER('WINDOWS' COLLATE "tr_TR.utf8"),
+    UPPER('linux' COLLATE "tr_TR.utf8")
+</code></pre>
+    <table class="classic bordered next">
+        <thead>
+        <tr>
+            <th width="50%">lower</th>
+            <th width="50%">upper</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>wındows</td>
+            <td>LİNUX</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>COLLATION</h2>
+    <p>В PostgreSQL поддержка COLLATION реализована на базе C-функции strcoll_l.</p>
+    <p>Это порождает ряд проблем:</p>
+    <ul>
+        <li>Список COLLATION-ов зависит от настроек операционной системы;</li>
+        <li>Разное поведение COLLATION-ов под Linux/Windows/MacOS;</li>
+        <li>Нет регистронезависимого сравнения.</li>
+    </ul>
+    <p class="next">С PostgreSQL 10 (окт 2019) появилась поддержка COLLATION на базе библиотеки ICU.</p>
+</section>
+
+<section class="slide">
+    <h2>LOWER(name)</h2>
+    <pre style="font-size: 90%"><code class="sql">CREATE TABLE person (
+    id SERIAL PRIMARY KEY,
+    name TEXT COLLATE "ru_RU.utf8",
+    ...
+);
+CREATE UNIQUE INDEX uniq_name ON person (LOWER(name));
+
+SELECT * FROM person WHERE LOWER(name) = LOWER('Jack Sparrow');
+
+</code></pre>
+    <p>Проблемы:</p>
+    <ul>
+        <li>Нужно не забывать LOWER(name) во всех запросах.</li>
+        <li>Если вы объявляете столбец как UNIQUE или PRIMARY KEY, неявно создаваемый индекс будет чувствительным к
+            регистру.
+        </li>
+        <ul>
+</section>
+
+<section class="slide">
+    <h2>CITEXT</h2>
+    <pre style="font-size: 90%"><code class="sql">CREATE EXTENSION IF NOT EXISTS citext;
+CREATE TABLE person (
+    id SERIAL PRIMARY KEY,
+    name CITEXT COLLATE "ru_RU.utf8",
+    ...
+);
+CREATE UNIQUE INDEX uniq_name ON person (name);
+
+SELECT * FROM person WHERE name = 'Jack Sparrow';
+
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Выборка данных</h2>
+</section>
+
+<section class="slide">
+    <h2>SELECT</h2>
+    <pre style="font-size: 70%"><code class="sql">[ WITH [ RECURSIVE ] with_query [, ...] ]
+SELECT [ ALL | DISTINCT [ ON ( expression [, ...] ) ] ]
+    [ * | expression [ [ AS ] output_name ] [, ...] ]
+    [ FROM from_item [, ...] ]
+    [ WHERE condition ]
+    [ GROUP BY grouping_element [, ...] ]
+    [ HAVING condition [, ...] ]
+    [ { UNION | INTERSECT | EXCEPT } [ ALL | DISTINCT ] select ]
+    [ ORDER BY expression [ ASC | DESC | USING operator ] [, ...] ]
+    [ LIMIT { count | ALL } ]
+    [ OFFSET start [ ROW | ROWS ] ]
+    [ FETCH { FIRST | NEXT } [ count ] { ROW | ROWS } ONLY ]
+    [ FOR { UPDATE | NO KEY UPDATE | SHARE | KEY SHARE }
+        [ OF table_name [, ...] ] [ NOWAIT | SKIP LOCKED ] [...] ]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>SUBQUERIES</h2>
+    <pre style="font-size: 90%"><code class="sql">
+SELECT
+    col0,
+    (SELECT col1 FROM table1 WHERE table1.id = table0.id),
+    (SELECT col2 FROM table1 WHERE table1.id = table0.id)
+FROM
+    table0;
+
+SELECT *
+FROM t1
+WHERE column1 = (SELECT MAX(column2) FROM t2);
+
+SELECT *
+FROM t1 AS t
+WHERE 2 = (SELECT COUNT(*) FROM t1 WHERE t1.id = t.id);</code></pre>
+</section>
+
+<section class="slide">
+    <h2>SUBQUERIES: Expressions</h2>
+    <ul class="compact">
+        <li>EXISTS (subquery)
+        <li>expression [NOT] IN (subquery)
+        <li>expression operator ANY/SOME (subquery)
+        <li>expression operator ALL (subquery)
+    </ul>
+    <pre style="font-size: 90%"><code class="sql">SELECT s1 FROM t1 WHERE s1 > ANY (SELECT s1 FROM t2);
+ 
+SELECT s1 FROM t1 WHERE s1 = ANY (SELECT s1 FROM t2);
+SELECT s1 FROM t1 WHERE s1 IN (SELECT s1 FROM t2);
+ 
+SELECT s1 FROM t1 WHERE s1 > ALL (SELECT s1 FROM t2);
+ 
+SELECT s1 FROM t1 WHERE s1 &lt;&gt; ALL (SELECT s1 FROM t2);
+SELECT s1 FROM t1 WHERE s1 NOT IN (SELECT s1 FROM t2);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>ROW SUBQUERIES</h2>
+    <pre style="font-size: 90%"><code class="sql">SELECT *
+FROM t1
+WHERE (col1, col2)
+	= (SELECT col3, col4 FROM t2 WHERE id = 10);
+ 
+SELECT *
+FROM t1
+WHERE ROW (col1, col2)
+	= (SELECT col3, col4 FROM t2 WHERE id = 10);
+
+SELECT column1, column2, column3
+FROM t1
+WHERE (column1, column2, column3)
+    IN (SELECT column1, column2, column3 FROM t2);
+</code></pre>
+</section>
+
+
+<section class="slide">
+    <h2>[NOT] EXISTS</h2>
+    <pre style="font-size: 90%"><code class="sql">SELECT DISTINCT store_type
+FROM stores
+WHERE EXISTS (
+    SELECT *
+    FROM cities_stores
+    WHERE cities_stores.store_type = stores.store_type
+);
+ 
+SELECT DISTINCT store_type
+FROM stores
+WHERE NOT EXISTS (
+    SELECT *
+    FROM cities_stores
+    WHERE cities_stores.store_type = stores.store_type
+);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>SUBQUERIES in FROM</h2>
+    <pre style="font-size: 90%"><code class="sql">SELECT ... FROM (subquery) [AS] name ...
+ 
+SELECT AVG(sum_column1)
+FROM (
+    SELECT SUM(column1) AS sum_column1
+    FROM t1
+    GROUP BY column1
+) AS t1;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Оконные функции</h2>
+    <pre style="font-size: 90%"><code class="sql">SELECT
+  ROW_NUMBER() OVER (ORDER BY age ASC) AS rownumber,
+  person_id, person_name, age
+FROM person;
+
+SELECT
+  ROW_NUMBER() OVER w AS rownumber,
+  RANK() OVER w AS ranking,
+  person_id, person_name, age
+FROM person
+WINDOW w AS (ORDER BY age ASC);
+
+SELECT
+  count(*) AS unfiltered,
+  count(*) FILTER (WHERE i < 5) AS filtered
+FROM generate_series(1,10) AS s(i);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Оконные функции</h2>
+    <table style="font-size: 90%">
+        <thead>
+        <tr>
+            <th>Функция</th>
+            <th>Описание</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>row_number()</td>
+            <td>номер текущей строки в её разделе, начиная с 1</td>
+        </tr>
+        <tr>
+            <td>rank()</td>
+            <td>ранг текущей строки с пропусками; то же, что и row_number для первой родственной ей строки</td>
+        </tr>
+        <tr>
+            <td>dense_rank()</td>
+            <td>ранг текущей строки без пропусков; эта функция считает группы родственных строк</td>
+        </tr>
+        <tr>
+            <td>percent_rank()</td>
+            <td>относительный ранг текущей строки:<br/>(rank - 1) / (общее число строк - 1)</td>
+        </tr>
+        <tr>
+            <td>first_value(any)</td>
+            <td>возвращает значение, вычисленное для первой строки в рамке окна</td>
+        </tr>
+        <tr>
+            <td>last_value(any)</td>
+            <td>возвращает значение, вычисленное для последней строки в рамке окна</td>
+        </tr>
+        <tr>
+            <td>
+                <nobr>nth_value(any, n)</nobr>
+            </td>
+            <td>возвращает значение, вычисленное в н-ой строке в рамке окна (считая с 1), или NULL, если такой строки
+                нет.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Оконные функции</h2>
+    <pre><code class="sql">SELECT DISTINCT
+  department_id,
+  FIRST_VALUE(person_name) OVER w,
+  FIRST_VALUE(age) OVER w
+FROM person
+WINDOW w as (PARTITION BY department_id);
+</code></pre>
+    <pre><code class="sql next">
+SELECT DISTINCT ON (department_id)
+  department_id,
+  person_name,
+  age
+FROM person;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>UNION</h2>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; width: 50%; padding: 10px">
+<pre style="font-size: 80%"><code class="sql">SELECT ...
+UNION [ALL | DISTINCT]
+SELECT ...
+[UNION [ALL | DISTINCT]
+SELECT ...]
+</code></pre>
+        </div>
+        <div style="display: table-cell; padding: 10px">
+            <table class="classic bordered" style="font-size: 75%">
+                <thead>
+                <tr>
+                    <th>person</th>
+                    <th>amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Joe</td>
+                    <td>1000</td>
+                </tr>
+                <tr>
+                    <td>Alex</td>
+                    <td>2000</td>
+                </tr>
+                <tr>
+                    <td>Bob</td>
+                    <td>5000</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell; padding: 10px">
+            <table class="classic bordered" style="font-size: 75%">
+                <thead>
+                <tr>
+                    <th>person</th>
+                    <th>amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Joe</td>
+                    <td>2000</td>
+                </tr>
+                <tr>
+                    <td>Alex</td>
+                    <td>2000</td>
+                </tr>
+                <tr>
+                    <td>Zach</td>
+                    <td>35000</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; width: 50%; padding: 10px">
+    <pre><code style="font-size: 80%" class="sql">SELECT * FROM sales2010
+UNION
+SELECT * FROM sales2011;
+</code></pre>
+            <table class="classic bordered" style="font-size: 75%">
+                <thead>
+                <tr>
+                    <th>person</th>
+                    <th>amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Alex</td>
+                    <td>2000</td>
+                </tr>
+                <tr>
+                    <td>Bob</td>
+                    <td>5000</td>
+                </tr>
+                <tr>
+                    <td>Joe</td>
+                    <td>1000</td>
+                </tr>
+                <tr>
+                    <td>Joe</td>
+                    <td>2000</td>
+                </tr>
+                <tr>
+                    <td>Zach</td>
+                    <td>35000</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell; width: 50%; padding: 10px">
+    <pre style="font-size: 80%"><code class="sql">SELECT * FROM sales2010
+UNION ALL
+SELECT * FROM sales2011;
+</code></pre>
+            <table class="classic bordered" style="font-size: 75%">
+                <thead>
+                <tr>
+                    <th>person</th>
+                    <th>amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Joe</td>
+                    <td>1000</td>
+                </tr>
+                <tr>
+                    <td>Alex</td>
+                    <td>2000</td>
+                </tr>
+                <tr>
+                    <td>Bob</td>
+                    <td>5000</td>
+                </tr>
+                <tr>
+                    <td>Joe</td>
+                    <td>2000</td>
+                </tr>
+                <tr>
+                    <td>Alex</td>
+                    <td>2000</td>
+                </tr>
+                <tr>
+                    <td>Zach</td>
+                    <td>35000</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Объединения таблиц (JOIN)</h2>
+</section>
+
+<section class="slide white">
+    <img src="../common/joins.svg" class="cover"/>
+</section>
+
+<section class="slide">
+    <h2>Набор данных</h2>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; width: 50%; padding: 10px">
+            <table class="classic bordered" style="font-size: 80%">
+                <thead>
+                <tr>
+                    <th colspan="2">Employee</th>
+                </tr>
+                <tr>
+                    <th>LastName</th>
+                    <th>DepartmentID</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Rafferty</td>
+                    <td>31</td>
+                </tr>
+                <tr>
+                    <td>Jones</td>
+                    <td>33</td>
+                </tr>
+                <tr>
+                    <td>Steinberg</td>
+                    <td>33</td>
+                </tr>
+                <tr>
+                    <td>Robinson</td>
+                    <td>34</td>
+                </tr>
+                <tr>
+                    <td>Smith</td>
+                    <td>34</td>
+                </tr>
+                <tr>
+                    <td>John</td>
+                    <td>
+                        <null/>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell; width: 50%; padding: 10px">
+            <table class="classic bordered" style="font-size: 80%">
+                <thead>
+                <tr>
+                    <th colspan="2">Department</th>
+                </tr>
+                <tr>
+                    <th>DepartmentID</th>
+                    <th>DepartmentName</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>31</td>
+                    <td>Sales</td>
+                </tr>
+                <tr>
+                    <td>33</td>
+                    <td>Engineering</td>
+                </tr>
+                <tr>
+                    <td>34</td>
+                    <td>Clerical</td>
+                </tr>
+                <tr>
+                    <td>35</td>
+                    <td>Marketing</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>CROSS JOIN</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT * FROM Employee CROSS JOIN Department;
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Employee.<br/>LastName</th>
+            <th>Employee.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>
+                <null/>
+            </td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>
+                <null/>
+            </td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>
+                <null/>
+            </td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>
+                <null/>
+            </td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>CROSS JOIN</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT * FROM Employee, Department;
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Employee.<br/>LastName</th>
+            <th>Employee.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>
+                <null/>
+            </td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>
+                <null/>
+            </td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>
+                <null/>
+            </td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>
+                <null/>
+            </td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>INNER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-inner.svg">
+    <pre style="font-size: 80%"><code class="sql">SELECT *
+FROM Employee
+INNER JOIN Department
+ON Employee.DepartmentID = Department.DepartmentID;
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Employee.<br/>LastName</th>
+            <th>Employee.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>INNER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-inner.svg">
+    <pre style="font-size: 80%"><code class="sql">SELECT *
+FROM Employee, Department
+WHERE Employee.DepartmentID = Department.DepartmentID;
+
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Employee.<br/>LastName</th>
+            <th>Employee.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>NATURAL JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-inner.svg">
+    <pre style="font-size: 80%"><code class="sql">SELECT *
+FROM Employee
+NATURAL JOIN Department;
+
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>DepartmentID</th>
+            <th>Employee.<br/>LastName</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>31</td>
+            <td>Rafferty</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>33</td>
+            <td>Jones</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>33</td>
+            <td>Steinberg</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>34</td>
+            <td>Robinson</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>34</td>
+            <td>Smith</td>
+            <td>Clerical</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>JOIN USING</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-inner.svg">
+    <pre style="font-size: 80%"><code class="sql">SELECT *
+FROM Employee
+JOIN Department USING (DepartmentID);
+
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>DepartmentID</th>
+            <th>Employee.<br/>LastName</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>31</td>
+            <td>Rafferty</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>33</td>
+            <td>Jones</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>33</td>
+            <td>Steinberg</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>34</td>
+            <td>Robinson</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>34</td>
+            <td>Smith</td>
+            <td>Clerical</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>LEFT OUTER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-left.svg">
+    <pre style="font-size: 80%"><code class="sql">SELECT *
+FROM Employee
+LEFT OUTER JOIN Department
+ON Employee.DepartmentID = Department.DepartmentID;
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Employee.<br/>LastName</th>
+            <th>Employee.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>RIGHT OUTER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-right.svg">
+    <pre style="font-size: 80%"><code class="sql">SELECT Employee.*, Department.*
+FROM Department
+RIGHT OUTER JOIN Employee
+ON Employee.DepartmentID = Department.DepartmentID;
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Employee.<br/>LastName</th>
+            <th>Employee.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>FULL OUTER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-full.svg">
+    <pre style="font-size: 80%"><code class="sql">SELECT *
+FROM Employee
+FULL OUTER JOIN Department
+ON Employee.DepartmentID = Department.DepartmentID;
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>Employee.<br/>LastName</th>
+            <th>Employee.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentID</th>
+            <th>Department.<br/>DepartmentName</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>31</td>
+            <td>Sales</td>
+        </tr>
+        <tr>
+            <td>Jones</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>33</td>
+            <td>Engineering</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+        </tr>
+        <tr>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>Smith</td>
+            <td>34</td>
+            <td>34</td>
+            <td>Clerical</td>
+        </tr>
+        <tr>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+            <td>35</td>
+            <td>Marketing</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>FULL OUTER JOIN</h2>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="join-full.svg">
+    <pre style="font-size: 80%"><code class="sql">SELECT *
+FROM Employee
+FULL OUTER JOIN Department
+ON Employee.DepartmentID = Department.DepartmentID;
+</code></pre>
+    <pre class="next" style="font-size: 80%"><code class="sql">
+SELECT *
+FROM Employee
+LEFT OUTER JOIN Department
+ON Employee.DepartmentID = Department.DepartmentID;
+ 
+UNION ALL
+ 
+SELECT *
+FROM Employee
+RIGHT OUTER JOIN Department
+ON Employee.DepartmentID = Department.DepartmentID
+WHERE Employee.DepartmentID IS NULL;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>SELF-JOIN</h2>
+    <pre style="font-size: 80%"><code class="sql">SELECT F.EmployeeID, F.LastName, S.EmployeeID, S.LastName, F.Country
+FROM Employee F
+INNER JOIN Employee S ON F.Country = S.Country
+<span class="next">WHERE F.EmployeeID < S.EmployeeID
+ORDER BY F.EmployeeID, S.EmployeeID;</span>
+</code></pre>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>EmployeeID</th>
+            <th>LastName</th>
+            <th>Country</th>
+            <th>DepartmentID</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>123</td>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>124</td>
+            <td>Jones</td>
+            <td>33</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>145</td>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>201</td>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>United States</td>
+        </tr>
+        <tr>
+            <td>305</td>
+            <td>Smith</td>
+            <td>34</td>
+            <td>Germany</td>
+        </tr>
+        <tr>
+            <td>306</td>
+            <td>John</td>
+            <td>
+                <null/>
+            </td>
+            <td>Germany</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>SELF-JOIN</h2>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>EmployeeID</th>
+            <th>LastName</th>
+            <th>DepartmentID</th>
+            <th>Country</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>123</td>
+            <td>Rafferty</td>
+            <td>31</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>124</td>
+            <td>Jones</td>
+            <td>33</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>145</td>
+            <td>Steinberg</td>
+            <td>33</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>201</td>
+            <td>Robinson</td>
+            <td>34</td>
+            <td>United States</td>
+        </tr>
+        <tr>
+            <td>305</td>
+            <td>Smith</td>
+            <td>34</td>
+            <td>Germany</td>
+        </tr>
+        <tr>
+            <td>306</td>
+            <td>John</td>
+            <td>
+                <null/>
+            </td>
+            <td>Germany</td>
+        </tr>
+        </tbody>
+    </table>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>F.EmployeeID</th>
+            <th>F.LastName</th>
+            <th>S.EmployeeID</th>
+            <th>S.LastName</th>
+            <th>F.Country</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>123</td>
+            <td>Rafferty</td>
+            <td>124</td>
+            <td>Jones</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>123</td>
+            <td>Rafferty</td>
+            <td>145</td>
+            <td>Steinberg</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>124</td>
+            <td>Jones</td>
+            <td>145</td>
+            <td>Steinberg</td>
+            <td>Australia</td>
+        </tr>
+        <tr>
+            <td>305</td>
+            <td>Smith</td>
+            <td>306</td>
+            <td>John</td>
+            <td>Germany</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>SUBQUERIES vs JOIN</h2>
+    <h3>Коррелирующий подзапрос</h3>
+    <pre style="font-size: 75%"><code class="sql">SELECT E.*
+FROM Employee E WHERE EXISTS (
+  SELECT *
+  FROM Department D WHERE D.DepartmentID = E.DepartmentID
+);
+</code></pre>
+    <h3>Не коррелирующий подзапрос</h3>
+    <pre style="font-size: 75%"><code class="sql">SELECT E.*
+FROM Employee E WHERE E.DepartmentID IN (
+  SELECT DepartmentID
+  FROM Department D
+);
+</code></pre>
+    <h3>JOIN</h3>
+    <pre style="font-size: 75%"><code class="sql">SELECT E.*
+FROM Employee E
+JOIN Department D ON (E.DepartmentID = D.DepartmentID);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>FAKE TABLE</h2>
+    <table class="classic bordered" style="width: 150px; position: absolute; right: 50px">
+        <thead>
+        <tr>
+            <th>n</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>2</td>
+        </tr>
+        <tr>
+            <td>3</td>
+        </tr>
+        <tr>
+            <td>4</td>
+        </tr>
+        <tr>
+            <td>5</td>
+        </tr>
+        </tbody>
+    </table>
+    <pre><code class="sql">SELECT 1 AS n
+UNION ALL
+SELECT 2
+UNION ALL
+SELECT 3
+UNION ALL
+SELECT 4
+UNION ALL
+SELECT 5;
+</code></pre>
+
+</section>
+<section class="slide">
+    <h2>FAKE TABLE</h2>
+    <table class="classic bordered" style="width: 150px; position: absolute; right: 50px">
+        <thead>
+        <tr>
+            <th>n</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>2</td>
+        </tr>
+        <tr>
+            <td>3</td>
+        </tr>
+        <tr>
+            <td>4</td>
+        </tr>
+        <tr>
+            <td>5</td>
+        </tr>
+        </tbody>
+    </table>
+    <pre><code class="sql">WITH RECURSIVE series(n) AS (
+  SELECT 1
+  UNION ALL
+  SELECT n + 1 FROM series WHERE n < 5
+)
+SELECT * FROM series ORDER BY n;
+</code></pre>
+    <pre><code class="sql next">
+SELECT n FROM unnest(ARRAY[
+    1, 2, 3, 4, 5
+]) n ORDER BY n;
+</code></pre>
+    <pre><code class="sql next">
+SELECT n
+FROM generate_series(1, 5) n;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>FAKE TABLE</h2>
+    <table class="classic bordered" style="width: 250px; position: absolute; right: 50px">
+        <thead>
+        <tr>
+            <th>a</th>
+            <th>b</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>foo</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>bar</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>baz</td>
+        </tr>
+        </tbody>
+    </table>
+    <pre><code class="sql next">SELECT * FROM unnest(ARRAY[
+    1, 2, 3
+], ARRAY[
+    'foo', 'bar', 'baz'
+]) n (a, b) ORDER BY a;
+</code></pre>
+    <pre><code class="sql next">
+SELECT * FROM (
+  VALUES (1, 'foo'), (2, 'bar'), (3, 'baz')
+) n (a, b)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Получение идентификаторов до вставки</h2>
+    <pre><code class="sql">CREATE TABLE city (
+    id bigserial NOT NULL PRIMARY KEY,
+    region_id bigint NOT NULL,
+    name varchar(128) NOT NULL
+);
+
+SELECT nextval(pg_get_serial_sequence('city', 'id'));
+</code></pre>
+    <pre><code class="sql next">
+SELECT nextval(pg_get_serial_sequence('city', 'id'))
+FROM generate_series(1, 100);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>SELF UNION</h2>
+    <pre><code class="sql">SELECT col1 FROM tbl
+UNION ALL
+SELECT col2 FROM tbl;
+</code></pre>
+    <pre><code class="sql next">
+SELECT unnest(array[col1, col2]) as col1 FROM tbl;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>WITH RECURSIVE</h2>
+    <pre><code class="sql" style="font-size: 80%">WITH RECURSIVE recursetree (id, path, name) AS (
+    SELECT id, array[id], name FROM tree
+    WHERE parent_id = 0
+  UNION ALL
+    SELECT t.id, array_append(path, t.id), t.name
+    FROM tree t
+    JOIN recursetree rt ON rt.id = t.parent_id
+  )
+SELECT id, array_to_string(path, '.') as path, name FROM recursetree
+ORDER BY path;
+</code></pre>
+    <table class="classic bordered next" style="font-size: 67%">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>path</th>
+            <th>name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>1</td>
+            <td>Россия</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>1.3</td>
+            <td>Москва</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>1.3.6</td>
+            <td>Бутово</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>2</td>
+            <td>США</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>2.4</td>
+            <td>Нью Йорк</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>2.5</td>
+            <td>Вашингтон</td>
+        </tr>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Еще немного про WITH</h2>
+    <p>Надо всем аватарам, у которых сдан квест на "Кащея" отправить "Меч кладенец" по игровой почте.</p>
+    <pre style="font-size: 65%"><code class="sql">CREATE TABLE avatar (
+    id        SERIAL PRIMARY KEY,
+    name      VARCHAR(64)
+);
+CREATE TABLE quest (
+    id        BIGSERIAL PRIMARY KEY,
+    quest_rid INT,
+    avatar_id INT REFERENCES avatar (id) ON DELETE CASCADE
+);
+CREATE TABLE mail (
+    id           SERIAL PRIMARY KEY,
+    recipient_id INT REFERENCES avatar (id) ON DELETE CASCADE,
+    mail_rid     INT
+);
+CREATE TABLE item (
+    id           BIGSERIAL PRIMARY KEY,
+    mail_id      INT REFERENCES mail (id) ON DELETE CASCADE,
+    item_rid     INT
+);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Еще немного про WITH</h2>
+    <p>Надо всем аватарам, у которых сдан квест на "Кащея" отправить "Меч кладенец" по игровой почте.</p>
+    <div style="font-size: 80%">
+    <pre><code class="sql">-- Получить всех, кто выполнил квест
+SELECT * FROM quest q WHERE q.quest_rid = 42;
+</code></pre>
+        <pre><code class="sql next">
+-- Создать письма
+INSERT INTO mail (recipient_id, mail_rid)
+SELECT q.avatar_id, 17
+FROM quest q WHERE q.quest_rid = 42;
+</code></pre>
+        <pre><code class="sql next">
+-- Создать предметы в письмах
+INSERT INTO item (mail_id, item_rid)
+SELECT mail_id, 7291
+FROM mail m WHERE ???;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Еще немного про WITH</h2>
+    <p>Надо всем аватарам, у которых сдан квест на "Кащея" отправить "Меч кладенец" по игровой почте.</p>
+    <div style="font-size: 80%">
+    <pre><code class="sql">--- Сохраняем номер последнего добавленного письма
+CREATE TEMPORARY TABLE tmp_mail ON COMMIT DROP AS
+    SELECT GREATEST(MAX(id), 0) as last_id FROM mail;
+
+-- Создать письма
+INSERT INTO mail (recipient_id, mail_rid)
+SELECT q.avatar_id, 17
+FROM quest q WHERE q.quest_rid = 42;
+</code></pre>
+        <pre><code class="sql next">
+-- Создать предметы в письмах
+INSERT INTO item (mail_id, item_rid)
+SELECT m.id, 7291
+FROM mail m WHERE m.id > (SELECT last_id FROM tmp_mail);
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Еще немного про WITH</h2>
+    <p>Надо всем аватарам, у которых сдан квест на "Кащея" отправить "Меч кладенец" по игровой почте.</p>
+    <div style="font-size: 80%">
+    <pre><code class="sql">-- Создать письма и сохранить их идентификаторы
+CREATE TEMPORARY TABLE tmp_mail ON COMMIT DROP AS
+WITH new_mail AS (
+  INSERT INTO mail (recipient_id, mail_rid)
+  SELECT q.avatar_id, 17
+  FROM quest q WHERE q.quest_rid = 42
+  RETURNING id
+)
+SELECT * FROM new_mail;
+</code></pre>
+        <pre><code class="sql next">
+-- Создать предметы в письмах
+INSERT INTO item (mail_id, item_rid)
+SELECT m.id, 7291
+FROM mail m WHERE m.id > (SELECT last_id FROM tmp_mail);
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Еще немного про WITH</h2>
+    <p>Надо всем аватарам, у которых сдан квест на "Кащея" отправить "Меч кладенец" по игровой почте.</p>
+    <div style="font-size: 80%">
+    <pre><code class="sql">-- Создать письма и предметы в письмах
+WITH new_mail AS (
+  INSERT INTO mail (recipient_id, mail_rid)
+  SELECT q.avatar_id, 17
+  FROM quest q WHERE q.quest_rid = 42
+  RETURNING id
+)
+INSERT INTO item (mail_id, item_rid)
+SELECT m.id, 7291
+FROM new_mail m;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Составление запросов</h2>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 1</h2>
+    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу,
+        затем имени в классе.</p>
+    <pre style="font-size: 90%"><code class="sql">CREATE TABLE highschooler (
+    id    BIGSERIAL PRIMARY KEY,
+    name  VARCHAR(128),
+    grade INT
+);
+
+CREATE TABLE friend (
+    id1 INT REFERENCES highschooler (id) ON DELETE CASCADE,
+    id2 INT REFERENCES highschooler (id) ON DELETE CASCADE
+);
+</code></pre>
+    <p>Дружба взаимная, если есть запись (123, 456), то есть и (456, 123).</p>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 1</h2>
+    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу,
+        затем имени в классе.</p>
+    <div style="text-align: center" class="next">
+        <img src="q1s01.svg" style="width: 75%"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 1</h2>
+    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу,
+        затем имени в классе.</p>
+    <div style="text-align: center">
+        <img src="q1s02.svg" style="width: 75%"/>
+    </div>
+    <p align="center">
+        Есть в том же классе и нет в других классах<br/>==<br/>Есть друзья и нет в других классах
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 1</h2>
+    <p>Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу,
+        затем имени в классе.</p>
+    <div style="text-align: center">
+        <img src="q1s03.svg" style="width: 75%"/>
+    </div>
+    <pre class="next" style="font-size: 80%; position: absolute;"><code class="sql">
+    <span style="display: none">SELECT H.name, H.grade</span>
+FROM highschooler AS H
+JOIN friend AS F ON (H.Id = F.Id1)
+LEFT JOIN highschooler AS O ON (F.Id2 = O.Id AND H.Grade &lt;&gt; O.Grade)
+</code></pre>
+    <pre class="next" style="font-size: 80%"><code class="sql">
+SELECT H.name, H.grade
+<span style="display: none">FROM highschooler AS H</span>
+<span style="display: none">JOIN friend AS F ON (H.Id = F.Id1)</span>
+<span style="display: none">LEFT JOIN highschooler AS O ON (F.Id2 = O.Id AND H.Grade &lt;&gt; O.Grade)</span>
+GROUP BY H.grade, H.name, H.id
+HAVING COUNT(O.Id) = 0
+ORDER BY H.grade, H.name
+    </code></pre>
+    <footer><code>COUNT</code> нельзя заменить на <code>WHERE O.Id IS NULL</code>, так как в этом случае будут найдены те, у кого есть друзья <font style="text-decoration: line-through;">только</font> в других классах.</footer>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 2</h2>
+    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после
+        1980 года.</p>
+    <pre style="font-size: 80%"><code class="sql">CREATE TABLE movie (
+    mID      SERIAL PRIMARY KEY,
+    title    VARCHAR(128),
+    year     INT,
+    director VARCHAR(128)
+);
+
+CREATE TABLE rating (
+    rID        SERIAL PRIMARY KEY,
+    mID        INT REFERENCES movie (mID) ON DELETE CASCADE,
+    stars      INT,
+    ratingDate TIMESTAMP
+);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 2</h2>
+    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после
+        1980 года.</p>
+    <pre style="font-size: 80%; position: absolute"><code class="sql">
+<span style="display: none">SELECT</span>
+<span style="display: none">    AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) AS after,</span>
+<span style="display: none">    AVG(CASE WHEN year < 1980 THEN stars ELSE NULL END) AS before</span>
+<span style="display: none">FROM (</span>
+    SELECT M.mID, M.year, AVG(R.stars) as stars
+    FROM movie M
+    JOIN rating R USING (mID)
+    GROUP BY M.mID, M.year
+<span style="display: none">) AS R</span>
+</code></pre>
+    <pre class="next" style="font-size: 80%"><code class="sql">
+SELECT
+    AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) AS after,
+    AVG(CASE WHEN year < 1980 THEN stars ELSE NULL END) AS before
+FROM (
+<span style="display: none">    SELECT M.mID, M.year, AVG(R.stars) as stars</span>
+<span style="display: none">    FROM Movie M</span>
+<span style="display: none">    JOIN Rating R USING (mID)</span>
+<span style="display: none">    GROUP BY M.mID, M.year</span>
+) AS R
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 2</h2>
+    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после
+        1980 года.</p>
+    <pre style="font-size: 80%; position: absolute"><code class="sql">
+SELECT
+    AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) -
+    AVG(CASE WHEN year < 1980 THEN stars ELSE NULL END) AS result
+FROM (
+    SELECT M.mID, M.year, AVG(R.stars) as stars
+    FROM movie M
+    JOIN rating R USING (mID)
+    GROUP BY M.mID
+) AS R
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Составление запроса. Пример 2</h2>
+    <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, и средней оценкой фильмов выпущенных после
+        1980 года.</p>
+    <pre style="font-size: 80%; position: absolute"><code class="sql">
+SELECT AVG(R.s_after) - AVG(R.s_before) AS result
+FROM (
+    SELECT
+        AVG(CASE WHEN year > 1980 THEN stars ELSE NULL END) AS s_after,
+        AVG(CASE WHEN year < 1980 THEN stars ELSE NULL END) AS s_before
+    FROM movie M 
+    JOIN rating R USING (mID)
+    GROUP BY M.mID
+) AS R
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Представления (VIEW)</h2>
+</section>
+
+<section class="slide">
+    <h2>VIEW</h2>
+    <dl>
+        <dt>Представление (VIEW)</dt>
+        <dd>Объект базы данных, являющийся результатом выполнения запроса к базе данных, определенного с помощью
+            оператора SELECT, в момент обращения к представлению.
+        </dd>
+    </dl>
+    <pre style="font-size: 90%"><code class="sql">CREATE
+    [ OR REPLACE ]
+    [ TEMP | TEMPORARY ]
+    [ RECURSIVE ]
+VIEW name [ ( column_name [, ...] ) ]
+    [ WITH ( view_option_name [= view_option_value] [, ... ] ) ]
+    AS query
+    [ WITH [ CASCADED | LOCAL ] CHECK OPTION ];
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Преимущества VIEW</h2>
+    <ul>
+        <li>Дает возможность гибкой настройки прав доступа к данным за счет того, что права даются не на таблицу, а на
+            представление.
+        </li>
+        <li>Позволяет разделить логику хранения данных и программного обеспечения.</li>
+        <li>Удобство в использовании за счет автоматического выполнения таких действий как доступ к определенной части
+            строк и/или столбцов, получение данных из нескольких таблиц и их преобразование с помощью различных функций.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Ограничения VIEW</h2>
+    <ul>
+        <li>Нельзя повесить триггер на представление;</li>
+        <li>Таблицы и представления, присутствующие в определении представления должны существовать.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Особенности VIEW</h2>
+    <pre><code class="sql">CREATE VIEW v AS
+    SELECT a.id, b.id FROM a, b;
+-- ERROR: column "id" specified more than once
+-- SQL-состояние: 42701
+</code></pre>
+        <pre class="next"><code class="sql">
+CREATE VIEW v (a_id, b_id) AS
+    SELECT a.id, b.id FROM a,b;
+CREATE VIEW v AS
+    SELECT a.id a_id, b.id b_id FROM a,b;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Особенности VIEW</h2>
+    <ul>
+        <li>Если в обоих операторах встречается условие WHERE, то оба этих условия будут выполнены как если бы они были
+            объединены оператором AND.
+        </li>
+        <li>Если в определении представления есть конструкция ORDER BY, то она будет работать только в случае отсутствия
+            во внешнем операторе SELECT, обращающемся к представлению, собственного условия сортировки. При наличии
+            конструкции ORDER BY во внешнем операторе сортировка, имеющаяся в определении представления, будет
+            проигнорирована.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Изменяемые VIEW</h2>
+    <ul>
+        <li>Список FROM в запросе, определяющем представлении, должен содержать ровно один элемент, и это должна быть
+            таблица или другое изменяемое представление.
+        </li>
+        <li>Определение представления не должно содержать предложения WITH, DISTINCT, GROUP BY, HAVING, LIMIT и OFFSET
+            на верхнем уровне запроса.
+        </li>
+        <li>Определение представления не должно содержать операции с множествами (UNION, INTERSECT и EXCEPT) на верхнем
+            уровне запроса.
+        </li>
+        <li>Список выборки в запросе не должен содержать агрегатные и оконные функции, а также функции, возвращающие
+            множества.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Изменение VIEW</h2>
+    <pre style="font-size: 80%"><code class="sql">CREATE TABLE films (
+    imdb        varchar(16) PRIMARY KEY,
+    title       varchar(40) NOT NULL,
+    kind        varchar(10)
+);
+
+CREATE OR REPLACE VIEW comedies AS
+    SELECT *
+    FROM films
+    WHERE kind = 'Comedy'
+    WITH CASCADED CHECK OPTION;
+
+INSERT INTO comedies (imdb, title, kind)
+    VALUES ('tt0114709', 'Toy Story 1', 'Animation');
+-- ERROR:  new row violates check option for view "comedies"
+-- DETAIL:  Failing row contains (tt0114709, Toy Story 1, Animation).
+
+INSERT INTO comedies (imdb, title, kind)
+    VALUES ('tt1156398', 'Zombieland', 'Comedy');
+</code></pre>
+</section>
+
+	
+<section class="slide white" style="padding: 0" id="contacts">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        Навроцкий Артем
+                        
+                        
+                        <div>E-mail: bozaro@yandex.ru</div>
+                        
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px; font-weight: bold">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Спасибо за внимание!
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<div class="progress"></div>
+	<script src="../js/common.js"></script>
+	<script src="../shower/shower.min.js"></script>
+	<script src="../highlight.js/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+	
+
+
+	<script src="../mathjax/MathJax.js?config=AM_HTMLorMML-full"></script>
+	<script>
+MathJax.Hub.Config({
+	asciimath2jax: {
+		inlineMath: [['$','$'],['\\(','\\)']],
+		processClass: "math",
+		ignoreClass: "no-math"
+	},
+	root: "..\/mathjax/"
+});
+	</script>
+
+
+</body>
+</html>

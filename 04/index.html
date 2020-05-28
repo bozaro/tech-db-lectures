@@ -1,0 +1,2121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<title>СУБД. Лекция 4</title>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="generator" content="Hugo 0.27" />
+	
+	<link rel="icon" href="../common/lecture.png" />
+	
+	<link rel="stylesheet" href="../shower/themes/ribbon/styles/screen-16x10.css">
+	<link rel="stylesheet" href="../css/style.css">
+	<link rel="stylesheet" href="../highlight.js/styles/idea.min.css">
+</head>
+<body class="shower list no-math">
+	<header class="caption">
+		<h1>СУБД. Лекция 4</h1>
+	</header>
+	
+<section class="slide white" style="padding: 0" id="cover">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        СУБД
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Навроцкий Артем
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="177" y="465" width="240" height="134">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: left">
+                    <div style="vertical-align: top; display: table-cell">
+                        Лекция 4
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<div>
+    <style>
+tr.read {
+    background: linear-gradient(
+        -45deg,
+        transparent 49.9%,
+        skyblue 49.9%,
+        skyblue 60%,
+        transparent 60%
+    ), linear-gradient(
+        -45deg,
+        skyblue 10%,
+        transparent 10%
+    );
+    background-size: 8px 8px;
+}
+
+tr.update {
+    background-color: #ffb !important;
+}
+
+tr.delete {
+    background-color: #fbb !important;
+}
+
+tr.insert {
+    background-color: #bfb !important;
+    font-weight: bold;
+}
+
+.changed {
+    font-weight: bold;
+}
+
+.obsolete {
+    font-style: italic;
+}
+
+.label-l, .label-r {
+    position: absolute;
+    padding-top: 2px;
+    height: 36px;
+    font-size: 80%;
+    font-weight: bold;
+    font-style: normal;
+}
+
+.label-l {
+    left: 100px;
+    width: 99px;
+    padding-left: 6px;
+}
+
+.label-l:after {
+    content: "";
+    position: absolute;
+    top: 0px;
+    left: 98px;
+    height: 36px;
+    width: 19px;
+    border: 18px solid transparent;
+    border-right: 0;
+}
+
+.update .label-l {
+    background-color: #ffb;
+}
+
+.delete .label-l {
+    background-color: #fbb;
+}
+
+.insert .label-l {
+    background-color: #bfb;
+}
+
+.update .label-l:after {
+    border-left-color: #ffb;
+}
+
+.delete .label-l:after {
+    border-left-color: #fbb;
+}
+
+.insert .label-l:after {
+    border-left-color: #bfb;
+}
+
+.read .label-r {
+    background-color: #bbf;
+}
+
+.read .label-r:before {
+    border-right-color: #bbf;
+}
+
+.label-r {
+    right: 100px;
+    width: 99px;
+    padding-left: 6px;
+}
+
+.label-r:before {
+    content: "";
+    position: absolute;
+    top: 0px;
+    right: 98px;
+    height: 36px;
+    width: 19px;
+    border: 18px solid transparent;
+    border-left: 0;
+}
+
+.mvcc {
+    margin-left: 120px;
+    margin-right: 120px;
+}
+
+.mvcc table {
+    width: 100%;
+}
+
+.tx-r, .tx-g, .tx-y {
+    text-align: center;
+}
+
+.tx-r {
+    background-color: #fbb !important;
+}
+
+.tx-g {
+    background-color: #bfb !important;
+}
+
+.tx-y {
+    background-color: #ffb !important;
+}
+    </style>
+</div>
+<section class="slide">
+    <h2>Транзакции, триггеры и процедуры</h2>
+    <ul>
+        <li>Транзакции:
+            <ul class="compact">
+                <li>Обеспечение долговечности. Журнал транзакций;</li>
+                <li>Обеспечение изолированности и атомарности. MVCC;</li>
+                <li>Уровни изолированности транзакций.</li>
+            </ul>
+        </li>
+        <li>Триггеры:
+            <ul class="compact">
+                <li>Использование триггеров для поддержания целостности и бизнес-логики;</li>
+                <li>Недостатки триггеров.</li>
+            </ul>
+        </li>
+        <li>Хранимые процедуры и функции</li>
+        <li>Распределенные транзакции (XA) и персистентные очереди.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>ACID</h2>
+    <img style="position: absolute; right: 50px; bottom: 50px; border: 1px solid black" height="280" src="jim-gray.jpg">
+    <p>ACID описывает требования к транзакционной системе, обеспечивающие наиболее надёжную и предсказуемую её работу.
+        Требования ACID были в основном сформулированы в конце 70-х годов Джимом Греем.</p>
+    <ul>
+        <li><b>A</b>tomicity — Атомарность</li>
+        <li><b>C</b>onsistency — Согласованность</li>
+        <li><b>I</b>solation — Изолированность</li>
+        <li><b>D</b>urability — Долговечность</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Atomicity — Атомарность</h2>
+    <img style="position: absolute; right: 50px; bottom: 50px" height="320" src="atomicity.png">
+    <p>Атомарность гарантирует, что никакая транзакция не будет зафиксирована в системе частично. Будут либо выполнены
+        все её подоперации, либо не выполнено ни одной.</p>
+</section>
+
+<section class="slide">
+    <h2>Consistency — Согласованность</h2>
+    <img style="position: absolute; right: 50px; bottom: 50px" height="320" src="consistency.png">
+    <p>Транзакция, достигающая своего нормального завершения и, фиксирующая свои результаты, сохраняет согласованность
+        базы данных.</p>
+    <p>Другими словами, каждая успешная транзакция по определению фиксирует только допустимые результаты.</p>
+</section>
+
+<section class="slide">
+    <h2>Isolation — Изолированность</h2>
+    <img style="position: absolute; right: 50px; bottom: 50px" height="320" src="isolation.png">
+    <p>Во время выполнения транзакции параллельные транзакции не должны оказывать влияние на её результат.</p>
+</section>
+
+<section class="slide">
+    <h2>Durability — Долговечность</h2>
+    <img style="position: absolute; right: 50px; bottom: 50px" height="320" src="durability.png">
+    <p>Независимо от проблем на нижних уровнях (к примеру, обесточивание системы или сбои в оборудовании) изменения,
+        сделанные успешно завершённой транзакцией, должны остаться сохранёнными после возвращения системы в работу.</p>
+</section>
+
+<section class="slide">
+    <h2>Пример транзакции</h2>
+    <pre><code class="sql">BEGIN;
+
+UPDATE accounts SET balance = balance - 100.00
+    WHERE name = 'Alice';
+
+UPDATE accounts SET balance = balance + 100.00
+    WHERE name = 'Bob';
+
+COMMIT;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Журнал транзакций</h2>
+    <p>В простейшем случае журнализация изменений заключается в последовательной записи всех изменений, выполняемых в
+        базе данных.</p>
+    <p>Записывается следующая информация:</p>
+    <ul class="compact">
+        <li>порядковый номер, тип и время изменения;</li>
+        <li>идентификатор транзакции;</li>
+        <li>объект, подвергшийся изменению (номер хранимого файла и номер блока данных в нём, номер строки внутри
+            блока);
+        </li>
+        <li>предыдущее состояние объекта и новое состояние объекта.</li>
+    </ul>
+    <p>Журнал содержит отметки начала и завершения транзакции, и отметки принятия контрольной точки.</p>
+</section>
+
+<section class="slide">
+    <h2>Журнал транзакций</h2>
+    <img style="position: absolute; right: 50px; bottom: 50px" height="280" src="hdd.png">
+    <p>Общий алгоритм:</p>
+    <ul class="compact">
+        <li>измения пишутся в журнал транзакций (состояние до и после) и изменяются страницы БД в памяти;</li>
+        <li>в журнал транзакций сбрасывается маркер успешного завершения транзакции;</li>
+        <li>журнал транзакций сбрасывается на диск;</li>
+        <li>данные страниц БД пишутся на диск;</li>
+        <li>данные страниц БД сбрасываются на диск.</li>
+    </ul>
+    <div class="important next" style="width: 550px">
+        <p>Минимальное время транзакции не меньше времени сброса данных на диск.</p>
+    </div>
+    <footer class="footer">https://habrahabr.ru/post/181584/</footer>
+</section>
+
+<section class="slide">
+    <h2>Приблизительные значения IOPS</h2>
+    <table class="classic">
+        <thead>
+        <tr>
+            <th>Тип</th>
+            <th>Устройство</th>
+            <th>IOPS</th>
+            <th>Интерфейс</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>HDD</td>
+            <td>7,200 об/мин SATA-диски</td>
+            <td>~75-100</td>
+            <td>SATA 3 Гбит/с</td>
+        </tr>
+        <tr>
+            <td>HDD</td>
+            <td>10,000 об/мин SATA-диски</td>
+            <td>~125-150</td>
+            <td>SATA 3 Гбит/с</td>
+        </tr>
+        <tr>
+            <td>HDD</td>
+            <td>10,000 об/мин SAS-диски</td>
+            <td>~140</td>
+            <td>SAS</td>
+        </tr>
+        <tr>
+            <td>HDD</td>
+            <td>15,000 об/мин SAS-диски</td>
+            <td>~175-210</td>
+            <td>SAS</td>
+        </tr>
+        <tr>
+            <td>SSD</td>
+            <td>Intel X25-M G2 MLC</td>
+            <td>~8 600</td>
+            <td>SATA 3 Гбит/с</td>
+        </tr>
+        <tr>
+            <td>SSD</td>
+            <td>OCZ Vertex 3</td>
+            <td>~60 000 (4K)</td>
+            <td>SATA 6 Гбит/с</td>
+        </tr>
+        <tr>
+            <td>SSD</td>
+            <td>OCZ Vertex 3 MAX IOPS</td>
+            <td>~75 000 (4K)</td>
+            <td>SATA 6 Гбит/с</td>
+        </tr>
+        <tr>
+            <td>SSD</td>
+            <td>OCZ Vertex 4</td>
+            <td>~120 000 IOPS (4K)</td>
+            <td>SATA 6 Гбит/с</td>
+        </tr>
+        <tr>
+            <td>SSD</td>
+            <td>OCZ RevoDrive 3 X2</td>
+            <td>~200 000 IOPS (4K)</td>
+            <td>PCIe</td>
+        </tr>
+        <tr>
+            <td>SSD</td>
+            <td>OCZ Z-Drive R4 CloudServ</td>
+            <td>~500 000 IOPS</td>
+            <td>PCIe</td>
+        </tr>
+        </tbody>
+    </table>
+    <footer class="footer">https://ru.wikipedia.org/wiki/IOPS</footer>
+</section>
+
+<section class="slide">
+    <h2>Групповой коммит</h2>
+    <div style="text-align: center">
+        <img src="group-commit.svg" style="height: 430px"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Журнал транзакций. Бонус</h2>
+    <img style="position: absolute; right: 50px; bottom: 50px" height="360" src="bonus.png">
+    <p>На базе журнала транзакций так же реализуется ряд дополнительных возможностей:</p>
+    <ul>
+        <li>Point in time recovery;</li>
+        <li>Репликация.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Изолированность. MVCC</h2>
+    <dl>
+        <dt>MVCC</dt>
+        <dd>MultiVersion Concurrency Control</dd>
+    </dl>
+    <ul>
+        <li>Разные пользователи могут одновременно работать с одними и теми же данными;</li>
+        <li>Каждый пользователь видит свой изолированный срез данных;</li>
+        <li>Изменения, вносимые пользователем, никому не видны до завершения транзации.</li>
+    </ul>
+    <footer class="footer">
+        <ul>
+            <li>https://www.slideshare.net/robertsosinski/mvcc-robert-sosinski</li>
+            <li>http://momjian.us/main/writings/pgsql/mvcc.pdf</li>
+        </ul>
+    </footer>
+</section>
+
+<section class="slide">
+    <h2>UPDATE IN PLACE 1: TABLE</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talking to alice</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>UPDATE IN PLACE 2: SCAN</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="read">
+                <td>1</td>
+                <td>Alice</td>
+                <td>
+                    <div class="label-r">read</div>
+                    Great at programming
+                </td>
+            </tr>
+            <tr class="read">
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talking to alice</td>
+            </tr>
+            <tr class="read">
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>UPDATE IN PLACE 3: UPDATE</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update">
+                <td>
+                    <div class="label-l">~ update</div>
+                    2
+                </td>
+                <td>Bob</td>
+                <td>Always talking to alice</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>UPDATE IN PLACE 4: UPDATED</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update">
+                <td>
+                    <div class="label-l">~ update</div>
+                    2
+                </td>
+                <td>Bob</td>
+                <td class="changed">Working very hard</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>UPDATE IN PLACE 5: INSERT</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update">
+                <td>2</td>
+                <td>Bob</td>
+                <td class="changed">Working very hard</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="insert">
+                <td>
+                    <div class="label-l">+ insert</div>
+                    4
+                </td>
+                <td>Dave</td>
+                <td>Very promising new-hire</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>UPDATE IN PLACE 6: DELETE</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update">
+                <td>2</td>
+                <td>Bob</td>
+                <td class="changed">Working very hard</td>
+            </tr>
+            <tr class="delete">
+                <td>
+                    <div class="label-l">- delete</div>
+                    3
+                </td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="insert">
+                <td>4</td>
+                <td>Dave</td>
+                <td>Very promising new-hire</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>UPDATE IN PLACE 7</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update">
+                <td>2</td>
+                <td>Bob</td>
+                <td class="changed">Working very hard</td>
+            </tr>
+            <tr class="insert">
+                <td>4</td>
+                <td>Dave</td>
+                <td>Very promising new-hire</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>UPDATE IN PLACE 8: REALITY</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="read">
+                <td>1</td>
+                <td>Alice</td>
+                <td>
+                    <div class="label-r">read</div>
+                    Great at programming
+                </td>
+            </tr>
+            <tr class="read update">
+                <td>
+                    <div class="label-l">+ update</div>
+                    2
+                </td>
+                <td>Bob</td>
+                <td class="read changed">Working very hard</td>
+            </tr>
+            <tr class="read delete">
+                <td>
+                    <div class="label-l">- delete</div>
+                    3
+                </td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="insert">
+                <td>
+                    <div class="label-l">+ insert</div>
+                    4
+                </td>
+                <td>Dave</td>
+                <td>Very promising new-hire</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 1: TABLE</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 103</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr>
+                <td>101</td>
+                <td>0</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr>
+                <td>102</td>
+                <td>0</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 2: UPDATE</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 103</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update">
+                <td>
+                    <div class="label-l">- update</div>
+                    101
+                </td>
+                <td>0</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr>
+                <td>102</td>
+                <td>0</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 3: UPDATE IN PROGRESS</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 103</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update obsolete">
+                <td>
+                    <div class="label-l">- update</div>
+                    101
+                </td>
+                <td class="changed">103</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr>
+                <td>102</td>
+                <td>0</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 4: UPDATE IN PROGRESS</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 103</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update obsolete">
+                <td>
+                    <div class="label-l">- update</div>
+                    101
+                </td>
+                <td class="changed">103</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr>
+                <td>102</td>
+                <td>0</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="update changed">
+                <td>
+                    <div class="label-l">+ update</div>
+                    103
+                </td>
+                <td>0</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Working very hard</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 5: UPDATED</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 104</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update obsolete">
+                <td>101</td>
+                <td class="changed">103</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr>
+                <td>102</td>
+                <td>0</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="update changed">
+                <td>103</td>
+                <td>0</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Working very hard</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 6: INSERT</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 104</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update obsolete">
+                <td>101</td>
+                <td class="changed">103</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr>
+                <td>102</td>
+                <td>0</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="update changed">
+                <td>103</td>
+                <td>0</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Working very hard</td>
+            </tr>
+            <tr class="insert">
+                <td>
+                    <div class="label-l">+ insert</div>
+                    104
+                </td>
+                <td>0</td>
+                <td>4</td>
+                <td>Dave</td>
+                <td>Very promising new-hire</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 7: INSERTED</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 105</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update obsolete">
+                <td>101</td>
+                <td class="changed">103</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr>
+                <td>102</td>
+                <td>0</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="update changed">
+                <td>103</td>
+                <td>0</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Working very hard</td>
+            </tr>
+            <tr class="insert">
+                <td>104</td>
+                <td>0</td>
+                <td>4</td>
+                <td>Dave</td>
+                <td>Very promising new-hire</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 8: DELETE</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 105</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update obsolete">
+                <td>101</td>
+                <td class="changed">103</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr class="delete obsolete">
+                <td>
+                    <div class="label-l">- delete</div>
+                    102
+                </td>
+                <td>105</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="update changed">
+                <td>103</td>
+                <td>0</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Working very hard</td>
+            </tr>
+            <tr class="insert">
+                <td>104</td>
+                <td>0</td>
+                <td>4</td>
+                <td>Dave</td>
+                <td>Very promising new-hire</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>MVCC 9: DELETED</h2>
+    <div class="mvcc">
+        <table class="classic bordered">
+            <thead>
+            <tr>
+                <th>
+                    <div class="label-r">TXID: 106</div>
+                    xmin
+                </th>
+                <th>xmax</th>
+                <th>id</th>
+                <th>name</th>
+                <th>notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>100</td>
+                <td>0</td>
+                <td>1</td>
+                <td>Alice</td>
+                <td>Great at programming</td>
+            </tr>
+            <tr class="update obsolete">
+                <td>101</td>
+                <td class="changed">103</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Always talk to alice</td>
+            </tr>
+            <tr class="delete obsolete">
+                <td>102</td>
+                <td>105</td>
+                <td>3</td>
+                <td>Eve</td>
+                <td>Listens to everyone's conversations</td>
+            </tr>
+            <tr class="update changed">
+                <td>103</td>
+                <td>0</td>
+                <td>2</td>
+                <td>Bob</td>
+                <td>Working very hard</td>
+            </tr>
+            <tr class="insert">
+                <td>104</td>
+                <td>0</td>
+                <td>4</td>
+                <td>Dave</td>
+                <td>Very promising new-hire</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide">
+	<h2>Проблемы MVCC</h2>
+	<ul>
+		<li>MVCC работает идеально, когда мы пишем номер окончания отранзакции, но мы его заранее не знаем;</li>
+		<li>Надо как-то избавляться от "мертвых" кортежей.</li>
+	</ul>
+</section>
+
+<section class="slide">
+	<h2>Варианты реализации MVCC</h2>
+	<h3>Heap (PostgreSQL)</h3>
+	<ul class="compact" style="font-size: 90%">
+		<li>Все кортежи лежат в общей "куче".</li>
+		<li>Мертвые кортежи удаляются в фоне отдельным сборщиком мусора (AUTOVACUUM).</li>
+		<li>Фискация и откат транзакции имеют одинаковую стоимость.</li>
+	</ul>
+	<h3>Rollback segment (MySQL, Oracle)</h3>
+	<ul class="compact" style="font-size: 90%">
+		<li>В страницах таблицы лежат только актуальные данные.</li>
+		<li>Старые версии хранятся в журнале отката.</li>
+		<li>Не требуется сборщик мусора и более эффективное использование дискового пространства.</li>
+		<li>Долгий откат транзакции.</li>
+	</ul>
+</section>
+
+<section class="slide">
+    <h2>Блокировки</h2>
+    <div style="display: table; width: 100%; font-size: 60%">
+        <div style="display: table-cell; width: 50%; padding: 10px">
+            <pre><code class="sql">test=# BEGIN TRANSACTION
+test-# ISOLATION LEVEL REPEATABLE READ;
+BEGIN
+test=# SELECT balance
+test-# FROM accounts WHERE name = 'Alice';
+balance
+---------
+400
+(1 row)
+
+test=# UPDATE accounts
+test-# SET balance = balance + 100
+test-# WHERE name = 'Alice';
+UPDATE 1
+
+
+
+test=# COMMIT;
+COMMIT
+            </code></pre>
+        </div>
+        <div style="display: table-cell; padding: 10px">
+            <pre><code class="sql">test=# BEGIN TRANSACTION
+test-# ISOLATION LEVEL REPEATABLE READ;
+BEGIN
+test=# SELECT balance
+test-# FROM accounts WHERE name = 'Alice';
+balance
+---------
+400
+(1 row)
+
+
+
+
+
+test=# UPDATE accounts
+test-# SET balance = balance + 100
+test-# WHERE name = 'Alice';
+
+
+ERROR:  could not serialize access
+        due to concurrent update
+            </code></pre>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Блокировки</h2>
+    <div style="display: table; width: 100%; font-size: 60%">
+        <div style="display: table-cell; width: 50%; padding: 10px">
+            <pre><code class="sql">test=# BEGIN TRANSACTION
+test-# ISOLATION LEVEL REPEATABLE READ;
+BEGIN
+test=# SELECT balance
+test-# FROM accounts WHERE name = 'Alice';
+balance
+---------
+500
+(1 row)
+
+test=# UPDATE accounts
+test-# SET balance = balance + 100
+test-# WHERE name = 'Alice';
+UPDATE 1
+
+
+
+test=# ROLLBACK;
+ROLLBACK
+            </code></pre>
+        </div>
+        <div style="display: table-cell; padding: 10px">
+            <pre><code class="sql">test=# BEGIN TRANSACTION
+test-# ISOLATION LEVEL REPEATABLE READ;
+BEGIN
+test=# SELECT balance
+test-# FROM accounts WHERE name = 'Alice';
+balance
+---------
+500
+(1 row)
+
+
+
+
+
+test=# UPDATE accounts
+test-# SET balance = balance + 100
+test-# WHERE name = 'Alice';
+
+
+UPDATE 1
+test=# COMMIT;
+COMMIT
+            </code></pre>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Уровни изолированности транзакций</h2>
+    <ul class="compact">
+        <li>Read uncommitted - чтение незафиксированных данных</li>
+        <li>Read committed (по-умолчанию) - чтение фиксированных данных</li>
+        <li>Repeatable read - повторяемость чтения</li>
+        <li>Serializable - упорядочиваемость</li>
+    </ul>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <th>Уровень изоляции</th>
+        <th>Потерянное обновление</th>
+        <th>«Грязное» чтение</th>
+        <th>Неповторяющееся чтение</th>
+        <th>Фантомное чтение</th>
+        <th>Аномалии сериализации</th>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Read&nbsp;uncommited</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-y">допускается</td>
+            <td class="tx-r">возможно</td>
+            <td class="tx-r">возможно</td>
+            <td class="tx-r">возможно</td>
+        </tr>
+        <tr>
+            <td>Read&nbsp;commited</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-r">возможно</td>
+            <td class="tx-r">возможно</td>
+            <td class="tx-r">возможно</td>
+        </tr>
+        <tr>
+            <td>Repeatable&nbsp;read</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-y">допускается</td>
+            <td class="tx-r">возможно</td>
+        </tr>
+        <tr>
+            <td>Serializable</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+        </tr>
+        </tbody>
+    </table>
+    <footer class="footer">https://technet.microsoft.com/en-us/library/cc546518.aspx</footer>
+</section>
+
+<section class="slide">
+    <h2>Потерянное обновление (Lost Update)</h2>
+    <p>Потерянное обновление происходит в случае перезатирания изменений другой транзакцией до заврешнения транзакции,
+        сделавшей изменения.</p>
+    <table class="classic bordered">
+        <thead>
+        <th>Транзакция 1</th>
+        <th>Транзакция 2</th>
+        </thead>
+        <tbody style="font-size: 70%">
+        <tr>
+            <td>
+                <pre><code class="sql">UPDATE tbl1 SET f2=f2+20 WHERE f1=1;</code></pre>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                <pre><code class="sql">UPDATE tbl1 SET f2=f2+25 WHERE f1=1;</code></pre>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>«Грязное» чтение (Dirty Read)</h2>
+    <p>Чтение данных, добавленных или изменённых еще не завершенной транзакцией.</p>
+    <table class="classic bordered">
+        <thead>
+        <th>Транзакция 1</th>
+        <th>Транзакция 2</th>
+        </thead>
+        <tbody style="font-size: 70%">
+        <tr>
+            <td><pre><code class="sql">SELECT f2 FROM tbl1 WHERE f1=1;
+f2
+---------
+100
+(1 row)</code></pre>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>
+                <pre><code class="sql">UPDATE tbl1 SET f2=200 WHERE f1=1;</code></pre>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td><pre><code class="sql">SELECT f2 FROM tbl1 WHERE f1=1;
+f2
+---------
+200
+(1 row)</code></pre>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <pre><code class="sql">ROLLBACK;</code></pre>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Неповторяющееся чтение (Non-Repeatable Read)</h2>
+    <p>При повторном чтении в рамках одной транзакции ранее прочитанные данные оказываются изменёнными.</p>
+    <table class="classic bordered">
+        <thead>
+        <th>Транзакция 1</th>
+        <th>Транзакция 2</th>
+        </thead>
+        <tbody style="font-size: 70%">
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                <pre><code class="sql">SELECT f2 FROM tbl1 WHERE f1=1;</code></pre>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <pre><code class="sql">UPDATE tbl1 SET f2=f2+1 WHERE f1=1;</code></pre>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>
+                <pre><code class="sql">COMMIT;</code></pre>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                <pre><code class="sql">SELECT f2 FROM tbl1 WHERE f1=1;</code></pre>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Чтение "фантомов" (Phantom Reads)</h2>
+    <p>Ситуация, когда при повторном чтении в рамках одной транзакции одна и та же выборка дает разные множества
+        строк.</p>
+    <p>От неповторяющегося чтения оно отличается тем, что результат повторного обращения к данным изменился не из-за
+        изменения/удаления самих этих данных, а из-за появления новых (фантомных) данных.</p>
+    <table class="classic bordered">
+        <thead>
+        <th>Транзакция 1</th>
+        <th>Транзакция 2</th>
+        </thead>
+        <tbody style="font-size: 70%">
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                <pre><code class="sql">SELECT SUM(f2) FROM tbl1;</code></pre>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <pre><code class="sql">INSERT INTO tbl1 (f1,f2) VALUES (15,20);</code></pre>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>
+                <pre><code class="sql">COMMIT;</code></pre>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                <pre><code class="sql">SELECT SUM(f2) FROM tbl1;</code></pre>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Аномалии сериализации</h2>
+    <p>Ситуация, когда параллельное выполнение транзакций приводит к результату, невозможному при последовательном
+        выполнении тех же транзакций.</p>
+    <table class="classic bordered">
+        <thead>
+        <th>Транзакция 1</th>
+        <th>Транзакция 2</th>
+        </thead>
+        <tbody style="font-size: 70%">
+        <tr>
+            <td>
+                <pre><code class="sql">SELECT SUM(value) FROM mytab
+WHERE class = 1;
+---------
+30
+(1 row)</code></pre>
+            </td>
+            <td>
+                <pre><code class="sql">SELECT SUM(value) FROM mytab
+WHERE class = 2;
+---------
+300
+(1 row)</code></pre>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <pre><code class="sql">INSERT INTO mytab (value, class)
+VALUES (30, 2)</code></pre>
+            </td>
+            <td>
+                <pre><code class="sql">INSERT INTO mytab (value, class)
+VALUES (300, 1)</code></pre>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <pre><code class="sql">COMMIT;</code></pre>
+            </td>
+            <td>
+                <pre><code class="sql">COMMIT;</code></pre>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Уровни изолированности транзакций</h2>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <th>Уровень изоляции</th>
+        <th>Потерянное обновление</th>
+        <th>«Грязное» чтение</th>
+        <th>Неповторяющееся чтение</th>
+        <th>Фантомное чтение</th>
+        <th>Аномалии сериализации</th>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Read&nbsp;uncommited</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-y">допускается</td>
+            <td class="tx-r">возможно</td>
+            <td class="tx-r">возможно</td>
+            <td class="tx-r">возможно</td>
+        </tr>
+        <tr>
+            <td>Read&nbsp;commited</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-r">возможно</td>
+            <td class="tx-r">возможно</td>
+            <td class="tx-r">возможно</td>
+        </tr>
+        <tr>
+            <td>Repeatable&nbsp;read</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-y">допускается</td>
+            <td class="tx-r">возможно</td>
+        </tr>
+        <tr>
+            <td>Serializable</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+            <td class="tx-g">не&nbsp;возможно</td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="important next">
+        <p>Более выской уровень изоляции транзакций уменьшает количество аномалий за счет увеличения количества блокировок и вероятности отката транзакции.</p>
+    </div>
+</section>
+
+<section class="slide">
+	<h2>READ COMMITED</h2>
+	<h3>Вариант A</h3>
+    <pre><code class="sql" style="font-size: 75%">SELECT id, money FROM account WHERE name = 'Romeo';
+SELECT id, money FROM account WHERE name = 'Giulietta';
+UPDATE account SET money = 500 WHERE id = 13 AND money = 600;
+UPDATE account SET money = 200 WHERE id = 42 AND money = 100;
+COMMIT;
+</code></pre>
+	<h3>Вариант B</h3>
+    <pre><code class="sql" style="font-size: 75%">SELECT id, money FROM account WHERE name = 'Romeo';
+COMMIT;
+---
+SELECT id, money FROM account WHERE name = 'Giulietta';
+COMMIT;
+---
+UPDATE account SET money = 500 WHERE id = 13 AND money = 600;
+UPDATE account SET money = 200 WHERE id = 42 AND money = 100;
+COMMIT;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Хранимые процедуры</h2>
+    <pre><code class="sql" style="font-size: 75%">CREATE TABLE test1 (a int);
+
+CREATE PROCEDURE transaction_test1()
+AS $$
+BEGIN
+	FOR i IN 0..9 LOOP
+		INSERT INTO test1 (a) VALUES (i);
+		IF i % 2 = 0 THEN
+			RAISE NOTICE 'i=%, txid=% will be committed', i, txid_current();
+			COMMIT;
+		ELSE
+			RAISE NOTICE 'i=%, txid=% will be rolledback', i, txid_current();
+			ROLLBACK;
+		END IF;
+	END LOOP;
+END
+$$
+LANGUAGE PLPGSQL;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Хранимые процедуры</h2>
+    <p>В PostgreSQL хранимые процедуры доступны с версии PostgreSQL 11.</p>
+    <p>В более старых версиях PostgreSQL можно довольствоваться только функциями.</p>
+    <h3 class="next">Чем отличаются хранимые процедуры от функций?</h3>
+    <ul class="next">
+    	<li>Фукнции можно использовать в запросах</li>
+    	<li>Хранимые процедуры могут начинать транзакции</li>
+    </ul>
+    <footer class="footer">https://blog.2ndquadrant.com/postgresql-11-server-side-procedures-part-2/</footer>
+</section>
+
+<section class="slide">
+    <h2>Хранимые процедуры</h2>
+    <pre style="font-size: 75%"><code class="sql">CREATE [ OR REPLACE ] PROCEDURE
+    name ( [ [ argmode ] [ argname ]
+    argtype [ { DEFAULT | = } default_expr ] [, ...] ] )
+  { LANGUAGE lang_name
+    | TRANSFORM { FOR TYPE type_name } [, ... ]
+    | [ EXTERNAL ] SECURITY INVOKER | [ EXTERNAL ] SECURITY DEFINER
+    | SET configuration_parameter { TO value | = value | FROM CURRENT }
+    | AS 'definition'
+    | AS 'obj_file', 'link_symbol'
+  } ...
+</code></pre>
+    <footer class="footer">https://www.postgresql.org/docs/11/sql-createprocedure.html</footer>
+</section>
+
+<section class="slide">
+    <h2>Хранимые процедуры (+)</h2>
+    <ul>
+        <li>Разделение логики с другими приложениями. Хранимые процедуры инкапсулируют функциональность; это
+            обеспечивает связность доступа к данным и управления ими между различными приложениями.
+        </li>
+        <li>Изоляция пользователей от таблиц базы данных. Это позволяет давать доступ к хранимым процедурам, но не к
+            самим данным таблиц.
+        </li>
+        <li>Обеспечивает механизм защиты.</li>
+        <li>Улучшение выполнения как следствие сокращения сетевого трафика. С помощью хранимых процедур множество
+            запросов могут быть объединены.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Хранимые процедуры (-)</h2>
+    <ul>
+        <li>Повышение нагрузки на сервер баз данных в связи с тем, что большая часть работы выполняется на серверной
+            части, а меньшая - на клиентской.
+        </li>
+        <li>Дублирование логики своего приложения в двух местах: серверный код и код для хранимых процедур, тем самым
+            усложняя процесс манипулирования данными.
+        </li>
+        <li>Миграция с одной СУБД на другую (DB2, SQL Server и др.) может привести к проблемам.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Хранимые процедуры: пример</h2>
+    <pre style="font-size: 80%"><code class="sql">DROP FUNCTION IF EXISTS add(integer, integer);
+
+CREATE FUNCTION add(integer, integer) RETURNS integer
+    AS 'select $1 + $2;'
+    LANGUAGE SQL
+    IMMUTABLE
+    RETURNS NULL ON NULL INPUT;
+
+CREATE OR REPLACE FUNCTION inc(i integer) RETURNS integer AS $$
+        BEGIN
+                RETURN i + 1;
+        END;
+$$ LANGUAGE plpgsql;
+
+SELECT inc(42), add(2, 3);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Хранимые процедуры: пример</h2>
+    <div style="font-size: 80%">
+    <pre class="next"><code class="sql">CREATE FUNCTION python_max (a integer, b integer)
+  RETURNS integer
+AS $$
+  if a > b:
+    return a
+  return b
+$$ LANGUAGE plpythonu;
+</code></pre>
+        <pre class="next"><code class="sql">
+CREATE FUNCTION perl_max (integer, integer) RETURNS integer AS $$
+    my ($x, $y) = @_;
+    if (not defined $x) {
+        return undef if not defined $y;
+        return $y;
+    }
+    return $x if not defined $y;
+    return $x if $x > $y;
+    return $y;
+$$ LANGUAGE plperl;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>PL/pgSQL: IF</h2>
+    <pre style="font-size: 80%"><code class="sql">IF boolean-expression THEN
+    statements
+[ ELSIF boolean-expression THEN
+    statements
+    ...]]
+[ ELSE
+    statements ]
+END IF;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>PL/pgSQL: LOOP</h2>
+    <pre style="font-size: 80%"><code class="sql">LOOP
+    -- some computations
+    EXIT WHEN count > 100;
+    CONTINUE WHEN count < 50;
+    -- some computations for count IN [50 .. 100]
+END LOOP;
+
+WHILE amount_owed > 0 LOOP
+    -- some computations here
+END LOOP;
+
+WHILE NOT done LOOP
+    -- some computations here
+END LOOP;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>PL/pgSQL: FOR</h2>
+    <pre style="font-size: 80%"><code class="sql">FOR i IN 1..10 LOOP
+    -- i will take on the values 1,2,3,4,5,6,7,8,9,10 within the loop
+END LOOP;
+
+FOR i IN REVERSE 10..1 LOOP
+    -- i will take on the values 10,9,8,7,6,5,4,3,2,1 within the loop
+END LOOP;
+
+FOR i IN REVERSE 10..1 BY 2 LOOP
+    -- i will take on the values 10,8,6,4,2 within the loop
+END LOOP;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>PL/pgSQL: FOR target IN query LOOP</h2>
+    <pre style="font-size: 70%"><code class="sql">CREATE FUNCTION cs_refresh_mviews() RETURNS integer AS $$
+DECLARE
+    mviews RECORD;
+BEGIN
+    RAISE NOTICE 'Refreshing materialized views...';
+
+    FOR mviews IN SELECT * FROM cs_materialized_views ORDER BY sort_key LOOP
+
+        -- Now "mviews" has one record from cs_materialized_views
+
+        RAISE NOTICE 'Refreshing view %s ...', quote_ident(mviews.mv_name);
+        EXECUTE format('TRUNCATE TABLE %I', mviews.mv_name);
+        EXECUTE format('INSERT INTO %I %s', mviews.mv_name, mviews.mv_query);
+    END LOOP;
+
+    RAISE NOTICE 'Done refreshing materialized views.';
+    RETURN 1;
+END;
+$$ LANGUAGE plpgsql;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>PL/pgSQL: FOR target IN query LOOP</h2>
+    <pre style="font-size: 70%"><code class="sql">CREATE TABLE foo (fooid INT, foosubid INT, fooname TEXT);
+INSERT INTO foo VALUES (1, 2, 'three');
+INSERT INTO foo VALUES (4, 5, 'six');
+
+CREATE OR REPLACE FUNCTION get_all_foo() RETURNS SETOF foo AS
+$BODY$
+DECLARE
+    r foo%rowtype;
+BEGIN
+    FOR r IN
+        SELECT * FROM foo WHERE fooid > 0
+    LOOP
+        -- can do some processing here
+        RETURN NEXT r; -- return current row of SELECT
+    END LOOP;
+    RETURN;
+END
+$BODY$
+LANGUAGE plpgsql;
+
+SELECT * FROM get_all_foo();
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Триггеры</h2>
+    <pre style="font-size: 80%"><code class="sql">CREATE [ CONSTRAINT ] TRIGGER name
+       { BEFORE | AFTER | INSTEAD OF }{ event [ OR ... ] }
+    ON table_name
+    [ FROM referenced_table_name ]
+    [ NOT DEFERRABLE | [ DEFERRABLE ]
+        [ INITIALLY IMMEDIATE | INITIALLY DEFERRED ] ]
+    [ FOR [ EACH ] { ROW | STATEMENT } ]
+    [ WHEN ( condition ) ]
+    EXECUTE PROCEDURE function_name ( arguments )
+
+where event can be one of:
+
+    INSERT
+    UPDATE [ OF column_name [, ... ] ]
+    DELETE
+    TRUNCATE
+    TRUNCATE
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Триггеры: переменные</h2>
+    <dl style="font-size: 90%">
+        <dt>NEW</dt>
+        <dd>Тип данных RECORD. Переменная содержит новую строку базы данных для команд INSERT/UPDATE.</dd>
+
+        <dt>OLD</dt>
+        <dd>Тип данных RECORD. Переменная содержит старую строку базы данных для команд UPDATE/DELETE.</dd>
+
+        <dt>TG_NAME</dt>
+        <dd>Тип данных name. Переменная содержит имя сработавшего триггера.</dd>
+
+        <dt>TG_OP</dt>
+        <dd>Тип данных text. Строка, содержащая INSERT, UPDATE, DELETE или TRUNCATE, в зависимости от того, для какой
+            операции сработал триггер.
+        </dd>
+
+        <dt>TG_TABLE_NAME</dt>
+        <dd>Тип данных name. Имя таблицы, для которой сработал триггер.</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Триггеры: пример</h2>
+    <pre style="font-size: 65%"><code class="sql">CREATE OR REPLACE FUNCTION process_emp_audit() RETURNS TRIGGER AS $emp_audit$
+    BEGIN
+        --
+        -- Create a row in emp_audit to reflect the operation performed on emp,
+        -- make use of the special variable TG_OP to work out the operation.
+        --
+        IF (TG_OP = 'DE&shy;LETE') THEN
+            INSERT INTO emp_audit SELECT 'D', now(), user, OLD.*;
+            RETURN OLD;
+        ELSIF (TG_OP = 'UP&shy;DATE') THEN
+            INSERT INTO emp_audit SELECT 'U', now(), user, NEW.*;
+            RETURN NEW;
+        ELSIF (TG_OP = 'IN&shy;SERT') THEN
+            INSERT INTO emp_audit SELECT 'I', now(), user, NEW.*;
+            RETURN NEW;
+        END IF;
+        RETURN NULL; -- result is ignored since this is an AFTER trigger
+    END;
+$emp_audit$ LANGUAGE plpgsql;
+
+CREATE TRIGGER emp_audit
+AFTER INSERT OR UPDATE OR DELETE ON emp
+    FOR EACH ROW EXECUTE PROCEDURE process_emp_audit();
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>XA-транзакции</h2>
+    <ol class="compact">
+        <li>Приложение начинает транзакцию. Управление передается координатору.</li>
+        <li>Для каждой транзакции координатор вызывает xa_open() для инициализации. Транзакции как таковой ещё нет.</li>
+        <li>Для каждой БД вызывается xa_start() с параметром xid, в котором global_id одно, а branch_id разные.
+            Транзакция началась.
+        </li>
+        <li>Управление возвращается приложению, которое выполняет бизнес логику.</li>
+        <li>Координатор завершает транзакцию, вызывая xa_end().</li>
+        <li>Координатор закрепляет транзакцию, используя протокол двухфазной фиксации (xa_prepare() и xa_commit() или
+            xa_rollback()).
+        </li>
+    </ol>
+</section>
+
+<section class="slide">
+    <h2>XA-транзакции</h2>
+    <pre><code class="sql">BEGIN;
+
+UPDATE accounts SET balance = balance - 100.00
+WHERE name = 'Alice';
+
+PREPARE TRANSACTION 'tx-42';
+
+SELECT * FROM pg_prepared_xacts;</code></pre>
+    <table class="classic bordered" style="font-size: 95%">
+        <thead>
+        <th>transaction</th>
+        <th>gid</th>
+        <th>prepared</th>
+        <th>owner</th>
+        <th>database</th>
+        </thead>
+        <tbody>
+        <tr>
+            <td>48892</td>
+            <td>tx-41</td>
+            <td>2017-03-06 22:17:58.231435+03</td>
+            <td>postgres</td>
+            <td>test</td>
+        </tr>
+        <tr>
+            <td>48893</td>
+            <td>tx-42</td>
+            <td>2017-03-06 22:18:00.294129+03</td>
+            <td>postgres</td>
+            <td>test</td>
+        </tr>
+        </tbody>
+    </table>
+    <pre><code class="sql">ROLLBACK PREPARED 'tx-41';
+COMMIT PREPARED 'tx-42';
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>XA-транзакции</h2>
+    <h3>Плюсы</h3>
+    <ul>
+        <li>Простота использования и поддержка из коробки во многих фреймворках.</li>
+    </ul>
+    <h3>Минусы</h3>
+    <ul>
+        <li>Более дорогие с точки зрения записи на диск;</li>
+        <li>Проблема согласованности резервных копий;</li>
+        <li>Координатор - потенциальная точка отказа.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Персистентные очереди</h2>
+    <p>Мы можем "развязать" и клиента и сервер, т.е. у нас выполнение задач не зависит от того, доступен ли в данный
+        момент клиент, или доступен в данный момент сервер.</p>
+    <p>Клиент ставит задачу в очередь, после этого его роль, в каком-то смысле, заканчивается, сервер в этот момент не
+        обязан быть доступен. Сервер в какой-то момент, когда у него есть возможность, берет задачи из очереди,
+        выполняет ее, изменяет ее статус и т.д.</p>
+    <p>Клиент всегда может обратиться и проверить статус задачи.</p>
+</section>
+
+<section class="slide">
+    <h2>Персистентные очереди</h2>
+    <h3>Плюсы</h3>
+    <ul>
+        <li>Клиент и сервер полностью "развязаны";</li>
+        <li>Состояние задачи всегда известно;</li>
+        <li>Можно поддержать приоритеты.</li>
+    </ul>
+    <h3>Минусы</h3>
+    <ul>
+        <li>Дополнительная сущность;</li>
+        <li>Больше операций на задачу;</li>
+        <li>Очередь должна быть персистентной.</li>
+    </ul>
+    <footer class="footer">http://highload.guide/blog/principles-and-methods-of-queuing.html</footer>
+</section>
+
+	
+<section class="slide white" style="padding: 0" id="contacts">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        Навроцкий Артем
+                        
+                        
+                        <div>E-mail: bozaro@yandex.ru</div>
+                        
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px; font-weight: bold">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Спасибо за внимание!
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<div class="progress"></div>
+	<script src="../js/common.js"></script>
+	<script src="../shower/shower.min.js"></script>
+	<script src="../highlight.js/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+	
+
+
+	<script src="../mathjax/MathJax.js?config=AM_HTMLorMML-full"></script>
+	<script>
+MathJax.Hub.Config({
+	asciimath2jax: {
+		inlineMath: [['$','$'],['\\(','\\)']],
+		processClass: "math",
+		ignoreClass: "no-math"
+	},
+	root: "..\/mathjax/"
+});
+	</script>
+
+
+</body>
+</html>

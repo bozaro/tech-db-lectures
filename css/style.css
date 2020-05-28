@@ -1,0 +1,224 @@
+@font-face {
+	font-family: "PF Isotext Pro";
+	src: url(../park.mail.ru/fonts/PF.Isotext.Pro.Regular.woff) format("woff");
+}
+@font-face {
+	font-weight: bold;
+	font-family: "PF Isotext Pro";
+	src: url(../park.mail.ru/fonts/PF.Isotext.Pro.Bold.woff) format("woff");
+}
+.shout {
+    font-size: 100px !important;
+    padding-left: 25px;
+    padding-right: 25px;
+}
+.slide {
+    padding-top: 60px;
+    line-height: 1.5;
+}
+.slide h3 {
+	margin-bottom: 10px;
+}
+.slide p {
+	margin-bottom: 10px;
+}
+.slide ul.compact li, .slide ol.compact li {
+	margin-bottom: 0px;
+}
+.slide li {
+	margin-bottom: 15px;
+}
+.slide li li {
+	margin-bottom: 0px;
+}
+.slide pre {
+	margin-bottom: 10px;
+}
+.slide pre code {
+	text-indent: 0;
+	line-height: 1.2;
+}
+.slide dd {
+    margin-left: 20px;
+}
+.slide dt, .slide dfn {
+	font-weight: bold;
+	color: #3953a4;
+}
+.slide dl {
+	margin-bottom: 15px;
+}
+h3 {
+	font-weight: bold;
+}
+.math {
+	padding: 10px;
+}
+
+body.index {
+	margin-top: 20px;
+	margin: 60px;
+}
+
+.index {
+	font-family: PT Sans;
+}
+.index h1 {
+	font-family: PT Sans Narrow,sans-serif;
+	font-size: 2.5em;
+	font-weight: bold;
+	margin-bottom: 0.5em;
+}
+.index h2 {
+	font-family: PT Sans Narrow,sans-serif;
+	font-size: 1.5em;
+	font-weight: bold;
+	margin-top: 1em;
+	margin-bottom: 0.5em;
+}
+.index .description {
+	font-weight: normal;
+}
+/* Lists */
+.index .description ol, .index .description ul {
+	margin-top:0.5em;
+	margin-bottom:1em;
+	counter-reset:list;
+}
+.index .description ol li, .index .description ul li {
+	page-break-inside:avoid;
+	text-indent:-2em;
+}
+.index .description ol li::before, .index .description ul li::before {
+	display:inline-block;
+	width:2em;
+	color:lighten($grey, 25%);
+	text-align:right;
+}
+.index .description ol li ol, .index .description ul li ul, .index .description ol li ul, .index .description ul li ol {
+	margin-bottom:0;
+	margin-left:2em;
+}
+.index .description ul > li::before {
+	padding-right:0.5em;
+	content:'•';
+}
+.index .description ul > li:lang(ru)::before {
+	content:'—';
+}
+.index .description ol > li::before {
+	padding-right:0.4em;
+	counter-increment:list;
+	content:counter(list)'.';
+}
+.slide table.classic {
+    margin-left: 0;
+    width: 100%;
+}
+.slide table.classic td:first-child, .slide table.classic th:first-child {
+    padding-left: 0.5em;
+}
+.slide table.classic td:last-child, .slide table.classic th:last-child {
+    padding-right: 0.5em;
+}
+
+.slide table td, .slide table th {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
+.slide table.bordered {
+    border: 1px solid gray;
+    border-collapse: collapse;
+}
+
+.slide table.bordered th {
+    background-color: rgba(88,90,94,.25);
+}
+
+.slide table.bordered td, .slide table.bordered th {
+    border: 1px solid gray;
+    border-collapse: collapse;
+}
+
+.slide table.bordered tr:nth-child(even) {
+    background-color: rgba(88,90,94,.1);
+}
+
+null::before {
+    border-radius: 4pt;
+    background-color: #888;
+    padding-left: 4pt;
+    padding-right: 4pt;
+    color: #fff;
+    content: "null";
+}
+
+.slide blockquote+figcaption {
+    margin-top: 0;
+    text-align: right;
+}
+
+section.ticket {
+	font-family: "PF Isotext Pro";
+	font-size: 12pt;
+	border-top: 2px dashed gray;
+	border-bottom: 2px dashed gray;
+	margin-top: -2px;
+	page-break-inside: avoid;
+}
+
+div.ticket {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+body {
+  counter-reset: ticket;
+}
+
+div.ticket::before {
+	position: absolute;
+	right: 1em;
+	counter-increment: ticket;
+	content: "#" counter(ticket);
+	font-size: 80%;
+}
+
+@media screen {
+	section.ticket.current {
+		background-color: #cfc;
+	}
+
+	section.ticket.current .hljs {
+		background: none;
+	}
+
+	.random {
+		position: absolute;
+		background: url(../park.mail.ru/img/dice.png);
+		top: 0;
+		right: 2.5em;
+		width: 80px;
+		height: 40px;
+		cursor: pointer;
+	}
+}
+
+.answer {
+	margin-left: 1em;
+	padding-left: 0.5em;
+	border-left: 2px dashed black;
+}
+
+.important::before {
+	content: "Важно";
+	font-weight: bold;
+}
+
+.important {
+	margin-left: -2.8em;
+	padding-left: 2.8em;
+	background: url(../img/important.svg);
+	background-repeat: no-repeat;
+}

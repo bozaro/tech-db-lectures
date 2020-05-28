@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<title>СУБД. Лекция 7</title>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="generator" content="Hugo 0.27" />
+	
+	<link rel="icon" href="../common/lecture.png" />
+	
+	<link rel="stylesheet" href="../shower/themes/ribbon/styles/screen-16x10.css">
+	<link rel="stylesheet" href="../css/style.css">
+	<link rel="stylesheet" href="../highlight.js/styles/idea.min.css">
+</head>
+<body class="shower list no-math">
+	<header class="caption">
+		<h1>СУБД. Лекция 7</h1>
+	</header>
+	
+<section class="slide white" style="padding: 0" id="cover">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        СУБД
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Навроцкий Артем
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="177" y="465" width="240" height="134">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: left">
+                    <div style="vertical-align: top; display: table-cell">
+                        Лекция 7
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<section class="slide">
+    <h2>Репликация. Полнотекстовый поиск. JSON.</h2>
+    <ul>
+        <li>Репликация:
+            <ul>
+                <li>Физическая и логическая репликации;</li>
+                <li>Синхронная и асинхронная репликация;</li>
+                <li>Балансировка и отказоустойчивость;</li>
+                <li>Проблемы репликации.</li>
+            </ul>
+        </li>
+        <li>Полнотекстовый поиск;</li>
+        <li>Географические данные;</li>
+        <li>Хранение слабоструктурированных данных (JSON).</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Репликация</h2>
+</section>
+
+<section class="slide">
+    <h2>Репликация</h2>
+    <h3>Распространение данных</h3>
+    <p>Репликация позволяет создать копию базы данных у географически удаленном пункте, например в другом центре
+        обработки данных.</p>
+    <h3>Балансировка нагрузки</h3>
+    <p>С помощью репликации можно распределить запросы на чтение между несколькими серверами. В приложениях с
+        интенсивным чтением эта тактика работает очень хорошо.</p>
+    <p>Реализовать несложное балансирование нагрузки можно, внеся совсем немного изменений в код.</p>
+</section>
+
+<section class="slide">
+    <h2>Репликация</h2>
+    <h3>Резервное копирование</h3>
+    <p>Репликация ― это ценное подспорье для резервного копирования. Однако подчиненный сервер все же не может
+        использоваться в качестве резервной копии и не является заменой настоящему резервному копированию.</p>
+    <h3>Аварийное переключение на резервный сервер (failover)</h3>
+    <p>Репликация позволяет исправить ситуацию, при которой сервер является единственной точкой отказа приложения.
+        Хорошая система аварийного переключения при отказе, имеющая в составе реплицированные подчиненные серверы,
+        способна существенно сократить время простоя.</p>
+</section>
+
+<section class="slide">
+    <h2>Репликация</h2>
+    <h3>Тестирование новых версий</h3>
+    <p>Очень часто на подчиненный сервер устанавливают новую версию СУБД и перед тем как ставить ее на промышленные
+        серверы, проверяют, что все запросы работают нормально.</p>
+    <h3>Передача изменений в приложение</h3>
+    <p>Все изменения данных могут передаваться для анализа в стороннее приложение непосредственно после фиксации в
+        базе.</p>
+</section>
+
+<section class="slide">
+    <h2>Варианты взаимодействия</h2>
+    <dl>
+        <dt>Мастер-слейв</dt>
+        <dd>Подчиненный сервер повторяет состояние главного и не может изменять данные самостоятельно.</dd>
+
+        <dt>Мастер-мастер</dt>
+        <dd>Оба сервера равнозначны и могут обрабатываь запросы как на чтение, так и на изменение данных.</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Варианты реализации</h2>
+    <dl>
+        <dt>Физическая</dt>
+        <dd>Передаётся информация о физическом изменении страниц базы данных.</dd>
+
+        <dt>Логическая</dt>
+        <dd>Передаётся информация об измененни записей базы данных.</dd>
+
+        <dt>Передача запросов</dt>
+        <dd>Передаётся информация о выполненных запросах.</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Гарантии репликации</h2>
+    <dl>
+        <dt>Синхронная</dt>
+        <dd>Мастер-сервер не подтверждает транзакцию до того, как реплика не подтвердит получение данных.</dd>
+
+        <dt>Асинхронная</dt>
+        <dd>Мастер-сервер не ждёт подтвержения получения данных от реплики.</dd>
+
+        <dt>Majority</dt>
+        <dd>Мастер-сервер ждёт подтвержения получения данных от N-реплик.</dd>
+
+        <dt>Семисинхронная (MySQL)</dt>
+        <dd>Мастер-сервер не подтверждает транзакцию до того, как "живые" реплики не подтвердят получение данных.</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Физическая репликация</h2>
+    <h3>Общий принцип:</h3>
+    <ul>
+        <li>Главный сервер записывает изменения данных в журнал транзакций;</li>
+        <li>Подчиненный сервер копирует события журнала транзакций;</li>
+        <li>Подчиненный сервер воспроизводит изменения из журнала транзакций.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Физическая репликация</h2>
+    <h3>Плюсы:</h3>
+    <ul class="compact">
+        <li>Простота и надёжность;</li>
+        <li>Подчиненный сервер в точности соответвует мастер-серверу;</li>
+        <li>Практически отсутствуют накладные расходы.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Физическая репликация</h2>
+    <h3>Минусы:</h3>
+    <ul class="compact" style="font-size: 90%">
+        <li>Если данные на мастере были испорченны из-за сбоев RAM, то на подчинённом сервере так же будут испорченные
+            данные;
+        </li>
+        <li>На реплике не может быть локальных изменений схемы данных;</li>
+        <li>Обновление индексов и VACUUM так же попадают в журнал транзакций, это порождает избыточное сетевое общение;
+        </li>
+        <li>Реплика может временно отставать, если на подчинённом сервере выполняется запрос на длительное чтение
+            данных;
+        </li>
+        <li>На подчинённом сервере должна быть та же версия PostgreSQL, что и на мастере;</li>
+        <li>Не возможна мастер-мастер репликация;</li>
+        <li>VACUUM на мастере может удалить еще используемые данные на подчинённом.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Логическая репликация (Slony-I)</h2>
+    <p>Slony использует триггеры PostgreSQL для привязки к событиям INSERT/DELETE/UPDATE и хранимые процедуры для
+        выполнения действий.</p>
+</section>
+
+<section class="slide">
+    <h2>Логическая репликация (Logical Decoding)</h2>
+    <h3>Общий принцип:</h3>
+    <ul>
+        <li>Мастер сервер записывает изменения данных в журнал транзакций;</li>
+        <li>На базе журнала транзакций мастер сервер восстанавливает информация об изменении записей;</li>
+        <li>Данные об изменении записей передаются на подчиненный сервер.</li>
+    </ul>
+    <h3>Реализации:</h3>
+    <ul>
+        <li>Postgres 10</li>
+        <li>pglogical</li>
+        <li>Postgres-BDR</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Логическая репликация</h2>
+    <h3>Плюсы:</h3>
+    <ul class="compact">
+        <li>Более компактный обмен данными;</li>
+        <li>Если данные на мастере были испорченны из-за сбоев RAM, то репликация остановится;</li>
+        <li>Репликация не может отставать из-за VACUUM;</li>
+        <li>На мастере и подчинённом сервере могут быть разные версии PostgreSQL;</li>
+        <li>На мастере и подчинённом сервере можно использовать разную схему данных;</li>
+        <li>Потенциально возможна мастер-мастер репликация.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Логическая репликация</h2>
+    <h3>Минусы:</h3>
+    <ul class="compact">
+        <li>Более высокая нагрузка на подчинённый сервер;</li>
+        <li>Надо крайне аккуратно работать со схемой данных;</li>
+        <li>Нет хорошего решения проблемы репликации DDL-запросов.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>А как обстоят дела у <span style="text-decoration: line-through">соседей</span> MySQL?</h2>
+    <p>В MySQL используется только логическая репликация.</p>
+    <img src="neighbor.svg" style="position: absolute; bottom: 50px; right: 50px; height: 400px"/>
+</section>
+
+<section class="slide">
+    <h2>Архитектура MySQL</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="arhitecture.jpg"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Архитектура MySQL</h2>
+    <p>В MySQL различные хранилища объектов реализованы в виде подключаемых модулей.</p>
+    <p>Это порождает конфликт интересов:</p>
+    <ul>
+        <li>Подключаемые хранилищая требуют четкого и простого API для взаимодействия с ядром MySQL. Это требует, чтобы
+            ядро знало о хранилище <b>как можно меньше</b>;
+        </li>
+        <li>Для эффективного выполнения запросов нужно знать о хранении данных <b>как можно больше</b>.</li>
+    </ul>
+    <p>Данная особенность архитектуры MySQL проходит красной нитью через весь функционал.</p>
+</section>
+
+<section class="slide">
+    <h2>Архитектура MySQL</h2>
+    <p>В MySQL хранилище и лог транзакций существуют за пределами "движка" СУБД.</p>
+    <p>Как следствие, в MySQL вместо журнала транзакций для репликации используется отдельный журнал.</p>
+</section>
+
+<section class="slide">
+    <h2>Репликация в MySQL</h2>
+    <h3>Режимы репликации:</h3>
+    <dl>
+        <dt>STATEMENT</dt>
+        <dd><p>Сохраняются непосредственно запросы, которые информаци об изменениях записей.</p></dd>
+
+        <dt>ROW</dt>
+        <dd>
+            <p>Сохраняется информаци об изменениях записей.</p>
+            <p>В случае DDL-выражений сохраняются сами запросы.</p>
+        </dd>
+
+        <dt>MIXED</dt>
+        <dd><p>Промежуточный формат, который старается использовать statement, когда возможно, а когда нет — row.</p>
+        </dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Репликация в MySQL</h2>
+    <ul>
+        <li>Репликация провоцирует больше записи на диск;</li>
+        <li>Реплика воспроизводит транзакции по очереди;</li>
+        <li>Двухфазная фиксации транзакции (между журналом транзакций и журналом репликации);</li>
+        <li>Репликация хрупкая, так как некоторые запросы гарантировано ведут к порче данных.</li>
+    </ul>
+    <div class="next">
+        <h3>Пример проблемного запроса:</h3>
+        <pre><code class="sql">ALTER TABLE foo
+  ADD id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  ADD PRIMARY KEY (id);
+    </code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Пару слов про кластеры</h2>
+    <dl>
+        <dt>Общая память</dt>
+        <dd style="font-size: 80%">
+            <p>Кластер представляется как одна система (Single-System Image, SSI), то есть эквивалент операционной
+                системы для кластера в целом.</p>
+            <p>В результате нет необходимости в модификации существующих приложений — все это осуществляется
+                автоматически, прозрачно для приложений пообно SMP.</p>
+        </dd>
+        <dt>Общие диски</dt>
+        <dd style="font-size: 80%">
+            <p>Узлы кластера используют единую файловую систему.</p>
+            <p>Операционная система берет на себя координацию работы с файловой системой и ряд сервисных функций.</p>
+            <p>Приложение должно явно поддерживать работу в кластере.</p>
+        </dd>
+        <dt>Ничего общего</dt>
+        <dd style="font-size: 80%">
+            <p>Функции кластера целиком реализуются внутри приложения.</p>
+        </dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Postgres-XL</h2>
+    <p>Postgres-XL позволяет объединить несколько кластеров PostgreSQL таким образом, чтоб они работали как один инстанс
+        БД.</p>
+    <p>Для клиента, который подключается в базе, нет никакой разницы, работает он с единственным инстансом PostgreSQL
+        или с кластером Postgres-XL. Postgres-XL предлагает 2 режима распределения таблиц по кластеру: репликация и
+        шардинг.</p>
+    <p>При репликации все узлы содержат одинаковую копию таблицы, а при шардинге данные равномерно распределяются среди
+        членов кластера.</p>
+</section>
+
+<section class="slide">
+    <h2>Pgpool II</h2>
+    <p>Pgpool II позволяет балансировать нагрузку на чтение между частями кластера.</p>
+    <p>Для клиента, который подключается в базе, нет никакой разницы, работает он с единственным инстансом PostgreSQL
+        или с кластером Pgpool II.</p>
+    <p>Есть поддержка Failover.</p>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Полнотекстовый поиск</h2>
+    <footer class="footer">
+        <ul>
+            <li><a href="http://citforum.ru/database/postgres/fts/">http://citforum.ru/database/postgres/fts/</a></li>
+            <li><a href="https://postgrespro.ru/docs/postgrespro/9.5/textsearch-intro">https://postgrespro.ru/docs/postgrespro/9.5/textsearch-intro</a>
+            </li>
+        </ul>
+    </footer>
+</section>
+
+<section class="slide">
+    <h2>В чем проблема?</h2>
+    <ul>
+        <li>Результат поиска нельзя оценивать бинарно: часть текстов больше, а часть меньше удовлетворяют поисковому
+            запросу;
+        </li>
+        <li>Нужно учитывать словоформы: падежи, склонения, спряжения и т.п.;</li>
+        <li>Документы могут быть не нескольких языках;</li>
+        <li>Понотекстовый поиск должен работать быстро.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Предварительная обработка</h2>
+    <dl>
+        <dt>Разбор документов на фрагменты.</dt>
+        <dd style="font-size: 90%">При этом полезно выделить различные классы фрагментов, например, числа, слова,
+            словосочетания, почтовые адреса и т. д., которые будут обрабатываться по-разному. Классы фрагментов могут
+            зависеть от приложения, но часто подходит предопределённый набор классов.
+        </dd>
+
+        <dt>Преобразование фрагментов в лексемы.</dt>
+        <dd style="font-size: 90%">Лексема — это нормализованный фрагмент, в котором разные словоформы приведены к
+            одной.
+        </dd>
+
+        <dt>Хранение документов в форме, подготовленной для поиска.</dt>
+        <dd style="font-size: 90%">Каждый документ может быть представлен в виде сортированного массива нормализованных
+            лексем. Помимо лексем часто желательно хранить информацию об их положении для ранжирования по близости.
+        </dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Словоформы</h2>
+    <p>
+        <b>Запрос:</b> мыла раму<br/>
+        <b>Текст:</b> Мама мыла раму
+    </p>
+    <p class="next">
+        <b>Запрос:</b> мыть раму<br/>
+        <b>Текст:</b> Мама мыла раму
+    </p>
+    <p class="next">
+        <b>Запрос:</b> мягкая булка<br/>
+        <b>Текст:</b> Съешь ещё этих мягких французских булок и выпей чаю
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Словоформы</h2>
+    <h3>Кровать</h3>
+    <p class="next">
+        <i>Глагол, несовершенный вид, переходный, тип спряжения по классификации А. Зализняка — 2b.</i>
+    </p>
+    <table class="next">
+        <thead>
+        <tr>
+            <th>Число</th>
+            <th>Лицо</th>
+            <th>Глагол</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>ед.</td>
+            <td>1-е я (что делаю)</td>
+            <td>Крую</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>2-е ты (что делаешь)</td>
+            <td>Круёшь</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>3-е он, она (что делает)</td>
+            <td>Круёт</td>
+        </tr>
+        <tr>
+            <td>мн.</td>
+            <td>1-е мы (что делаем)</td>
+            <td>Круём</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>2-е вы (что делаете)</td>
+            <td>Круёте</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>3-е они (что делают)</td>
+            <td>Круют</td>
+        </tr>
+        </tbody>
+    </table>
+    <footer class="footer">Проспрягал по образу "ковать"</footer>
+</section>
+
+<section class="slide">
+    <h2>Словари в PostgreSQL</h2>
+    <p>Создавая словари, можно:</p>
+    <ul>
+        <li>определять стоп-слова, которые не будут индексироваться;</li>
+        <li>сопоставлять синонимы с одним словом, используя Ispell;</li>
+        <li>сопоставлять словосочетания с одним словом, используя тезаурус;</li>
+        <li>сопоставлять различные склонения слова с канонической формой, используя словарь Ispell;</li>
+        <li>сопоставлять различные склонения слова с канонической формой, используя стеммер Snowball.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Словари для Русского языка</h2>
+    <p>В PostgreSQL по-умолчанию нет словарей для Русского языка, но можно воспользоваться словарями из пакета
+        myspell-ru:</p>
+    <pre><code class="bash"># Устанавливаем словари
+sudo apt install myspell-ru
+cd /usr/share/postgresql/9.5/tsearch_data
+DICT=/usr/share/hunspell/ru_RU
+# Копируем словари с преобразованием в UTF-8
+sudo iconv -f koi8-r -t utf-8 -o russian.affix $DICT.aff
+sudo iconv -f koi8-r -t utf-8 -o russian.dict  $DICT.dic
+    </code></pre>
+</section>
+
+<section class="slide">
+    <h2>Подключаем словари</h2>
+    <pre><code class="sql">CREATE TEXT SEARCH DICTIONARY russian_ispell (
+    TEMPLATE = ispell,
+    DictFile = russian,
+    AffFile = russian,
+    StopWords = russian
+);
+
+</code>
+<code class="sql">CREATE TEXT SEARCH CONFIGURATION ru (COPY=russian);
+
+</code>
+<code class="sql">ALTER TEXT SEARCH CONFIGURATION ru
+    ALTER MAPPING FOR hword, hword_part, word
+    WITH russian_ispell, russian_stem;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Проверяем словари</h2>
+    <pre><code class="sql">SELECT to_tsvector('russian', 'мама мыла раму');
+       to_tsvector
+-------------------------
+ 'мам':1 'мыл':2 'рам':3
+(1 строка)
+
+</code>
+<code class="sql">SELECT to_tsvector('ru', 'мама мыла раму');
+             to_tsvector
+-------------------------------------
+ 'мама':1 'мыло':2 'мыть':2 'рама':3
+(1 строка)
+
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Проверяем словари</h2>
+    <pre><code class="sql">SELECT to_tsvector('Съешь ещё этих мягких французских');
+                  to_tsvector
+------------------------------------------------
+ 'ещё':2 'мягк':4 'съеш':1 'французск':5 'эт':3
+(1 строка)
+
+</code>
+<code class="sql">SET default_text_search_config = 'ru';
+
+</code>
+<code class="sql">SELECT to_tsvector('Съешь ещё этих мягких французских');
+                      to_tsvector
+-------------------------------------------------------
+ 'ещё':2 'мягкий':4 'съешь':1 'французский':5 'этих':3
+(1 строка)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Собственно поиск</h2>
+    <pre style="font-size: 75%"><code class="sql">SELECT plainto_tsquery('мягкая булка') @@ to_tsvector(
+    'Съешь ещё этих мягких французских булок и выпей чаю');
+?column?
+----------
+t
+(1 строка)
+
+</code>
+<code class="sql">SELECT ts_headline('мама мыла милу', to_tsquery('мама'));
+      ts_headline
+-----------------------
+ <b>&lt;b&gt;мама&lt;/b&gt;</b> мыла милу
+(1 строка)
+
+</code>
+<code class="sql">SELECT ts_rank(to_tsvector(
+    'Съешь ещё этих мягких французских булок и выпей чаю'
+    ), to_tsquery('мягкая & булка'));
+  ts_rank
+-----------
+ 0.0985009
+(1 строка)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Веса</h2>
+    <pre style="font-size: 85%"><code class="sql">SELECT
+   '(to_tsvector('мама'), 'A') ||
+   setweight(to_tsvector('мыла'), 'B') ||
+   setweight(to_tsvector('раму'), 'D') @@ to_tsquery('мама:AB');
+?column?
+----------
+t
+(1 строка)
+
+</code>
+<code class="sql">SELECT
+   setweight(to_tsvector('мама'), 'A') ||
+   setweight(to_tsvector('мыла'), 'B') ||
+   setweight(to_tsvector('раму'), 'D') @@ to_tsquery('мама:BC');
+?column?
+----------
+f
+(1 строка)
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Всё вместе</h2>
+    <pre style="font-size: 85%"><code class="sql">CREATE TABLE documents (
+  id    SERIAL PRIMARY KEY,
+  title TEXT,
+  body  TEXT,
+  fts   TSVECTOR
+);
+
+</code><code class="sql">CREATE INDEX documents_fts USING GIN ON documents (fts);
+
+</code><code class="sql">INSERT INTO documents (title, body) VALUES
+('Хокку', E'Голос модема!\nКак он напоминает\nПенье цикады.');
+
+</code><code class="sql">UPDATE documents
+SET fts = setweight(to_tsvector(title), 'A')
+       || setweight(to_tsvector(body), 'B');
+
+</code><code class="sql">SELECT * FROM documents WHERE fts @@ to_tsquery('модем');
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Географические данные</h2>
+</section>
+
+<section class="slide">
+    <h2>PostGIS</h2>
+    <h3>Установка PostGIS</h3>
+    <pre><code class="bash">apt install postgis postgresql-9.5-postgis-scripts
+service postgresql restart
+</code></pre>
+    <h3>Настойка базы данных</h3>
+    <pre><code class="sql">CREATE EXTENSION postgis;
+CREATE EXTENSION postgis_topology;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>PostGIS: Пример запроса</h2>
+    <h3>Расстояние между двумя точками</h3>
+    <pre style="font-size: 85%"><code class="sql">SELECT ST_Distance(
+  ST_GeomFromText('POINT(37.6726 55.7448)'),  -- Moscow
+  ST_GeomFromText('POINT(30.3715 59.9401)')); -- St Petersburg
+<div class="next">   st_distance
+------------------
+ 8.42060587487623
+(1 строка)</div></code></pre>
+    <div class="next">
+        <h3>Расстояние между двумя точками</h3>
+        <pre style="font-size: 85%"><code class="sql">SELECT ST_Distance(
+  ST_GeogFromText('SRID=4326;POINT(37.6726 55.7448)'),
+  ST_GeogFromText('SRID=4326;POINT(30.3715 59.9401)'));
+   st_distance
+-----------------
+ 636751.38845948
+(1 строка)
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>PostGIS: Сфероиды</h2>
+    <h3>Что значит "SRID=4326"?</h3>
+    <pre style="font-size: 85%"><code class="sql">SELECT ST_Distance(
+  ST_GeogFromText('SRID=4326;POINT(37.6726 55.7448)'),
+  ST_GeogFromText('SRID=4326;POINT(30.3715 59.9401)'));
+   st_distance
+-----------------
+ 636751.38845948
+(1 строка)
+</code></pre>
+    <div class="next">
+        <h3>Сфероиды</h3>
+        <ul class="compact">
+            <li>WGS-84 (SRID=4326): GPS</li>
+            <li>ПЗ-90 (SRID=4740): ГЛОНАСС</li>
+        </ul>
+        <pre><code class="sql">SELECT * FROM spatial_ref_sys;</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>PostGIS: Пример запроса</h2>
+    <pre style="font-size: 80%"><code class="sql">EXPLAIN SELECT * FROM bookings.airports WHERE ST_DWithin(
+    Geography(ST_SetSRID(ST_POINT(longitude, latitude), 4326)),
+    ST_GeogFromText('SRID=4326;POINT(37.6726 55.7448)'),
+    100 * 1000);
+<div class="next" style="font-size: 80%">
+Seq Scan on airports  (cost=0.00..46.90 rows=1 width=101)
+  Filter: ((geography(st_setsrid(…)) && '0101…4B40'::geography)
+      AND ('0101…4B40'::geography && _st_expand(geography(st_setsrid(…)), 100000))
+      AND _st_dwithin(geography(st_setsrid(…)), '0101…4B40'::geography, 100000, true))
+</div></code></pre>
+</section>
+
+<section class="slide">
+    <h2>PostGIS: Пример запроса</h2>
+    <pre style="font-size: 80%"><code class="sql">CREATE INDEX idx_airports ON bookings.airports USING GIST
+    (Geography(ST_SetSRID(ST_POINT(longitude, latitude), 4326)));
+
+EXPLAIN SELECT * FROM bookings.airports WHERE ST_DWithin(
+    Geography(ST_SetSRID(ST_POINT(longitude, latitude), 4326)),
+    ST_GeogFromText('SRID=4326;POINT(37.6726 55.7448)'),
+    100 * 1000);
+<div class="next" style="font-size: 80%">
+Bitmap Heap Scan on airports  (cost=4.30..16.96 rows=1 width=101)
+  Recheck Cond: (geography(…) && '0101…4B40'::geography)
+  Filter: (('0101…4B40'::geography && _st_expand(geography(…)), 100000))
+      AND _st_dwithin(geography(st_setsrid(…), '0101…4B40'::geography, 100000, true))
+  ->  Bitmap Index Scan on idx_airports  (cost=0.00..4.29 rows=21 width=0)
+        Index Cond: (geography(st_setsrid(…)) && '0101…4B40'::geography)
+</div></code></pre>
+    <p class="next">Поиграться можно с базой: <a href="https://edu.postgrespro.ru/bookings.pdf">https://edu.postgrespro.ru/bookings.pdf</a>
+    </p>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Хранение слабоструктурированных данных</h2>
+</section>
+
+<section class="slide">
+    <h2>Хранение слабоструктурированных данных</h2>
+    <h3>Зачем?</h3>
+    <ul>
+        <li>Хранение сложных данных, содержимое которых не важно для сервера (например: настройки клиента);</li>
+        <li>Хранение данных, которые не имеет смысла нормализовать (например: CAD-схема);</li>
+        <li>Избавление от схемы данных для более быстрой миграции между версиями.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Хранение слабоструктурированных данных</h2>
+    <h3>Как хранить такие данные?</h3>
+    <ul>
+        <li>Двоичный формат (например: Protobuf, MessagePack);</li>
+        <li>Текстовый формат;</li>
+        <li>XML;</li>
+        <li>JSON;</li>
+        <li>JSONB.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>JSON: Пример запроса</h2>
+    <pre style="font-size: 70%"><code class="sql">CREATE TABLE movies_json (
+  id INT PRIMARY KEY,
+  data JSONB
+);
+
+INSERT INTO movies_json (id, data)
+SELECT m.id, json_build_object(
+  'title', title,
+  'year', year,
+  'genres', (
+    SELECT array_to_json(array_agg(name))
+    FROM movie_genres mg JOIN genres g ON (mg.genre_id = g.id)
+    WHERE mg.movie_id = m.id
+  ),
+  'tags', (
+    SELECT array_to_json(COALESCE(array_agg(distinct name), array[]::text[]))
+    FROM movie_tags mt JOIN tags t ON (mt.tag_id = t.id)
+    WHERE mt.movie_id = m.id
+  )
+)
+FROM movies m;
+</div></code></pre>
+</section>
+
+<section class="slide">
+    <h2>JSON: Пример запроса</h2>
+    <pre><code class="sql">SELECT data FROM movies_json
+WHERE data->>'title' = 'Zombieland';
+</code></pre>
+    <pre style="font-size: 70%"><code class="json">{
+  "tags": [
+    "Abigail Breslin",
+    "atlanta",
+    "awkward romance",
+    "banjo",
+    "Bill Murray",
+    "Woody Harrelson",
+    "zombies"
+  ],
+  "year": 2009,
+  "title": "Zombieland",
+  "genres": [
+    "Horror",
+    "Action",
+    "Comedy"
+  ]
+}
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>JSON: Операции</h2>
+    <dl>
+        <dt>A @&gt;B, B &lt;@ A</dt>
+        <dd>A является подмножеством B</dd>
+    </dl>
+    <dl>
+        <dt>A ?| array [B, C]</dt>
+        <dd>Проверяет, есть ли в A ключи/значения B или C</dd>
+    </dl>
+    <dl>
+        <dt>A ?& array [B, C]</dt>
+        <dd>Проверяет, есть ли в A ключи/значения B и C</dd>
+    </dl>
+    <dl>
+        <dt>A -> B, A ->> B</dt>
+        <dd>Получение из A элемента по ключу B</dd>
+    </dl>
+    <dl>
+        <dt>A #> '{B, C}', A #>> '{B, C}'</dt>
+        <dd>Получает из A элемент по пути A -> B -> C</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>JSON: Пример запроса</h2>
+    <pre><code class="sql">SELECT data->>'title', data->>'year', data->'genres'
+FROM movies_json
+WHERE data @> '{"title": "Zombieland"}';
+
+</code><code class="next sql">CREATE INDEX idx_movies_json ON movies_json
+USING GIN (data jsonb_path_ops);</code></pre>
+    <h3>VS</h3>
+    <pre><code class="sql">SELECT data->>'title', data->>'year', data->'genres'
+FROM movies_json
+WHERE data ->> 'title' = 'Zombieland';
+
+</code><code class="next sql">CREATE INDEX idx_movies_json_title ON movies_json
+((data ->> 'title') text_pattern_ops);</code></pre>
+</section>
+
+<section class="slide">
+    <h2>JSON: Пример запроса</h2>
+    <pre><code class="sql">SELECT data ->> 'title'
+FROM movies_json
+WHERE data @> '{"genres": ["Comedy"], "tags": ["zombie"]}';
+
+</code><code class="sql next">SELECT data ->> 'title'
+FROM movies_json j
+WHERE data @> '{"genres": ["Comedy"]}'
+  AND EXISTS (
+    SELECT value
+    FROM jsonb_array_elements_text(j.data -> 'tags')
+    WHERE value LIKE 'zombie%'
+  );
+</code></pre>
+</section>
+
+	
+<section class="slide white" style="padding: 0" id="contacts">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        Навроцкий Артем
+                        
+                        
+                        <div>E-mail: bozaro@yandex.ru</div>
+                        
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px; font-weight: bold">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Спасибо за внимание!
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<div class="progress"></div>
+	<script src="../js/common.js"></script>
+	<script src="../shower/shower.min.js"></script>
+	<script src="../highlight.js/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+	
+
+
+	<script src="../mathjax/MathJax.js?config=AM_HTMLorMML-full"></script>
+	<script>
+MathJax.Hub.Config({
+	asciimath2jax: {
+		inlineMath: [['$','$'],['\\(','\\)']],
+		processClass: "math",
+		ignoreClass: "no-math"
+	},
+	root: "..\/mathjax/"
+});
+	</script>
+
+
+</body>
+</html>

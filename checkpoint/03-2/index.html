@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<title>СУБД. РК-3 (практика)</title>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="generator" content="Hugo 0.27" />
+	
+	<link rel="icon" href="../../common/lecture.png" />
+	
+	<link rel="stylesheet" href="../../css/style.css">
+	<link rel="stylesheet" href="../../css/print.css" media="print">
+	<link rel="stylesheet" href="../../highlight.js/styles/grayscale.min.css">
+</head>
+<body class="shower list no-math">
+	<script>
+function randomTicket() {
+	var tickets = [].slice.call(document.querySelectorAll(".current"));
+	for (var i = 0; i < tickets.length; ++i) {
+        tickets[i].classList.remove("current");
+	}
+
+	var tickets = [].slice.call(document.querySelectorAll("section.ticket"));
+	if (tickets.length == 0) {
+		return;
+	}
+	var index = Math.floor(tickets.length * Math.random());
+	console.log("Ticket " + index + " of " + tickets.length);
+	var ticket = tickets[index];
+	ticket.classList.add("current");
+	ticket.scrollIntoView();
+}
+document.addEventListener("scroll", function(e) {
+	document.querySelector("#random").style.top = document.body.scrollTop + "px";
+});
+	</script>
+	<div id="random" class="random" onclick="randomTicket()"></div>
+	
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Оптимально ли составлен запрос? Какие индексы нужно построить для эффективного выполнения запроса и почему?
+        
+        <pre><code>SELECT rental_id FROM rental
+WHERE rental_date BETWEEN '2005-07-01' AND '2005-08-01'
+  AND customer_id = 2
+ORDER BY rental_date, inventory_id;
+</code></pre>
+
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Оптимально ли составлен запрос? Какие индексы нужно построить для эффективного выполнения запроса и почему?
+        
+        <pre><code>SELECT rental_id FROM rental
+WHERE EXTRACT(EPOCH FROM '2005-07-01'::timestamp - rental_date) &gt; 0
+  AND customer_id = 2
+ORDER BY rental_date;
+</code></pre>
+
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Оптимально ли составлен запрос? Какие индексы нужно построить для эффективного выполнения запроса и почему?
+        
+        <pre><code>SELECT rental_id FROM rental
+WHERE rental_date BETWEEN '2005-07-01' AND '2005-08-01'
+  AND customer_id IN (2, 42, 73);
+</code></pre>
+
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Оптимально ли составлен запрос? Какие индексы нужно построить для эффективного выполнения запроса и почему?
+        
+        <pre><code>SELECT city.city_id, city.city, country.country
+FROM city
+JOIN country ON city.country_id = country.country_id
+WHERE LOWER(LEFT(city.city, 2)) = 'mo';
+</code></pre>
+
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Оптимально ли составлен запрос? Какие индексы нужно построить для эффективного выполнения запроса и почему?
+        
+        <pre><code>SELECT COUNT(*), country.country
+FROM city
+JOIN country ON city.country_id = country.country_id
+GROUP BY country.country;
+</code></pre>
+
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Оптимально ли составлен запрос? Какие индексы нужно построить для эффективного выполнения запроса и почему?
+        
+        <pre><code>SELECT film.title, SUM(payment.amount)
+FROM customer
+JOIN rental ON (rental.customer_id = customer.customer_id)
+JOIN inventory ON (rental.inventory_id = inventory.inventory_id)
+JOIN film ON (inventory.film_id = film.film_id)
+JOIN payment ON (payment.rental_id = rental.rental_id)
+WHERE EXTRACT(YEAR FROM rental.rental_date) = 2005
+  AND customer.store_id = 2
+GROUP BY film.title;
+</code></pre>
+
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Оптимально ли составлен запрос? Какие индексы нужно построить для эффективного выполнения запроса и почему?
+        
+        <pre><code>SELECT country.country, COUNT(*)
+FROM store
+JOIN address ON (store.address_id = address.address_id)
+JOIN city ON (city.city_id = address.city_id)
+JOIN country ON (country.country_id = city.country_id)
+WHERE LOWER(LEFT(country.country, 1)) = 'a'
+GROUP BY country.country;
+</code></pre>
+
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Оптимально ли составлен запрос? Какие индексы нужно построить для эффективного выполнения запроса и почему?
+        
+        <pre><code>SELECT film_id, title, description
+FROM film
+WHERE (
+  SELECT COUNT(*)
+  FROM actor
+  JOIN film_actor ON (film_actor.actor_id = actor.actor_id)
+  WHERE film_actor.film_id = film.film_id
+    AND LOWER(actor.last_name) = 'monroe'
+) &gt; 0
+  AND film.rating = 'G'
+  AND film.release_year BETWEEN 2005 AND 2008;
+</code></pre>
+
+    </div>
+</section>
+
+
+
+	<script src="../../js/common.js"></script>
+	<script src="../../highlight.js/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+	
+
+
+
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<title>СУБД. РК-3 (теория)</title>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="generator" content="Hugo 0.27" />
+	
+	<link rel="icon" href="../../common/lecture.png" />
+	
+	<link rel="stylesheet" href="../../css/style.css">
+	<link rel="stylesheet" href="../../css/print.css" media="print">
+	<link rel="stylesheet" href="../../highlight.js/styles/grayscale.min.css">
+</head>
+<body class="shower list no-math">
+	<script>
+function randomTicket() {
+	var tickets = [].slice.call(document.querySelectorAll(".current"));
+	for (var i = 0; i < tickets.length; ++i) {
+        tickets[i].classList.remove("current");
+	}
+
+	var tickets = [].slice.call(document.querySelectorAll("section.ticket"));
+	if (tickets.length == 0) {
+		return;
+	}
+	var index = Math.floor(tickets.length * Math.random());
+	console.log("Ticket " + index + " of " + tickets.length);
+	var ticket = tickets[index];
+	ticket.classList.add("current");
+	ticket.scrollIntoView();
+}
+document.addEventListener("scroll", function(e) {
+	document.querySelector("#random").style.top = document.body.scrollTop + "px";
+});
+	</script>
+	<div id="random" class="random" onclick="randomTicket()"></div>
+	
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Что такое ACID?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Уровни изолированности транзакций.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Что такое &ldquo;Потерянное обновление (Lost Update)&rdquo;?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Что такое &ldquo;Грязное чтение (Dirty Read)&rdquo;?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Что такое &ldquo;Неповторяющееся чтение (Non-Repeatable Read)&rdquo;?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Что такое &ldquo;Чтение фантомов (Phantom Reads)&rdquo;?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Что такое &ldquo;Аномалии сериализации&rdquo;?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Что такое MVCC? Для чего нужно и как работает?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Зачем нужны хранимые процедуры и какие особенности их использования?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Зачем нужны триггера и какие особенности их использования?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Что такое журнал транзакций? Для чего он нужен и как работает?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Зачем нужны индексы?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Что такое частичные индексы?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Что такое кластерные индексы?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Что такое покрывающие индексы?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        В чем разница между B-Tree/Hash/Bitmap индексами?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        В чем разница между Merge join/Nested loop join/Hash join?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        План выполнения запросов. EXPLAIN.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Нормализация и денормализация данных.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Что такое секционирование и для чего оно нужно?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Что такое COLLATION?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Чем отличаются корелирующие и не коррелирующие подзапросы?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Что лучше, JOIN или подзапрос? Почему?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Почему использование индекса может замедлить выполнение запроса?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Что такое селективность индекса?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Какие есть варианты протоколирования запросов?
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        Что такие VACUUM?
+    </div>
+</section>
+
+
+
+	<script src="../../js/common.js"></script>
+	<script src="../../highlight.js/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+	
+
+
+
+</body>
+</html>

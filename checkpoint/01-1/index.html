@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<title>СУБД. РК-1 (студенты)</title>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="generator" content="Hugo 0.27" />
+	
+	<link rel="icon" href="../../common/lecture.png" />
+	
+	<link rel="stylesheet" href="../../css/style.css">
+	<link rel="stylesheet" href="../../css/print.css" media="print">
+	<link rel="stylesheet" href="../../highlight.js/styles/grayscale.min.css">
+</head>
+<body class="shower list no-math">
+	<script>
+function randomTicket() {
+	var tickets = [].slice.call(document.querySelectorAll(".current"));
+	for (var i = 0; i < tickets.length; ++i) {
+        tickets[i].classList.remove("current");
+	}
+
+	var tickets = [].slice.call(document.querySelectorAll("section.ticket"));
+	if (tickets.length == 0) {
+		return;
+	}
+	var index = Math.floor(tickets.length * Math.random());
+	console.log("Ticket " + index + " of " + tickets.length);
+	var ticket = tickets[index];
+	ticket.classList.add("current");
+	ticket.scrollIntoView();
+}
+document.addEventListener("scroll", function(e) {
+	document.querySelector("#random").style.top = document.body.scrollTop + "px";
+});
+	</script>
+	<div id="random" class="random" onclick="randomTicket()"></div>
+	
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <ul>
+    <li>
+        <code>Highschooler ( ID, name, grade )</code>
+        <div>Студент с уникальным ID. Имя и Класс</div>
+    </li>
+    <li>
+        <code>Friend ( ID1, ID2 )</code>
+        <div>Студент с ID1 друг студента с ID2. Дружба взаимная, если есть запись (123, 456), то есть и (456, 123)</div>
+    </li>
+    <li>
+        <code>Likes ( ID1, ID2 )</code>
+        <div>Студенту с ID1 нравится студент с ID2. Симпатии не взаимны, если есть запись (123, 456), то необязательно есть (456, 123).</div>
+    </li>
+</ul>
+
+        
+        Найти имена всех студентов кто дружит с кем-то по имени Gabriel.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <ul>
+    <li>
+        <code>Highschooler ( ID, name, grade )</code>
+        <div>Студент с уникальным ID. Имя и Класс</div>
+    </li>
+    <li>
+        <code>Friend ( ID1, ID2 )</code>
+        <div>Студент с ID1 друг студента с ID2. Дружба взаимная, если есть запись (123, 456), то есть и (456, 123)</div>
+    </li>
+    <li>
+        <code>Likes ( ID1, ID2 )</code>
+        <div>Студенту с ID1 нравится студент с ID2. Симпатии не взаимны, если есть запись (123, 456), то необязательно есть (456, 123).</div>
+    </li>
+</ul>
+
+        
+        Для всех студентов, кому понравился кто-то на 2 или более классов младше, чем он вывести имя этого студента и класс, а так же имя и класс студента который ему нравится.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <ul>
+    <li>
+        <code>Highschooler ( ID, name, grade )</code>
+        <div>Студент с уникальным ID. Имя и Класс</div>
+    </li>
+    <li>
+        <code>Friend ( ID1, ID2 )</code>
+        <div>Студент с ID1 друг студента с ID2. Дружба взаимная, если есть запись (123, 456), то есть и (456, 123)</div>
+    </li>
+    <li>
+        <code>Likes ( ID1, ID2 )</code>
+        <div>Студенту с ID1 нравится студент с ID2. Симпатии не взаимны, если есть запись (123, 456), то необязательно есть (456, 123).</div>
+    </li>
+</ul>
+
+        
+        Для каждой пары студентов, которые нравятся друг другу взаимно вывести имя и класс обоих студентов. Включать каждую пару только 1 раз с именами в алфавитном порядке.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <ul>
+    <li>
+        <code>Highschooler ( ID, name, grade )</code>
+        <div>Студент с уникальным ID. Имя и Класс</div>
+    </li>
+    <li>
+        <code>Friend ( ID1, ID2 )</code>
+        <div>Студент с ID1 друг студента с ID2. Дружба взаимная, если есть запись (123, 456), то есть и (456, 123)</div>
+    </li>
+    <li>
+        <code>Likes ( ID1, ID2 )</code>
+        <div>Студенту с ID1 нравится студент с ID2. Симпатии не взаимны, если есть запись (123, 456), то необязательно есть (456, 123).</div>
+    </li>
+</ul>
+
+        
+        Найти всех студентов, которые не встречаются в таблице лайков (никому не нравится и ему никто не нравится), вывести их имя и класс. Отсортировать по классу, затем по имени в классе.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <ul>
+    <li>
+        <code>Highschooler ( ID, name, grade )</code>
+        <div>Студент с уникальным ID. Имя и Класс</div>
+    </li>
+    <li>
+        <code>Friend ( ID1, ID2 )</code>
+        <div>Студент с ID1 друг студента с ID2. Дружба взаимная, если есть запись (123, 456), то есть и (456, 123)</div>
+    </li>
+    <li>
+        <code>Likes ( ID1, ID2 )</code>
+        <div>Студенту с ID1 нравится студент с ID2. Симпатии не взаимны, если есть запись (123, 456), то необязательно есть (456, 123).</div>
+    </li>
+</ul>
+
+        
+        Для каждой ситуации, когда студенту A нравится студент  B, но B никто не нравится, вывести имена и классы A и B.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <ul>
+    <li>
+        <code>Highschooler ( ID, name, grade )</code>
+        <div>Студент с уникальным ID. Имя и Класс</div>
+    </li>
+    <li>
+        <code>Friend ( ID1, ID2 )</code>
+        <div>Студент с ID1 друг студента с ID2. Дружба взаимная, если есть запись (123, 456), то есть и (456, 123)</div>
+    </li>
+    <li>
+        <code>Likes ( ID1, ID2 )</code>
+        <div>Студенту с ID1 нравится студент с ID2. Симпатии не взаимны, если есть запись (123, 456), то необязательно есть (456, 123).</div>
+    </li>
+</ul>
+
+        
+        Найти имена и классы, которые имеют друзей только в том же классе. Вернуть результат, отсортированный по классу, затем имени в классе.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <ul>
+    <li>
+        <code>Highschooler ( ID, name, grade )</code>
+        <div>Студент с уникальным ID. Имя и Класс</div>
+    </li>
+    <li>
+        <code>Friend ( ID1, ID2 )</code>
+        <div>Студент с ID1 друг студента с ID2. Дружба взаимная, если есть запись (123, 456), то есть и (456, 123)</div>
+    </li>
+    <li>
+        <code>Likes ( ID1, ID2 )</code>
+        <div>Студенту с ID1 нравится студент с ID2. Симпатии не взаимны, если есть запись (123, 456), то необязательно есть (456, 123).</div>
+    </li>
+</ul>
+
+        
+        Для каждого студента A, которому нравится студент B, и они не друзья, найти есть ли у них общий друг. Для каждой такой тройки вернуть имя и класс  A, B, и C.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <ul>
+    <li>
+        <code>Highschooler ( ID, name, grade )</code>
+        <div>Студент с уникальным ID. Имя и Класс</div>
+    </li>
+    <li>
+        <code>Friend ( ID1, ID2 )</code>
+        <div>Студент с ID1 друг студента с ID2. Дружба взаимная, если есть запись (123, 456), то есть и (456, 123)</div>
+    </li>
+    <li>
+        <code>Likes ( ID1, ID2 )</code>
+        <div>Студенту с ID1 нравится студент с ID2. Симпатии не взаимны, если есть запись (123, 456), то необязательно есть (456, 123).</div>
+    </li>
+</ul>
+
+        
+        Найти разницу между числом учащихся и числом различных имен.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <ul>
+    <li>
+        <code>Highschooler ( ID, name, grade )</code>
+        <div>Студент с уникальным ID. Имя и Класс</div>
+    </li>
+    <li>
+        <code>Friend ( ID1, ID2 )</code>
+        <div>Студент с ID1 друг студента с ID2. Дружба взаимная, если есть запись (123, 456), то есть и (456, 123)</div>
+    </li>
+    <li>
+        <code>Likes ( ID1, ID2 )</code>
+        <div>Студенту с ID1 нравится студент с ID2. Симпатии не взаимны, если есть запись (123, 456), то необязательно есть (456, 123).</div>
+    </li>
+</ul>
+
+        
+        Найти имя и класс студентов, которые нравятся более чем 1 другому студенту.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <ul>
+    <li>
+        <code>Highschooler ( ID, name, grade )</code>
+        <div>Студент с уникальным ID. Имя и Класс</div>
+    </li>
+    <li>
+        <code>Friend ( ID1, ID2 )</code>
+        <div>Студент с ID1 друг студента с ID2. Дружба взаимная, если есть запись (123, 456), то есть и (456, 123)</div>
+    </li>
+    <li>
+        <code>Likes ( ID1, ID2 )</code>
+        <div>Студенту с ID1 нравится студент с ID2. Симпатии не взаимны, если есть запись (123, 456), то необязательно есть (456, 123).</div>
+    </li>
+</ul>
+
+        
+        Если два школьника - А и В - друзья и А нравится В, но не наоборот, то удалите соответствующую строку из Likes.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <ul>
+    <li>
+        <code>Highschooler ( ID, name, grade )</code>
+        <div>Студент с уникальным ID. Имя и Класс</div>
+    </li>
+    <li>
+        <code>Friend ( ID1, ID2 )</code>
+        <div>Студент с ID1 друг студента с ID2. Дружба взаимная, если есть запись (123, 456), то есть и (456, 123)</div>
+    </li>
+    <li>
+        <code>Likes ( ID1, ID2 )</code>
+        <div>Студенту с ID1 нравится студент с ID2. Симпатии не взаимны, если есть запись (123, 456), то необязательно есть (456, 123).</div>
+    </li>
+</ul>
+
+        
+        Для всех  случаев, когда А нравится В, а В нравится С - получите имена и классы А, В и С.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <ul>
+    <li>
+        <code>Highschooler ( ID, name, grade )</code>
+        <div>Студент с уникальным ID. Имя и Класс</div>
+    </li>
+    <li>
+        <code>Friend ( ID1, ID2 )</code>
+        <div>Студент с ID1 друг студента с ID2. Дружба взаимная, если есть запись (123, 456), то есть и (456, 123)</div>
+    </li>
+    <li>
+        <code>Likes ( ID1, ID2 )</code>
+        <div>Студенту с ID1 нравится студент с ID2. Симпатии не взаимны, если есть запись (123, 456), то необязательно есть (456, 123).</div>
+    </li>
+</ul>
+
+        
+        Найдите всех студентов, у которых все друзья в других классах. Получите имена и классы таких студентов.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <ul>
+    <li>
+        <code>Highschooler ( ID, name, grade )</code>
+        <div>Студент с уникальным ID. Имя и Класс</div>
+    </li>
+    <li>
+        <code>Friend ( ID1, ID2 )</code>
+        <div>Студент с ID1 друг студента с ID2. Дружба взаимная, если есть запись (123, 456), то есть и (456, 123)</div>
+    </li>
+    <li>
+        <code>Likes ( ID1, ID2 )</code>
+        <div>Студенту с ID1 нравится студент с ID2. Симпатии не взаимны, если есть запись (123, 456), то необязательно есть (456, 123).</div>
+    </li>
+</ul>
+
+        
+        Каково среднее число друзей у студента? (Вы должны получить одно число).
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <ul>
+    <li>
+        <code>Highschooler ( ID, name, grade )</code>
+        <div>Студент с уникальным ID. Имя и Класс</div>
+    </li>
+    <li>
+        <code>Friend ( ID1, ID2 )</code>
+        <div>Студент с ID1 друг студента с ID2. Дружба взаимная, если есть запись (123, 456), то есть и (456, 123)</div>
+    </li>
+    <li>
+        <code>Likes ( ID1, ID2 )</code>
+        <div>Студенту с ID1 нравится студент с ID2. Симпатии не взаимны, если есть запись (123, 456), то необязательно есть (456, 123).</div>
+    </li>
+</ul>
+
+        
+        Найдите всех студентов, которые являются друзьями Cassandra, либо друзьями друзей Кассандра. Только не считайте саму Кассандру.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <ul>
+    <li>
+        <code>Highschooler ( ID, name, grade )</code>
+        <div>Студент с уникальным ID. Имя и Класс</div>
+    </li>
+    <li>
+        <code>Friend ( ID1, ID2 )</code>
+        <div>Студент с ID1 друг студента с ID2. Дружба взаимная, если есть запись (123, 456), то есть и (456, 123)</div>
+    </li>
+    <li>
+        <code>Likes ( ID1, ID2 )</code>
+        <div>Студенту с ID1 нравится студент с ID2. Симпатии не взаимны, если есть запись (123, 456), то необязательно есть (456, 123).</div>
+    </li>
+</ul>
+
+        
+        Найдите имена и классы студентов(-а) с наибольшим количеством друзей.
+    </div>
+</section>
+
+
+
+	<script src="../../js/common.js"></script>
+	<script src="../../highlight.js/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+	
+
+
+
+</body>
+</html>
