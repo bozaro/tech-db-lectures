@@ -23,9 +23,9 @@ description: |
             <th>№</th>
             <th>СУБД</th>
             <th>Тип</th>
-            <th>Nov 2018</th>
-            <th>Oct 2018</th>
-            <th>Nov 2017</th>
+            <th>May 2020</th>
+            <th>Apr 2020</th>
+            <th>May 2019</th>
         </tr>
         </thead>
         <tbody>
@@ -33,81 +33,81 @@ description: |
             <td>1</td>
             <td>Oracle</td>
             <td>Relational DBMS</td>
-            <td align="right">1301.11</td>
-            <td align="right" style="color: red">-18.16</td>
-            <td align="right" style="color: red">-58.94</td>
+            <td align="right">1345.44</td>
+            <td align="right" style="color: green">+0.02</td>
+            <td align="right" style="color: green">+59.89</td>
         </tr>
         <tr>
             <td>2</td>
             <td>MySQL</td>
             <td>Relational DBMS</td>
-            <td align="right">1159.89</td>
-            <td align="right" style="color: red">-18.22</td>
-            <td align="right" style="color: red">-162.14</td>
+            <td align="right">1282.64</td>
+            <td align="right" style="color: green">+14.29</td>
+            <td align="right" style="color: green">+63.67</td>
         </tr>
         <tr>
             <td>3</td>
             <td>Microsoft SQL Server</td>
             <td>Relational DBMS</td>
-            <td align="right">1051.55</td>
-            <td align="right" style="color: red">-6.78</td>
-            <td align="right" style="color: red">-163.53</td>
+            <td align="right">1078.30</td>
+            <td align="right" style="color: red">-5.12</td>
+            <td align="right" style="color: green">+6.12</td>
         </tr>
         <tr>
             <td>4</td>
             <td>PostgreSQL</td>
             <td>Relational DBMS</td>
-            <td align="right">440.24</td>
-            <td align="right" style="color: green">+20.85</td>
-            <td align="right" style="color: green">+60.33</td>
+            <td align="right">514.80</td>
+            <td align="right" style="color: green">+4.95</td>
+            <td align="right" style="color: green">+35.91</td>
         </tr>
         <tr>
             <td>5</td>
             <td>MongoDB</td>
             <td>Document store</td>
-            <td align="right">369.48</td>
-            <td align="right" style="color: green">+6.30</td>
-            <td align="right" style="color: green">+39.01</td>
+            <td align="right">438.99</td>
+            <td align="right" style="color: green">+0.57</td>
+            <td align="right" style="color: green">+30.92</td>
         </tr>
         <tr>
             <td>6</td>
             <td>DB2</td>
             <td>Relational DBMS</td>
-            <td align="right">179.87</td>
-            <td align="right" style="color: green">+0.19</td>
-            <td align="right" style="color: red">-14.19</td>
+            <td align="right">162.64</td>
+            <td align="right" style="color: red">-2.99</td>
+            <td align="right" style="color: red">-11.80</td>
         </tr>
         <tr>
             <td>7</td>
-            <td>Redis</td>
-            <td>Key-value store</td>
-            <td align="right">144.17</td>
-            <td align="right" style="color: red">-1.12</td>
-            <td align="right" style="color: green">+22.99</td>
+            <td>Elasticsearch</td>
+            <td>Search engine</td>
+            <td align="right">149.13</td>
+            <td align="right" style="color: green">+0.22</td>
+            <td align="right" style="color: green">+0.51</td>
         </tr>
         <tr>
             <td>8</td>
-            <td>Elasticsearch</td>
-            <td>Search engine</td>
-            <td align="right">143.46</td>
-            <td align="right" style="color: green">+1.13</td>
-            <td align="right" style="color: green">+24.05</td>
+            <td>Redis</td>
+            <td>Key-value store</td>
+            <td align="right">144.17</td>
+            <td align="right" style="color: red">-1.33</td>
+            <td align="right" style="color: red">-4.93</td>
         </tr>
         <tr>
             <td>9</td>
-            <td>Microsoft Access</td>
+            <td>SQLite</td>
             <td>Relational DBMS</td>
-            <td align="right">138.44</td>
-            <td align="right" style="color: green">+1.64</td>
-            <td align="right" style="color: green">+5.12</td>
+            <td align="right">123.09</td>
+            <td align="right" style="color: green">+0.84</td>
+            <td align="right" style="color: green">+0.14</td>
         </tr>
         <tr>
             <td>10</td>
-            <td>SQLite</td>
+            <td>Microsoft Access</td>
             <td>Relational DBMS</td>
-            <td align="right">122.71</td>
-            <td align="right" style="color: green">+5.96</td>
-            <td align="right" style="color: green">+9.95</td>
+            <td align="right">119.90</td>
+            <td align="right" style="color: red">-2.02</td>
+            <td align="right" style="color: red">-23.88</td>
         </tr>
         </tbody>
     </table>
@@ -573,52 +573,163 @@ WHERE id = 42;</code></pre>
 </section>
 
 <section class="slide">
-    <h2>REPEATABLE READ</h2>
-    <div style="display: table; width: 100%; font-size: 60%">
-        <div style="display: table-cell; width: 50%; padding: 10px">
-            <pre><code class="sql">test=# BEGIN TRANSACTION
-test-# ISOLATION LEVEL REPEATABLE READ;
-BEGIN
-test=# SELECT balance
-test-# FROM accounts WHERE name = 'Alice';
+    <h2>REPEATABLE READ (PostgreSQL)</h2>
+    <div style="display: table; width: 100%; font-size: 50%">
+        <div style="display: table-cell; width: 50%; padding: 5px">
+            <pre><code class="sql"># BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+# SELECT balance FROM accounts WHERE name = 'Alice';
 balance
 ---------
 400
-(1 row)
 
-test=# UPDATE accounts
-test-# SET balance = balance + 100
-test-# WHERE name = 'Alice';
+# UPDATE accounts SET balance = balance + 100
+$ WHERE name = 'Alice';
 UPDATE 1
 
+# COMMIT;
 
-
-test=# COMMIT;
-COMMIT
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+500
             </code></pre>
         </div>
-        <div style="display: table-cell; padding: 10px">
-            <pre><code class="sql">test=# BEGIN TRANSACTION
-test-# ISOLATION LEVEL REPEATABLE READ;
-BEGIN
-test=# SELECT balance
-test-# FROM accounts WHERE name = 'Alice';
+        <div style="display: table-cell; padding: 5px">
+            <pre><code class="sql"># BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+# SELECT balance FROM accounts WHERE name = 'Alice';
 balance
 ---------
 400
-(1 row)
 
 
 
 
 
-test=# UPDATE accounts
-test-# SET balance = balance + 100
-test-# WHERE name = 'Alice';
 
 
+# UPDATE accounts SET balance = balance + 100
+$ WHERE name = 'Alice';
 ERROR:  could not serialize access
         due to concurrent update
+            </code></pre>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>REPEATABLE READ (MySQL)</h2>
+    <div style="display: table; width: 100%; font-size: 50%">
+        <div style="display: table-cell; width: 50%; padding: 5px">
+            <pre><code class="sql"># SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+# BEGIN;
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+400
+
+# UPDATE accounts SET balance = balance + 100
+$ WHERE name = 'Alice';
+Query OK, 1 row affected (0.00 sec)
+
+# COMMIT;
+
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+500
+            </code></pre>
+        </div>
+        <div style="display: table-cell; padding: 5px">
+            <pre><code class="sql"># SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+# BEGIN;
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+400
+
+
+
+
+
+
+
+# UPDATE accounts SET balance = balance + 100
+$ WHERE name = 'Alice';
+Query OK, 1 row affected (0.00 sec)
+
+# COMMIT;
+
+# SELECT balance  FROM accounts WHERE name = 'Alice';
+balance
+---------
+600
+            </code></pre>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>REPEATABLE READ (MySQL)</h2>
+    <div style="display: table; width: 100%; font-size: 50%">
+        <div style="display: table-cell; width: 50%; padding: 5px">
+            <pre><code class="sql"># SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+# BEGIN;
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+400
+
+# UPDATE accounts SET balance = balance + 100
+$ WHERE name = 'Alice';
+Query OK, 1 row affected (0.00 sec)
+
+
+
+
+
+
+
+
+
+# COMMIT;
+
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+500
+            </code></pre>
+        </div>
+        <div style="display: table-cell; padding: 5px">
+            <pre><code class="sql"># SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+# BEGIN;
+
+
+
+
+
+
+
+
+
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+400
+
+# UPDATE accounts SET balance = balance + 100
+$ WHERE name = 'Alice';
+
+
+Query OK, 1 row affected (0.00 sec)
+
+# COMMIT;
+
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+600
             </code></pre>
         </div>
     </div>
