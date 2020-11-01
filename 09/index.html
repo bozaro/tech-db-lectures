@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<title>СУБД. Лекция 9</title>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="generator" content="Hugo 0.27" />
+	
+	<link rel="icon" href="../common/lecture.png" />
+	
+	<link rel="stylesheet" href="../shower/themes/ribbon/styles/screen-16x10.css">
+	<link rel="stylesheet" href="../css/style.css">
+	<link rel="stylesheet" href="../highlight.js/styles/idea.min.css">
+</head>
+<body class="shower list no-math">
+	<header class="caption">
+		<h1>СУБД. Лекция 9</h1>
+	</header>
+	
+<section class="slide white" style="padding: 0" id="cover">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        СУБД
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Навроцкий Артем
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="177" y="465" width="240" height="134">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: left">
+                    <div style="vertical-align: top; display: table-cell">
+                        Лекция 9
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<section class="slide">
+    <h2>Рейтинг СУБД</h2>
+    <table style="font-size: 90%" class="striped">
+        <thead>
+        <tr>
+            <th>№</th>
+            <th>СУБД</th>
+            <th>Тип</th>
+            <th>May 2020</th>
+            <th>Apr 2020</th>
+            <th>May 2019</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>Oracle</td>
+            <td>Relational DBMS</td>
+            <td align="right">1345.44</td>
+            <td align="right" style="color: green">+0.02</td>
+            <td align="right" style="color: green">+59.89</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>MySQL</td>
+            <td>Relational DBMS</td>
+            <td align="right">1282.64</td>
+            <td align="right" style="color: green">+14.29</td>
+            <td align="right" style="color: green">+63.67</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Microsoft SQL Server</td>
+            <td>Relational DBMS</td>
+            <td align="right">1078.30</td>
+            <td align="right" style="color: red">-5.12</td>
+            <td align="right" style="color: green">+6.12</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>PostgreSQL</td>
+            <td>Relational DBMS</td>
+            <td align="right">514.80</td>
+            <td align="right" style="color: green">+4.95</td>
+            <td align="right" style="color: green">+35.91</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>MongoDB</td>
+            <td>Document store</td>
+            <td align="right">438.99</td>
+            <td align="right" style="color: green">+0.57</td>
+            <td align="right" style="color: green">+30.92</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>DB2</td>
+            <td>Relational DBMS</td>
+            <td align="right">162.64</td>
+            <td align="right" style="color: red">-2.99</td>
+            <td align="right" style="color: red">-11.80</td>
+        </tr>
+        <tr>
+            <td>7</td>
+            <td>Elasticsearch</td>
+            <td>Search engine</td>
+            <td align="right">149.13</td>
+            <td align="right" style="color: green">+0.22</td>
+            <td align="right" style="color: green">+0.51</td>
+        </tr>
+        <tr>
+            <td>8</td>
+            <td>Redis</td>
+            <td>Key-value store</td>
+            <td align="right">144.17</td>
+            <td align="right" style="color: red">-1.33</td>
+            <td align="right" style="color: red">-4.93</td>
+        </tr>
+        <tr>
+            <td>9</td>
+            <td>SQLite</td>
+            <td>Relational DBMS</td>
+            <td align="right">123.09</td>
+            <td align="right" style="color: green">+0.84</td>
+            <td align="right" style="color: green">+0.14</td>
+        </tr>
+        <tr>
+            <td>10</td>
+            <td>Microsoft Access</td>
+            <td>Relational DBMS</td>
+            <td align="right">119.90</td>
+            <td align="right" style="color: red">-2.02</td>
+            <td align="right" style="color: red">-23.88</td>
+        </tr>
+        </tbody>
+    </table>
+    <p><a href="https://db-engines.com/en/ranking">https://db-engines.com/en/ranking</a></p>
+</section>
+
+<section class="slide">
+    <h2>Сравнение с MySQL</h2>
+    <ul>
+        <li>Архитектура MySQL:
+            <ul>
+                <li>Модульность и подключаемые хранилища;</li>
+                <li>Обзор основных хранилищ (MyISAM, InnoDB, Memory);</li>
+                <li>Особенности получения результата SELECT-а;</li>
+                <li>Особенности репликации и лога запросов.</li>
+            </ul>
+        </li>
+        <li>Особенности планировщика запросов;</li>
+        <li>Функционал, отсутствующий в PostgreSQL:
+            <ul>
+                <li>Memory-таблицы;</li>
+                <li>Кластерные индексы;</li>
+                <li>COLLATION.</li>
+            </ul>
+        </li>
+        <li>Базовые параметры при конфигурировании MySQL.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Архитектура MySQL</h2>
+</section>
+
+<section class="slide">
+    <h2>Архитектура MySQL</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="arhitecture.jpg"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Архитектура MySQL</h2>
+    <p>В MySQL различные хранилища объектов реализованы в виде подключаемых модулей.</p>
+    <p>Это порождает конфликт интересов:</p>
+    <ul>
+        <li>Подключаемые хранилищая требуют четкого и простого API для взаимодействия с ядром MySQL. Это требует, чтобы
+            ядро знало о хранилище <b>как можно меньше</b>;
+        </li>
+        <li>Для эффективного выполнения запросов нужно знать о хранении данных <b>как можно больше</b>.</li>
+    </ul>
+    <p>Данная особенность архитектуры MySQL проходит красной нитью через весь функционал.</p>
+</section>
+
+<section class="slide">
+    <h2>Подсистемы хранения: MyISAM</h2>
+    <ul>
+        <li>Блокировка и конкуренция</li>
+        <li>Автоматическое исправление</li>
+        <li>Ручное исправление<br/>
+            <code class="sql">CHECK TABLE mytable</code> и <code class="sql">REPAIR TABLE mytable</code></li>
+        <li>Индексы кэшируются отдельно</li>
+        <li>Полнотекстовый индекс</li>
+        <li>Отложенная запись ключей<br/>
+            <code class="sql">DELAY_KEY_WRITE</code></li>
+    </ul>
+    <img style="position: absolute; right: 20px; bottom: 20px; width: 210px" src="myisam.png"/>
+</section>
+
+<section class="slide">
+    <h2>Подсистемы хранения: InnoDB</h2>
+    <ul>
+        <li>Транзакции</li>
+        <li>Блокировки на уровне строк</li>
+        <li>Кластерные индексы</li>
+        <li>Внешние ключи</li>
+        <li>Возможны Deadlocks</li>
+    </ul>
+    <img style="position: absolute; right: 20px; bottom: 20px; width: 210px" src="innodb.png"/>
+</section>
+
+<section class="slide">
+    <h2>Подсистемы хранения: Memory</h2>
+    <ul>
+        <li>Данные хранятся в памяти и теряются при перезапуске</li>
+        <li>Поддерживают индексы типа HASH</li>
+        <li>Не поддерживают TEXT, BLOB, VARCHAR => CHAR</li>
+        <li>Используется для<br/>промежуточных таблиц</li>
+    </ul>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="memory.jpg"/>
+</section>
+
+<section class="slide">
+    <h2>Подсистемы хранения: критерии выбора</h2>
+    <ul>
+        <li>Транзакции</li>
+        <li>Конкурентный доступ</li>
+        <li>Резервное копирование</li>
+        <li>Восстановление после сбоя</li>
+        <li>Специальные возможности</li>
+    </ul>
+    <img style="position: absolute; right: 20px; bottom: 20px; width: 50%" src="engine.png"/>
+</section>
+
+<section class="slide">
+    <h2>Подсистемы хранения: надежность</h2>
+    <div style="text-align: center; height: 100%">
+        <img src="compare.png" style="height: 70%"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Подсистемы хранения: практические примеры</h2>
+    <ul>
+        <li>Протоколирование
+            <ul>
+                <li>MyISAM, Archive</li>
+            </ul>
+        </li>
+        <li>Чтение, или в основном чтение
+            <ul>
+                <li>MyISAM</li>
+            </ul>
+        </li>
+        <li>Обработка заказов
+            <ul>
+                <li>InnoDB</li>
+            </ul>
+        </li>
+        <li>Распространение на дисках
+            <ul>
+                <li>MyISAM, Compressed MyISAM</li>
+            </ul>
+        </li>
+    </ul>
+    <img style="position: absolute; right: 20px; bottom: 20px" src="choose.jpg"/>
+</section>
+
+<section class="slide">
+    <h2>Подсистемы хранения: за бортом</h2>
+    <ul>
+        <li>Оптимизатор;</li>
+        <li>Репликация;</li>
+        <li>Схема базы;</li>
+        <li>Триггеры;</li>
+        <li>SEQUENCE;</li>
+        <li>Синтаксический парсер.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Не транзакционный DDL</h2>
+    <p>Метаданные дублиются как в ядре MySQL, так и в его хранилише. Возникает проблема с транзакционным обновленим
+        метаданных.</p>
+    <p>Из-за этого DDL-запросы в MySQL не транзакционны.</p>
+    <p>То есть, любой DDL-запрос автоматически подтвержает старую транзакцию и начинает новую. Этот факт может сильно
+        усложнять написание скриптов миграции.</p>
+</section>
+
+<section class="slide">
+    <h2>Дорогой ALTER TABLE</h2>
+    <p>По той же причине, в MySQL почти любой ALTER TABLE влечет за собой полное пересоздание таблицы (по крайней мере в
+        InnoDB). В том числе это касается таких операций как удалние CONSTRAINT-ов, удаление стоблцов и создание
+        NULL-столбцов.</p>
+    <p>В большинстве СУБД подобные операции требуют только изменения метаданных и выполняются мгновенно.</p>
+    <p>С MySQ 5.7.4 появился флаг <code>ALGORITHM=INPLACE</code> для модификации таблицы без копирования её содержимого.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Особенности выборки данных</h2>
+    <p>By default, ResultSets are completely retrieved and stored in memory. In most cases this is the most efficient
+        way to operate and, due to the design of the MySQL network protocol, is easier to implement. If you are working
+        with ResultSets that have a large number of rows or large values and cannot allocate heap space in your JVM for
+        the memory required, you can tell the driver to stream the results back one row at a time.</p>
+    <p>To enable this functionality, create a Statement instance in the following manner:</p>
+    <pre><code class="java">stmt = conn.createStatement(
+    java.sql.ResultSet.TYPE_FORWARD_ONLY,
+    java.sql.ResultSet.CONCUR_READ_ONLY);
+stmt.setFetchSize(Integer.MIN_VALUE);</code></pre>
+    <footer class="footer"><a
+            href="https://dev.mysql.com/doc/connector-j/5.1/en/connector-j-reference-implementation-notes.html">https://dev.mysql.com/doc/connector-j/5.1/en/connector-j-reference-implementation-notes.html</a>
+    </footer>
+</section>
+
+<section class="slide">
+    <h2>Архитектура MySQL</h2>
+    <p>В MySQL хранилище и лог транзакций существуют за пределами "движка" СУБД.</p>
+    <p>Как следствие, в MySQL вместо журнала транзакций для репликации используется отдельный журнал.</p>
+</section>
+
+<section class="slide">
+    <h2>Репликация в MySQL</h2>
+    <h3>Режимы репликации:</h3>
+    <dl>
+        <dt>STATEMENT</dt>
+        <dd><p>Сохраняются непосредственно запросы, которые информаци об изменениях записей.</p></dd>
+
+        <dt>ROW</dt>
+        <dd>
+            <p>Сохраняется информаци об изменениях записей.</p>
+            <p>В случае DDL-выражений сохраняются сами запросы.</p>
+        </dd>
+
+        <dt>MIXED</dt>
+        <dd><p>Промежуточный формат, который старается использовать statement, когда возможно, а когда нет — row.</p>
+        </dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Репликация в MySQL</h2>
+    <ul>
+        <li>Репликация провоцирует больше записи на диск;</li>
+        <li>Реплика воспроизводит транзакции по очереди;</li>
+        <li>Двухфазная фиксации транзакции (между журналом транзакций и журналом репликации);</li>
+        <li>Репликация хрупкая, так как некоторые запросы гарантировано ведут к порче данных.</li>
+    </ul>
+    <div class="next">
+        <h3>Пример проблемного запроса:</h3>
+        <pre><code class="sql">ALTER TABLE foo
+  ADD id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  ADD PRIMARY KEY (id);
+    </code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Особенности планировщика запросов</h2>
+</section>
+
+<section class="slide">
+    <h2>Особенности планировщика запросов</h2>
+    <ul>
+        <li>Планировщик очень мало знает о том, как лежат данные;</li>
+        <li>Соединение только через Neasted Loop;</li>
+        <li>Триггеры игнорируют каскадное изменение данных.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Гарантированно плохие запросы</h2>
+    <pre><code class="sql">SELECT title, description FROM foo
+UNION ALL
+SELECT title, description FROM bar
+ORDER BY title;
+
+SELECT * FROM (
+    SELECT title, MIN(description) as desc
+    FROM film
+    GROUP BY title
+) f
+WHERE f.title LIKE 'al%';
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>SELECT ... IN ...</h2>
+    <pre><code class="sql">SELECT * FROM sakila.film
+WHERE film_id
+IN (1,23,25,106,277);
+
+SELECT * FROM sakila.film
+WHERE film_id = 1
+   OR film_id = 23
+   OR film_id = 25
+   OR film_id = 106
+   OR film_id = 277;
+    </code></pre>
+</section>
+
+<section class="slide">
+    <h2>DELETE</h2>
+    <h3>Стандартный синтаксис</h3>
+    <pre><code class="sql">DELETE FROM t1
+WHERE
+    t1.id IN (SELECT t2.id FROM t2);
+</code></pre>
+    <h3>Специфичиный синтаксис</h3>
+    <pre><code class="sql">DELETE t1
+FROM
+    t1 JOIN t2 ON (t1.id = t2.id);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Что еще плохо?</h2>
+</section>
+
+<section class="slide">
+    <h2>WARNING vs ERROR</h2>
+    <pre><code class="sql">CREATE TABLE data (
+  id  INT NOT NULL,
+  foo INT NULL,
+  bar NUMERIC(4, 2)
+);
+INSERT INTO data VALUES (1, NULL, 1234.5678);
+<div class="next">Query OK, 1 row affected, 1 warning (0,00 sec)</div>
+</code>
+<code class="sql next">SELECT * FROM data;
++----+------+-------+
+| id | foo  | bar   |
++----+------+-------+
+|  1 | NULL | 99.99 |
++----+------+-------+
+1 rows in set (0,00 sec)</code></pre>
+</section>
+
+<section class="slide">
+    <h2>WARNING vs ERROR</h2>
+    <h3>sql_mode = 'STRICT_TRANS_TABLES'</h3>
+    <p>Данная опция включена по-умолчанию с MySQL 5.7.5.</p>
+    <p>Первый General Availability релиз с данным изменением 5.7.9 вышел 21 октября 2015 года.</p>
+</section>
+
+<section class="slide">
+    <h2>WARNING vs ERROR</h2>
+    <pre><code class="sql">ALTER TABLE data
+  MODIFY COLUMN foo INT NOT NULL;
+<div class="next">Query OK, 1 row affected, 1 warning (0,00 sec)</div>
+</code>
+<code class="sql next">SELECT * FROM data;
++----+-----+-------+
+| id | foo | bar   |
++----+-----+-------+
+|  1 |   0 | 99.99 |
++----+-----+-------+
+1 rows in set (0,00 sec)</code></pre>
+</section>
+
+<section class="slide">
+    <h2>AUTO_INCREMENT</h2>
+    <ul>
+        <li>Нет возможность получить значение AUTO_INCREMENT до вставки записи;</li>
+        <li>Возможно повторное использование идентификаторов.</li>
+    </ul>
+    <footer>
+        <p><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-auto-increment-handling.html#innodb-auto-increment-initialization">https://dev.mysql.com/doc/refman/8.0/en/innodb-auto-increment-handling.html#innodb-auto-increment-initialization</a></p>
+        <p>In MySQL 5.7 and earlier, the auto-increment counter is stored only in main memory, not on disk. To initialize an auto-increment counter after a server restart, InnoDB would execute the equivalent of the following statement on the first insert into a table containing an AUTO_INCREMENT column.
+        <code class="sql">SELECT MAX(ai_col) FROM table_name FOR UPDATE;</code></p>
+    </footer>
+</section>
+
+<section class="slide">
+    <h2>TIMESTAMP vs DATETIME</h2>
+    <h3>TIMESTAMP:</h3>
+    <ul class="compact" style="font-size: 80%">
+        <li>Внутри хранит кол-во секунд с момента EPOC;</li>
+        <li>На клиенте учитывает временную зону;</li>
+        <li>Имеет крайне забавное значение, которое не понятно как обрабатывать: 0000-00-00 00:00:00;</li>
+        <li>Диапазон значений: от '1970-01-01 00:00:01' UTC до '2038-01-19 03:14:07' UTC;</li>
+        <li>Внезапно, по-умолчанию поле этого типа изменяет своё значение при каждом обновлении записи на текущее
+            время.
+        </li>
+    </ul>
+    <h3>DATETIME:</h3>
+    <ul class="compact" style="font-size: 80%">
+        <li>Внутри хранит дату и время;</li>
+        <li>Временная зона не влияет на значение поля;</li>
+        <li>Диапазон значений: от 0000-01-01 00:00:00 до 9999-12-31 23:59:59.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>TIMESTAMP</h2>
+    <pre><code class="sql">CREATE TABLE k (
+  A INT NULL,
+  B NUMERIC (4, 2),
+  C TIMESTAMP
+);
+
+</code>
+<code class="sql">INSERT INTO k (A, B) VALUES (42, 22.7);
+
+</code>
+<code class="sql">SELECT * FROM k;
+<div class="next">+----+-------+---------------------+
+| A  | B     |                     |
++----+-------+---------------------+
+| 42 | 22.70 | 2017-04-27 20:27:17 |
++----+-------+---------------------+
+1 rows in set (0,00 sec)</div></code></pre>
+</section>
+
+<section class="slide">
+    <h2>TIMESTAMP</h2>
+    <pre style="font-size: 90%"><code class="sql">SELECT * FROM k;
++----+-------+---------------------+
+| A  | B     |                     |
++----+-------+---------------------+
+| 42 | 22.70 | 2017-04-27 20:27:17 |
++----+-------+---------------------+
+1 rows in set (0,00 sec)
+
+</code>
+<code class="sql">UPDATE k SET B = B + 1;
+
+</code>
+<code class="sql">SELECT * FROM k;
+<div class="next">+----+-------+---------------------+
+| A  | B     |                     |
++----+-------+---------------------+
+| 42 | 23.70 | 2017-04-27 20:27:47 |
++----+-------+---------------------+
+1 rows in set (0,00 sec)</div></code>
+</pre>
+</section>
+
+<section class="slide">
+    <h2>TIMESTAMP</h2>
+    <pre><code class="sql">CREATE TABLE k (
+  A INT NULL,
+  B NUMERIC (4, 2),
+  C TIMESTAMP,
+  D TIMESTAMP
+);
+<div class="next"></div>Error Code: 1067. Invalid default value for 'D'</code></pre>
+</section>
+
+<section class="slide">
+    <h2>TIMESTAMP</h2>
+    <pre><code class="sql">CREATE TABLE k (
+  A INT NULL,
+  B NUMERIC (4, 2),
+  C TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  D TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+<div></div>0 rows updated (0,00 sec)</code></pre>
+</section>
+
+<section class="slide">
+    <h2>GROUP BY</h2>
+    <pre><code class="sql">SELECT A, B, SUM(C)
+FROM K
+GROUP BY A;</code></pre>
+    <div class="next">
+        <h3>sql_mode = 'ONLY_FULL_GROUP_BY'</h3>
+        <p>Данная опция так же включена по-умолчанию с MySQL 5.7.5.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>UPDATE</h2>
+    <p>В MySQL операция UPDATE не соответвует стандарту SQL92.</p>
+    <blockquote>
+        13.9 &lt;update statement: positioned&gt;<br/>
+        6) The &lt;value expression&gt;s are effectively evaluated before updating the object row. If a &lt;value
+        expression&gt; contains a reference to a column of T, then the reference is to the value of that column in the
+        object row before any value of the object row is updated.
+    </blockquote>
+    <h3>Иллюстрируется запросом:</h3>
+    <pre><code class="sql">UPDATE foo SET
+    a = b,
+    b = a
+WHERE id = 42;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>lower_case_table_names</h2>
+    <p>В MySQL есть параметр <code>lower_case_table_names</code>, который приводит имена всех таблиц в нижний регистр и
+        по-умолчанию включён под Windows.</p>
+    <p>В результате, если взять базу, у которой имена таблиц не в нижнем регистре, и развернуть её под Windows, то
+        перенести эту базу обратно под Linux уже не получится.</p>
+</section>
+
+<section class="slide">
+    <h2>REPEATABLE READ (PostgreSQL)</h2>
+    <div style="display: table; width: 100%; font-size: 50%">
+        <div style="display: table-cell; width: 50%; padding: 5px">
+            <pre><code class="sql"># BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+400
+
+# UPDATE accounts SET balance = balance + 100
+$ WHERE name = 'Alice';
+UPDATE 1
+
+# COMMIT;
+
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+500
+            </code></pre>
+        </div>
+        <div style="display: table-cell; padding: 5px">
+            <pre><code class="sql"># BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+400
+
+
+
+
+
+
+
+# UPDATE accounts SET balance = balance + 100
+$ WHERE name = 'Alice';
+ERROR:  could not serialize access
+        due to concurrent update
+            </code></pre>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>REPEATABLE READ (MySQL)</h2>
+    <div style="display: table; width: 100%; font-size: 50%">
+        <div style="display: table-cell; width: 50%; padding: 5px">
+            <pre><code class="sql"># SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+# BEGIN;
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+400
+
+# UPDATE accounts SET balance = balance + 100
+$ WHERE name = 'Alice';
+Query OK, 1 row affected (0.00 sec)
+
+# COMMIT;
+
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+500
+            </code></pre>
+        </div>
+        <div style="display: table-cell; padding: 5px">
+            <pre><code class="sql"># SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+# BEGIN;
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+400
+
+
+
+
+
+
+
+# UPDATE accounts SET balance = balance + 100
+$ WHERE name = 'Alice';
+Query OK, 1 row affected (0.00 sec)
+
+# COMMIT;
+
+# SELECT balance  FROM accounts WHERE name = 'Alice';
+balance
+---------
+600
+            </code></pre>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>REPEATABLE READ (MySQL)</h2>
+    <div style="display: table; width: 100%; font-size: 50%">
+        <div style="display: table-cell; width: 50%; padding: 5px">
+            <pre><code class="sql"># SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+# BEGIN;
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+400
+
+# UPDATE accounts SET balance = balance + 100
+$ WHERE name = 'Alice';
+Query OK, 1 row affected (0.00 sec)
+
+
+
+
+
+
+
+
+
+# COMMIT;
+
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+500
+            </code></pre>
+        </div>
+        <div style="display: table-cell; padding: 5px">
+            <pre><code class="sql"># SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+# BEGIN;
+
+
+
+
+
+
+
+
+
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+400
+
+# UPDATE accounts SET balance = balance + 100
+$ WHERE name = 'Alice';
+
+
+Query OK, 1 row affected (0.00 sec)
+
+# COMMIT;
+
+# SELECT balance FROM accounts WHERE name = 'Alice';
+balance
+---------
+600
+            </code></pre>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Что хорошо?</h2>
+</section>
+
+<section class="slide">
+    <h2>Секционирование</h2>
+    <pre><code class="sql">CREATE TABLE orders_range (
+    customer_surname VARCHAR(30),
+    store_id INT,
+    salesperson_id INT,
+    order_date DATE,
+    note VARCHAR(500)
+) ENGINE = InnoDB
+PARTITION BY RANGE (YEAR (order_date)) (
+    PARTITION p_old VALUES LESS THAN(2008),
+    PARTITION p_2008 VALUES LESS THAN(2009),
+    PARTITION p_2009 VALUES LESS THAN(MAXVALUE)
+);</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Секционирование</h2>
+    <h3>RANGE</h3>
+    <p>По диапазону значений</p>
+    <pre><code class="sql">PARTITION BY RANGE (store_id) (
+    PARTITION p0 VALUES LESS THAN (10),
+    PARTITION p1 VALUES LESS THAN (20),
+    PARTITION p3 VALUES LESS THAN (30)
+);</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Секционирование</h2>
+    <h3>LIST</h3>
+    <p>По точному списку значений</p>
+    <pre><code class="sql">PARTITION BY LIST(store_id) (
+    PARTITION pNorth VALUES IN (3,5,6,9,17),
+    PARTITION pEast VALUES IN (1,2,10,11,19,20)
+);</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Секционирование</h2>
+    <h3>HASH</h3>
+    <p>По хэшу от какой-либо функции</p>
+    <pre><code class="sql">PARTITION BY HASH(YEAR(hired))
+PARTITIONS 10;</code></pre>
+
+    <h3>KEY</h3>
+    <p>Почти то же самое что и HASH, но по ключу</p>
+    <pre><code class="sql">PARTITION BY KEY(s1)
+PARTITIONS 10;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Секционирование</h2>
+    <ul style="font-size: 90%" class="compact">
+        <li>Все секции должны управляться одной и той же подсистемой хранения. Например, нельзя сжать только часть
+            секций, хотя для составляющих объединенной таблицы это допустимо.
+        </li>
+        <li>Любой уникальный индекс над секционированной таблицей должен содержать столбцы, на которые ссылается функция
+            секционирования.
+        </li>
+        <li>Хотя сервер MySQL может обойтись без доступа к каждой секции при обработке запроса к секционированной
+            таблице, он тем менее ставит блокировки на все секции.
+        </li>
+        <li>Существует ряд ограничений на функции и выражения, которые можно использовать в механизме секционирования.
+        </li>
+        <li>Некоторые подсистемы хранения вообще не поддерживают секционирование.</li>
+        <li>Внешние ключи не работают.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>COLLATIONS</h2>
+    <p>MySQL для регистронезависимого сравнения использует COLLATIONS (например: utf8_general_ci):<br/>
+        <a style="font-size: 90%" href="http://collation-charts.org/mysql60/mysql604.utf8_general_ci.european.html">http://collation-charts.org/mysql60/mysql604.utf8_general_ci.european.html</a>
+    </p>
+    <h3>Проблемы PostgreSQL:</h3>
+    <ul>
+        <li>Нет регистронезависимого сравнения;</li>
+        <li>Проблемы с не-iconv COLLCATION:</li>
+        <ul>
+            <li>Разная сортировка на разных ОС;</li>
+            <li>Обновление libc может поломать индексы.</li>
+        </ul>
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>libslave</h2>
+    <p>Библиотека на C++, которая может быть использована в вашем приложении для получения обновлений из MySQL. Libslave
+        не связана на уровне кодов с MySQL-сервером; она собирается и линкуется только с клиентом — libmysqlclient.</p>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Базовые параметры</h2>
+</section>
+
+<section class="slide">
+    <h2>Кэш MyISAM</h2>
+    <dl>
+        <dt>key_buffer_size</dt>
+        <dd>25 – 50 % от общего объема памяти, зарезервированного для MyISAM кэшей.</dd>
+    </dl>
+    <p>
+    <pre style="font-size: 80%"><code class="bash">key_buffer_1.key_buffer_size = 1G
+key_buffer_2.key_buffer_size = 1G</code></pre>
+    </p>
+    <p>
+    <pre style="font-size: 80%"><code class="bash">CACHE INDEX t1, t2 IN key_buffer_1;
+LOAD INDEX INTO CACHE t1, t2;</code></pre>
+    </p>
+    <p>Эту SQL-команду можно поместить в файл, выполняемый MySQL на этапе запуска. Имя файла задается с помощью
+        параметра init_file.</p>
+    <p>В нем может быть несколько SQL-команд, каждая в отдельной строке.</p>
+</section>
+
+<section class="slide white">
+    <h2>Размер блока ключей key_cache_block_size</h2>
+    <ul>
+        <li>MyISAM запрашивает блок ключей размером 1 Кбайт с диска.</li>
+        <li>ОС считывает страницу данных размером 4 Кбайт с диска, кэширует ее, а затем передает MyISAM затребованный 1
+            Кбайт.
+        </li>
+        <li>ОС отбрасывает закэшированные данные, замещая их какими-то другими.</li>
+        <li>MyISAM модифицирует блок ключей размером 1 Кбайт и просит операционную систему записать его обратно на
+            диск.
+        </li>
+        <li>ОС считывает ту же самую страницу размером 4 Кбайт с диска в свой кэш, модифицирует в ней тот килобайт,
+            который изменил MyISAM, и записывает все 4 Кбайт обратно на диск.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Кэш InnoDB</h2>
+    <dl>
+        <dt>innodb_buffer_pool_size</dt>
+        <dd>В отличие от кэша ключей MyISAM, в пуле буферов InnoDB кэшируются не только индексы, там также хранятся сами
+            данные, буфер вставок, блокировки и другие внутренние структуры. В InnoDB пулбуферов используется также для
+            реализации отложенных операций записи и позволяет объединить несколько таких процедур, чтобы затем выполнить
+            их последовательно.<br/>
+            Рекомендуется выставить до 80% физической памяти.
+        </dd>
+
+        <dt>innodb_max_dirty_pages_pct</dt>
+        <dd>Говорит InnoDB о допустимом количестве «грязных» (модифицированных) страниц в пуле буферов.</dd>
+</section>
+
+<section class="slide">
+    <h2>Кэш InnoDB</h2>
+    <p>В MySQL есть возможность сохранить состояние кэша, чтобы избежать проблемы с прогревом базы.</p>
+    <pre><code class="sql">SET GLOBAL innodb_buffer_pool_dump_at_shutdown = ON;
+SET GLOBAL innodb_buffer_pool_dump_now = ON;
+SET GLOBAL innodb_buffer_pool_load_now = ON;
+
+SHOW STATUS LIKE 'Innodb_buffer_pool_dump_status';
+SHOW STATUS LIKE 'Innodb_buffer_pool_load_status';
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Ввод / вывод в MyISAM</h2>
+    <h3>delay_key_write</h3>
+    <p>Определяет, когда будут сбрасываться данные на диск.</p>
+    <dl>
+        <dt>OFF</dt>
+        <dd>MyISAM сбрасывает измененные блоки из буфера ключей после каждой записи, если только таблица не блокирована
+            командой LOCK TABLES.
+        </dd>
+
+        <dt>ON</dt>
+        <dd>Включен режим отложенной записи ключей, но только для таблиц, созданных с параметром DELAY_KEY_WRITE.</dd>
+
+        <dt>ALL</dt>
+        <dd>Для всех таблиц типа MyISAM используется отложенная запись ключей.</dd>
+    </dl>
+    <pre><code class="sql">ALTER TABLE sometable DELAY_KEY_WRITE = 1;</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Ввод / вывод в MyISAM</h2>
+    <ul>
+        <li>Если сервер аварийно завершает работу, а блоки не были сброшены на диск, то индекс будет испорчен.</li>
+        <li>Если было отложено много операций записи, то MySQL потратит больше времени на закрытие таблицы, поскольку
+            вынуждена ждать завершения записи буферов на диск.
+        </li>
+        <li>По тем же причинам команда FLUSH TABLES может занимать много времени.</li>
+        <li>Не сброшенные «грязные» блоки в буфере ключей могут не оставить места для новых блоков, считываемых с диска.
+            В таком случае выполнение запроса будет приостановлено на время, пока MyISAM не освободит достаточно места в
+            буфере ключей.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Ввод / вывод в InnoDB</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="innodb-io.png"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Ввод / вывод в InnoDB</h2>
+    <dl>
+        <dt>innodb_log_file_size</dt>
+        <dd>Общий максимальный размер файла логов транзакций.</dd>
+
+        <dt>innodb_log_files_in_group</dt>
+        <dd>Количество файлов в группе.</dd>
+
+        <dt>innodb_log_buffer_size</dt>
+        <dd>Размер буфера лога транзакций.</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Ввод / вывод в InnoDB</h2>
+    <pre><code class="sql" style="font-size: 75%">mysql> pager grep sequence
+PAGER SET TO 'grep sequence'
+
+mysql> SHOW engine innodb STATUS\G SELECT sleep(60); SHOW engine innodb STATUS\G
+Log sequence number 84 3836410803
+ 1 row IN SET (0.06 sec)
+ 1 row IN SET (1 min 0.00 sec)
+Log sequence number 84 3838334638
+ 1 row IN SET (0.05 sec)
+
+mysql> SELECT (3838334638 - 3836410803) / 1024 / 1024 AS MB_per_min;
+
++------------+
+| MB_per_min |
++------------+
+| 1.83471203 |
++------------+
+</code></pre>
+    <p>Размер лога выбираем примерно на 10-60 минут работы сервера.</p>
+</section>
+
+<section class="slide">
+    <h2>Ввод / вывод в InnoDB</h2>
+    <h3>innodb_flush_log_at_trx_commit</h3>
+    <dl>
+        <dt>0</dt>
+        <dd>Писать буфер в файл журнала и сбрасывать журнал на устройство постоянного хранения (диск) раз в секунду, но
+            ничего не делать в момент фиксации транзакции.
+        </dd>
+
+        <dt>1</dt>
+        <dd>Писать буфер в файл журнала и сбрасывать его на устройство постоянного хранения при каждой фиксации
+            транзакции.
+        </dd>
+
+        <dt>2</dt>
+        <dd>Писать буфер в файл журнала при каждой фиксации, но не сбрасывать его на устройство постоянного хранения.
+        </dd>
+    </dl>
+</section>
+	
+<section class="slide white" style="padding: 0" id="contacts">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        Навроцкий Артем
+                        
+                        
+                        <div>E-mail: bozaro@yandex.ru</div>
+                        
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px; font-weight: bold">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Спасибо за внимание!
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<div class="progress"></div>
+	<script src="../js/common.js"></script>
+	<script src="../shower/shower.min.js"></script>
+	<script src="../highlight.js/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+	
+
+
+	<script src="../mathjax/MathJax.js?config=AM_HTMLorMML-full"></script>
+	<script>
+MathJax.Hub.Config({
+	asciimath2jax: {
+		inlineMath: [['$','$'],['\\(','\\)']],
+		processClass: "math",
+		ignoreClass: "no-math"
+	},
+	root: "..\/mathjax/"
+});
+	</script>
+
+
+</body>
+</html>

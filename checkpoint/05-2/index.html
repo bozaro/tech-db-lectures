@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<title>СУБД. РК-5 (практика)</title>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="generator" content="Hugo 0.27" />
+	
+	<link rel="icon" href="../../common/lecture.png" />
+	
+	<link rel="stylesheet" href="../../css/style.css">
+	<link rel="stylesheet" href="../../css/print.css" media="print">
+	<link rel="stylesheet" href="../../highlight.js/styles/grayscale.min.css">
+</head>
+<body class="shower list no-math">
+	<script>
+function randomTicket() {
+	var tickets = [].slice.call(document.querySelectorAll(".current"));
+	for (var i = 0; i < tickets.length; ++i) {
+        tickets[i].classList.remove("current");
+	}
+
+	var tickets = [].slice.call(document.querySelectorAll("section.ticket"));
+	if (tickets.length == 0) {
+		return;
+	}
+	var index = Math.floor(tickets.length * Math.random());
+	console.log("Ticket " + index + " of " + tickets.length);
+	var ticket = tickets[index];
+	ticket.classList.add("current");
+	ticket.scrollIntoView();
+}
+document.addEventListener("scroll", function(e) {
+	document.querySelector("#random").style.top = document.body.scrollTop + "px";
+});
+	</script>
+	<div id="random" class="random" onclick="randomTicket()"></div>
+	
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre><code>{
+    &quot;stock&quot;: &quot;GOOGL&quot;,
+    &quot;date&quot;: ISODate(&quot;2014-12-16&quot;),
+    &quot;volume&quot;: 100,
+    &quot;quotes&quot;: [0,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,21,22,23],
+    &quot;exchange&quot;: {&quot;country&quot;: &quot;USA&quot;, &quot;name&quot;: &quot;NASDAQ&quot;},
+    &quot;traders&quot;: [{&quot;name&quot;: &quot;Don Draper&quot;, &quot;id&quot;: 42}, {&quot;name&quot;: &quot;Rustin Cohle&quot;, &quot;id&quot;: 21}]
+}
+</code></pre>
+
+        
+        Для акций GOOGL выставить предпоследнюю котировку в 0 для всех записей за прошлый год на французских (FR) биржах.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre><code>{
+    &quot;stock&quot;: &quot;GOOGL&quot;,
+    &quot;date&quot;: ISODate(&quot;2014-12-16&quot;),
+    &quot;volume&quot;: 100,
+    &quot;quotes&quot;: [0,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,21,22,23],
+    &quot;exchange&quot;: {&quot;country&quot;: &quot;USA&quot;, &quot;name&quot;: &quot;NASDAQ&quot;},
+    &quot;traders&quot;: [{&quot;name&quot;: &quot;Don Draper&quot;, &quot;id&quot;: 42}, {&quot;name&quot;: &quot;Rustin Cohle&quot;, &quot;id&quot;: 21}]
+}
+</code></pre>
+
+        
+        Определить средний объем операций по акциям YNDX за каждый месяц 2014 года.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre><code>{
+    &quot;stock&quot;: &quot;GOOGL&quot;,
+    &quot;date&quot;: ISODate(&quot;2014-12-16&quot;),
+    &quot;volume&quot;: 100,
+    &quot;quotes&quot;: [0,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,21,22,23],
+    &quot;exchange&quot;: {&quot;country&quot;: &quot;USA&quot;, &quot;name&quot;: &quot;NASDAQ&quot;},
+    &quot;traders&quot;: [{&quot;name&quot;: &quot;Don Draper&quot;, &quot;id&quot;: 42}, {&quot;name&quot;: &quot;Rustin Cohle&quot;, &quot;id&quot;: 21}]
+}
+</code></pre>
+
+        
+        Вставить 0 значение в массив котировок для всех записей, где число котировок меньше 24.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre><code>{
+    &quot;stock&quot;: &quot;GOOGL&quot;,
+    &quot;date&quot;: ISODate(&quot;2014-12-16&quot;),
+    &quot;volume&quot;: 100,
+    &quot;quotes&quot;: [0,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,21,22,23],
+    &quot;exchange&quot;: {&quot;country&quot;: &quot;USA&quot;, &quot;name&quot;: &quot;NASDAQ&quot;},
+    &quot;traders&quot;: [{&quot;name&quot;: &quot;Don Draper&quot;, &quot;id&quot;: 42}, {&quot;name&quot;: &quot;Rustin Cohle&quot;, &quot;id&quot;: 21}]
+}
+</code></pre>
+
+        
+        Определить объем операции для каждой американской биржи за 2014 год.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre><code>{
+    &quot;stock&quot;: &quot;GOOGL&quot;,
+    &quot;date&quot;: ISODate(&quot;2014-12-16&quot;),
+    &quot;volume&quot;: 100,
+    &quot;quotes&quot;: [0,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,21,22,23],
+    &quot;exchange&quot;: {&quot;country&quot;: &quot;USA&quot;, &quot;name&quot;: &quot;NASDAQ&quot;},
+    &quot;traders&quot;: [{&quot;name&quot;: &quot;Don Draper&quot;, &quot;id&quot;: 42}, {&quot;name&quot;: &quot;Rustin Cohle&quot;, &quot;id&quot;: 21}]
+}
+</code></pre>
+
+        
+        Для каждой акции, которая содержит в названии MAIL, увеличить объем операций на 1.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre><code>{
+    &quot;stock&quot;: &quot;GOOGL&quot;,
+    &quot;date&quot;: ISODate(&quot;2014-12-16&quot;),
+    &quot;volume&quot;: 100,
+    &quot;quotes&quot;: [0,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,21,22,23],
+    &quot;exchange&quot;: {&quot;country&quot;: &quot;USA&quot;, &quot;name&quot;: &quot;NASDAQ&quot;},
+    &quot;traders&quot;: [{&quot;name&quot;: &quot;Don Draper&quot;, &quot;id&quot;: 42}, {&quot;name&quot;: &quot;Rustin Cohle&quot;, &quot;id&quot;: 21}]
+}
+</code></pre>
+
+        
+        Для всех документов, где 24-я котировка равно нулю и нет котировки 42, нужно выставить объем операций в 0.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre><code>{
+    &quot;stock&quot;: &quot;GOOGL&quot;,
+    &quot;date&quot;: ISODate(&quot;2014-12-16&quot;),
+    &quot;volume&quot;: 100,
+    &quot;quotes&quot;: [0,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,21,22,23],
+    &quot;exchange&quot;: {&quot;country&quot;: &quot;USA&quot;, &quot;name&quot;: &quot;NASDAQ&quot;},
+    &quot;traders&quot;: [{&quot;name&quot;: &quot;Don Draper&quot;, &quot;id&quot;: 42}, {&quot;name&quot;: &quot;Rustin Cohle&quot;, &quot;id&quot;: 21}]
+}
+</code></pre>
+
+        
+        Удалить все записи американских бирж, где отсутсвует/пустой volume.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre><code>{
+    &quot;stock&quot;: &quot;GOOGL&quot;,
+    &quot;date&quot;: ISODate(&quot;2014-12-16&quot;),
+    &quot;volume&quot;: 100,
+    &quot;quotes&quot;: [0,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,21,22,23],
+    &quot;exchange&quot;: {&quot;country&quot;: &quot;USA&quot;, &quot;name&quot;: &quot;NASDAQ&quot;},
+    &quot;traders&quot;: [{&quot;name&quot;: &quot;Don Draper&quot;, &quot;id&quot;: 42}, {&quot;name&quot;: &quot;Rustin Cohle&quot;, &quot;id&quot;: 21}]
+}
+</code></pre>
+
+        
+        Найти вторую сотню документов, относящихся к NASDAQ за 2014 год, отсортированных по убыванию объема операций.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre><code>{
+    &quot;stock&quot;: &quot;GOOGL&quot;,
+    &quot;date&quot;: ISODate(&quot;2014-12-16&quot;),
+    &quot;volume&quot;: 100,
+    &quot;quotes&quot;: [0,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,21,22,23],
+    &quot;exchange&quot;: {&quot;country&quot;: &quot;USA&quot;, &quot;name&quot;: &quot;NASDAQ&quot;},
+    &quot;traders&quot;: [{&quot;name&quot;: &quot;Don Draper&quot;, &quot;id&quot;: 42}, {&quot;name&quot;: &quot;Rustin Cohle&quot;, &quot;id&quot;: 21}]
+}
+</code></pre>
+
+        
+        Найти все документы, где первым трейдером был Don Draper и объем операций при этом превышал 100.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre><code>{
+    &quot;stock&quot;: &quot;GOOGL&quot;,
+    &quot;date&quot;: ISODate(&quot;2014-12-16&quot;),
+    &quot;volume&quot;: 100,
+    &quot;quotes&quot;: [0,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,21,22,23],
+    &quot;exchange&quot;: {&quot;country&quot;: &quot;USA&quot;, &quot;name&quot;: &quot;NASDAQ&quot;},
+    &quot;traders&quot;: [{&quot;name&quot;: &quot;Don Draper&quot;, &quot;id&quot;: 42}, {&quot;name&quot;: &quot;Rustin Cohle&quot;, &quot;id&quot;: 21}]
+}
+</code></pre>
+
+        
+        Во все документы, где в январе 2015-го есть трейдер Rustin Cohle с идентификатором 0, нужно добавить атрибут corrupted, выставленный в true.
+    </div>
+</section>
+
+
+
+	<script src="../../js/common.js"></script>
+	<script src="../../highlight.js/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+	
+
+
+
+</body>
+</html>

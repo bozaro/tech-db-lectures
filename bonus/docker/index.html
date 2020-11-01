@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<title>СУБД. Docker</title>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="generator" content="Hugo 0.27" />
+	
+	<link rel="icon" href="../../common/lecture.png" />
+	
+	<link rel="stylesheet" href="../../shower/themes/ribbon/styles/screen-16x10.css">
+	<link rel="stylesheet" href="../../css/style.css">
+	<link rel="stylesheet" href="../../highlight.js/styles/idea.min.css">
+</head>
+<body class="shower list no-math">
+	<header class="caption">
+		<h1>СУБД. Docker</h1>
+	</header>
+	
+<section class="slide white" style="padding: 0" id="cover">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        СУБД
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Навроцкий Артем
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="177" y="465" width="240" height="134">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: left">
+                    <div style="vertical-align: top; display: table-cell">
+                        Docker
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<section class="slide">
+    <h2>Docker</h2>
+    <img src="docker.svg" style="position: absolute; bottom: 50px; right: 50px; width: 320px"/>
+    <ul>
+        <li>Почему Docker?</li>
+        <li>Какие есть виды вируализации?</li>
+        <li>Что такое Dockerfile?</li>
+        <li>Работа с контейнерами.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Почему Docker?</h2>
+    <h3>Как проходила сдача семестровых работ раньше?</h3>
+    <ul>
+        <li>Студентам выдавали по виртуальной машине;</li>
+        <li>Каждый локально растраивал виртуальную машину и разворачивал там приложение и окружение;</li>
+        <li>С преподавательской виртуальной машины скрипт осуществлял нагрузочное тестирование.
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Почему Docker?</h2>
+    <h3>В чем проблема?</h3>
+    <ul>
+        <li class="next">В случае если виртуальная машина сломалась, её может восстановить только администратор;</li>
+        <li class="next">Производительность виртуальной машины не предсказуема;</li>
+        <li class="next">Нет никакой гарантии, что на тестируемой машине и в репозитории студента один и тот же проект.
+            <img src="facepalm.png" style="z-index: -1; position: absolute; bottom: 0px; right: 50px; height: 300px"/>
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Почему Docker?</h2>
+    <h3>Что делать?</h3>
+    <ul>
+        <li>Студент пишет инструкцию по установке приложения;</li>
+        <li>Преподавать устанавливает приложение на эталонном компьтере и проводит нагрузочное тестирование.</li>
+    </ul>
+    <div class="next">
+        <p>Но есть проблема...</p>
+        <img src="queue.jpg" style="z-index: -1; position: absolute; bottom: 50px; right: 50px; height: 300px"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Почему Docker?</h2>
+    <h3>Решение:</h3>
+    <ul>
+        <li>Студент пишет инструкцию по установке приложения: Dockerfile;</li>
+        <li>Автоматизированные установка и проведение нагрузочного тестирования на эталонном компьтере.</li>
+    </ul>
+    <img src="profit.jpg" style="z-index: -1; position: absolute; bottom: 50px; right: 50px; width: 400px"/>
+</section>
+
+<section class="slide">
+    <h2>Docker</h2>
+    <dl>
+        <dt>Docker</dt>
+        <dd>
+            <p>Программное обеспечение для автоматизации развёртывания и управления приложениями в среде виртуализации
+                на уровне операционной системы.</p>
+            <p>Позволяет «упаковать» приложение со всем его окружением и зависимостями в контейнер, который может быть
+                перенесён на любую Linux-систему с поддержкой cgroups в ядре, а также предоставляет среду по управлению
+                контейнерами.</p>
+        </dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Виды виртуализации</h2>
+    <dl style="font-size: 90%">
+        <dt>Динамическая трансляция (KVM, VMware, VirutalBox)</dt>
+        <dd>При динамической (бинарной) трансляции проблемные команды гостевой операционной системы перехватываются
+            гипервизором. После того как эти команды заменяются на безопасные, происходит возврат управления гостевой
+            системе.
+        </dd>
+
+        <dt>Паравиртуализация (Xen)</dt>
+        <dd>Техника виртуализации, при которой гостевые операционные системы подготавливаются для исполнения в
+            виртуализированной среде, для чего их ядро незначительно модифицируется.
+        </dd>
+
+        <dt>Контейнерная виртуализация (OpenVZ, LXC, Docker)</dt>
+        <dd>Метод виртуализации, при котором ядро операционной системы поддерживает несколько экземпляров пространства
+            пользователя, вместо одного.
+        </dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Производительность (TCP, CPU cycles/byte)</h2>
+    <div style="width: 100%; text-align: center">
+        <img src="docker-rtl.png" style="max-width: 100%; max-height: 460px"/>
+    </div>
+    <footer class="footer">Источник: <a
+            href="http://domino.research.ibm.com/library/cyberdig.nsf/papers/0929052195DD819C85257D2300681E7B/$File/rc25482.pdf">http://domino.research.ibm.com/library/cyberdig.nsf/papers/0929052195DD819C85257D2300681E7B/$File/rc25482.pdf</a>
+        (копия: <a href="rc25482.pdf">rc25482.pdf</a>)
+    </footer>
+</section>
+
+<section class="slide">
+    <h2>Производительность (TCP)</h2>
+    <div style="width: 100%; text-align: center">
+        <img src="docker-netcpu.png" style="max-width: 100%; max-height: 460px"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Производительность (IO)</h2>
+    <div style="width: 100%; text-align: center">
+        <img src="docker-io-seq.png" style="max-width: 100%; max-height: 460px"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Производительность (IO)</h2>
+    <div style="width: 100%; text-align: center">
+        <img src="docker-io-rnd.png" style="max-width: 100%; max-height: 460px"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Dockerfile</h2>
+    <pre><code class="text">FROM ubuntu:18.04
+LABEL maintainer="Artem V. Navrotskiy"
+RUN apt-get -y update
+RUN apt-get install -y openjdk-8-jdk-headless
+ENV WORK /opt/tech-db-hello
+ADD java-spring/ $WORK/java-spring/
+ADD common/ $WORK/common/
+WORKDIR $WORK/java-spring
+RUN ./gradlew assemble
+EXPOSE 5000
+CMD java -Xmx300M -Xmx300M -jar \
+    $WORK/java-spring/build/libs/java-spring.jar
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Dockerfile</h2>
+    <img src="layers.jpg" style="z-index: -1; position: absolute; top: 40px; right: 30px; width: 400px"/>
+    <h3>Сборка:</h3>
+    <pre><code class="bash">docker build --no-cache -t web
+</code></pre>
+    <h3>Результат сборки:</h3>
+    <pre><code class="bash">docker history web
+</code></pre>
+    <pre style="font-size: 50%"><code class="text">
+IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+142e08487e9f        3 minutes ago       /bin/sh -c #(nop)  CMD ["/bin/sh" "-c" "java    0 B                 
+89554758e753        3 minutes ago       /bin/sh -c #(nop)  EXPOSE 5000/tcp              0 B                 
+5bf1ec77528d        3 minutes ago       /bin/sh -c ./gradlew assemble                   209.4 MB            
+f627d2a79e3b        5 minutes ago       /bin/sh -c #(nop)  WORKDIR /opt/tech-db-hello   0 B                 
+c86551883943        5 minutes ago       /bin/sh -c #(nop) ADD dir:f6c361eff4dcd18df9a   3.968 MB            
+854f85a7870a        5 minutes ago       /bin/sh -c #(nop) ADD dir:b3d037b5a457bd71162   23.65 MB            
+92a00899fc26        5 minutes ago       /bin/sh -c #(nop)  ENV WORK=/opt/tech-db-hell   0 B                 
+329813b55a21        5 minutes ago       /bin/sh -c apt-get install -y openjdk-8-jdk-h   186.1 MB            
+7c973a535a50        5 minutes ago       /bin/sh -c apt-get -y update                    39.76 MB            
+f0c74fcd39ff        5 minutes ago       /bin/sh -c #(nop)  LABEL maintainer="Artem V.   0 B
+104bec311bcd        9 weeks ago         /bin/sh -c #(nop)  CMD ["/bin/bash"]            0 B                 
+&lt;missing>           9 weeks ago         /bin/sh -c mkdir -p /run/systemd &amp;&amp; echo 'doc   7 B                 
+&lt;missing>           9 weeks ago         /bin/sh -c sed -i 's/^#\s*\(deb.*universe\)$/   1.895 kB            
+&lt;missing>           9 weeks ago         /bin/sh -c rm -rf /var/lib/apt/lists/*          0 B                 
+&lt;missing>           9 weeks ago         /bin/sh -c set -xe   &amp;&amp; echo '#!/bin/sh' > /u   745 B               
+&lt;missing>           9 weeks ago         /bin/sh -c #(nop) ADD file:7529d28035b43a2281   128.9 MB  
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Работа с образами</h2>
+    <h3>Список образов:</h3>
+    <pre><code class="bash">docker image ls</code></pre>
+    <h3>Удалить образ из локального хранилища:</h3>
+    <pre><code class="bash">docker image rm alpine:3.4</code></pre>
+    <h3>Удалить не используемые образы:</h3>
+    <pre><code class="bash">docker image prune</code></pre>
+    <pre><code class="bash">docker image prune --all --filter until=4h</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Работа с томами</h2>
+    <h3>Список томов:</h3>
+    <pre><code class="bash">docker volume ls</code></pre>
+    <h3>Удалить все не используемые тома:</h3>
+    <pre><code class="bash">docker volume prune</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Чистка одной командой</h2>
+    <h3>Где место, Лебовски?</h3>
+    <pre><code class="bash">docker system df</code></pre>
+    <h3>Удалить кэш сборки</h3>
+    <pre><code class="bash">docker builder prune</code></pre>
+    <h3>Удалить всё, что не используется</h3>
+    <pre><code class="bash">docker system prune</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Работа с контейнером</h2>
+    <h3>Запуск:</h3>
+    <pre><code class="bash">docker run
+          --rm # удалить контейнер после остановки
+           -it # подключить контейнер к терминалу
+            -d # запуск в фоновом режиме
+    --name web # имя контейнера
+    -p 5000:80 # опубликовать на 5000-ом порту 80-ый
+               # порт контейнера
+-v ~/dev:/code # использовать директорию внутри контейнера
+    alpine:3.4 # имя запускаемого образа
+       /bin/sh # команда, запускаемая внутри контейнера
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Работа с контейнером</h2>
+    <h3>Остановка (SIGTERM):</h3>
+    <pre><code class="bash">docker stop web</code></pre>
+    <h3>Остановка (SIGKILL):</h3>
+    <pre><code class="bash">docker kill web</code></pre>
+    <h3>Список запущенных контейнеров:</h3>
+    <pre><code class="bash">docker ps</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Работа с контейнером</h2>
+    <h3>Удалить все остановленные контейнеры:</h3>
+    <pre><code class="bash">docker container prune</code></pre>
+    <h3>Запустить временный контейнер:</h3>
+    <pre><code class="bash">docker run --rm -it ubuntu</code></pre>
+    <h3>Запустить терминал внутри контейнера:</h3>
+    <pre><code class="bash">docker exec -it web bash</code></pre>
+    <h3>Посмотреть вывод контейнера:</h3>
+    <pre><code class="bash">docker logs --tail 100 web</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Полезные ссылки</h2>
+    <ul style="font-size: 90%">
+        <li><a href="https://docs.docker.com/">https://docs.docker.com/</a></li>
+        <li><a href="https://www.docker.com/sites/default/files/Docker_CheatSheet_08.09.2016_0.pdf">https://www.docker.com/sites/default/files/Docker_CheatSheet_08.09.2016_0.pdf</a>
+        </li>
+        <li><a href="https://github.com/wsargent/docker-cheat-sheet">https://github.com/wsargent/docker-cheat-sheet</a>
+        </li>
+    </ul>
+</section>
+
+	
+<section class="slide white" style="padding: 0" id="contacts">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        Навроцкий Артем
+                        
+                        
+                        <div>E-mail: bozaro@yandex.ru</div>
+                        
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px; font-weight: bold">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Спасибо за внимание!
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<div class="progress"></div>
+	<script src="../../js/common.js"></script>
+	<script src="../../shower/shower.min.js"></script>
+	<script src="../../highlight.js/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+	
+
+
+	<script src="../../mathjax/MathJax.js?config=AM_HTMLorMML-full"></script>
+	<script>
+MathJax.Hub.Config({
+	asciimath2jax: {
+		inlineMath: [['$','$'],['\\(','\\)']],
+		processClass: "math",
+		ignoreClass: "no-math"
+	},
+	root: "..\/..\/mathjax/"
+});
+	</script>
+
+
+</body>
+</html>

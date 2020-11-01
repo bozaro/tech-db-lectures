@@ -1,0 +1,2125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<title>СУБД. Лекция 1</title>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="generator" content="Hugo 0.27" />
+	
+	<link rel="icon" href="../common/lecture.png" />
+	
+	<link rel="stylesheet" href="../shower/themes/ribbon/styles/screen-16x10.css">
+	<link rel="stylesheet" href="../css/style.css">
+	<link rel="stylesheet" href="../highlight.js/styles/idea.min.css">
+</head>
+<body class="shower list no-math">
+	<header class="caption">
+		<h1>СУБД. Лекция 1</h1>
+	</header>
+	
+<section class="slide white" style="padding: 0" id="cover">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        СУБД
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Навроцкий Артем
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="177" y="465" width="240" height="134">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: left">
+                    <div style="vertical-align: top; display: table-cell">
+                        Лекция 1
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<section class="slide">
+    <h2>Знакомство, введение в реляционные базы данных</h2>
+    <ul>
+        <li>Обзор курса</li>
+        <li>Краткое введение в историю баз данных</li>
+        <li>Введение в реляционные базы данных</li>
+        <li>Реляционная алгебра</li>
+        <li>Типы данных</li>
+        <li>Миграция схемы между версиями</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Правила игры</h2>
+    <ul>
+        <li>9 лекций по реляционным СУБД;</li>
+        <li>2 лекции по NoSQL;</li>
+        <li>5 контрольных;</li>
+        <li>1 семестровый проект.</li>
+    </ul>
+    <p>Слайды доступны по адресу: <a href="https://bozaro.github.io/tech-db-lectures/">https://bozaro.github.io/tech-db-lectures/</a>
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Контроль знаний</h2>
+    <img src="burn.png" style="position: absolute; bottom: 50px; right: 50px; width: 320px"/>
+    <figure>
+        <blockquote>Экзамен ― это уникальная возможность для студента два раза в год узнать что-то полезное хотя бы на
+            несколько дней.
+        </blockquote>
+        <figcaption>© Французский бизнесмен и творческая личность Джордж Элгози</figcaption>
+    </figure>
+    <ul>
+        <li>Рубежные контроли;</li>
+        <li>Разработка проекта;</li>
+        <li>Пересдачи.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Семестровый проект</h2>
+    <img src="docker.svg" style="float: right; width: 200px"/>
+    <p>Реализация API для "форума".</p>
+    <ul>
+        <li>Функциональное тестирование;</li>
+        <li>Нагрузочное тестирование;</li>
+        <li>Проверка на плагиат.</li>
+    </ul>
+    <p>API сформулировано в виде Swagger-схемы.</p>
+    <p>Работа принимается в виде git-репозитория, из которого собирается Docker-контейнер.</p>
+    <p>Задание расположено по адресу: <a href="https://github.com/bozaro/tech-db-forum">https://github.com/bozaro/tech-db-forum</a>
+    </p>
+    <p>Отправная точка: <a href="https://github.com/bozaro/tech-db-hello">https://github.com/bozaro/tech-db-hello</a>
+    </p>
+</section>
+
+<section class="slide">
+    <h2>На чем писать проект?</h2>
+    <p>На "отлично" в прошлых семетсрах были сданы проекты на:</p>
+    <table>
+        <thead>
+        <th>Язык программирования</th>
+        <th style="text-align: right">Кол-во</th>
+        </thead>
+        <tbody>
+        <tr><td>Go</td><td align="right">34</td></tr>
+        <tr><td>Java</td><td align="right">17</td></tr>
+        <tr><td>Node.js</td><td align="right">9</td></tr>
+        <tr><td>Kotlin</td><td align="right">2</td></tr>
+        <tr><td>Rust</td><td align="right">2</td></tr>
+        </tbody>
+    </table>
+    <p class="next">"Эталонная" работа реализована на Go и Rust.</p>
+</section>
+
+<section class="slide">
+    <h2>О плагиате</h2>
+    <ul>
+        <li>К сожалению, практика показывает, что студенты друг у друга списывают.</li>
+        <li class="next">В 2016 году, если работа прошла проверку на антиплагиат, он получал дополнительно 10 баллов.
+        </li>
+        <li class="next">Весной 2017 года, если работа не прошла проверку на антиплагиат, то у него не засчитывался
+            результат нагрузочного тестирования (30 баллов).
+        </li>
+        <li class="next">С осени 2017 года, если работа не прошла проверку на антиплагиат, то результат будет засчитан,
+            если он на 20% превышет результат других студентов, использующих аналогичную работу.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Грустный слайд</h2>
+    <table>
+        <thead>
+        <th>Период</th>
+        <th>Отчислено</th>
+        <th>Всего</th>
+        <th>%</th>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Весна 2020</td>
+            <td><span style="visibility: hidden">0</span>9</td>
+            <td>41</td>
+            <td>~21%</td>
+        </tr>
+        <tr>
+            <td>Осень 2018</td>
+            <td><span style="visibility: hidden">0</span>9</td>
+            <td>42</td>
+            <td>~21%</td>
+        </tr>
+        <tr>
+            <td>Весна 2018</td>
+            <td>17</td>
+            <td>44</td>
+            <td>~39%</td>
+        </tr>
+        <tr>
+            <td>Осень 2017</td>
+            <td>11</td>
+            <td>55</td>
+            <td><span style="visibility: hidden">~</span>20%</td>
+        </tr>
+        <tr>
+            <td>Весна 2017</td>
+            <td>15</td>
+            <td>44</td>
+            <td>~34%</td>
+        </tr>
+        <tr>
+            <td>Осень 2016</td>
+            <td>16</td>
+            <td>51</td>
+            <td>~31%</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Интересные факты</h2>
+    <ul>
+        <li><img src="yahoo.png" style="float: right"/>Реляционная база данных Yahoo > 2 петабайт<sup>1</sup></li>
+        <li><img src="osm.png" style="float: right"/>Архив с базой данных OpenStreetMap занимает порядка
+            85Гб<sup>2</sup></li>
+        <li>Практически ни одно приложение не обходится без БД</li>
+        <li>Отсутствие готовых решений</li>
+        <li>Установочные .msi файлы для Windows - это БД</li>
+        <li><img src="hh.png" style="float: right"/>В большинстве вакансий разработчика упоминается SQL, по данным hh.ru
+        </li>
+    </ul>
+    <div style="font-size: 75%">
+        <div><sup>1</sup> <a href="https://habrahabr.ru/post/26289/">https://habrahabr.ru/post/26289/</a></div>
+        <div><sup>2</sup> <a href="https://planet.openstreetmap.org/">https://planet.openstreetmap.org/</a></div>
+    </div>
+</section>
+
+<section class="slide">
+    <!-- img class="next" src="slack.png" width="220px" style="position: absolute; bottom: 50px; right: 50px; z-index: -1"/ -->
+    <figure style="font-size: 150%; margin-top: 100px">
+        <blockquote>Лучше спросить и выставить себя дураком на пять минут, чем не спросить и остаться дураком на всю
+            жизнь.
+        </blockquote>
+        <figcaption>Народная мудрость</figcaption>
+    </figure>
+</section>
+
+<section class="slide">
+    <h2>Зачем ввобще нужны СУБД?</h2>
+    <p>Допустим, мы реализуем приложение "Поваренная книга" для хранения рецептов.</p>
+    <ul>
+        <li class="next">Восстановление после сбоев;</li>
+        <li class="next">Производительность;</li>
+        <li class="next">Многопользовательский доступ;</li>
+        <li class="next">Резервное копирование.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <figure style="font-size: 150%; margin-top: 100px">
+        <blockquote>Все нетривиальные абстракции дырявы.</blockquote>
+        <figcaption>© Джоэл Спольски</figcaption>
+    </figure>
+    <footer>
+        <p>Оригинал: <a href="https://www.joelonsoftware.com/2002/11/11/the-law-of-leaky-abstractions/">https://www.joelonsoftware.com/2002/11/11/the-law-of-leaky-abstractions/</a></p>
+        <p>Перевод: <a href="http://russian.joelonsoftware.com/Articles/LeakyAbstractions.html">http://russian.joelonsoftware.com/Articles/LeakyAbstractions.html</a></p>
+    </footer>
+</section>
+
+<section class="slide">
+    <h2>Стоимость типовых операций</h2>
+    <table style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Стоимость операции</th>
+            <th style="text-align: right">нс (ns)</th>
+            <th style="text-align: right">мкс (µs)</th>
+            <th style="text-align: right">мс (ms)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Получение значения из L1</td>
+            <td align="right">0.5</td>
+            <td align="right"></td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Ошибка предсказания перехода в CPU</td>
+            <td align="right">5</td>
+            <td align="right"></td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Получение значения из L2</td>
+            <td align="right">7</td>
+            <td align="right"></td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Mutex lock/unlock</td>
+            <td align="right">25</td>
+            <td align="right"></td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Получение значения из RAM</td>
+            <td align="right">100</td>
+            <td align="right"></td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Сжатие 1Кб методом Zippy</td>
+            <td align="right">3 000</td>
+            <td align="right">3</td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Отправка 1Кб через 1Гбит/сек сеть</td>
+            <td align="right">10 000</td>
+            <td align="right">10</td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Чтение 4Кб с SSD (случайный доступ)</td>
+            <td align="right">150 000</td>
+            <td align="right">150</td>
+            <td align="right"></td>
+        </tr>
+        <tr style="font-weight: bold">
+            <td>Чтение 1Мб из RAM (последовательный доступ)</td>
+            <td align="right">250 000</td>
+            <td align="right">250</td>
+            <td align="right"></td>
+        </tr>
+        <tr>
+            <td>Round trip внутри одного датацентра</td>
+            <td align="right">500 000</td>
+            <td align="right">500</td>
+            <td align="right"></td>
+        </tr>
+        <tr style="font-weight: bold">
+            <td>Чтение 1Мб из SSD (последовательный доступ)</td>
+            <td align="right">1 000 000</td>
+            <td align="right">1 000</td>
+            <td align="right">1</td>
+        </tr>
+        <tr>
+            <td>Позиционирование HDD</td>
+            <td align="right">10 000 000</td>
+            <td align="right">10 000</td>
+            <td align="right">10</td>
+        </tr>
+        <tr style="font-weight: bold">
+            <td>Чтение 1Мб из HDD (последовательный доступ)</td>
+            <td align="right">20 000 000</td>
+            <td align="right">20 000</td>
+            <td align="right">20</td>
+        </tr>
+        <tr>
+            <td>Round trip между США и Нидерландами</td>
+            <td align="right">150 000 000</td>
+            <td align="right">150 000</td>
+            <td align="right">150</td>
+        </tr>
+        </tbody>
+    </table>
+    <a href="https://gist.github.com/jboner/2841832">https://gist.github.com/jboner/2841832</a>
+</section>
+
+<section class="slide">
+    <h2>Задача курса</h2>
+    <img src="challenge.png" style="position: absolute; bottom: 50px; right: 50px"/>
+    <ul>
+        <li>Проектирование реляционных баз данных.</li>
+        <li>Язык запросов SQL.</li>
+        <li>Оптимизация запросов и схем данных.</li>
+        <li>High-Load и Big Data.</li>
+        <li>Администрирование и настройка серверов БД.</li>
+        <li>noSQL и его использование в WEB.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Проектирование и диаграммы</h2>
+    <img src="uml.jpg" style="float: right"/>
+    <ul>
+        <li>Нормализация</li>
+        <li>DDL</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>SQL</h2>
+    <img src="../common/joins.svg" style="float: right; width: 60%"/>
+    <ul>
+        <li>CRUD</li>
+        <li>Транзакции</li>
+        <li>Хранимые процедуры</li>
+        <li>Триггеры</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Оптимизация</h2>
+    <blockquote style="float: right; width: 50%">“Ну и запросы у вас”, - сказала база данных и повисла.</blockquote>
+    <img src="../common/postgresql.svg" style="width: 30%; position: absolute; bottom: 50px; right: 50px"/>
+    <ul>
+        <li>EXPLAIN</li>
+        <li>log_min_duration_statement</li>
+        <li>Индексы</li>
+        <li>Денормализация</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Администрирование</h2>
+    <figure style="float: right; width: 50%">
+        <blockquote>На моей работе самая страшная фраза это: “ребята, за какую дату у нас есть бэкап базы данных?”
+        </blockquote>
+        <figcaption>© bash.im</figcaption>
+    </figure>
+    <img src="injection.jpg" style="width: 220px; position: absolute; bottom: 50px; right: 50px"/>
+    <ul>
+        <li>Конфигурирование</li>
+        <li>Репликация</li>
+        <li>Резервное копирование</li>
+        <li>Пользователи и права</li>
+        <li>SQL-injections</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>High-Load и Big Data</h2>
+    <img src="highload.jpg" style="position: absolute; bottom: 0px; right: 50px; z-index: -1"/>
+    <ul>
+        <li>Обзор проблем и подходов к их решению</li>
+        <li>Репликация</li>
+        <li>Шардирование</li>
+        <li>Особенности архитектуры</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Кратенькая история</h2>
+    <ul class="compact" style="font-size: 85%">
+        <li>3600 до н.э. - глиняные таблички у древних шумеров;</li>
+        <li>1966 г. - появление MUMPS;</li>
+        <li>1968 г. - первая промышленная СУБД система IMS фирмы IBM;</li>
+        <li>1972 г. - компания IBM начала исследовательский проект по разработке РСУБД;</li>
+        <li>1979 г. - выход первой РСУБД Oracle;</li>
+        <li>1980 г. - появление dBase II;</li>
+        <li>1981 г. - появление IBM PC;</li>
+        <li>1982 г. - выход DB2 фирмы IBM;</li>
+        <li>1993 г. - выход Intel Pentium, Seagate Medalist 425xe 428.1MB HDD;</li>
+        <li>1994 г. - выход Oracle для PC;</li>
+        <li>1995 г. - появление MySQL;</li>
+        <li>1996 г. - появление PostgreSQL;</li>
+        <li>2005 г. - появление Hadoop;</li>
+        <li>2009 г. - появление MongoDB.</li>
+    </ul>
+    <img src="floppy.jpg" style="position: absolute; width: 220px; bottom: 50px; right: 50px; z-index: -1"/>
+</section>
+
+<section class="slide">
+    <h2>Реляционные БД</h2>
+    <figure>
+        <blockquote>… многие отдали предпочтение реляционным системам баз данных, поскольку используемый в них
+            стандартизованный язык SQL открывал возможности безболезненного перехода от одной СУБД к другой. Хотя
+            воспользовались ими на практике только единицы, мысль о возможной смене поставщика СУБД, не связанной со
+            сколько-нибудь ощутимыми затратами, согревала всех.
+        </blockquote>
+        <figcaption>Мартин Фаулер</figcaption>
+    </figure>
+    <ul class="next compact">
+        <li>Поддержка нескольких СУБД может быть полезна для тестирования;</li>
+        <li>Стандарты позволяют использовать чужие наработки, например системы отчетов;</li>
+        <li>Аналитики часто знают SQL.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>NoSQL</h2>
+    <img src="nosql-02.png" style="position: absolute; right: 100px; width: 250px"/>
+    <img src="nosql-01.png" style="position: absolute; bottom: 50px; right: 50px; width: 350px"/>
+    <ul>
+        <li>Концепция Map-Reduce</li>
+        <li>Краткий обзор существующих решений</li>
+        <li>Tarantool</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Литература</h2>
+    <img src="book-03.jpg"
+         style="position: absolute; bottom: 330px; right: 50px; height: 200px; border: 1px solid gray"/>
+    <img src="book-02.jpg"
+         style="position: absolute; bottom: 200px; right: 150px; height: 200px; border: 1px solid gray"/>
+    <img src="book-01.jpg"
+         style="position: absolute; bottom: 50px; right: 50px; height: 200px; border: 1px solid gray"/>
+    <ul class="compact">
+        <li>Дейт К. Дж. Введение в системы баз данных</li>
+        <li>Бьюли А. Изучаем SQL</li>
+        <li>Молинаро Э. SQL – сборник рецептов</li>
+        <li>Заводны Дж, Шварц Б., Зайцев П.,<br/>
+            Ткаченко В., Ленц А.<br/>
+            MySQL. Оптимизация производительности
+        </li>
+        <li>Саймон А. Р. Стратегические технологии баз данных</li>
+        <li><a href="https://wiki.postgresql.org/wiki/Russian">https://wiki.postgresql.org/wiki/Russian</a></li>
+        <li><a href="https://postgrespro.ru/docs/">https://postgrespro.ru/docs/</a></li>
+        <li><a href="http://citforum.ru/database/">http://citforum.ru/database/</a></li>
+        <li><a href="http://www.sql.ru/">http://www.sql.ru/</a></li>
+        <li><a href="http://www.mysql.com/">http://www.mysql.com/</a></li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Определение БД</h2>
+    <dl>
+        <dt>База данных (БД)</dt>
+        <dd>Это взаимосвязанная информация (данные) об объектах, которая организованна специальным образом и хранится на
+            каком-либо носителе.
+        </dd>
+    </dl>
+    <img src="brick-02.jpg" style="float: right; width: 49%"/>
+    <img src="brick-01.jpg" style="width: 49%"/>
+</section>
+
+<section class="slide">
+    <h2>Реляционная модель данных</h2>
+    <style>
+.rel td {
+	background: none;
+}
+.rel .vertical-text {
+	position: absolute;
+	margin-top: -20pt;
+	margin-left: -15pt;
+	transform: rotate(-90deg);
+	transform-origin: left top 0;
+}
+.rel .note {
+	vertical-align: middle;
+	font-style: italic;
+	background: none !important;
+	border-top: 1px dashed black;
+	border-bottom: 1px dashed black;
+}
+.rel .vnote {
+	text-align: center;
+	font-style: italic;
+	background: none !important;
+	border-left: 1px dashed black;
+	border-right: 1px dashed black;
+}
+.rel .blank {
+	background: none !important;
+}
+.rel .data td:not(.note):not(.blank) {
+	white-space: nowrap;
+	border: 1px solid black;
+}
+.rel .attr td:not(.note):not(.blank) {
+	text-align: center;
+	vertical-align: middle;
+	font-weight: bold;
+	border: 1px solid black;
+}
+.rel .domain td:not(.note):not(.blank) {
+	text-align: center;
+	vertical-align: middle;
+	font-style: italic;
+	border: 1px solid black;
+}
+.rel .type td:not(.note):not(.blank) {
+	text-align: center;
+	vertical-align: middle;
+	font-style: italic;
+	border: 1px solid black;
+	background: #ccf !important;
+}
+.rel .data td.int {
+	text-align: right;
+}
+.rel td.int {
+	background: #ccc !important;
+}
+.rel td.str {
+	background: #cfc !important;
+}
+    </style>
+    <table class="rel classic">
+        <tr class="type">
+            <td class="blank"></td>
+            <td>Целое</td>
+            <td colspan="2">Строка</td>
+            <td colspan="2">Целое</td>
+            <td class="note">Типы данных</td>
+        </tr>
+        <tr class="domain">
+            <td class="blank"></td>
+            <td class="int">номер</td>
+            <td class="str">имя</td>
+            <td class="str">должность</td>
+            <td class="int" colspan="2">деньги</td>
+            <td class="note">Домены</td>
+        </tr>
+        <tr class="attr">
+            <td rowspan="4" class="note" style="width: 30pt; vertical-align: bottom;">
+                <div class="vertical-text">Отношение</div>
+            </td>
+            <td class="int">Табельный номер</td>
+            <td class="str">Имя</td>
+            <td class="str">Должность</td>
+            <td class="int">Оклад</td>
+            <td class="int">Премия</td>
+            <td class="note">Аттрибуты</td>
+        </tr>
+        <tr class="data">
+            <td class="int">2934</td>
+            <td class="str">Иванов</td>
+            <td class="str">Инженер</td>
+            <td class="int">112</td>
+            <td class="int">40</td>
+            <td rowspan="3" class="note">Кортежи</td>
+        </tr>
+        <tr class="data">
+            <td class="int">2935</td>
+            <td class="str">Петров</td>
+            <td class="str">Вед. Инженер</td>
+            <td class="int">144</td>
+            <td class="int">50</td>
+        </tr>
+        <tr class="data">
+            <td class="int">2936</td>
+            <td class="str">Сидоров</td>
+            <td class="str">Бухгалтер</td>
+            <td class="int">92</td>
+            <td class="int">35</td>
+        </tr>
+        <tr>
+            <td class="blank"></td>
+            <td class="vnote">Ключ</td>
+            <td colspan="5"></td>
+        </tr>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Терминология</h2>
+    <dl>
+        <dt>Домен</dt>
+        <dd>Тип данных, то есть допустимое множество значений.</dd>
+        <dt>Кортеж</dt>
+        <dd>Множество пар {имя атрибута, значение}, которое содержит одно вхождение каждого имени атрибута,
+            принадлежащего схеме отношения.
+        </dd>
+        <dt>Отношение</dt>
+        <dd>Множество кортежей (не упорядоченное).</dd>
+        <dt>Целостность базы данных</dt>
+        <dd>Соответствие имеющейся в базе данных информации её внутренней логике, структуре и всем явно заданным
+            правилам.
+        </dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Реляционная модель данных</h2>
+    <div style="font-size: 80%">
+        <dl>
+            <dt>Реляционная модель данных (РМД)</dt>
+            <dd>Логическая модель данных, прикладная теория построения баз данных, которая является приложением к
+                задачам обработки данных таких разделов математики как теории множеств и логика первого порядка.
+            </dd>
+        </dl>
+
+        <p>Реляционная модель данных включает следующие компоненты:</p>
+        <dl>
+            <dt>Структурный аспект (составляющая)</dt>
+            <dd>Данные в базе данных представляют собой набор отношений.</dd>
+            <dt>Аспект (составляющая) целостности</dt>
+            <dd>Отношения (таблицы) отвечают определенным условиям целостности. РМД поддерживает декларативные
+                ограничения целостности уровня домена (типа данных), уровня отношения и уровня базы данных.
+            </dd>
+            <dt>Аспект (составляющая) обработки (манипулирования)</dt>
+            <dd>РМД поддерживает операторы манипулирования отношениями (реляционная алгебра, реляционное исчисление).
+            </dd>
+        </dl>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Реляционная алгебра</h2>
+    <figure style="float: right">
+        <img src="ted.jpg" width="260"/>
+        <figcaption>Эдгар Франк «Тед» Кодд</figcaption>
+    </figure>
+    <ul>
+        <li>Выборка</li>
+        <li>Проекция</li>
+        <li>Объединение</li>
+        <li>Пересечение</li>
+        <li>Разность</li>
+        <li>Произведение</li>
+        <li>Деление</li>
+        <li>Соединение</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Выборка (A WHERE c)</h2>
+    <h3>Персоны</h3>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Возраст</th>
+            <th>Вес</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Harry</td>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        <tr>
+            <td>Donald</td>
+            <td>29</td>
+            <td>70</td>
+        </tr>
+        <tr>
+            <td>Helena</td>
+            <td>54</td>
+            <td>54</td>
+        </tr>
+        <tr>
+            <td>Peter</td>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        </tbody>
+    </table>
+    <h3 class="math">`sigma_("Возраст" >= 34)("Персоны")`</h3>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Возраст</th>
+            <th>Вес</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Harry</td>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        <tr>
+            <td>Helena</td>
+            <td>54</td>
+            <td>54</td>
+        </tr>
+        <tr>
+            <td>Peter</td>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        </tbody>
+    </table>
+    <pre class="next"><code>SELECT * FROM "Персоны" WHERE "Возраст" >= 34</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Проекция (PROJECT A {x, y, …, z})</h2>
+    <h3>Персоны</h3>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Возраст</th>
+            <th>Вес</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Harry</td>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        <tr>
+            <td>Donald</td>
+            <td>29</td>
+            <td>70</td>
+        </tr>
+        <tr>
+            <td>Helena</td>
+            <td>54</td>
+            <td>54</td>
+        </tr>
+        <tr>
+            <td>Peter</td>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        </tbody>
+    </table>
+    <h3 class="math">`Pi_("Возраст", "Вес")("Персоны")`</h3>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Возраст</th>
+            <th>Вес</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>29</td>
+            <td>70</td>
+        </tr>
+        <tr>
+            <td>54</td>
+            <td>54</td>
+        </tr>
+        <tr>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        </tbody>
+    </table>
+    <pre class="next"><code>SELECT DISTINCT "Возраст", "Вес" FROM "Персоны"</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Объединение (A UNION B)</h2>
+    <img src="union.png" style="position: absolute; bottom: 120px; right: 100px" width="250px"/>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding-right: 10px">
+            <h3>Персоны</h3>
+            <table class="classic bordered" style="font-size: 60%">
+                <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Возраст</th>
+                    <th>Вес</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Harry</td>
+                    <td>34</td>
+                    <td>80</td>
+                </tr>
+                <tr>
+                    <td>Donald</td>
+                    <td>29</td>
+                    <td>70</td>
+                </tr>
+                <tr>
+                    <td>Helena</td>
+                    <td>54</td>
+                    <td>54</td>
+                </tr>
+                <tr>
+                    <td>Peter</td>
+                    <td>34</td>
+                    <td>80</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell">
+            <h3>Персонажи</h3>
+            <table class="classic bordered" style="font-size: 60%">
+                <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Возраст</th>
+                    <th>Вес</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Daffy</td>
+                    <td>24</td>
+                    <td>19</td>
+                </tr>
+                <tr>
+                    <td>Donald</td>
+                    <td>29</td>
+                    <td>70</td>
+                </tr>
+                <tr>
+                    <td>Scrooge</td>
+                    <td>81</td>
+                    <td>27</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <h3 class="math">`"Персоны" uu "Персонажи"`</h3>
+    <table class="classic bordered" style="font-size: 60%; width: 50%">
+        <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Возраст</th>
+            <th>Вес</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Harry</td>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        <tr>
+            <td>Donald</td>
+            <td>29</td>
+            <td>70</td>
+        </tr>
+        <tr>
+            <td>Helena</td>
+            <td>54</td>
+            <td>54</td>
+        </tr>
+        <tr>
+            <td>Peter</td>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        <tr>
+            <td>Daffy</td>
+            <td>24</td>
+            <td>19</td>
+        </tr>
+        <tr>
+            <td>Scrooge</td>
+            <td>81</td>
+            <td>27</td>
+        </tr>
+        </tbody>
+    </table>
+    <pre class="next"><code>SELECT * FROM "Персоны" UNION SELECT * FROM "Персонажи"</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Пересечение (A INTERSECT B)</h2>
+    <img src="intersect.png" style="position: absolute; bottom: 50px; right: 100px" width="250px"/>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding-right: 10px">
+            <h3>Персоны</h3>
+            <table class="classic bordered" style="font-size: 60%">
+                <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Возраст</th>
+                    <th>Вес</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Harry</td>
+                    <td>34</td>
+                    <td>80</td>
+                </tr>
+                <tr>
+                    <td>Donald</td>
+                    <td>29</td>
+                    <td>70</td>
+                </tr>
+                <tr>
+                    <td>Helena</td>
+                    <td>54</td>
+                    <td>54</td>
+                </tr>
+                <tr>
+                    <td>Peter</td>
+                    <td>34</td>
+                    <td>80</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell">
+            <h3>Персонажи</h3>
+            <table class="classic bordered" style="font-size: 60%">
+                <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Возраст</th>
+                    <th>Вес</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Daffy</td>
+                    <td>24</td>
+                    <td>19</td>
+                </tr>
+                <tr>
+                    <td>Donald</td>
+                    <td>29</td>
+                    <td>70</td>
+                </tr>
+                <tr>
+                    <td>Scrooge</td>
+                    <td>81</td>
+                    <td>27</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <h3 class="math">`"Персоны" nn "Персонажи"`</h3>
+    <table class="classic bordered" style="font-size: 60%; width: 50%">
+        <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Возраст</th>
+            <th>Вес</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Donald</td>
+            <td>29</td>
+            <td>70</td>
+        </tr>
+        </tbody>
+    </table>
+    <pre class="next"><code>SELECT * FROM "Персоны"
+NATURAL JOIN "Персонажи"</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Разность (A MINUS B)</h2>
+    <img src="minus.png" style="position: absolute; bottom: 50px; right: 100px" width="250px"/>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding-right: 10px">
+            <h3>Персоны</h3>
+            <table class="classic bordered" style="font-size: 60%">
+                <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Возраст</th>
+                    <th>Вес</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Harry</td>
+                    <td>34</td>
+                    <td>80</td>
+                </tr>
+                <tr>
+                    <td>Donald</td>
+                    <td>29</td>
+                    <td>70</td>
+                </tr>
+                <tr>
+                    <td>Helena</td>
+                    <td>54</td>
+                    <td>54</td>
+                </tr>
+                <tr>
+                    <td>Peter</td>
+                    <td>34</td>
+                    <td>80</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell">
+            <h3>Персонажи</h3>
+            <table class="classic bordered" style="font-size: 60%">
+                <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Возраст</th>
+                    <th>Вес</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Daffy</td>
+                    <td>24</td>
+                    <td>19</td>
+                </tr>
+                <tr>
+                    <td>Donald</td>
+                    <td>29</td>
+                    <td>70</td>
+                </tr>
+                <tr>
+                    <td>Scrooge</td>
+                    <td>81</td>
+                    <td>27</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <h3 class="math">`"Персоны" \\ "Персонажи"`</h3>
+    <table class="classic bordered" style="font-size: 60%; width: 50%">
+        <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Возраст</th>
+            <th>Вес</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Harry</td>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        <tr>
+            <td>Helena</td>
+            <td>54</td>
+            <td>54</td>
+        </tr>
+        <tr>
+            <td>Peter</td>
+            <td>34</td>
+            <td>80</td>
+        </tr>
+        </tbody>
+    </table>
+    <pre class="next"><code>SELECT * FROM "Персоны"
+NATURAL LEFT JOIN "Персонажи"
+WHERE "Персонажи" IS NULL</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Произведение (A TIMES B)</h2>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding-right: 10px">
+            <h3>Мультфильмы</h3>
+            <table class="classic bordered" style="font-size: 60%">
+                <thead>
+                <tr>
+                    <th>Код_Мульта</th>
+                    <th>Название_Мульта</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>The Simpsons</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Family Guy</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Duck Tales</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell">
+            <h3>Каналы</h3>
+            <table class="classic bordered" style="font-size: 60%">
+                <thead>
+                <tr>
+                    <th>Код_Канала</th>
+                    <th>Название_Канала</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>СТС</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>2x2</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <h3 class="math">`"Мультфильмы" xx "Каналы"`</h3>
+    <table class="classic bordered" style="font-size: 60%">
+        <thead>
+        <tr>
+            <th>Код_Мульта</th>
+            <th>Название_Мульта</th>
+            <th>Код_Канала</th>
+            <th>Название_Канала</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>The Simpsons</td>
+            <td>1</td>
+            <td>СТС</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Family Guy</td>
+            <td>1</td>
+            <td>СТС</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Duck Tales</td>
+            <td>1</td>
+            <td>СТС</td>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>The Simpsons</td>
+            <td>2</td>
+            <td>2x2</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Family Guy</td>
+            <td>2</td>
+            <td>2x2</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Duck Tales</td>
+            <td>2</td>
+            <td>2x2</td>
+        </tr>
+        </tbody>
+    </table>
+    <div style="display: table-cell">
+        <pre class="next"><code>SELECT * FROM "Персоны", "Персонажи"</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Деление (A DIVIDEBY B)</h2>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding-right: 10px">
+            <h3>Мультфильмы</h3>
+            <table class="classic bordered" style="font-size: 60%">
+                <thead>
+                <tr>
+                    <th width="110px">Код_Мульта</th>
+                    <th width="230px">Название_Мульта</th>
+                    <th>Название_Канала</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>The Simpsons</td>
+                    <td>RenTV</td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>The Simpsons</td>
+                    <td>2x2</td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>The Simpsons</td>
+                    <td>СТС</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Family Guy</td>
+                    <td>RenTV</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Family Guy</td>
+                    <td>2x2</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Duck Tales</td>
+                    <td>СТС</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Duck Tales</td>
+                    <td>2x2</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell">
+            <h3>Каналы</h3>
+            <table class="classic bordered" style="font-size: 60%">
+                <thead>
+                <tr>
+                    <th>Название_Канала</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>RenTV</td>
+                </tr>
+                <tr>
+                    <td>2x2</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding-right: 40px">
+            <h3 class="math">`"Мультфильмы" -: "Каналы"`</h3>
+            <table class="classic bordered" style="font-size: 60%; width: auto">
+                <thead>
+                <tr>
+                    <th width="110px">Код_Мульта</th>
+                    <th width="230px">Название_Мульта</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>The Simpsons</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Family Guy</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell">
+            <pre class="next" style="font-size: 60%"><code>SELECT "Код_Мульта", "Название_Мульта"
+FROM "Мультфильмы"
+JOIN "Каналы" USING ("Название_Канала")
+GROUP BY "Код_Мульта", "Название_Мульта"
+HAVING COUNT(DISTINCT "Название_Канала") = (
+    SELECT COUNT(DISTINCT "Название_Канала") FROM "Каналы"
+)</code></pre>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Соединение ((A TIMES B) WHERE P)</h2>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding-right: 10px">
+            <h3>Мультфильмы</h3>
+            <table class="classic bordered" style="font-size: 60%">
+                <thead>
+                <tr>
+                    <th>Код_Мульта</th>
+                    <th>Название_Мульта</th>
+                    <th>Название_Канала</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>The Simpsons</td>
+                    <td>2x2</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Family Guy</td>
+                    <td>2x2</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Duck Tales</td>
+                    <td>RenTV</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell">
+            <h3>Каналы</h3>
+            <table class="classic bordered" style="font-size: 60%">
+                <thead>
+                <tr>
+                    <th>Код_Канала</th>
+                    <th>Частота</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>RenTV</td>
+                    <td>3.1415</td>
+                </tr>
+                <tr>
+                    <td>2x2</td>
+                    <td>783.25</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <h3 class="math">`"Мультфильмы" ⋈ "Каналы"`</h3>
+    <table class="classic bordered" style="font-size: 60%">
+        <thead>
+        <tr>
+            <th>Код_Мульта</th>
+            <th>Название_Мульта</th>
+            <th>Название_Канала</th>
+            <th>Код_Канала</th>
+            <th>Частота</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>The Simpsons</td>
+            <td>2x2</td>
+            <td>2x2</td>
+            <td>783.25</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Family Guy</td>
+            <td>2x2</td>
+            <td>2x2</td>
+            <td>783.25</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Duck Tales</td>
+            <td>RenTV</td>
+            <td>RenTV</td>
+            <td>3.1415</td>
+        </tr>
+        </tbody>
+    </table>
+    <pre class="next"><code>SELECT *
+FROM "Мультфильмы"
+JOIN "Каналы" ON ("Название_Канала" = "Код_Канала")
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Первичный ключ</h2>
+    <dl style="font-size: 75%">
+        <dt>Потенциальный ключ</dt>
+        <dd><p>В реляционной модели данных — подмножество атрибутов отношения, удовлетворяющее требованиям уникальности
+            и минимальности (несократимости).</p>
+            <p><dfn>Уникальность</dfn> означает, что не существует двух кортежей данного отношения, в которых значения
+                этого подмножества атрибутов совпадают (равны).</p>
+            <p><dfn>Минимальность</dfn> (несократимость) означает, что в составе потенциального ключа отсутствует
+                меньшее подмножество атрибутов, удовлетворяющее условию уникальности. Иными словами, если из
+                потенциального ключа убрать любой атрибут, он утратит свойство уникальности.</p></dd>
+        <dt>Первичный ключ (англ. primary key)</dt>
+        <dd><p>В реляционной модели данных один из потенциальных ключей отношения, выбранный в качестве основного ключа
+            (или ключа по умолчанию).</p>
+            <p>Если в отношении имеется единственный потенциальный ключ, он является и первичным ключом. Если
+                потенциальных ключей несколько, один из них выбирается в качестве первичного, а другие называют
+                «альтернативными».</p></dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Суррогатный ключ</h2>
+    <p style="font-size: 80%">Даже при наличии естественного ключа добавление суррогатного в большинстве случаев
+        оправдано.
+    </p>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>UserID</th>
+            <th>E-Mail</th>
+            <th>Пароль</th>
+            <th>Имя</th>
+            <th>Дата</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>12</td>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+        </tr>
+        <tr>
+            <td>48</td>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+        </tr>
+        <tr>
+            <td>543</td>
+            <td>fmd@mail.ru</td>
+            <td>*****</td>
+            <td>Федор Михайлович</td>
+            <td>11.11.1821</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>*****</td>
+            <td>Пушкин А.С.</td>
+            <td>06.06.1799</td>
+        </tr>
+        </tbody>
+    </table>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding-right: 10px">
+            <table class="classic bordered" style="font-size: 70%">
+                <thead>
+                <tr>
+                    <th>UserID</th>
+                    <th>Привилегии</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>12</td>
+                    <td>Админ</td>
+                </tr>
+                <tr>
+                    <td>12</td>
+                    <td>Модератор</td>
+                </tr>
+                <tr>
+                    <td>48</td>
+                    <td>Модератор</td>
+                </tr>
+                <tr>
+                    <td>543</td>
+                    <td>Игрок</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>Админ</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell">
+            <table class="classic bordered" style="font-size: 70%">
+                <thead>
+                <tr>
+                    <th>UserID</th>
+                    <th>Разделы</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>12</td>
+                    <td>Новости</td>
+                </tr>
+                <tr>
+                    <td>12</td>
+                    <td>Флуд</td>
+                </tr>
+                <tr>
+                    <td>48</td>
+                    <td>Флуд</td>
+                </tr>
+                <tr>
+                    <td>48</td>
+                    <td>Юмор</td>
+                </tr>
+                <tr>
+                    <td>543</td>
+                    <td>E-Mail</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>Поэзия</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Типы данных PostgreSQL</h2>
+    <img src="types.jpg" style="float: right" width="60%"/>
+    <ul>
+        <li>Числовые</li>
+        <li>Строковые</li>
+        <li>Календарные</li>
+        <li>NULL</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>NULL</h2>
+    <pre style="font-size: 85%"><code class="sql">SELECT 1 = NULL, 1 &lt;&gt; NULL, 1 < NULL, 1 > NULL;</code></pre>
+    <table class="classic bordered">
+        <thead>
+        <tr>
+            <th>1 = NULL</th>
+            <th>1 &lt;&gt; NULL</th>
+            <th>1 < NULL</th>
+            <th>1 > NULL</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+            <td>
+                <null/>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <pre style="font-size: 85%; padding-top: 50px"><code class="sql">SELECT 1 IS NULL, 1 IS NOT NULL, NULL IS NULL, NULL IS NOT NULL;</code></pre>
+    <table class="classic bordered">
+        <thead>
+        <tr>
+            <th>1 IS NULL</th>
+            <th>1 IS NOT NULL</th>
+            <th>NULL IS NULL</th>
+            <th>NULL IS NOT NULL</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>0</td>
+            <td>1</td>
+            <td>1</td>
+            <td>0</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Числовые</h2>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Тип столбца, поля</th>
+            <th>Обьем занимаемой памяти</th>
+            <th>Диапазон допустимых значений</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>SMALLINT, INT2</td>
+            <td>2 байта</td>
+            <td>От -32768 до 32767</td>
+        </tr>
+        <tr>
+            <td>INTEGER, INT, INT4</td>
+            <td>4 байта</td>
+            <td>От -2147683648 до 2147683648</td>
+        </tr>
+        <tr>
+            <td>BIGINT, INT8</td>
+            <td>8 байт</td>
+            <td>От -2<sup>63</sup> до 2<sup>63</sup> -1</td>
+        </tr>
+        <tr>
+            <td>DECIMAL [(M[,D])],<br/>
+                NUMERIC [(M[,D])]
+            </td>
+            <td>~2 байта на 4 цифры</td>
+            <td>Повышенная точность<br/>более 10000 цифр</td>
+        </tr>
+        <tr>
+            <td>REAL</td>
+            <td>4 байта</td>
+            <td style="font-size: 75%">-3.402823466E+38 до -1.175494351E-38<br/>
+                1.175494351E-38 до 3.402823466E+38
+            </td>
+        </tr>
+        <tr>
+            <td>DOUBLE PRECISION</td>
+            <td>8 байт</td>
+            <td style="font-size: 75%">-1.7976931348623157E+308<br/>
+                до -2.2250738585072014E-308<br/>
+                2.2250738585072014E-308<br/>
+                до 1.7976931348623157E+308
+            </td>
+        </tr>
+        <tr>
+            <td>MONEY</td>
+            <td>8 байт</td>
+            <td style="font-size: 75%">От -92233720368547758.08 до +92233720368547758.07</td>
+        </tr>
+        </tbody>
+    </table>
+    <p>SMALLSERIAL, SERIAL, BIGSERIAL - то же, но с автоинкрементом.</p>
+    <p class="next">INT1 и беззнаковые есть в расширении <a href="https://github.com/petere/pguint">https://github.com/petere/pguint</a></p>
+</section>
+
+<section class="slide">
+    <h2>Бинарные</h2>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Тип столбца, поля</th>
+            <th>Обьем занимаемой памяти</th>
+            <th>Диапазон допустимых значений</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>BIT(N)</td>
+            <td>(N + 7) / 8 байт</td>
+            <td>Битовая строка с фиксированной длиной</td>
+        </tr>
+        <tr>
+            <td>BIT VARYING(N), VARBIT(N)</td>
+            <td></td>
+            <td>Битовая строка с переменной длиной</td>
+        </tr>
+        <tr>
+            <td>BOOLEAN</td>
+            <td>1 байт</td>
+            <td>0 или 1</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Строки</h2>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Тип столбца, поля</th>
+            <th>Описание</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>CHARACTER(N), CHAR(N)</td>
+            <td>Строка фиксированной длины</td>
+        </tr>
+        <tr>
+            <td>CHARACTER VARYING(N), VARCHAR(M)</td>
+            <td>Строка переменной длины</td>
+        </tr>
+        <tr>
+            <td>TEXT</td>
+            <td>Строковые данные без ограничения длины</td>
+        </tr>
+        <tr>
+            <td>BYTEA</td>
+            <td>Двоичный данные без ограничения длины</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Дата и время</h2>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>Тип столбца, поля</th>
+            <th>Размер</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>TIMESTAMP [ (P) ] [ WITHOUT TIME ZONE ]</td>
+            <td>8 байт</td>
+        </tr>
+        <tr>
+            <td>TIMESTAMP [ (P) ] WITH TIME ZONE</td>
+            <td>8 байт</td>
+        </tr>
+        <tr>
+            <td>DATE</td>
+            <td>4 байта</td>
+        </tr>
+        <tr>
+            <td>TIME [ (P) ] [ WITHOUT TIME ZONE ]</td>
+            <td>8 байт</td>
+        </tr>
+        <tr>
+            <td>TIME [ (P) ] WITH TIME ZONE</td>
+            <td>12 байт</td>
+        </tr>
+        <tr>
+            <td>INTERVAL [ FIELDS ] [ (P) ]</td>
+            <td>16 байт</td>
+        </tr>
+        </tbody>
+    </table>
+    <p>Время хранится с точностью до микросекунд.</p>
+    <p>P - кол-во цифр для хранения дробной части секунд.</p>
+    <p class="next">WITH TIMEZONE - внутри базы хранится UTC.</p>
+</section>
+
+<section class="slide">
+    <h2>Пример схемы базы данных (кортежи)</h2>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding-right: 10px">
+            <h3>country</h3>
+            <table class="classic bordered" style="font-size: 80%">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>0</td>
+                    <td>Россия</td>
+                </tr>
+                <tr>
+                    <td>42</td>
+                    <td>Вьетнам</td>
+                </tr>
+                <tr>
+                    <td>55</td>
+                    <td>Гондурас</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell; padding-right: 10px">
+            <h3>region</h3>
+            <table class="classic bordered" style="font-size: 80%">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>country_id</th>
+                    <th>name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>Москва и Московская обл.</td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>Санкт-Петербург и область</td>
+                </tr>
+                <tr>
+                    <td>395</td>
+                    <td>55</td>
+                    <td>Тегусигальпа</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <h3>city</h3>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>region_id</th>
+            <th>name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>0</td>
+            <td>Москва</td>
+        </tr>
+        <tr>
+            <td>42</td>
+            <td>0</td>
+            <td>Жилево</td>
+        </tr>
+        <tr>
+            <td>173</td>
+            <td>1</td>
+            <td>Санкт-Петербург</td>
+        </tr>
+        <tr>
+            <td>6165</td>
+            <td>395</td>
+            <td>Тегусигальпа</td>
+        </tr>
+        </tbody>
+    </table>
+    <footer class="footer">Источник примера: https://github.com/Legostaev/contry_region_city</footer>
+</section>
+
+<section class="slide">
+    <h2>Пример схемы базы данных (ER-модель)</h2>
+    <img src="scheme.svg" style="width: 100%"/>
+</section>
+
+<section class="slide">
+    <h2>Пример схемы базы данных (DDL)</h2>
+    <pre class="sql" style="font-size: 75%"><code>
+CREATE TABLE country (
+  id bigserial NOT NULL PRIMARY KEY,
+  name varchar(128) NOT NULL
+);
+
+CREATE TABLE region (
+  id bigserial NOT NULL PRIMARY KEY,
+  country_id bigint NOT NULL,
+  name varchar(128) NOT NULL,
+  FOREIGN KEY (country_id) REFERENCES country (id)
+);
+
+CREATE TABLE city (
+  id bigserial NOT NULL PRIMARY KEY,
+  region_id bigint NOT NULL,
+  name varchar(128) NOT NULL,
+  FOREIGN KEY (region_id) REFERENCES region (id)
+);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Версионирование схемы БД</h2>
+    <h3>Хотелки:</h3>
+    <ul style="font-size: 90%">
+        <li>Любую версию базы данных можно обновить до любой (обычно, самой последней) версии.</li>
+        <li>Набор SQL-запросов, реализующих миграцию между любыми двумя версиями, можно было получить как можно быстрее
+            и проще.
+        </li>
+        <li>Всегда можно создать с нуля базу данных со структурой самой последней версии.</li>
+        <li>В случае работы над разными ветками, при последующем их слиянии ручное редактирование файлов БД было сведено
+            к минимуму.
+        </li>
+        <li>Откатить БД на более раннюю версию так же просто, как и обновить на более новую.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Генерация БД на базе исходного кода</h2>
+    <ul class="compact" style="font-size: 75%">
+        <li><img src="li-p.png"/> Удобно наблюдать изменения в структуре между версиями при помощи средств системы
+            контроля версий;
+        </li>
+        <li><img src="li-p.png"/> Как и любой исходный код, структуру БД удобно комментировать;</li>
+        <li><img src="li-p.png"/> Для того, чтобы с нуля создать чистую базу данных последней версии, нужно выполнить
+            всего лишь один файл;
+        </li>
+        <li><img src="li-p.png"/> Скрипты-миграции более надежны, чем в других методах, так как генерируются
+            автоматически;
+        </li>
+        <li><img src="li-p.png"/> Мигрировать с новых версий на старые почти так же просто, как со старых на новые
+            (проблемы могут возникнуть только с пресловутыми изменениями данных);
+        </li>
+        <li><img src="li-p.png"/> В случае слияния двух веток репозитория, merge структуры БД осуществляется проще, чем
+            при использовании других подходов;
+        </li>
+        <li><img src="li-m.png"/> Изменения данных придется хранить отдельно, и затем вручную вставлять в
+            сгенерированные скрипты-миграции;
+        </li>
+        <li><img src="li-m.png"/> Вручную выполнять миграции очень неудобно, необходимы автоматизированные средства.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Метод инкрементных изменений</h2>
+    <div style="display: table; width: 100%; font-size: 70%">
+        <div style="display: table-cell; padding-right: 10px">
+            <pre><code class="text">Database
+|- Baseline.sql
+|- 0001.03.01.sql
+|- 0002.03.01.sql
+|- 0003.03.01.sql
+|- 0004.03.02.sql
+|- 0005.03.02.sql
+|- 0006.03.02.sql
+|- 0007.03.02.sql</code></pre>
+        </div>
+        <div style="display: table-cell">
+        <pre><code class="sql">CREATE TABLE MigrationHistory (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    MajorVersion VARCHAR(2),
+    MinorVersion VARCHAR(2),
+    FileNumber   VARCHAR(4),
+    Description  VARCHAR(255),
+    DateApplied  TIMESTAMP
+);</code></pre>
+        </div>
+    </div>
+    <pre><code class="sql" style="font-size: 60%">
+INSERT INTO MigrationHistory (MajorVersion, MinorVersion, FileNumber, Description, DateApplied)
+VALUES ('03', '01', '0000', 'Baseline', NOW());
+
+INSERT INTO MigrationHistory (MajorVersion, MinorVersion, FileNumber, Description, DateApplied)
+VALUES ('03', '01', '0001', 'Update users table', NOW());</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Метод инкрементных изменений</h2>
+    <ul>
+        <li><img src="li-p.png"/> Быстрое и удобное выполнение миграции до последней версии;</li>
+        <li><img src="li-p.png"/> Механизм нумерации версий. Номер текущей версии хранится прямо в БД;</li>
+        <li><img src="li-m.png"/> Для максимального удобства нужны средства автоматизации выполнения миграций;</li>
+        <li><img src="li-m.png"/> Неудобно добавлять комментарии к структуре БД;</li>
+        <li><img src="li-n.png"/> Если хранить только "версию базы", возникают проблемы в процессе параллельной
+            разработки в нескольких ветках репозитория.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Метод идемпотентных изменений</h2>
+    <div style="display: table; width: 100%; font-size: 70%">
+        <div style="display: table-cell; padding-right: 10px">
+            <pre><code class="text">Database
+ |- 3.01
+ |   |- Baseline.sql
+ |   | - Changes.sql
+ |
+ | - 3.02
+     |- Baseline.sql
+     |- Changes.sql</code></pre>
+        </div>
+        <div style="display: table-cell">
+        <pre><code class="sql">IF NOT EXISTS
+(
+    SELECT *
+    FROM information_schema.tables
+    WHERE table_name = 'myTable'
+        AND table_schema = 'myDb'
+)
+THEN
+    CREATE TABLE myTable
+    (
+        id INT(10) NOT NULL,
+        myField VARCHAR(255) NULL,
+        PRIMARY KEY(id)
+    );
+END IF;</code></pre>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Метод идемпотентных изменений</h2>
+    <ul>
+        <li><img src="li-p.png"/> Очень удобное выполнение миграций с любой промежуточной версии до последней — нужно
+            всего лишь выполнить на базе данных один файл (Changes.sql)
+        </li>
+        <li><img src="li-m.png"/> Потенциально возможны ситуации, в которых будут теряться данные, за этим придется
+            следить.
+        </li>
+        <li><img src="li-m.png"/> Для того, чтобы изменения были идемпотентными, нужно потратить больше времени (и кода)
+            на их написание.
+        </li>
+    </ul>
+</section>
+
+	
+<section class="slide white" style="padding: 0" id="contacts">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        Навроцкий Артем
+                        
+                        
+                        <div>E-mail: bozaro@yandex.ru</div>
+                        
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px; font-weight: bold">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Спасибо за внимание!
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<div class="progress"></div>
+	<script src="../js/common.js"></script>
+	<script src="../shower/shower.min.js"></script>
+	<script src="../highlight.js/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+	
+
+
+	<script src="../mathjax/MathJax.js?config=AM_HTMLorMML-full"></script>
+	<script>
+MathJax.Hub.Config({
+	asciimath2jax: {
+		inlineMath: [['$','$'],['\\(','\\)']],
+		processClass: "math",
+		ignoreClass: "no-math"
+	},
+	root: "..\/mathjax/"
+});
+	</script>
+
+
+</body>
+</html>

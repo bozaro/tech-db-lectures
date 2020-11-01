@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/checkpoint/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/bonus/docker/</loc>
+  </url>
+  
+  <url>
+    <loc>/tags/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/01/</loc>
+  </url>
+  
+  <url>
+    <loc>/02/</loc>
+  </url>
+  
+  <url>
+    <loc>/03/</loc>
+  </url>
+  
+  <url>
+    <loc>/04/</loc>
+  </url>
+  
+  <url>
+    <loc>/05/</loc>
+  </url>
+  
+  <url>
+    <loc>/06/</loc>
+  </url>
+  
+  <url>
+    <loc>/07/</loc>
+  </url>
+  
+  <url>
+    <loc>/08/</loc>
+  </url>
+  
+  <url>
+    <loc>/09/</loc>
+  </url>
+  
+  <url>
+    <loc>/bonus/</loc>
+  </url>
+  
+  <url>
+    <loc>/bonus/concurrency/</loc>
+  </url>
+  
+  <url>
+    <loc>/checkpoint/01-2/</loc>
+  </url>
+  
+  <url>
+    <loc>/checkpoint/01-1/</loc>
+  </url>
+  
+  <url>
+    <loc>/checkpoint/03-2/</loc>
+  </url>
+  
+  <url>
+    <loc>/checkpoint/03-1/</loc>
+  </url>
+  
+  <url>
+    <loc>/checkpoint/05-2/</loc>
+  </url>
+  
+  <url>
+    <loc>/checkpoint/05-1/</loc>
+  </url>
+  
+  <url>
+    <loc>/</loc>
+    <priority>0</priority>
+  </url>
+  
+</urlset>

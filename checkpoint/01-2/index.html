@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<title>СУБД. РК-1 (домашнее задание)</title>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="generator" content="Hugo 0.27" />
+	
+	<link rel="icon" href="../../common/lecture.png" />
+	
+	<link rel="stylesheet" href="../../css/style.css">
+	<link rel="stylesheet" href="../../css/print.css" media="print">
+	<link rel="stylesheet" href="../../highlight.js/styles/grayscale.min.css">
+</head>
+<body class="shower list no-math">
+	<script>
+function randomTicket() {
+	var tickets = [].slice.call(document.querySelectorAll(".current"));
+	for (var i = 0; i < tickets.length; ++i) {
+        tickets[i].classList.remove("current");
+	}
+
+	var tickets = [].slice.call(document.querySelectorAll("section.ticket"));
+	if (tickets.length == 0) {
+		return;
+	}
+	var index = Math.floor(tickets.length * Math.random());
+	console.log("Ticket " + index + " of " + tickets.length);
+	var ticket = tickets[index];
+	ticket.classList.add("current");
+	ticket.scrollIntoView();
+}
+document.addEventListener("scroll", function(e) {
+	document.querySelector("#random").style.top = document.body.scrollTop + "px";
+});
+	</script>
+	<div id="random" class="random" onclick="randomTicket()"></div>
+	
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+
+        
+        Найти названия всех фильмов снятых &lsquo;Steven Spielberg&rsquo;, отсортировать по алфавиту.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+
+        
+        Найти года в которых были фильмы с рейтингом не ниже 4 и отсортировать по возрастанию.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+
+        
+        Найти названия всех фильмов которые не имеют рейтинга, отсортировать по алфавиту.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+
+        
+        Некоторые оценки не имеют даты. Найти имена всех экспертов, имеющих оценки без даты, отсортировать по алфавиту.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+
+        
+        Напишите запрос возвращающий информацию о рейтингах в более читаемом формате: имя эксперта, название фильма, оценка и дата оценки. Отсортируйте данные по имени эксперта, затем названию фильма и наконец оценка.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+
+        
+        Для каждого фильма, выбрать название и &ldquo;разброс оценок&rdquo;, то есть, разницу между самой высокой и самой низкой оценками для этого фильма. Сортировать по &ldquo;разбросу оценок&rdquo; от высшего к низшему, и по названию фильма.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+
+        
+        <p>Найти разницу между средней оценкой фильмов выпущенных до 1980 года, а средней оценкой фильмов выпущенных после 1980 года (фильмы выпущенные в 1980 году не учитываются).</p>
+
+<p>Убедитесь, что для расчета используете среднюю оценку для каждого фильма. Не просто среднюю оценку фильмов до и после 1980 года.</p>
+
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+
+        
+        Найти имена всех экспертов, кто оценил &ldquo;Gone with the Wind&rdquo;, отсортировать по алфавиту.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+
+        
+        Для каждой оценки, где эксперт тот же человек что и режиссер, выбрать имя, название фильма и оценку, отсортировать по имени, названию фильма и оценке.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+
+        
+        Выберите всех экспертов и названия фильмов в едином списке в алфавитном порядке.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+
+        
+        Выберите названия всех фильмов, по алфавиту, которым не поставил оценку &lsquo;Chris Jackson&rsquo;.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+
+        
+        Для всех пар экспертов, если оба оценили один и тот же фильм, выбрать имена обоих. Устранить дубликаты, проверить отсутствие пар самих с собой и включать каждую пару только 1 раз. Выбрать имена в паре в алфавитном порядке и отсортировать по именам.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+
+        
+        Выбрать список названий фильмов и средний рейтинг, от самого низкого до самого высокого. Если два или более фильмов имеют одинаковый средний балл, перечислить их в алфавитном порядке.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+
+        
+        Найти имена всех экспертов, которые поставили три или более оценок, сортировка по алфавиту.
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+
+        
+        <p>Некоторые режиссеры сняли более чем один фильм. Для всех таких режиссеров, выбрать названия всех фильмов режиссера, его имя. Сортировка по имени режиссера.</p>
+
+<p>Пример: Titanic,Avatar | James Cameron</p>
+
+    </div>
+</section>
+
+<section class="ticket">
+    <div class="ticket">
+        
+        <pre style="font-size: 90%"><code class="sql">CREATE TABLE `Movie` (`mID` INT, `title` TEXT, `year` INT, `director` TEXT);
+CREATE TABLE `Reviewer` (`rID` INT, `name` TEXT);
+CREATE TABLE `Rating` (`rID` INT, `mID` INT, `stars` INT, `ratingDate` DATE);
+</code></pre>
+
+        
+        Для всех случаев когда один эксперт оценивал фильм более одного раза и указал лучший рейтинг второй раз, выведите имя эксперта и название фильма, отсортировав по имени, затем по названию фильма.
+    </div>
+</section>
+
+
+
+	<script src="../../js/common.js"></script>
+	<script src="../../highlight.js/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+	
+
+
+
+</body>
+</html>

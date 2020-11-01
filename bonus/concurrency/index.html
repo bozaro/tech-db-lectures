@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<title>СУБД. Параллелизм</title>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="generator" content="Hugo 0.27" />
+	
+	<link rel="icon" href="../../common/lecture.png" />
+	
+	<link rel="stylesheet" href="../../shower/themes/ribbon/styles/screen-16x10.css">
+	<link rel="stylesheet" href="../../css/style.css">
+	<link rel="stylesheet" href="../../highlight.js/styles/idea.min.css">
+</head>
+<body class="shower list no-math">
+	<header class="caption">
+		<h1>СУБД. Параллелизм</h1>
+	</header>
+	
+<section class="slide white" style="padding: 0" id="cover">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        СУБД
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Навроцкий Артем
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="177" y="465" width="240" height="134">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: left">
+                    <div style="vertical-align: top; display: table-cell">
+                        Параллелизм
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<section class="slide">
+    <h2>Параллелизм</h2>
+    <ul>
+        <li>Какая проблема решается?</li>
+        <li>Правила игры.</li>
+        <li>Пессимистичные блокировки.</li>
+        <li>Оптимистичные блокировки.</li>
+        <li>Lock-free.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <img src="cpu.png" style="float: right; width: 450px">
+    <figure>
+        <blockquote>The Free Lunch Is Over: A Fundamental Turn Toward Concurrency in Software</blockquote>
+        <figcaption>© By Herb Sutter, March 2005</figcaption>
+    </figure>
+    <footer>
+        <ul>
+            <li><a href="http://www.gotw.ca/publications/concurrency-ddj.htm">http://www.gotw.ca/publications/concurrency-ddj.htm</a></li>
+            <li><a href="https://habrahabr.ru/post/145432/">https://habrahabr.ru/post/145432/</a></li>
+        </ul>
+    </footer>
+</section>
+
+<section class="slide">
+    <h2>Какая проблема решается?</h2>
+    <h3>Нет разделяемого состояния - нет проблем</h3>
+    <pre><code>1: SELECT * FROM account WHERE id = 42;
+1: ...
+1: UPDATE account SET money = 1234 WHERE id = 42;
+</code></pre>
+    <div class="next">
+    <h3>Процессы влияют друг на друга</h3>
+    <pre><code>1: SELECT * FROM account WHERE id = 42;
+2: SELECT * FROM account WHERE id = 42;
+1: ...
+2: ...
+1: UPDATE account SET money = 1234 WHERE id = 42;
+2: UPDATE account SET money = 2345 WHERE id = 42;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Проблема не специфична для СУБД</h2>
+        <h3>Java</h3>
+        <pre><code>class Foo {
+    private Helper helper = null;
+
+    public Helper getHelper() {
+        if (helper == null)
+            helper = new Helper();
+        return helper;
+    }
+}
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Правила игры</h2>
+    <h3>Java Memory Model (JSR 133)</h3>
+    <p>Модель памяти Java стала первой попыткой разработать исчерпывающую модель межпоточного взаимодействия для крупного языка программирования.</p>
+    <h3>ACID</h3>
+    <p>Требования к транзакционной системе, обеспечивающие наиболее надёжную и <b>предсказуемую</b> её работу.</p>
+</section>
+
+<section class="slide">
+    <h2>Пессимистичные блокировки</h2>
+    <h3>SQL</h3>
+    <pre><code>SELECT * FROM account WHERE id = 42 FOR UPDATE;
+...
+UPDATE account SET money = 1234 WHERE id = 42;
+</code></pre>
+    <div class="next">
+    <h3>Java</h3>
+    <pre><code>class Foo {
+    private Helper helper = null;
+
+    public synchronized Helper getHelper() {
+        if (helper == null)
+            helper = new Helper();
+        return helper;
+    }
+}
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Пессимистичные блокировки</h2>
+    <p>Когды вы оперируете lock’ами могут случиться четыре типа проблем:</p>
+    <ul>
+        <li>вы возьмете слишком мало локов (поломанные данные);</li>
+        <li>вы возьмете слишком много локов (deadlock, starvation);</li>
+        <li>вы возьмете не те локи (поломанные данные);</li>
+        <li>вы возьмете те локи, но не в том порядке (deadlock).</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Пессимистичные блокировки</h2>
+    <h3>DEADLOCK</h3>
+    <table class="classic bordered">
+        <tr>
+            <td>LOCK A</td>
+            <td>LOCK B</td>
+        </tr>
+        <tr>
+            <td>...</td>
+            <td>...</td>
+        </tr>
+        <tr>
+            <td>LOCK B</td>
+            <td>LOCK A</td>
+        </tr>
+        <tr>
+            <td>...</td>
+            <td>...</td>
+        </tr>
+        <tr>
+            <td>UNLOCK B</td>
+            <td>UNLOCK A</td>
+        </tr>
+        <tr>
+            <td>UNLOCK B</td>
+            <td>UNLOCK A</td>
+        </tr>
+    </table>
+    <div class="important next">
+        Для того, чтобы избежать взаимоблокировок, нужно брать блокировки в одном и том же порядке.
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Оптимистичные блокировки</h2>
+    <h3>SQL</h3>
+    <pre><code style="font-size: 90%">SELECT * FROM account WHERE id = 42;
+...
+UPDATE account SET
+  version = 8,
+  money = 1234
+WHERE id = 42
+  AND version = 7;
+</code></pre>
+    <div class="next">
+    <h3>PostgreSQL</h3>
+    <pre><code style="font-size: 90%">SELECT xmin, * FROM account WHERE id = 42;
+...
+UPDATE account SET
+  money = 1234
+WHERE id = 42
+  AND xmin = 1528942;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Оптимистичные VS Пессимистичные</h2>
+    <ul>
+        <li>Пессимистичные блокировки проще;</li>
+        <li>Пессимистичные блокировки подвержены DEADLOCK-ам;</li>
+        <li>Если операции редко затрагивают одни и те же данные, то оптимистичные блокировки быстрее.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Lock-free очередь (сильно упрощенно)</h2>
+    <pre><code class="c" style="font-size: 90%">void stack_push(stack* s, node* n) {
+  node* head;
+  do {
+    head = s->head;
+    n->next = head;
+  } while (!atomic_compare_exchange(s->head, head, n));
+}
+
+node *stack_pop(stack* s) {
+  node* head, next;
+  do {
+    head = s->head;
+    next = head->next;
+  } while (!atomic_compare_exchange(s->head, head, next));
+  return head;
+}
+</code></pre>
+    <!--div class="next">
+        <p>A Pragmatic Implementation of Non-blocking Linked-Lists</p>
+        <p>© Timothy L. Harris, 2001</p>
+        <p><a href="2001-disc.pdf">https://timharris.uk/papers/2001-disc.pdf</a></p>
+    </div-->
+</section>
+
+	
+<section class="slide white" style="padding: 0" id="contacts">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        Навроцкий Артем
+                        
+                        
+                        <div>E-mail: bozaro@yandex.ru</div>
+                        
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px; font-weight: bold">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Спасибо за внимание!
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<div class="progress"></div>
+	<script src="../../js/common.js"></script>
+	<script src="../../shower/shower.min.js"></script>
+	<script src="../../highlight.js/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+	
+
+
+	<script src="../../mathjax/MathJax.js?config=AM_HTMLorMML-full"></script>
+	<script>
+MathJax.Hub.Config({
+	asciimath2jax: {
+		inlineMath: [['$','$'],['\\(','\\)']],
+		processClass: "math",
+		ignoreClass: "no-math"
+	},
+	root: "..\/..\/mathjax/"
+});
+	</script>
+
+
+</body>
+</html>

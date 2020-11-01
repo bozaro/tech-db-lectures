@@ -1,0 +1,2306 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<title>СУБД. Лекция 2</title>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="generator" content="Hugo 0.27" />
+	
+	<link rel="icon" href="../common/lecture.png" />
+	
+	<link rel="stylesheet" href="../shower/themes/ribbon/styles/screen-16x10.css">
+	<link rel="stylesheet" href="../css/style.css">
+	<link rel="stylesheet" href="../highlight.js/styles/idea.min.css">
+</head>
+<body class="shower list no-math">
+	<header class="caption">
+		<h1>СУБД. Лекция 2</h1>
+	</header>
+	
+<section class="slide white" style="padding: 0" id="cover">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        СУБД
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Навроцкий Артем
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="177" y="465" width="240" height="134">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: left">
+                    <div style="vertical-align: top; display: table-cell">
+                        Лекция 2
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<section class="slide">
+    <h2>Введение в проектирование. Введение в SQL.</h2>
+    <ul>
+        <li>Введение в проектирование баз данных;</li>
+        <li>Введение в SQL;</li>
+        <li>Немного про JOIN-ы;</li>
+        <li>Обзор INFORMATION_SCHEMA;</li>
+        <li>Иерархические структуры в базах данных.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Проектирования БД</h2>
+    <dl>
+        <dt>Проектирование баз данных</dt>
+        <dd>Процесс создания схемы базы данных и определения необходимых ограничений целостности.</dd>
+    </dl>
+    <div style="text-align: center">
+        <img style="height: 300px" src="not-so-easy.jpg"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Основные задачи</h2>
+    <ul>
+        <li>Обеспечение хранения в БД всей необходимой информации.</li>
+        <li>Обеспечение возможности получения данных по всем необходимым запросам.</li>
+        <li>Сокращение избыточности и дублирования данных.</li>
+        <li>Обеспечение целостности данных (правильности их содержания): исключение противоречий в содержании данных,
+            исключение их потери и т.д.
+        </li>
+    </ul>
+</section>
+
+<section class="slide">
+    <figure style="font-size: 150%; margin-top: 100px">
+        <blockquote>Сложная система, спроектированная наспех, никогда не работает, и исправить ее, чтобы заставить
+            работать, невозможно.
+        </blockquote>
+        <figcaption>Законы Мерфи.<br/>16-й закон систематики
+        </figcaption>
+    </figure>
+</section>
+
+<section class="slide">
+    <h2>Особенности концептуального проектирования</h2>
+    <img style="height: 400px; float: right" src="change-cost.png"/>
+    <figure class="next">
+        <blockquote>Трудно что-либо предвидеть, а уж особенно будущее.</blockquote>
+        <figcaption>Нильс Бор</figcaption>
+    </figure>
+    <ul>
+        <li>Максимум командной работы;</li>
+        <li>Привлечение наиболее опытных специалистов;</li>
+        <li>Заглядываем в будущее.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Этапы проектирования</h2>
+    <div style="text-align: center">
+        <img src="scheme-01.png" style="width: 450px"/>
+    </div>
+    <dl>
+        <dt>Внешнее представление (внешняя схема) данных</dt>
+        <dd>Совокупностью требований со стороны конкретной функции, выполняемой пользователем.</dd>
+        <dt>Концептуальная схема</dt>
+        <dd>Полная совокупностью всех требований к данным, полученной из пользовательских представлений о реальном
+            мире.
+        </dd>
+        <dt>Внутренняя схема</dt>
+        <dd>Сама база данных.</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>Инфологическое проектирование</h2>
+    <dl>
+        <dt>Концептуальное (инфологическое) проектирование</dt>
+        <dd>Построение семантической модели предметной области, то есть информационной модели наиболее высокого уровня
+            абстракции.
+        </dd>
+    </dl>
+    <img src="scheme-02.png" style="float: right"/>
+    <br/>
+    <ul>
+        <li>сущности</li>
+        <li>атрибуты</li>
+        <li>связи</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Логическое проектирование</h2>
+    <dl>
+        <dt>Логическое (даталогическое) проектирование</dt>
+        <dd>Создание схемы базы данных на основе конкретной модели данных, например, реляционной модели данных.</dd>
+    </dl>
+    <img src="scheme-03.jpg" style="float: right"/>
+    <br/>
+    <ul>
+        <li>записи</li>
+        <li>элементы данных</li>
+        <li>связи между записями</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Физическое проектирование</h2>
+    <dl>
+        <dt>Физическое проектирование</dt>
+        <dd>Создание схемы базы данных для конкретной СУБД.</dd>
+    </dl>
+    <div style="position: absolute; margin-left: 35%; margin-right: 50px; text-align: right">
+		<img src="logo-firebird.png" height="80" style="padding: 10pt"/>
+		<img src="logo-mysql.png" height="80" style="padding: 10pt"/>
+		<img src="logo-pgsql.png" height="80" style="padding: 10pt"/>
+		<img src="logo-sqlite.png" height="80" style="padding: 10pt"/>
+		<img src="logo-mssql.png" height="80" style="padding: 10pt"/>
+		<img src="logo-hadoop.png" height="80" style="padding: 10pt"/>
+		<img src="logo-redis.png" height="80" style="padding: 10pt"/>
+		<img src="logo-tarantool.png" height="80" style="padding: 10pt"/>
+		<img src="logo-neo4j.svg" height="80" style="padding: 10pt" />
+		<img src="logo-orientdb.png" height="80" style="padding: 10pt" />
+		<img src="logo-cache.png" height="80" style="padding: 10pt" />
+		<br/>
+		<img src="logo-oracle.png" width="200" style="padding: 10pt" />
+	</div>
+    <br/>
+    <ul>
+        <li>группирование данных</li>
+        <li>индексы</li>
+        <li>методы доступа</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Почему проект БД может быть плохим?</h2>
+    <table class="classic bordered" style="font-size: 67%">
+        <thead>
+        <tr>
+            <th>Блюдо</th>
+            <th>Вид</th>
+            <th>Дата</th>
+            <th>Продукт</th>
+            <th>Калорийность</th>
+            <th>Вес (г)</th>
+            <th>Поставщик</th>
+            <th>Город</th>
+            <th>Страна</th>
+            <th>Цена ($)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Лобио</td>
+            <td>Закуска</td>
+            <td>01.09.2012</td>
+            <td>Фасоль</td>
+            <td align="right">307</td>
+            <td align="right">200</td>
+            <td>&quot;Хуанхэ&quot;</td>
+            <td>Пекин</td>
+            <td>Китай</td>
+            <td align="right">0.37</td>
+        </tr>
+        <tr>
+            <td style="color: gray">Лобио</td>
+            <td style="color: gray">Закуска</td>
+            <td style="color: gray">01.09.2012</td>
+            <td>Лук</td>
+            <td align="right">45</td>
+            <td align="right">40</td>
+            <td>&quot;Наталка&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">0.52</td>
+        </tr>
+        <tr>
+            <td style="color: gray">Лобио</td>
+            <td style="color: gray">Закуска</td>
+            <td style="color: gray">01.09.2012</td>
+            <td>Масло</td>
+            <td align="right">742</td>
+            <td align="right">30</td>
+            <td>&quot;Лайма&quot;</td>
+            <td>Рига</td>
+            <td>Латвия</td>
+            <td align="right">1.55</td>
+        </tr>
+        <tr>
+            <td style="color: gray">Лобио</td>
+            <td style="color: gray">Закуска</td>
+            <td style="color: gray">01.09.2012</td>
+            <td>Зелень</td>
+            <td align="right">18</td>
+            <td align="right">10</td>
+            <td>&quot;Даугава&quot;</td>
+            <td>Рига</td>
+            <td>Латвия</td>
+            <td align="right">0.99</td>
+        </tr>
+        <tr>
+            <td>Борщ</td>
+            <td>Суп</td>
+            <td>01.09.2012</td>
+            <td>Мясо</td>
+            <td align="right">166</td>
+            <td align="right">80</td>
+            <td>&quot;Наталка&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">2.18</td>
+        </tr>
+        <tr>
+            <td style="color: gray">Борщ</td>
+            <td style="color: gray">Суп</td>
+            <td style="color: gray">01.09.2012</td>
+            <td>Лук</td>
+            <td align="right">45</td>
+            <td align="right">30</td>
+            <td>&quot;Наталка&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">0.52</td>
+        </tr>
+        <tr>
+            <td style="color: gray">Борщ</td>
+            <td style="color: gray">Суп</td>
+            <td style="color: gray">01.09.2012</td>
+            <td>Томаты</td>
+            <td align="right">24</td>
+            <td align="right">40</td>
+            <td>&quot;Полесье&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">0.45</td>
+        </tr>
+        <tr>
+            <td style="color: gray">Борщ</td>
+            <td style="color: gray">Суп</td>
+            <td style="color: gray">01.09.2012</td>
+            <td>Рис</td>
+            <td align="right">334</td>
+            <td align="right">50</td>
+            <td>&quot;Хуанхэ&quot;</td>
+            <td>Пекин</td>
+            <td>Китай</td>
+            <td align="right">0.44</td>
+        </tr>
+        <tr>
+            <td style="color: gray">Борщ</td>
+            <td style="color: gray">Суп</td>
+            <td style="color: gray">01.09.2012</td>
+            <td>Масло</td>
+            <td align="right">742</td>
+            <td align="right">15</td>
+            <td>&quot;Полесье&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">1.62</td>
+        </tr>
+        <tr>
+            <td style="color: gray">Борщ</td>
+            <td style="color: gray">Суп</td>
+            <td style="color: gray">01.09.2012</td>
+            <td>Зелень</td>
+            <td align="right">18</td>
+            <td align="right">15</td>
+            <td>&quot;Наталка&quot;</td>
+            <td>Киев</td>
+            <td>Украина</td>
+            <td align="right">0.88</td>
+        </tr>
+        </tbody>
+    </table>
+    <ol class="double compact">
+        <li>Избыточность</li>
+        <li>Потенциальная противоречивость<br/>(аномалии обновления)</li>
+        <li>Аномалии включения</li>
+        <li>Аномалии удаления</li>
+    </ol>
+</section>
+
+<section class="slide">
+    <h2>Концептуальное проектирование</h2>
+    <h3>Выявление сущностей и связей</h3>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="scheme-05.png"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Структура таблицы тем</h2>
+    <table class="classic bordered" style="font-size: 60%">
+        <thead>
+        <tr>
+            <th>Заголовок</th>
+            <th>Дата</th>
+            <th>Автор</th>
+            <th>E-Mail</th>
+            <th>Текст</th>
+            <th>Оценка</th>
+            <th>Ответы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Руслан и Людмила</td>
+            <td>01.01.1820</td>
+            <td>Пушкин А.С.</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>…</td>
+            <td>500</td>
+            <td>120</td>
+        </tr>
+        <tr>
+            <td>Война и Мир</td>
+            <td>01.03.1869</td>
+            <td>Толстой Л.Н.</td>
+            <td>tolstoy@inbox.ru</td>
+            <td>…</td>
+            <td>100</td>
+            <td>345</td>
+        </tr>
+        <tr>
+            <td>Отцы и Дети</td>
+            <td>15.08.1862</td>
+            <td>Иван Тургенев</td>
+            <td>nedobobov@mail.ru</td>
+            <td>…</td>
+            <td>256</td>
+            <td>18</td>
+        </tr>
+        <tr>
+            <td>Повести Белкина</td>
+            <td>12.06.1830</td>
+            <td>Пушкин А.С.</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>…</td>
+            <td>400</td>
+            <td>96</td>
+        </tr>
+        <tr>
+            <td>Муму</td>
+            <td>10.11.1852</td>
+            <td>Иван Тургенев</td>
+            <td>nedobobov@mail.ru</td>
+            <td>…</td>
+            <td>312</td>
+            <td>46</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Первичный ключ</h2>
+    <p>Первичный ключ выбирается исходя из соображений удобства и сохранения уникальности. Если такого ключа нет, то
+        имеет смысл добавить специальное поле.</p>
+    <table class="classic bordered" style="font-size: 60%">
+        <thead>
+        <tr>
+            <th>TopicID</th>
+            <th>Заголовок</th>
+            <th>Дата</th>
+            <th>Автор</th>
+            <th>E-Mail</th>
+            <th>Текст</th>
+            <th>Оценка</th>
+            <th>Ответы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>5</td>
+            <td>Руслан и Людмила</td>
+            <td>01.01.1820</td>
+            <td>Пушкин А.С.</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>…</td>
+            <td>500</td>
+            <td>120</td>
+        </tr>
+        <tr>
+            <td>8</td>
+            <td>Война и Мир</td>
+            <td>01.03.1869</td>
+            <td>Толстой Л.Н.</td>
+            <td>tolstoy@inbox.ru</td>
+            <td>…</td>
+            <td>100</td>
+            <td>345</td>
+        </tr>
+        <tr>
+            <td>12</td>
+            <td>Отцы и Дети</td>
+            <td>15.08.1862</td>
+            <td>Иван Тургенев</td>
+            <td>nedobobov@mail.ru</td>
+            <td>…</td>
+            <td>256</td>
+            <td>18</td>
+        </tr>
+        <tr>
+            <td>43</td>
+            <td>Повести Белкина</td>
+            <td>12.06.1830</td>
+            <td>Пушкин А.С.</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>…</td>
+            <td>400</td>
+            <td>96</td>
+        </tr>
+        <tr>
+            <td>16</td>
+            <td>Муму</td>
+            <td>10.11.1852</td>
+            <td>Иван Тургенев</td>
+            <td>nedobobov@mail.ru</td>
+            <td>…</td>
+            <td>312</td>
+            <td>46</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Справочник пользователей</h2>
+    <img src="user-form.png" style="float: right; width: 50%"/>
+    <dl style="font-size: 75%">
+        <dt>Нормальная форма</dt>
+        <dd>Свойство отношения в реляционной модели данных, характеризующее его с точки зрения избыточности,
+            потенциально приводящей к логически ошибочным результатам выборки или изменения данных. Нормальная форма
+            определяется как совокупность требований, которым должно удовлетворять отношение.
+        </dd>
+    </dl>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Пароль</th>
+            <th>Имя</th>
+            <th>Дата</th>
+            <th>Привилегии</th>
+            <th>Разделы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ, Модератор</td>
+            <td>Новости, Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Флуд, Юмор</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>*****</td>
+            <td>Федор Михайлович</td>
+            <td>11.11.1821</td>
+            <td>Игрок</td>
+            <td>E-Mail</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>*****</td>
+            <td>Пушкин А.С.</td>
+            <td>06.06.1799</td>
+            <td>Админ</td>
+            <td>Поэзия</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>1-ая нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится в первой нормальной форме (1НФ) тогда и только тогда, когда
+        в любом допустимом значении отношения каждый его кортеж содержит только одно значение для каждого из атрибутов.
+    </p>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Пароль</th>
+            <th>Имя</th>
+            <th>Дата</th>
+            <th>Привилегии</th>
+            <th>Разделы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ, Модератор</td>
+            <td>Новости, Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Флуд, Юмор</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>*****</td>
+            <td>Федор Михайлович</td>
+            <td>11.11.1821</td>
+            <td>Игрок</td>
+            <td>E-Mail</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>*****</td>
+            <td>Пушкин А.С.</td>
+            <td>06.06.1799</td>
+            <td>Админ</td>
+            <td>Поэзия</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>1-ая нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится в первой нормальной форме (1НФ) тогда и только тогда, когда
+        в любом допустимом значении отношения каждый его кортеж содержит только одно значение для каждого из атрибутов.
+    </p>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Пароль</th>
+            <th>Имя</th>
+            <th>Дата</th>
+            <th>Привилегии</th>
+            <th>Разделы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Модератор</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Юмор</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>*****</td>
+            <td>Федор Михайлович</td>
+            <td>11.11.1821</td>
+            <td>Игрок</td>
+            <td>E-Mail</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>*****</td>
+            <td>Пушкин А.С.</td>
+            <td>06.06.1799</td>
+            <td>Админ</td>
+            <td>Поэзия</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>2-ая нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится во второй нормальной форме тогда и только тогда, когда она
+        находится в первой нормальной форме, и каждый неключевой атрибут неприводимо зависит от ее потенциального ключа.
+    </p>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Пароль</th>
+            <th>Имя</th>
+            <th>Дата</th>
+            <th>Привилегии</th>
+            <th>Разделы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Админ</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Модератор</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+            <td>Модератор</td>
+            <td>Юмор</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>*****</td>
+            <td>Федор Михайлович</td>
+            <td>11.11.1821</td>
+            <td>Игрок</td>
+            <td>E-Mail</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>*****</td>
+            <td>Пушкин А.С.</td>
+            <td>06.06.1799</td>
+            <td>Админ</td>
+            <td>Поэзия</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>2-ая нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится во второй нормальной форме тогда и только тогда, когда она
+        находится в первой нормальной форме, и каждый неключевой атрибут неприводимо зависит от ее потенциального ключа.
+    </p>
+    <table class="classic bordered" style="font-size: 60%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Пароль</th>
+            <th>Имя</th>
+            <th>Дата</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>*****</td>
+            <td>Толстой Л.Н.</td>
+            <td>09.09.1828</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>*****</td>
+            <td>Николай Щедрин</td>
+            <td>27.01.1826</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>*****</td>
+            <td>Федор Михайлович</td>
+            <td>11.11.1821</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>*****</td>
+            <td>Пушкин А.С.</td>
+            <td>06.06.1799</td>
+        </tr>
+        </tbody>
+    </table>
+    <table class="classic bordered" style="font-size: 60%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Привилегии</th>
+            <th>Разделы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Админ</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Админ</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Модератор</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>Модератор</td>
+            <td>Юмор</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>Игрок</td>
+            <td>E-Mail</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>Админ</td>
+            <td>Поэзия</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>3-я нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится в третьей нормальной форме, когда она находится во второй
+        нормальной форме, и отсутствуют транзитивные функциональные зависимости неключевых атрибутов от ключевых.
+    </p>
+    <table class="classic bordered" style="font-size: 60%">
+        <thead>
+        <tr>
+            <th>TopicID</th>
+            <th>Заголовок</th>
+            <th>Дата</th>
+            <th>Автор</th>
+            <th>E-Mail</th>
+            <th>Текст</th>
+            <th>Оценка</th>
+            <th>Ответы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>5</td>
+            <td>Руслан и Людмила</td>
+            <td>01.01.1820</td>
+            <td>Пушкин А.С.</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>…</td>
+            <td>500</td>
+            <td>120</td>
+        </tr>
+        <tr>
+            <td>8</td>
+            <td>Война и Мир</td>
+            <td>01.03.1869</td>
+            <td>Толстой Л.Н.</td>
+            <td>tolstoy@inbox.ru</td>
+            <td>…</td>
+            <td>100</td>
+            <td>345</td>
+        </tr>
+        <tr>
+            <td>12</td>
+            <td>Отцы и Дети</td>
+            <td>15.08.1862</td>
+            <td>Иван Тургенев</td>
+            <td>nedobobov@mail.ru</td>
+            <td>…</td>
+            <td>256</td>
+            <td>18</td>
+        </tr>
+        <tr>
+            <td>43</td>
+            <td>Повести Белкина</td>
+            <td>12.06.1830</td>
+            <td>Пушкин А.С.</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>…</td>
+            <td>400</td>
+            <td>96</td>
+        </tr>
+        <tr>
+            <td>16</td>
+            <td>Муму</td>
+            <td>10.11.1852</td>
+            <td>Иван Тургенев</td>
+            <td>nedobobov@mail.ru</td>
+            <td>…</td>
+            <td>312</td>
+            <td>46</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>3-я нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится в третьей нормальной форме, когда она находится во второй
+        нормальной форме, и отсутствуют транзитивные функциональные зависимости неключевых атрибутов от ключевых.
+    </p>
+    <table class="classic bordered" style="font-size: 70%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Автор</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>Пушкин А.С.</td>
+        </tr>
+        <tr>
+            <td>tolstoy@inbox.ru</td>
+            <td>Толстой Л.Н.</td>
+        </tr>
+        <tr>
+            <td>nedobobov@mail.ru</td>
+            <td>Иван Тургенев</td>
+        </tr>
+    </table>
+    <table class="classic bordered" style="font-size: 60%">
+        <thead>
+        <tr>
+            <th>TopicID</th>
+            <th>Заголовок</th>
+            <th>Дата</th>
+            <th>E-Mail</th>
+            <th>Текст</th>
+            <th>Оценка</th>
+            <th>Ответы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>5</td>
+            <td>Руслан и Людмила</td>
+            <td>01.01.1820</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>…</td>
+            <td>500</td>
+            <td>120</td>
+        </tr>
+        <tr>
+            <td>8</td>
+            <td>Война и Мир</td>
+            <td>01.03.1869</td>
+            <td>tolstoy@inbox.ru</td>
+            <td>…</td>
+            <td>100</td>
+            <td>345</td>
+        </tr>
+        <tr>
+            <td>12</td>
+            <td>Отцы и Дети</td>
+            <td>15.08.1862</td>
+            <td>nedobobov@mail.ru</td>
+            <td>…</td>
+            <td>256</td>
+            <td>18</td>
+        </tr>
+        <tr>
+            <td>43</td>
+            <td>Повести Белкина</td>
+            <td>12.06.1830</td>
+            <td>sukin_syn@mail.ru</td>
+            <td>…</td>
+            <td>400</td>
+            <td>96</td>
+        </tr>
+        <tr>
+            <td>16</td>
+            <td>Муму</td>
+            <td>10.11.1852</td>
+            <td>nedobobov@mail.ru</td>
+            <td>…</td>
+            <td>312</td>
+            <td>46</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>4-ая нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится в четвёртой нормальной форме, если она находится в третьей
+        нормальной форме и не содержит нетривиальных многозначных зависимостей.
+    </p>
+    <table class="classic bordered" style="font-size: 80%">
+        <thead>
+        <tr>
+            <th>E-Mail</th>
+            <th>Привилегии</th>
+            <th>Разделы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Админ</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Админ</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Модератор</td>
+            <td>Новости</td>
+        </tr>
+        <tr>
+            <td>tolstoy@mail.ru</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>Модератор</td>
+            <td>Флуд</td>
+        </tr>
+        <tr>
+            <td>saltykov@inbox.ru</td>
+            <td>Модератор</td>
+            <td>Юмор</td>
+        </tr>
+        <tr>
+            <td>fmd@mail.ru</td>
+            <td>Игрок</td>
+            <td>E-Mail</td>
+        </tr>
+        <tr>
+            <td>sukin_syn@mail.ru</td>
+            <td>Админ</td>
+            <td>Поэзия</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>4-ая нормальная форма</h2>
+    <p style="font-size: 80%">Переменная отношения находится в четвёртой нормальной форме, если она находится в третьей
+        нормальной форме и не содержит нетривиальных многозначных зависимостей.
+    </p>
+    <div style="display: table; width: 100%">
+        <div style="display: table-cell; padding-right: 10px">
+            <table class="classic bordered" style="font-size: 80%">
+                <thead>
+                <tr>
+                    <th>E-Mail</th>
+                    <th>Привилегии</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>tolstoy@mail.ru</td>
+                    <td>Админ</td>
+                </tr>
+                <tr>
+                    <td>tolstoy@mail.ru</td>
+                    <td>Модератор</td>
+                </tr>
+                <tr>
+                    <td>saltykov@inbox.ru</td>
+                    <td>Модератор</td>
+                </tr>
+                <tr>
+                    <td>fmd@mail.ru</td>
+                    <td>Игрок</td>
+                </tr>
+                <tr>
+                    <td>sukin_syn@mail.ru</td>
+                    <td>Админ</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: table-cell">
+            <table class="classic bordered" style="font-size: 80%">
+                <thead>
+                <tr>
+                    <th>E-Mail</th>
+                    <th>Разделы</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>tolstoy@mail.ru</td>
+                    <td>Новости</td>
+                </tr>
+                <tr>
+                    <td>tolstoy@mail.ru</td>
+                    <td>Флуд</td>
+                </tr>
+                <tr>
+                    <td>saltykov@inbox.ru</td>
+                    <td>Флуд</td>
+                </tr>
+                <tr>
+                    <td>saltykov@inbox.ru</td>
+                    <td>Юмор</td>
+                </tr>
+                <tr>
+                    <td>fmd@mail.ru</td>
+                    <td>E-Mail</td>
+                </tr>
+                <tr>
+                    <td>sukin_syn@mail.ru</td>
+                    <td>Поэзия</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Реляционная часть</h2>
+    <ul>
+        <li style="clear: both"><img src="relation-11.svg" style="float: right"/>один-к-одному (1:1)</li>
+        <li style="clear: both"><img src="relation-1m.svg" style="float: right"/>один-ко-многим (1:M)</li>
+        <li style="clear: both"><img src="relation-m1.svg" style="float: right"/>многие-к-одному (M:1)</li>
+        <li style="clear: both"><img src="relation-mn.svg" style="float: right"/>многие-ко-многим (M:N)</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>CREATE TABLE</h2>
+    <pre style="font-size: 70%"><code class="sql">CREATE [ { TEMPORARY } | UNLOGGED ] TABLE [ IF NOT EXISTS ] table_name ( [
+  { column_name data_type [ COLLATE collation ] [ column_constraint [ ... ] ]
+    | table_constraint
+    | LIKE source_table [ like_option ... ] }
+    [, ... ]
+] )
+[ INHERITS ( parent_table [, ... ] ) ]
+[ WITH ( storage_parameter [= value] [, ... ] ) | WITH OIDS | WITHOUT OIDS ]
+[ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
+[ TABLESPACE tablespace_name ]
+</code></pre>
+    <p>Or:</p>
+    <pre style="font-size: 70%"><code class="sql">CREATE [ { TEMPORARY | TEMP } | UNLOGGED ] TABLE [ IF NOT EXISTS ] table_name
+    OF type_name [ (
+  { column_name WITH OPTIONS [ column_constraint [ ... ] ]
+    | table_constraint }
+    [, ... ]
+) ]
+[ WITH ( storage_parameter [= value] [, ... ] ) | WITH OIDS | WITHOUT OIDS ]
+[ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
+[ TABLESPACE tablespace_name ]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>CREATE TABLE</h2>
+    <h3>column_constraint:</h3>
+    <pre><code style="font-size: 70%" class="sql">[ CONSTRAINT constraint_name ]
+{ NOT NULL |
+  NULL |
+  DEFAULT default_expr |
+
+  CHECK ( expression ) [ NO INHERIT ] |
+  UNIQUE index_parameters |
+  PRIMARY KEY index_parameters |
+  REFERENCES reftable [ ( refcolumn ) ]
+    [ MATCH FULL | <strike>MATCH PARTIAL</strike> | MATCH SIMPLE ]
+    [ ON DELETE action ] [ ON UPDATE action ] }
+[ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>CREATE TABLE</h2>
+    <h3>table_constraint:</h3>
+    <pre><code style="font-size: 70%" class="sql">[ CONSTRAINT constraint_name ]
+{ CHECK ( expression ) [ NO INHERIT ] |
+  UNIQUE ( column_name [, ... ] ) index_parameters |
+  PRIMARY KEY ( column_name [, ... ] ) index_parameters |
+  FOREIGN KEY ( column_name [, ... ] )
+    REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+    [ MATCH FULL | <strike>MATCH PARTIAL</strike> | MATCH SIMPLE ]
+    [ ON DELETE action ] [ ON UPDATE action ] }
+  EXCLUDE [ USING index_method ] ( exclude_element WITH operator [, ... ] )
+    index_parameters [ WHERE ( predicate ) ] |
+[ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Обновление кортежа в родительском отношении (action)</h2>
+    <img src="cascade.jpg" style="float: right"/>
+    <dl>
+        <dt>NO ACTION</dt>
+        <dd>Не разрешать изменение</dd>
+
+        <dt>RESTRICT</dt>
+        <dd>То же, что и NO ACTION, но всегда IMMEDIATE</dd>
+
+        <dt>CASCADE</dt>
+        <dd>Изменить каскадно</dd>
+
+        <dt>SET NULL</dt>
+        <dd>Установить в NULL</dd>
+
+        <dt>SET DEFAULT</dt>
+        <dd>Установить значение по умолчанию</dd>
+    </dl>
+</section>
+
+<section class="slide">
+    <h2>CREATE TABLE (пример)</h2>
+    <pre style="font-size: 90%"><code class="sql">CREATE TABLE films (
+    code        char(5) CONSTRAINT firstkey PRIMARY KEY,
+    title       varchar(40) NOT NULL,
+    date_prod   date,
+    kind        varchar(10),
+    len         interval hour to minute,
+    imdb        varchar(20) NULL,
+    CONSTRAINT uniq_imdb UNIQUE(imdb)
+);
+
+CREATE TABLE distributors (
+     did    integer PRIMARY KEY DEFAULT nextval('serial'),
+     name   varchar(40) NOT NULL CHECK (name &lt;&gt; '')
+);
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>ALTER TABLE</h2>
+    <pre style="font-size: 70%"><code class="sql">ALTER TABLE [ IF EXISTS ] [ ONLY ] name [ * ]
+    action [, ... ]
+ALTER TABLE [ IF EXISTS ] [ ONLY ] name [ * ]
+    RENAME [ COLUMN ] column_name TO new_column_name
+ALTER TABLE [ IF EXISTS ] [ ONLY ] name [ * ]
+    RENAME CONSTRAINT constraint_name TO new_constraint_name
+ALTER TABLE [ IF EXISTS ] name
+    RENAME TO new_name
+</code></pre>
+    <h3>action:</h3>
+    <pre style="font-size: 70%"><code class="sql">ADD [ COLUMN ] [ IF NOT EXISTS ] column_name data_type [ ... ]
+DROP [ COLUMN ] [ IF EXISTS ] column_name [ RESTRICT | CASCADE ]
+ALTER [ COLUMN ] column_name [ SET DATA ] TYPE data_type [ USING expression ]
+ALTER [ COLUMN ] column_name SET DEFAULT expression
+ALTER [ COLUMN ] column_name DROP DEFAULT
+ADD table_constraint [ NOT VALID ]
+DROP CONSTRAINT [ IF EXISTS ]  constraint_name [ RESTRICT | CASCADE ]
+...
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>ALTER TABLE (пример)</h2>
+    <pre style="font-size: 90%"><code class="sql">ALTER TABLE distributors
+    ADD COLUMN address varchar(30),
+    DROP COLUMN address RESTRICT,
+    ALTER COLUMN address TYPE varchar(80),
+    ALTER COLUMN name TYPE varchar(100);
+
+ALTER TABLE foo
+    ALTER COLUMN foo_timestamp DROP DEFAULT,
+    ALTER COLUMN foo_timestamp TYPE timestamp with time zone
+    USING
+        timestamp with time zone 'epoch'
+        + foo_timestamp * interval '1 second',
+    ALTER COLUMN foo_timestamp SET DEFAULT now();
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>information_schema</h2>
+    <ul class="double compact" style="font-size: 90%">
+        <li>attributes</li>
+        <li>character_sets</li>
+        <li>collations</li>
+        <li>columns</li>
+        <li>domain_constraints</li>
+        <li>domains</li>
+        <li>referential_constraints</li>
+        <li>role_column_grants</li>
+        <li>role_routine_grants</li>
+        <li>role_table_grants</li>
+        <li>role_usage_grants</li>
+        <li>routines</li>
+        <li>sequences</li>
+        <li>sql_features</li>
+        <li>sql_implementation_info</li>
+        <li>table_constraints</li>
+        <li>table_privileges</li>
+        <li>tables</li>
+        <li>triggers</li>
+        <li>view_column_usage</li>
+        <li>view_routine_usage</li>
+        <li>views</li>
+        <li>view_table_usage</li>
+        <li>...</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>information_schema.tables</h2>
+    <ul class="double compact">
+        <li>table_catalog</li>
+        <li>table_schema</li>
+        <li>table_name</li>
+        <li>table_type</li>
+        <li>self_referencing_column_name</li>
+        <li>reference_generation</li>
+        <li>user_defined_type_catalog</li>
+        <li>user_defined_type_schema</li>
+        <li>user_defined_type_name</li>
+        <li>is_insertable_into</li>
+        <li>is_typed</li>
+        <li>commit_action</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>information_schema.columns</h2>
+    <ul class="double compact">
+        <li>table_catalog</li>
+        <li>table_schema</li>
+        <li>table_name</li>
+        <li>column_name</li>
+        <li>ordinal_position</li>
+        <li>column_default</li>
+        <li>is_nullable</li>
+        <li>data_type</li>
+        <li>character_maximum_length</li>
+        <li>character_octet_length</li>
+        <li>numeric_precision</li>
+        <li>numeric_precision_radix</li>
+        <li>numeric_scale</li>
+        <li>datetime_precision</li>
+        <li>interval_type</li>
+        <li>interval_precision</li>
+        <li>character_set_name</li>
+        <li>collation_name</li>
+        <li>domain_name</li>
+        <li>is_self_referencing</li>
+        <li>is_identity</li>
+        <li>is_generated</li>
+        <li>is_updatable</li>
+        <li>...</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>SELECT</h2>
+    <pre style="font-size: 70%"><code class="sql">[ WITH [ RECURSIVE ] with_query [, ...] ]
+SELECT [ ALL | DISTINCT [ ON ( expression [, ...] ) ] ]
+    [ * | expression [ [ AS ] output_name ] [, ...] ]
+    [ FROM from_item [, ...] ]
+    [ WHERE condition ]
+    [ GROUP BY grouping_element [, ...] ]
+    [ HAVING condition [, ...] ]
+    [ { UNION | INTERSECT | EXCEPT } [ ALL | DISTINCT ] select ]
+    [ ORDER BY expression [ ASC | DESC | USING operator ] [, ...] ]
+    [ LIMIT { count | ALL } ]
+    [ OFFSET start [ ROW | ROWS ] ]
+    [ FETCH { FIRST | NEXT } [ count ] { ROW | ROWS } ONLY ]
+    [ FOR { UPDATE | NO KEY UPDATE | SHARE | KEY SHARE }
+        [ OF table_name [, ...] ] [ NOWAIT | SKIP LOCKED ] [...] ]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>FROM. Типы таблиц</h2>
+    <img src="types.jpg" style="float: right"/>
+    <ul>
+        <li>Постоянные таблицы</li>
+        <li>Временные таблицы</li>
+        <li>Виртуальные таблицы (представления)</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>WHERE. Фильтрация</h2>
+    <img src="filter.jpg" style="float: right" width="400px"/>
+    <ul class="compact">
+        <li>=</li>
+        <li>!=, &lt;&gt;</li>
+        <li>&gt;, &lt;, &gt;=, &lt;=</li>
+        <li>OR, AND, NOT</li>
+        <li>a BETWEEN x AND y</li>
+        <li>a IN (x, y, z...)</li>
+        <li>a LIKE p (_, %)</li>
+    </ul>
+    <pre><code class="sql next">SELECT *
+FROM persons
+WHERE department_id IN (
+    SELECT id FROM departments WHERE company_id = 42
+)</code></pre>
+</section>
+
+<section class="slide">
+    <h2>JOIN-ы</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="../common/joins.svg"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>CASE</h2>
+    <img src="case.png" height="250px" style="position: absolute; right: 50px"/>
+    <div style="font-size: 90%">
+    <pre><code class="sql">CASE WHEN condition THEN result
+     [WHEN ...]
+     [ELSE result]
+END</code></pre>
+        <pre><code class="sql">NULLIF(value1, value2)</code></pre>
+        <pre><code class="sql">GREATEST(value [, ...])</code></pre>
+        <pre><code class="sql">LEAST(value [, ...])</code></pre>
+        <pre class="next"><code class="sql">
+SELECT a,
+   CASE WHEN a=1 THEN 'one'
+        WHEN a=2 THEN 'two'
+        ELSE 'other'
+   END
+FROM test;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>GROUP BY. Формирование групп</h2>
+    <ul>
+        <li>Группировка по одному столбцу</li>
+        <li>Группировка по нескольким столбцам</li>
+        <li>Группировка посредством выражений</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>GROUP BY. Формирование групп</h2>
+    <pre><code class="sql">SELECT * FROM employee;</code></pre>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>name</th>
+            <th>department</th>
+            <th>grade</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>John</td>
+            <td>HR</td>
+            <td>A</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Mark</td>
+            <td>HR</td>
+            <td>A</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Smit</td>
+            <td>IT</td>
+            <td>A</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>Lili</td>
+            <td>IT</td>
+            <td>B</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>Alex</td>
+            <td>PR</td>
+            <td>B</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>Walton</td>
+            <td>HR</td>
+            <td>B</td>
+        </tr>
+        <tr>
+            <td>7</td>
+            <td>Kim</td>
+            <td>PR</td>
+            <td>B</td>
+        </tr>
+        <tr>
+            <td>8</td>
+            <td>Marry</td>
+            <td>HR</td>
+            <td>A</td>
+        </tr>
+        <tr>
+            <td>9</td>
+            <td>Paul</td>
+            <td>PR</td>
+            <td>C</td>
+        </tr>
+        <tr>
+            <td>10</td>
+            <td>Christ</td>
+            <td>HR</td>
+            <td>A</td>
+        </tr>
+        <tr>
+            <td>11</td>
+            <td>Jiji</td>
+            <td>HR</td>
+            <td>B</td>
+        </tr>
+        <tr>
+            <td>12</td>
+            <td>Bob</td>
+            <td>PR</td>
+            <td>B</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+<section class="slide">
+    <h2>GROUP BY. Формирование групп</h2>
+    <pre><code class="sql">SELECT grade, department, COUNT(*)
+FROM employee
+GROUP BY grade, department
+ORDER BY grade, department;
+</code></pre>
+    <table class="classic bordered" style="font-size: 75%">
+        <thead>
+        <tr>
+            <th>grade</th>
+            <th>department</th>
+            <th>COUNT(*)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>A</td>
+            <td>HR</td>
+            <td>4</td>
+        </tr>
+        <tr>
+            <td>A</td>
+            <td>IT</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>B</td>
+            <td>HR</td>
+            <td>2</td>
+        </tr>
+        <tr>
+            <td>B</td>
+            <td>IT</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>B</td>
+            <td>PR</td>
+            <td>3</td>
+        </tr>
+        <tr>
+            <td>C</td>
+            <td>PR</td>
+            <td>1</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Агрегаторы</h2>
+    <pre><code class="sql">aggregate_name (
+    [ ALL | DISTINCT ] expression [ , ... ]
+    [ order_by_clause ]
+) [ FILTER ( WHERE filter_clause ) ]</code></pre>
+    <pre><code class="sql">
+SELECT
+  string_agg(name, ',' ORDER BY name),
+  avg(age),
+  count(*) FILTER (WHERE age BETWEEN 13 AND 19) AS teens
+FROM persons;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>Агрегаторы</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Функция</th>
+            <th>Описание</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>avg(expression)</td>
+            <td>Среднее арифмитическое</td>
+        </tr>
+        <tr>
+            <td>max(expression)</td>
+            <td>Максимальное значение</td>
+        </tr>
+        <tr>
+            <td>min(expression)</td>
+            <td>Минимальное значение</td>
+        </tr>
+        <tr>
+            <td>sum(expression)</td>
+            <td>Сумма</td>
+        </tr>
+        <tr>
+            <td>count(*)</td>
+            <td>Кол-во строк</td>
+        </tr>
+        <tr>
+            <td>count(expression)</td>
+            <td>Кол-во не NULL-значений</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Агрегаторы</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Функция</th>
+            <th>Описание</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>bit_and(expression)</td>
+            <td>Битовое "И"</td>
+        </tr>
+        <tr>
+            <td>bit_or(expression)</td>
+            <td>Битовое "ИЛИ"</td>
+        </tr>
+        <tr>
+            <td>bool_and(expression), every(expression)</td>
+            <td>Логическое "И"</td>
+        </tr>
+        <tr>
+            <td>bool_or(expression)</td>
+            <td>Логическое "ИЛИ"</td>
+        </tr>
+        <tr>
+            <td>stddev(expression)</td>
+            <td>Стандартное отклонение</td>
+        </tr>
+        <tr>
+            <td>variance(expression)</td>
+            <td>Дисперсия (квадрат отклонения)</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Агрегаторы</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Функция</th>
+            <th>Описание</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>array_agg(expression)
+            <td>Сформировать массив значений</td>
+        </tr>
+        <tr>
+            <td>json_agg(expression)</td>
+            <td>Сформировать JSON-массив</td>
+        </tr>
+        <tr>
+            <td>jsonb_agg(expression)</td>
+            <td>Сформировать JSONB-массив</td>
+        </tr>
+        <tr>
+            <td>json_object_agg(key, value)</td>
+            <td>Сформировать JSON-объект</td>
+        </tr>
+        <tr>
+            <td>jsonb_object_agg(key, value)</td>
+            <td>Сформировать JSONB-объект</td>
+        </tr>
+        <tr>
+            <td>string_agg(expression, delimiter)</td>
+            <td>Конкатенация строк</td>
+        </tr>
+        <tr>
+            <td>xmlagg(expression)</td>
+            <td>Конкатенация XML-элементов</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>HAVING. Фильтрация после группировки</h2>
+    <pre><code class="sql">SELECT grade, department, COUNT(*)
+FROM employee
+GROUP BY grade, department
+HAVING COUNT(*) > 3;
+</code></pre>
+    <pre><code class="next sql">
+SELECT * FROM (
+    SELECT grade, department, COUNT(*) as employee_cnt
+    FROM employee
+    GROUP BY grade, department
+) a
+WHERE employee_cnt > 3;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>ORDER BY. Сортировка</h2>
+    <pre><code class="sql" style="font-size: 80%">SELECT select_list
+FROM table_expression
+ORDER BY sort_expression1 [ASC | DESC] [NULLS { FIRST | LAST }]
+      [, sort_expression2 [ASC | DESC] [NULLS { FIRST | LAST }] ...]
+</code></pre>
+    <div style="font-size: 90%">
+    <pre><code class="sql next">
+SELECT a, b FROM table1 ORDER BY a + b, c;
+</code></pre>
+        <pre><code class="sql next">
+SELECT a + b AS sum, c FROM table1 ORDER BY sum;
+SELECT a, max(b) FROM table1 GROUP BY a ORDER BY 1;
+</code></pre>
+        <pre><code class="sql next">
+# SELECT a + b AS sum, c FROM table1 ORDER BY sum + c;
+ERROR:  column "sum" does not exist
+LINE 1: SELECT a + b AS sum, c FROM table1 ORDER BY sum + c;
+                                                    ^
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>LIMIT. Разбивка на страницы</h2>
+    <h3>ISO SQL:2003 - Window Functions:</h3>
+    <div style="font-size: 80%">
+    <pre><code class="sql">SELECT * FROM (
+  SELECT
+    ROW_NUMBER() OVER (ORDER BY age ASC) AS rownumber,
+    person_id, person_name, age
+  FROM person
+) AS foo
+WHERE rownumber <= 10;
+</code></pre>
+        <pre><code class="sql next">
+SELECT * FROM (
+  SELECT
+    RANK() OVER (ORDER BY age ASC) AS ranking,
+    person_id, person_name, age
+  FROM person
+) AS foo
+WHERE ranking <= 10;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>LIMIT. Разбивка на страницы</h2>
+    <h3>Синтаксис MySQL:</h3>
+    <pre><code class="sql" style="font-size: 80%">SELECT
+  person_id, person_name, age
+FROM person
+LIMIT 10
+OFFSET 20;
+</code></pre>
+    <h3>Синтаксис DB2:</h3>
+    <pre><code class="sql" style="font-size: 80%">SELECT
+  person_id, person_name, age
+FROM person
+FETCH FIRST 10 ROWS ONLY;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>WITH</h2>
+    <pre><code class="sql" style="font-size: 70%">WITH regional_sales AS (
+        SELECT region, SUM(amount) AS total_sales
+        FROM orders
+        GROUP BY region
+     ),
+     top_regions AS (
+        SELECT region
+        FROM regional_sales
+        WHERE total_sales > (SELECT SUM(total_sales)/10 FROM regional_sales)
+     )
+SELECT region,
+       product,
+       SUM(quantity) AS product_units,
+       SUM(amount) AS product_sales
+FROM orders
+WHERE region IN (SELECT region FROM top_regions)
+GROUP BY region, product;
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>WITH RECURSIVE</h2>
+    <pre><code class="sql" style="font-size: 80%">WITH RECURSIVE recursetree (id, parent_id, level, name) AS (
+    SELECT id, parent_id, 0, name FROM tree
+    WHERE parent_id = 0
+  UNION ALL
+    SELECT t.id, t.parent_id, level+1, t.name
+    FROM tree t
+    JOIN recursetree rt ON rt.id = t.parent_id
+  )
+SELECT * FROM recursetree;
+
+</code></pre>
+    <table class="classic bordered" style="font-size: 67%">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>parent</th>
+            <th>level</th>
+            <th>name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>0</td>
+            <td>0</td>
+            <td>Россия</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>0</td>
+            <td>0</td>
+            <td>США</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>1</td>
+            <td>1</td>
+            <td>Москва</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>2</td>
+            <td>1</td>
+            <td>Нью Йорк</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>2</td>
+            <td>1</td>
+            <td>Вашингтон</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>3</td>
+            <td>2</td>
+            <td>Бутово</td>
+        </tr>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>WITH RECURSIVE</h2>
+    <pre><code class="sql" style="font-size: 80%">WITH RECURSIVE recursetree (id, path, name) AS (
+    SELECT id, array_append('{}'::int[], id), name FROM tree
+    WHERE parent_id = 0
+  UNION ALL
+    SELECT t.id, array_append(path, t.id), t.name
+    FROM tree t
+    JOIN recursetree rt ON rt.id = t.parent_id
+  )
+SELECT id, array_to_string(path, '.') as path, name FROM recursetree
+ORDER BY path;
+</code></pre>
+    <table class="classic bordered next" style="font-size: 67%">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>path</th>
+            <th>name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>1</td>
+            <td>Россия</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>1.3</td>
+            <td>Москва</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>1.3.6</td>
+            <td>Бутово</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>2</td>
+            <td>США</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>2.4</td>
+            <td>Нью Йорк</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>2.5</td>
+            <td>Вашингтон</td>
+        </tr>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>INSERT</h2>
+    <pre style="font-size: 70%"><code class="sql">[ WITH [ RECURSIVE ] with_query [, ...] ]
+INSERT INTO table_name [ AS alias ] [ ( column_name [, ...] ) ]
+    { DEFAULT VALUES | VALUES ( { expression | DEFAULT } [, ...] ) [, ...] | query }
+    [ ON CONFLICT [ conflict_target ] conflict_action ]
+    [ RETURNING * | output_expression [ [ AS ] output_name ] [, ...] ]
+</code></pre>
+    <h3>conflict_target:</h3>
+    <pre style="font-size: 70%"><code class="sql">( { index_column_name | ( index_expression ) } ... [, ...] )
+[ WHERE index_predicate ]
+ON CONSTRAINT constraint_name
+</code></pre>
+    <h3>conflict_target:</h3>
+    <pre style="font-size: 70%"><code class="sql">DO NOTHING
+DO UPDATE SET { column_name = { expression | DEFAULT } |
+                ( column_name [, ...] ) = ( { expression | DEFAULT } [, ...] ) |
+                ( column_name [, ...] ) = ( sub-SELECT )
+              } [, ...]
+          [ WHERE condition ]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>INSERT</h2>
+    <div style="font-size: 90%">
+    <pre><code class="sql">INSERT INTO films (code, title, did, date_prod, kind) VALUES
+('B6717', 'Tampopo', 110, '1985-02-10', 'Comedy'),
+('HG120', 'The Dinner Game', 140, DEFAULT, 'Comedy')
+RETURNING *;
+</code></pre>
+        <pre><code class="sql next">
+INSERT INTO films
+SELECT * FROM tmp_films WHERE date_prod < '2004-05-07';
+</code></pre>
+        <pre><code class="sql next">
+INSERT INTO distributors (id, dname)
+VALUES (5, 'Gizmo Transglobal'), (6, 'Associated Computing, Inc')
+ON CONFLICT (id) DO UPDATE SET dname = EXCLUDED.dname;
+</code></pre>
+        <pre><code class="sql next">
+INSERT INTO distributors (id, dname) VALUES (7, 'Redline GmbH')
+ON CONFLICT (id) DO NOTHING;
+</code></pre>
+        </code>
+</section>
+
+<section class="slide">
+    <h2>UPDATE</h2>
+    <pre style="font-size: 70%"><code class="sql">[ WITH [ RECURSIVE ] with_query [, ...] ]
+UPDATE [ ONLY ] table_name [ * ] [ [ AS ] alias ]
+    SET { column_name = { expression | DEFAULT } |
+          ( column_name [, ...] ) = ( { expression | DEFAULT } [, ...] ) |
+          ( column_name [, ...] ) = ( sub-SELECT )
+        } [, ...]
+    [ FROM from_list ]
+    [ WHERE condition | WHERE CURRENT OF cursor_name ]
+    [ RETURNING * | output_expression [ [ AS ] output_name ] [, ...] ]
+</code></pre>
+</section>
+
+<section class="slide">
+    <h2>UPDATE</h2>
+    <div style="font-size: 80%">
+    <pre><code class="sql">UPDATE table1
+SET
+    col_name1 = col_name2,
+    col_name2 = col_name1
+WHERE id = 42;
+</code></pre>
+        <pre><code class="sql">
+UPDATE weather
+  SET temp_lo = temp_lo+1, temp_hi = temp_lo+15, prcp = DEFAULT
+  WHERE city = 'San Francisco' AND date = '2003-07-03'
+  RETURNING temp_lo, temp_hi, prcp;
+</code></pre>
+        <pre><code class="sql next">
+UPDATE weather
+  SET (temp_lo, temp_hi, prcp) = (temp_lo+1, temp_lo+15, DEFAULT)
+  WHERE city = 'San Francisco' AND date = '2003-07-03'
+  RETURNING temp_lo, temp_hi, prcp;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>UPDATE</h2>
+    <div style="font-size: 80%">
+	<pre><code class="sql">
+UPDATE accounts SET
+  contact_first_name = (
+    SELECT first_name FROM salesmen WHERE salesmen.id = accounts.sales_id
+  ),
+  contact_last_name = (
+    SELECT last_name  FROM salesmen WHERE salesmen.id = accounts.sales_id
+  );
+</code></pre>
+        <pre><code class="sql next">
+UPDATE accounts SET (contact_first_name, contact_last_name) =
+    (SELECT first_name, last_name FROM salesmen
+     WHERE salesmen.id = accounts.sales_id);
+</code></pre>
+        <pre><code class="sql next">
+UPDATE accounts SET contact_first_name = first_name,
+                    contact_last_name = last_name
+  FROM salesmen WHERE salesmen.id = accounts.sales_id;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>DELETE</h2>
+    <div style="font-size: 80%">
+    <pre><code class="sql">[ WITH [ RECURSIVE ] with_query [, ...] ]
+DELETE FROM [ ONLY ] table_name [ * ] [ [ AS ] alias ]
+    [ USING using_list ]
+    [ WHERE condition | WHERE CURRENT OF cursor_name ]
+    [ RETURNING * | output_expression [ [ AS ] output_name ] [, ...] ]
+</code></pre>
+        <pre><code class="sql next">
+DELETE FROM films;
+</code></pre>
+        <pre><code class="sql next">
+TRUNCATE [ TABLE ] [ ONLY ] name [ * ] [, ... ]
+    [ RESTART IDENTITY | CONTINUE IDENTITY ] [ CASCADE | RESTRICT ]
+</code></pre>
+        <pre><code class="sql next">
+TRUNCATE TABLE films;
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>DELETE</h2>
+    <div style="font-size: 80%">
+	<pre><code class="sql">DELETE FROM films WHERE kind &lt;&gt; 'Musical';
+</code></pre>
+        <pre><code class="sql">
+DELETE FROM tasks WHERE status = 'DONE' RETURNING *;
+</code></pre>
+        <pre><code class="sql next">
+DELETE FROM films
+  WHERE producer_id IN (SELECT id FROM producers WHERE name = 'foo');
+</code></pre>
+        <pre><code class="sql next">
+DELETE FROM films USING producers
+  WHERE producer_id = producers.id AND producers.name = 'foo';
+</code></pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Список смежных вершин (Adjacency List)</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="tree-al.png"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Список смежных вершин (Adjacency List)</h2>
+    <div style="font-size: 85%">
+        <p>Главный недостаток такого подхода — необходимо достоверно знать количество уровней вложенности в вашей
+            иерархии, кроме того, чем больше иерархия, тем больше JOIN'ов — тем ниже производительность.</p>
+        <p>Тем не менее, данный способ обладает и существенными достоинствами — в дерево легко вносить изменения, менять
+            местами и удалять узлы.</p>
+        <p>Данный алгоритм хорошо применим, если вы оперируете с небольшими древовидными структурами, которые часто
+            поддаются изменениям.</p>
+        <p>С другой стороны, этот алгоритм также довольно уверенно себя чувствует и с большими деревьями, если считывать
+            их порциями вида «знаю родителя — прочитать всех наследников». Хороший пример такого случая — динамически
+            подгружаемые деревья.</p>
+        <p>Однако он плохо применим, когда нужно вычитывать какие-либо иные куски дерева, находить пути, предыдущие и
+            следующие узлы при обходе и вычитывать ветки дерева целиком (на всю глубину).</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Вложенное множество (Nested Set)</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="tree-ns.png"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Вложенное множество (Nested Set)</h2>
+    <div>
+        <p>Nested Set действительно хорош, когда нам необходимо считывать структуру деревьев из БД. При этом он
+            одинаково хорош для деревьев любого объема.</p>
+        <p>Тем не менее, для иерархических структур, которые подвергаются частому изменению он, очевидно, не будет
+            являться оптимальным выбором.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Материализованный путь (Materialized Path)</h2>
+    <div style="text-align: center; height: 100%">
+        <img style="height: 70%" src="tree-mp.png"/>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Материализованный путь (Materialized Path)</h2>
+    <div style="font-size: 90%">
+        <p>Во-первых, по сравнению с Nested Set, он более поддается изменениям. В то же время остается достаточно
+            удобным для выборки деревьев целиком и их частей. Но, и он не идеален. Особенно по части поиска предков
+            ветки.</p>
+        <p>Использование именно этого алгоритма может быть заметно удобнее, для деревьев, над которыми часто
+            выполняются как операции чтения, так и изменения.</p>
+        <p>Алгоритм довольно уверенно себя чувствует на достаточно больших объемах данных.</p>
+        <p>Наиболее неприятной в данном алгоритме будет операция вставки узла в середину уже существующей структуры и
+            перенос одной ветки в другую.</p>
+        <p>А вот удаление, добавление в конец или изменение узла — это операции довольно простые, и, как правило, не
+            вызывают сложностей в данной модели.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Комбинированный подход</h2>
+    <p>По сути вопроса следует отметить, что скомбинировать приведенные методы можно лишь в двух направлениях:</p>
+    <ul>
+        <li>Списки смежности + материализованный путь (Adjacency List + Materialized Path)</li>
+        <li>Списки смежности + вложенные множества (Adjacency List + Nested Set)</li>
+    </ul>
+    <p>Комбинировать же Nested Set и Materialized Path особого смысла не имеет, т.к. существенного выигрыша ни в
+        чтении, ни в записи вы не получите.</p>
+</section>
+
+<section class="slide">
+    <h2>Adjacency List + Materialized Path</h2>
+    <h3>Для AL при использовании с MP:</h3>
+    <ul>
+        <li>Улучшаются операции выборки ветвей и поддеревьев целиком;</li>
+        <li>Ухудшаются операции переноса ветвей.</li>
+    </ul>
+    <h3>Для MP при использовании с AL:</h3>
+    <ul>
+        <li>Улучшаются операции выборки наследников заданного узла;</li>
+        <li>Улучшаются операции выборки родителей заданного узла.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Adjacency List + Nested Set</h2>
+    <p>Для связки AL+NS взаимовыгодность не столь очевидна.</p>
+    <p>В первую очередь это объясняется тем, что недостатки от проблем изменения узлов дерева в модели NS напрочь
+        убивают в этой сфере все достоинства AL.</p>
+    <p>Это значит, что такую связку следует рассматривать лишь как качественное улучшение поиска родителей и наследников
+        заданного узла в алгоритме NS, а также как повышение надежности самого алгоритма (ключи можно всегда перестроить
+        в случае порчи — информацию о связях хранит AL).</p>
+    <p>Но ведь и это качественное улучшение, хотя и не такое очевидное.</p>
+</section>
+
+	
+<section class="slide white" style="padding: 0" id="contacts">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="-10 -10 895 645"
+            width="100%"
+            height="100%"
+            style="background-image: url(../park.mail.ru/img/back.png)"
+            version="1.1">
+        <image
+                xlink:href="../park.mail.ru/img/blocks.svg"
+                width="718"
+                height="548"
+                preserveAspectRatio="none"
+                x="157"
+                y="67"/>
+		<image
+                xlink:href="../park.mail.ru/img/logo.svg"
+                width="297"
+                height="130"
+                preserveAspectRatio="none"
+                x="0"
+                y="0"/>
+        <g style="font-family: 'PF Isotext Pro', sans-serif; font-size: 32px; font-stretch: semi-condensed">
+            <foreignObject x="177" y="204" width="514" height="202">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center">
+                    <div style="vertical-align: middle; display: table-cell; padding-bottom: 20px; font-weight: bold">
+                        Навроцкий Артем
+                        
+                        
+                        <div>E-mail: bozaro@yandex.ru</div>
+                        
+                    </div>
+                </div>
+            </foreignObject>
+            <foreignObject x="534" y="534" width="326" height="65">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     style="height: 100%; width: 100%; display: table; text-align: center; font-size: 28px; font-weight: bold">
+                    <div style="vertical-align: middle; display: table-cell">
+                        Спасибо за внимание!
+                    </div>
+                </div>
+            </foreignObject>
+        <g>
+    </svg>
+</section>
+
+	<div class="progress"></div>
+	<script src="../js/common.js"></script>
+	<script src="../shower/shower.min.js"></script>
+	<script src="../highlight.js/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+	
+
+
+	<script src="../mathjax/MathJax.js?config=AM_HTMLorMML-full"></script>
+	<script>
+MathJax.Hub.Config({
+	asciimath2jax: {
+		inlineMath: [['$','$'],['\\(','\\)']],
+		processClass: "math",
+		ignoreClass: "no-math"
+	},
+	root: "..\/mathjax/"
+});
+	</script>
+
+
+</body>
+</html>

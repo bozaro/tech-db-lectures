@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   viewBox="-171 -21 342 42"
+   height="42px"
+   width="342px"
+   version="1.1">
+  <defs>
+    <style><![CDATA[
+text {
+  font-size: 12pt;
+  font-family: sans-serif;
+  text-anchor: middle;
+}
+.line {
+  stroke: #000;
+}
+.label {
+  font-weight: bold;
+  alignment-baseline: middle;
+  fill: #fff;
+}
+.table {
+  stroke: #000;
+  fill: #000;
+}
+.rel {
+  font-weight: bold;
+  alignment-baseline: alphabetic;
+}
+]]></style>
+    <path id="table" class="table" d="M -50 -20 L -50 20 L 50 20 L 50 -20 Z" />
+    <path id="rel" class="table" d="M -33 0 L -20 20 L 20 20 L 33 0 L 20 -20 L -20 -20 Z" />
+  </defs>
+  <g>
+    <path class="line" d="M -100 0 L 100 0" />
+    <g transform="translate(-120, 0)">
+      <use xlink:href="#table" />
+      <text class="label">Мужчина</text>
+    </g>
+    <use xlink:href="#rel" />
+    <text class="label">Брак</text>
+    <g transform="translate(120, 0)">
+      <use xlink:href="#table" />
+      <text class="label">Женщина</text>
+    </g>
+    <text class="rel" x="-50" y="-3">M</text>
+    <text class="rel" x="50" y="-3">1</text>
+  </g>
+</svg>

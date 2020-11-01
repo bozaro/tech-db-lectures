@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg xmlns="http://www.w3.org/2000/svg"
+   height="548"
+   width="718"
+   viewBox="0 0 718 548"
+   version="1.1">
+  <defs>
+    <pattern
+       id="shadow_pattern"
+       patternTransform="translate(0,0) rotate(-35)"
+       height="1"
+       width="8.4"
+       patternUnits="userSpaceOnUse">
+      <rect
+         height="2"
+         width="1"
+         y="-0.5"
+         x="0"
+         style="fill:black;stroke:none" />
+    </pattern>
+    <pattern
+       id="large_pattern"
+       patternTransform="translate(0,0) rotate(-35.54)"
+       height="1"
+       width="20"
+       patternUnits="userSpaceOnUse">
+      <rect
+         height="2"
+         width="3"
+         y="-0.5"
+         x="0"
+         style="fill:black;stroke:none" />
+    </pattern>
+    <style type="text/css"><![CDATA[
+.shadow_b {
+  fill: url(#large_pattern);
+  fill-rule: evenodd;
+}
+.shadow_b, .outer_b {
+  stroke: #000;
+  stroke-width: 7px;
+  stroke-linejoin: round;
+  stroke-opacity: 1;
+}
+.shadow_mask {
+  fill: #fff;
+  stroke: none;
+  fill-rule: evenodd;
+}
+.inner_b {
+  stroke: #000;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  stroke-opacity: 1;
+}
+.inner_b, .outer_b {
+  fill: none;
+}
+
+.shadow_s {
+  fill: url(#shadow_pattern);
+}
+.shadow_s, .outer_s {
+  stroke: #000;
+  stroke-width: 2px;
+  stroke-linejoin: round;
+  stroke-opacity: 1;
+}
+.inner_s {
+  stroke: #000;
+  stroke-width: 1px;
+  stroke-linejoin: round;
+  stroke-opacity: 1;
+}
+.inner_s, .outer_s {
+  fill: none;
+}
+
+.arrow {
+  stroke: #000;
+  stroke-width: 2px;
+  stroke-linejoin: round;
+  stroke-opacity: 1;
+  fill: none;
+}
+]]></style>
+  <!--mask id="shadow_b_mask">
+    <path d="M 409,462 672,462 c 0,0 37,0 37,37 0,37 -37,37 -37,37 L 409,536 c 0,0 -37,0 -37,-37 0,-37 37,-37 37,-37 Z M 360,460 L 720,460 L 720,560 L 360,560 Z" class="shadow_mask" />
+  </mask-->
+  </defs>
+  <g>
+    <path class="inner_b" d="M 20,137 534,137 534,339 20,339 Z" />
+    <path class="outer_b" d="M 550,355 4,355 4,121 550,121 Z" />
+    <path class="shadow_b" d="M 4,355 550,355 570,383 24,383 Z" />
+    <path class="shadow_b" d="M 550,121 550,355 570,383 570,150 Z" />
+    <path class="outer_s" d="M 409,462 672,462 c 0,0 37,0 37,37 0,37 -37,37 -37,37 L 409,536 c 0,0 -37,0 -37,-37 0,-37 37,-37 37,-37 Z" />
+    <path class="inner_s" d="M 409,467 672,467 c 0,0 32,0 32,32 0,32 -32,32 -32,32 L 409,531 c 0,0 -32,0 -32,-32 0,-32 32,-32 32,-32 Z" />
+    <path class="arrow" d="M 267,403 267,499 355,499 m -10,-5 l 10,5 -10,5" />
+    <path class="arrow" d="M 166,1 267,1 267,95 m -5,-10 l 5,10 5,-10" />
+    <!--path class="shadow_s" d="M 416,472 679,472 c 0,0 37,0 37,37 0,37 -37,37 -37,37 L 416,546 c 0,0 -37,0 -37,-37 0,-37 37,-37 37,-37 Z" mask="url(#shadow_b_mask)" /-->
+    <path class="shadow_s"
+       d="M 705.83008 482.4043 C 707.79661 486.88284 709 492.33906 709 499 C 709 536 672 536 672 536 L 409 536 C 409 536 393.1231 535.9978 382.16992 525.5957 C 391.127 545.99442 416 546 416 546 L 679 546 C 679 546 716 546 716 509 C 716 496.23863 711.5968 487.88088 705.83008 482.4043 z " />
+  </g>
+</svg>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        viewBox="0 0 600 454"
+        wigth="600px"
+        height="454px"
+        version="1.1">
+    <defs>
+        <style
+                id="style4"><![CDATA[
+.filled {
+    fill: #0db52e;
+}
+.lines {
+    stroke: #000;
+    stroke-width: 2px;
+    fill: none;
+}
+text {
+    font-family: sans-serif;
+}
+.label {
+    font-size: 24px;
+    text-anchor: middle;
+    dominant-baseline: middle;
+}
+.sql {
+    font-size: 10px;
+    font-weight: bold;
+    text-anchor: left;
+    dominant-baseline: hanging;
+}
+.title {
+    font-size: 36px;
+    font-weight: bold;
+    text-anchor: middle;
+    dominant-baseline: hanging;
+}
+]]></style>
+        <path id="join_c"
+              class="filled"
+              d="M0,-44.5a52,52 0 0,0 0,89a52,52 0 0,0 0,-89"/>
+        <path id="join_a"
+              class="filled"
+              d="M-27,0m-52,0a52,52 0 0,0 79,44.5a52,52 0 0,1 0,-89a52,52 0 0,0 -79,44.5"/>
+        <path id="join_b"
+              class="filled"
+              d="M27,0m52,0a52,52 0 0,1 -79,44.5a52,52 0 0,0 0,-89a52,52 0 0,1 79,44.5"/>
+        <g id="join_l">
+            <path class="lines"
+                  d="M -79,0 A 52,52 0 0 0 25,0 52,52 0 1 0 -79,0 m 54,0 A 52,52 0 0 0 79,0 52,52 0 1 0 -25,0"/>
+            <text class="label" x="-40" y="0">A</text>
+            <text class="label" x="40" y="0">B</text>
+        </g>
+    </defs>
+    <g transform="translate(300, 0)">
+        <text class="title" y="4">SQL JOINS</text>
+        <g transform="translate(-220, 55)">
+            <use xlink:href="#join_c"/>
+            <use xlink:href="#join_a"/>
+            <use xlink:href="#join_l"/>
+            <g transform="translate(-60, 59)">
+                <text class="sql" y="0">SELECT &lt;select_list&gt;</text>
+                <text class="sql" y="12">FROM TableA A</text>
+                <text class="sql" y="24">LEFT JOIN TableB B</text>
+                <text class="sql" y="36">ON A.Key = B.Key</text>
+            </g>
+        </g>
+        <g transform="translate(220, 55)">
+            <use xlink:href="#join_c"/>
+            <use xlink:href="#join_b"/>
+            <use xlink:href="#join_l"/>
+            <g transform="translate(-60, 59)">
+                <text class="sql" y="0">SELECT &lt;select_list&gt;</text>
+                <text class="sql" y="12">FROM TableA A</text>
+                <text class="sql" y="24">RIGHT JOIN TableB B</text>
+                <text class="sql" y="36">ON A.Key = B.Key</text>
+            </g>
+        </g>
+        <g transform="translate(-220, 220)">
+            <use xlink:href="#join_a"/>
+            <use xlink:href="#join_l"/>
+            <g transform="translate(-60, 59)">
+                <text class="sql" y="0">SELECT &lt;select_list&gt;</text>
+                <text class="sql" y="12">FROM TableA A</text>
+                <text class="sql" y="24">LEFT JOIN TableB B</text>
+                <text class="sql" y="36">ON A.Key = B.Key</text>
+                <text class="sql" y="48">WHERE B.Key IS NULL</text>
+            </g>
+        </g>
+        <g transform="translate(220, 220)">
+            <use xlink:href="#join_b"/>
+            <use xlink:href="#join_l"/>
+            <g transform="translate(-60, 59)">
+                <text class="sql" y="0">SELECT &lt;select_list&gt;</text>
+                <text class="sql" y="12">FROM TableA A</text>
+                <text class="sql" y="24">RIGHT JOIN TableB B</text>
+                <text class="sql" y="36">ON A.Key = B.Key</text>
+                <text class="sql" y="48">WHERE A.Key IS NULL</text>
+            </g>
+        </g>
+        <g transform="translate(0, 155)">
+            <use xlink:href="#join_c"/>
+            <use xlink:href="#join_l"/>
+            <g transform="translate(-60, 59)">
+                <text class="sql" y="0">SELECT &lt;select_list&gt;</text>
+                <text class="sql" y="12">FROM TableA A</text>
+                <text class="sql" y="24">INNER JOIN TableB B</text>
+                <text class="sql" y="36">ON A.Key = B.Key</text>
+            </g>
+        </g>
+        <g transform="translate(-85, 360)">
+            <use xlink:href="#join_c"/>
+            <use xlink:href="#join_a"/>
+            <use xlink:href="#join_b"/>
+            <use xlink:href="#join_l"/>
+            <g transform="translate(-170, 46)">
+                <text class="sql" y="0">SELECT &lt;select_list&gt;</text>
+                <text class="sql" y="12">FROM TableA A</text>
+                <text class="sql" y="24">FULL OUTER JOIN TableB B</text>
+                <text class="sql" y="36">ON A.Key = B.Key</text>
+            </g>
+        </g>
+        <g transform="translate(85, 360)">
+            <use xlink:href="#join_a"/>
+            <use xlink:href="#join_b"/>
+            <use xlink:href="#join_l"/>
+            <g transform="translate(75, 22)">
+                <text class="sql" y="0">SELECT &lt;select_list&gt;</text>
+                <text class="sql" y="12">FROM TableA A</text>
+                <text class="sql" y="24">FULL OUTER JOIN TableB B</text>
+                <text class="sql" y="36">ON A.Key = B.Key</text>
+                <text class="sql" y="48">WHERE A.Key IS NULL</text>
+                <text class="sql" y="60">OR B.Key IS NULL</text>
+            </g>
+        </g>
+    </g>
+</svg>

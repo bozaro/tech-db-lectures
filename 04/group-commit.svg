@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+        xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+        viewBox="0 0 225 174"
+        id="svg2"
+        version="1.1"
+        inkscape:version="0.91 r13725"
+        sodipodi:docname="group-commit.svg">
+    <defs>
+        <style><![CDATA[
+path.time {
+  stroke-opacity: 1;
+  stroke: #000;
+  fill: none;
+}
+path.line {
+  stroke-opacity: 1;
+  stroke: #888;
+  fill: none;
+}
+text {
+  font-size: 10px;
+  font-family: sans-serif;
+  text-anchor: start;
+  dominant-baseline: alphabetic;
+}
+text.time tspan {
+  writing-mode: tb-rl;
+}
+text.label  {
+  dominant-baseline: middle;
+}
+rect.time {
+  stroke-opacity: 1;
+  stroke: #000;
+  fill: #ccc;
+}
+]]></style>
+    </defs>
+    <g>
+        <path class="time" d="m 10,2 0,170"/>
+        <text class="time">
+            <tspan x="12" y="4">WAL</tspan>
+        </text>
+
+        <rect class="time" width="10" height="40" x="5" y="62"/>
+        <text class="label">
+            <tspan x="17" y="72">FLUSH</tspan>
+        </text>
+
+        <rect class="time" width="10" height="40" x="5" y="107"/>
+        <text class="label">
+            <tspan x="17" y="117">FLUSH</tspan>
+        </text>
+
+        <!-- T1 -->
+        <path class="time" d="m 65,2 0,170"/>
+        <text class="time">
+            <tspan x="67" y="4">T1</tspan>
+        </text>
+        <rect class="time" width="10" height="85" x="60" y="22"/>
+
+        <path class="line" d="m 75,17 -10,5 0,10 10,5"/>
+        <text class="label">
+            <tspan x="72" y="27">BEGIN</tspan>
+        </text>
+
+        <path class="line" d="m 75,52 -10,5 -55,5 0,40 55,5 10,5"/>
+        <text class="label">
+            <tspan x="72" y="62">COMMIT</tspan>
+        </text>
+
+        <!-- T2 -->
+        <path class="time" d="m 120,2 0,170"/>
+        <text class="time">
+            <tspan x="122" y="4">T2</tspan>
+        </text>
+        <rect class="time" width="10" height="110" x="115" y="42"/>
+
+        <path class="line" d="m 130,37 -10,5 0,10 10,5"/>
+        <text class="label">
+            <tspan x="127" y="47">BEGIN</tspan>
+        </text>
+
+        <path class="line" d="m 130,67 -10,5 -100,5 0,25 -10,5 0,40 110,5 10,5"/>
+        <text class="label">
+            <tspan x="127" y="77">COMMIT</tspan>
+        </text>
+
+        <!-- T3 -->
+        <path class="time" d="m 175,2 0,170"/>
+        <text class="time">
+            <tspan x="177" y="4">T3</tspan>
+        </text>
+        <rect class="time" width="10" height="120" x="170" y="32"/>
+
+        <path class="line" d="m 185,27 -10,5 0,10 10,5"/>
+        <text class="label">
+            <tspan x="182" y="37">BEGIN</tspan>
+        </text>
+
+        <path class="line" d="m 185,77 -10,5 -150,5 0,15 -15,5 0,40 165,5 10,5"/>
+        <text class="label">
+            <tspan x="182" y="87">COMMIT</tspan>
+        </text>
+    </g>
+</svg>
